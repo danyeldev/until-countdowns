@@ -1,0 +1,72 @@
+@import "tailwindcss";
+
+:root {
+  --ink: #0c0b09;
+  --ink-2: #161410;
+  --paper: #f3ece0;
+  --paper-dim: #c9c0b0;
+  --muted: #8a8174;
+  --line: #2c2822;
+  --amber: #f0a202;
+  --ember: #e85d04;
+  --moss: #7d9b78;
+}
+
+@theme inline {
+  --color-ink: var(--ink);
+  --color-ink-2: var(--ink-2);
+  --color-paper: var(--paper);
+  --color-paper-dim: var(--paper-dim);
+  --color-muted: var(--muted);
+  --color-line: var(--line);
+  --color-amber: var(--amber);
+  --color-ember: var(--ember);
+  --color-moss: var(--moss);
+  --font-sans: var(--font-sans);
+  --font-serif: var(--font-serif);
+  --font-mono: var(--font-mono);
+}
+
+html {
+  background: var(--ink);
+  color: var(--paper);
+}
+
+body {
+  background:
+    radial-gradient(1200px 600px at 10% -10%, rgba(240, 162, 2, 0.08), transparent 50%),
+    radial-gradient(900px 500px at 110% 10%, rgba(232, 93, 4, 0.06), transparent 45%),
+    var(--ink);
+  color: var(--paper);
+  min-height: 100%;
+  font-family: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
+}
+
+::selection {
+  background: var(--amber);
+  color: var(--ink);
+}
+
+a {
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.18em;
+}
+
+.tabular {
+  font-variant-numeric: tabular-nums;
+}
+
+.ticket {
+  background:
+    linear-gradient(180deg, rgba(243, 236, 224, 0.04), transparent 40%),
+    var(--ink-2);
+  border: 1px solid var(--line);
+}
+
+.ticket:hover {
+  border-color: #4a4338;
+}
+
+.amber-glow {
+  text-shadow: 0 0 32px rgba(240, 162, 2, 0.28);
+}

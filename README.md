@@ -39,6 +39,15 @@ npm run dev
 
 Open [http://localhost:3000](http://localhost:3000).
 
+## Deploy
+
+Vercel inflates the packed catalog (`src/data/events.json.gz.b64.*`) before `next build`. Locally, after a fresh clone:
+
+```bash
+npm run inflate   # restore the 7,500-date catalog
+# or: npm run seed
+```
+
 ## Stack
 
 Next.js (App Router) · TypeScript · Tailwind v4 · no backend required for v1
