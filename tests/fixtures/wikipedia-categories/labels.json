@@ -1,0 +1,125 @@
+{
+ "entities": {
+  "Q1041": {
+   "type": "item",
+   "id": "Q1041",
+   "labels": {
+    "en": {
+     "language": "en",
+     "value": "Senegal"
+    }
+   }
+  },
+  "Q142": {
+   "type": "item",
+   "id": "Q142",
+   "labels": {
+    "en": {
+     "language": "en",
+     "value": "France"
+    }
+   }
+  },
+  "Q1630884": {
+   "type": "item",
+   "id": "Q1630884",
+   "labels": {
+    "en": {
+     "language": "en",
+     "value": "French Alps"
+    }
+   }
+  },
+  "Q17": {
+   "type": "item",
+   "id": "Q17",
+   "labels": {
+    "en": {
+     "language": "en",
+     "value": "Japan"
+    }
+   }
+  },
+  "Q183": {
+   "type": "item",
+   "id": "Q183",
+   "labels": {
+    "en": {
+     "language": "en",
+     "value": "Germany"
+    }
+   }
+  },
+  "Q30": {
+   "type": "item",
+   "id": "Q30",
+   "labels": {
+    "en": {
+     "language": "en",
+     "value": "United States"
+    }
+   }
+  },
+  "Q34932": {
+   "type": "item",
+   "id": "Q34932",
+   "labels": {
+    "en": {
+     "language": "en",
+     "value": "Brisbane"
+    }
+   }
+  },
+  "Q3718": {
+   "type": "item",
+   "id": "Q3718",
+   "labels": {
+    "en": {
+     "language": "en",
+     "value": "Dakar"
+    }
+   }
+  },
+  "Q408": {
+   "type": "item",
+   "id": "Q408",
+   "labels": {
+    "en": {
+     "language": "en",
+     "value": "Australia"
+    }
+   }
+  },
+  "Q419": {
+   "type": "item",
+   "id": "Q419",
+   "labels": {
+    "en": {
+     "language": "en",
+     "value": "Peru"
+    }
+   }
+  },
+  "Q65": {
+   "type": "item",
+   "id": "Q65",
+   "labels": {
+    "en": {
+     "language": "en",
+     "value": "Los Angeles"
+    }
+   }
+  },
+  "Q80434": {
+   "type": "item",
+   "id": "Q80434",
+   "labels": {
+    "en": {
+     "language": "en",
+     "value": "Aichi Prefecture"
+    }
+   }
+  }
+ },
+ "success": 1
+}

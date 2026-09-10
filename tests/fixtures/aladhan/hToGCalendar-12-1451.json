@@ -1,0 +1,248 @@
+{
+ "code": 200,
+ "status": "OK",
+ "data": [
+  {
+   "hijri": {
+    "date": "01-12-1451",
+    "format": "DD-MM-YYYY",
+    "day": "1",
+    "weekday": {
+     "en": "Al Khamees"
+    },
+    "month": {
+     "number": 12,
+     "en": "Dhū al-Ḥijjah",
+     "days": 29
+    },
+    "year": "1451",
+    "holidays": [],
+    "adjustedHolidays": [],
+    "method": "HJCoSA"
+   },
+   "gregorian": {
+    "date": "04-04-2030",
+    "format": "DD-MM-YYYY",
+    "day": "04",
+    "weekday": {
+     "en": "Thursday"
+    },
+    "month": {
+     "number": 4,
+     "en": "April"
+    },
+    "year": "2030",
+    "lunarSighting": false
+   }
+  },
+  {
+   "hijri": {
+    "date": "02-12-1451",
+    "format": "DD-MM-YYYY",
+    "day": "2",
+    "weekday": {
+     "en": "Al Juma'a"
+    },
+    "month": {
+     "number": 12,
+     "en": "Dhū al-Ḥijjah",
+     "days": 29
+    },
+    "year": "1451",
+    "holidays": [],
+    "adjustedHolidays": [],
+    "method": "HJCoSA"
+   },
+   "gregorian": {
+    "date": "05-04-2030",
+    "format": "DD-MM-YYYY",
+    "day": "05",
+    "weekday": {
+     "en": "Friday"
+    },
+    "month": {
+     "number": 4,
+     "en": "April"
+    },
+    "year": "2030",
+    "lunarSighting": false
+   }
+  },
+  {
+   "hijri": {
+    "date": "08-12-1451",
+    "format": "DD-MM-YYYY",
+    "day": "8",
+    "weekday": {
+     "en": "Al Khamees"
+    },
+    "month": {
+     "number": 12,
+     "en": "Dhū al-Ḥijjah",
+     "days": 29
+    },
+    "year": "1451",
+    "holidays": [
+     "Hajj"
+    ],
+    "adjustedHolidays": [],
+    "method": "HJCoSA"
+   },
+   "gregorian": {
+    "date": "11-04-2030",
+    "format": "DD-MM-YYYY",
+    "day": "11",
+    "weekday": {
+     "en": "Thursday"
+    },
+    "month": {
+     "number": 4,
+     "en": "April"
+    },
+    "year": "2030",
+    "lunarSighting": false
+   }
+  },
+  {
+   "hijri": {
+    "date": "09-12-1451",
+    "format": "DD-MM-YYYY",
+    "day": "9",
+    "weekday": {
+     "en": "Al Juma'a"
+    },
+    "month": {
+     "number": 12,
+     "en": "Dhū al-Ḥijjah",
+     "days": 29
+    },
+    "year": "1451",
+    "holidays": [
+     "Hajj",
+     "Arafa"
+    ],
+    "adjustedHolidays": [],
+    "method": "HJCoSA"
+   },
+   "gregorian": {
+    "date": "12-04-2030",
+    "format": "DD-MM-YYYY",
+    "day": "12",
+    "weekday": {
+     "en": "Friday"
+    },
+    "month": {
+     "number": 4,
+     "en": "April"
+    },
+    "year": "2030",
+    "lunarSighting": false
+   }
+  },
+  {
+   "hijri": {
+    "date": "10-12-1451",
+    "format": "DD-MM-YYYY",
+    "day": "10",
+    "weekday": {
+     "en": "Al Sabt"
+    },
+    "month": {
+     "number": 12,
+     "en": "Dhū al-Ḥijjah",
+     "days": 29
+    },
+    "year": "1451",
+    "holidays": [
+     "Eid-ul-Adha",
+     "Hajj",
+     "Urs Ismail Muhammad ash-Shirwani ق"
+    ],
+    "adjustedHolidays": [],
+    "method": "HJCoSA"
+   },
+   "gregorian": {
+    "date": "13-04-2030",
+    "format": "DD-MM-YYYY",
+    "day": "13",
+    "weekday": {
+     "en": "Saturday"
+    },
+    "month": {
+     "number": 4,
+     "en": "April"
+    },
+    "year": "2030",
+    "lunarSighting": false
+   }
+  },
+  {
+   "hijri": {
+    "date": "13-12-1451",
+    "format": "DD-MM-YYYY",
+    "day": "13",
+    "weekday": {
+     "en": "Al Thalaata"
+    },
+    "month": {
+     "number": 12,
+     "en": "Dhū al-Ḥijjah",
+     "days": 29
+    },
+    "year": "1451",
+    "holidays": [
+     "Hajj"
+    ],
+    "adjustedHolidays": [],
+    "method": "HJCoSA"
+   },
+   "gregorian": {
+    "date": "16-04-2030",
+    "format": "DD-MM-YYYY",
+    "day": "16",
+    "weekday": {
+     "en": "Tuesday"
+    },
+    "month": {
+     "number": 4,
+     "en": "April"
+    },
+    "year": "2030",
+    "lunarSighting": false
+   }
+  },
+  {
+   "hijri": {
+    "date": "29-12-1451",
+    "format": "DD-MM-YYYY",
+    "day": "29",
+    "weekday": {
+     "en": "Al Khamees"
+    },
+    "month": {
+     "number": 12,
+     "en": "Dhū al-Ḥijjah",
+     "days": 29
+    },
+    "year": "1451",
+    "holidays": [],
+    "adjustedHolidays": [],
+    "method": "HJCoSA"
+   },
+   "gregorian": {
+    "date": "02-05-2030",
+    "format": "DD-MM-YYYY",
+    "day": "02",
+    "weekday": {
+     "en": "Thursday"
+    },
+    "month": {
+     "number": 5,
+     "en": "May"
+    },
+    "year": "2030",
+    "lunarSighting": false
+   }
+  }
+ ]
+}

@@ -18,7 +18,10 @@ export function CategoryBar({
   if (q) base.set("q", q);
   if (sort) base.set("sort", sort);
 
+  // Without a free-text query the category filter is a hub page of its own (`/?category=x`
+  // 308s there anyway); with a query it narrows the search on the home page.
   function href(category?: string) {
+    if (!q && category) return `/category/${category}`;
     const p = new URLSearchParams(base);
     if (category) p.set("category", category);
     const s = p.toString();

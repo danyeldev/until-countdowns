@@ -1,0 +1,57 @@
+{
+ "batchcomplete": true,
+ "query": {
+  "categorymembers": [
+   {
+    "pageid": 51790406,
+    "ns": 0,
+    "title": "2026 Asian Games"
+   },
+   {
+    "pageid": 73463336,
+    "ns": 0,
+    "title": "2026 Asian Para Games"
+   },
+   {
+    "pageid": 59735804,
+    "ns": 0,
+    "title": "2027 Pan American Games"
+   },
+   {
+    "pageid": 12695048,
+    "ns": 0,
+    "title": "2028 Summer Olympics"
+   },
+   {
+    "pageid": 55906814,
+    "ns": 0,
+    "title": "2032 Summer Olympics"
+   },
+   {
+    "pageid": 63724811,
+    "ns": 0,
+    "title": "Bids for the 2036 Summer Olympics"
+   },
+   {
+    "pageid": 64557687,
+    "ns": 0,
+    "title": "2026 Summer Youth Olympics"
+   },
+   {
+    "pageid": 57658858,
+    "ns": 0,
+    "title": "2030 Winter Olympics"
+   },
+   {
+    "pageid": 83046654,
+    "ns": 0,
+    "title": "2029 World Games"
+   },
+   {
+    "pageid": 57615977,
+    "ns": 0,
+    "title": "2027 Rugby World Cup"
+   }
+  ]
+ }
+}

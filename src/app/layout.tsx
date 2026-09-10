@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
 import { Fraunces, Geist, Geist_Mono } from "next/font/google";
 import { Suspense } from "react";
-import { Footer } from "@/components/Footer";
+import { Footer, FooterFallback } from "@/components/Footer";
 import { Header } from "@/components/Header";
+import { absoluteUrl, HOME_TITLE, SITE_DESCRIPTION, SITE_NAME, siteUrl } from "@/lib/seo";
 import "./globals.css";
 
 const sans = Geist({
@@ -21,12 +22,21 @@ const mono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(siteUrl()),
   title: {
-    default: "Until — countdowns for everything coming",
-    template: "%s · Until",
+    default: HOME_TITLE,
+    template: `%s · ${SITE_NAME}`,
   },
-  description:
-    "Thousands of future dates, tagged and ticking. Holidays, eclipses, World Cups, elections — plus the ones you make yourself.",
+  description: SITE_DESCRIPTION,
+  openGraph: {
+    siteName: SITE_NAME,
+    type: "website",
+    locale: "en_US",
+    images: [{ url: absoluteUrl("/og/default"), width: 1200, height: 630, alt: SITE_NAME }],
+  },
+  twitter: { card: "summary_large_image" },
+  robots: { index: true, follow: true },
+  verification: process.env.GOOGLE_SITE_VERIFICATION ? { google: process.env.GOOGLE_SITE_VERIFICATION } : undefined,
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
@@ -40,7 +50,9 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           <Header />
         </Suspense>
         <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-8 sm:px-6 sm:py-10">{children}</main>
-        <Footer />
+        <Suspense fallback={<FooterFallback />}>
+          <Footer />
+        </Suspense>
       </body>
     </html>
   );

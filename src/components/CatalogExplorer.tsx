@@ -50,7 +50,15 @@ export function CatalogExplorer({
           <p className="mt-1 text-sm text-muted">
             {total.toLocaleString()} upcoming dates
             {q ? ` matching “${q}”` : ""}
-            {category && category !== "all" ? ` in ${category}` : ""}.
+            {category && category !== "all" ? (
+              <>
+                {" in "}
+                <Link href={`/category/${category}`} className="underline hover:text-paper">
+                  {category}
+                </Link>
+              </>
+            ) : null}
+            .
           </p>
         </div>
         <div className="flex gap-2 text-xs uppercase tracking-[0.14em]">

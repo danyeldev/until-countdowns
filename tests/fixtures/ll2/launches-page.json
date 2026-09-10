@@ -1,0 +1,1397 @@
+{
+  "count": 362,
+  "next": "https://ll.thespacedevs.com/2.3.0/launches/upcoming/?limit=100&mode=detailed&offset=100",
+  "previous": null,
+  "results": [
+    {
+      "id": "95eb9265-bdbe-43ad-b08c-6be7eb4e58f4",
+      "url": "https://ll.thespacedevs.com/2.3.0/launches/95eb9265-bdbe-43ad-b08c-6be7eb4e58f4/",
+      "slug": "long-march-2dyz-3-unknown-payload",
+      "name": "Long March 2D/YZ-3 | Unknown Payload",
+      "status": {
+        "id": 1,
+        "name": "Go for Launch",
+        "abbrev": "Go"
+      },
+      "last_updated": "2026-09-07T16:31:11Z",
+      "net": "2026-09-10T09:00:00Z",
+      "net_precision": {
+        "id": 2,
+        "name": "Hour",
+        "abbrev": "HR"
+      },
+      "window_start": "2026-09-10T08:52:00Z",
+      "window_end": "2026-09-10T09:13:00Z",
+      "image": {
+        "id": 1769,
+        "name": "[AUTO] Long March 2D/YZ-3 - image",
+        "image_url": "https://thespacedevs-prod.nyc3.digitaloceanspaces.com/media/images/long_march_2d2_image_20231123203521.jpeg",
+        "thumbnail_url": "https://thespacedevs-prod.nyc3.digitaloceanspaces.com/media/images/255bauto255d__image_thumbnail_20240305193720.jpeg",
+        "credit": null,
+        "license": {
+          "id": 1,
+          "name": "Unknown",
+          "link": null
+        }
+      },
+      "launch_service_provider": {
+        "id": 88,
+        "url": "https://ll.thespacedevs.com/2.3.0/agencies/88/",
+        "name": "China Aerospace Science and Technology Corporation",
+        "abbrev": "CASC",
+        "type": {
+          "id": 1,
+          "name": "Government"
+        }
+      },
+      "rocket": {
+        "id": 9127,
+        "configuration": {
+          "id": 176,
+          "url": "https://ll.thespacedevs.com/2.3.0/launcher_configurations/176/",
+          "name": "Long March 2D/YZ-3",
+          "full_name": "Long March 2D/YZ-3",
+          "variant": "D/YZ-3"
+        }
+      },
+      "mission": {
+        "id": 7723,
+        "name": "Unknown Payload",
+        "type": "Unknown",
+        "description": "Details TBD.",
+        "orbit": {
+          "id": 25,
+          "name": "Unknown",
+          "abbrev": "N/A"
+        }
+      },
+      "pad": {
+        "id": 22,
+        "url": "https://ll.thespacedevs.com/2.3.0/pads/22/",
+        "name": "Launch Area 94 (SLS-2 / 603)",
+        "latitude": 40.960482,
+        "longitude": 100.298059,
+        "country": {
+          "id": 6,
+          "name": "China",
+          "alpha_2_code": "CN"
+        },
+        "location": {
+          "id": 17,
+          "url": "https://ll.thespacedevs.com/2.3.0/locations/17/",
+          "name": "Jiuquan Satellite Launch Center, People's Republic of China",
+          "timezone_name": "Asia/Shanghai",
+          "latitude": 40.958056,
+          "longitude": 100.291111,
+          "country": {
+            "id": 6,
+            "name": "China",
+            "alpha_2_code": "CN"
+          }
+        }
+      },
+      "webcast_live": false,
+      "program": [],
+      "updates": [
+        {
+          "id": 16074,
+          "comment": "Delayed to September 10 per new NOTAMs.",
+          "info_url": "https://forum.nasaspaceflight.com/index.php?topic=57867.msg2821324#msg2821324",
+          "created_on": "2026-09-07T16:31:00Z"
+        },
+        {
+          "id": 16013,
+          "comment": "Added launch per NOTAMs; Payload and launch vehicle identities extremely uncertain.",
+          "info_url": "https://forum.nasaspaceflight.com/index.php?topic=57867.msg2819917#msg2819917",
+          "created_on": "2026-09-02T13:12:00Z"
+        }
+      ],
+      "vid_urls": []
+    },
+    {
+      "id": "3e0456da-14b1-4ac3-b59e-35fefb1d1530",
+      "url": "https://ll.thespacedevs.com/2.3.0/launches/3e0456da-14b1-4ac3-b59e-35fefb1d1530/",
+      "slug": "falcon-9-block-5-ussf-153",
+      "name": "Falcon 9 Block 5 | USSF-153",
+      "status": {
+        "id": 1,
+        "name": "Go for Launch",
+        "abbrev": "Go"
+      },
+      "last_updated": "2026-09-04T07:04:42Z",
+      "net": "2026-09-10T15:37:00Z",
+      "net_precision": {
+        "id": 1,
+        "name": "Minute",
+        "abbrev": "MIN"
+      },
+      "window_start": "2026-09-10T15:37:00Z",
+      "window_end": "2026-09-10T18:37:00Z",
+      "image": {
+        "id": 2797,
+        "name": "Falcon 9 liftoff from SLC-4E (USSF-366)",
+        "image_url": "https://thespacedevs-prod.nyc3.digitaloceanspaces.com/media/images/falcon_9_liftof_image_20260816171423.jpg",
+        "thumbnail_url": "https://thespacedevs-prod.nyc3.digitaloceanspaces.com/media/images/falcon_9_liftof_image_thumbnail_20260816171423.jpeg",
+        "credit": "SpaceX",
+        "license": {
+          "id": 1,
+          "name": "Unknown",
+          "link": null
+        }
+      },
+      "launch_service_provider": {
+        "id": 121,
+        "url": "https://ll.thespacedevs.com/2.3.0/agencies/121/",
+        "name": "SpaceX",
+        "abbrev": "SpX",
+        "type": {
+          "id": 3,
+          "name": "Commercial"
+        }
+      },
+      "rocket": {
+        "id": 9126,
+        "configuration": {
+          "id": 164,
+          "url": "https://ll.thespacedevs.com/2.3.0/launcher_configurations/164/",
+          "name": "Falcon 9",
+          "full_name": "Falcon 9 Block 5",
+          "variant": "Block 5"
+        }
+      },
+      "mission": {
+        "id": 7722,
+        "name": "USSF-153",
+        "type": "Government/Top Secret",
+        "description": "USSF-153 is a classified mission for the United States Space Force. It is possibly a batch of classified LEO satellites for a US government entity based on SpaceX’s Starshield satellite bus, based on locations of rocket stage drop zones being exact fits with previous Starlink Group 15 launches.",
+        "orbit": {
+          "id": 8,
+          "name": "Low Earth Orbit",
+          "abbrev": "LEO"
+        }
+      },
+      "pad": {
+        "id": 16,
+        "url": "https://ll.thespacedevs.com/2.3.0/pads/16/",
+        "name": "Space Launch Complex 4E",
+        "latitude": 34.632,
+        "longitude": -120.611,
+        "country": {
+          "id": 2,
+          "name": "United States of America",
+          "alpha_2_code": "US"
+        },
+        "location": {
+          "id": 11,
+          "url": "https://ll.thespacedevs.com/2.3.0/locations/11/",
+          "name": "Vandenberg SFB, CA, USA",
+          "timezone_name": "America/Los_Angeles",
+          "latitude": 34.75133,
+          "longitude": -120.52023,
+          "country": {
+            "id": 2,
+            "name": "United States of America",
+            "alpha_2_code": "US"
+          }
+        }
+      },
+      "webcast_live": false,
+      "program": [],
+      "updates": [
+        {
+          "id": 16016,
+          "comment": "GO for launch.",
+          "info_url": "https://www.spacex.com/launches/ussf153",
+          "created_on": "2026-09-02T17:37:00Z"
+        },
+        {
+          "id": 15999,
+          "comment": "Added launch.",
+          "info_url": "https://forum.nasaspaceflight.com/index.php?topic=65832.msg2819706#msg2819706",
+          "created_on": "2026-09-01T13:53:00Z"
+        }
+      ],
+      "vid_urls": [
+        {
+          "priority": 10,
+          "source": "x.com",
+          "publisher": "SpaceX",
+          "title": "USSF-153 Mission",
+          "url": "https://x.com/i/broadcasts/1nxnRBWejLOxO",
+          "start_time": "2026-09-10T15:25:00Z",
+          "end_time": "2026-09-10T17:26:00Z",
+          "live": false,
+          "type": {
+            "id": 1,
+            "name": "Official Webcast"
+          }
+        }
+      ]
+    },
+    {
+      "id": "7d1afb26-6f9c-429b-9ccf-29012fd1e519",
+      "url": "https://ll.thespacedevs.com/2.3.0/launches/7d1afb26-6f9c-429b-9ccf-29012fd1e519/",
+      "slug": "starship-flight-14",
+      "name": "Starship | Flight 14",
+      "status": {
+        "id": 2,
+        "name": "To Be Determined",
+        "abbrev": "TBD"
+      },
+      "last_updated": "2026-09-08T16:07:38Z",
+      "net": "2026-09-15T00:00:00Z",
+      "net_precision": {
+        "id": 5,
+        "name": "Day",
+        "abbrev": "DAY"
+      },
+      "window_start": "2026-09-15T00:00:00Z",
+      "window_end": "2026-09-15T00:00:00Z",
+      "image": {
+        "id": 2791,
+        "name": "Starship on the launch pad during sunset (Flight-13)",
+        "image_url": "https://thespacedevs-prod.nyc3.digitaloceanspaces.com/media/images/starship_on_the_image_20260724044615.jpg",
+        "thumbnail_url": "https://thespacedevs-prod.nyc3.digitaloceanspaces.com/media/images/starship_on_the_image_thumbnail_20260724044615.jpeg",
+        "credit": "SpaceX",
+        "license": {
+          "id": 1,
+          "name": "Unknown",
+          "link": null
+        }
+      },
+      "launch_service_provider": {
+        "id": 121,
+        "url": "https://ll.thespacedevs.com/2.3.0/agencies/121/",
+        "name": "SpaceX",
+        "abbrev": "SpX",
+        "type": {
+          "id": 3,
+          "name": "Commercial"
+        }
+      },
+      "rocket": {
+        "id": 9105,
+        "configuration": {
+          "id": 522,
+          "url": "https://ll.thespacedevs.com/2.3.0/launcher_configurations/522/",
+          "name": "Starship",
+          "full_name": "Starship V3",
+          "variant": "V3"
+        }
+      },
+      "mission": {
+        "id": 7700,
+        "name": "Flight 14",
+        "type": "Test Flight",
+        "description": "14th test flight of the two-stage Starship launch vehicle. 3rd flight of Starship V3 and the first Starship flight to deploy satellites (a group of Starlink satellites) into stable Low Earth Orbit.",
+        "orbit": {
+          "id": 8,
+          "name": "Low Earth Orbit",
+          "abbrev": "LEO"
+        }
+      },
+      "pad": {
+        "id": 235,
+        "url": "https://ll.thespacedevs.com/2.3.0/pads/235/",
+        "name": "Orbital Launch Pad 2",
+        "latitude": 25.99677,
+        "longitude": -97.15799,
+        "country": {
+          "id": 2,
+          "name": "United States of America",
+          "alpha_2_code": "US"
+        },
+        "location": {
+          "id": 143,
+          "url": "https://ll.thespacedevs.com/2.3.0/locations/143/",
+          "name": "SpaceX Starbase, TX, USA",
+          "timezone_name": "America/Chicago",
+          "latitude": 25.997,
+          "longitude": -97.157,
+          "country": {
+            "id": 2,
+            "name": "United States of America",
+            "alpha_2_code": "US"
+          }
+        }
+      },
+      "webcast_live": false,
+      "program": [
+        {
+          "id": 1,
+          "url": "https://ll.thespacedevs.com/2.3.0/programs/1/",
+          "name": "SpaceX Starship"
+        }
+      ],
+      "updates": [
+        {
+          "id": 16078,
+          "comment": "NET September 15, TBC.",
+          "info_url": "https://www.nasaspaceflight.com/2026/09/starbase-infrastructure-spacex-flight-14/",
+          "created_on": "2026-09-08T16:07:00Z"
+        },
+        {
+          "id": 15825,
+          "comment": "NET early September.",
+          "info_url": "https://x.com/NASASpaceflight/status/2088342919388291237",
+          "created_on": "2026-08-14T19:14:00Z"
+        },
+        {
+          "id": 15709,
+          "comment": "Added launch.",
+          "info_url": "https://www.nasaspaceflight.com/2026/07/ship-40-catch-potential/",
+          "created_on": "2026-07-30T14:54:00Z"
+        }
+      ],
+      "vid_urls": []
+    },
+    {
+      "id": "18441371-8b2e-457c-afb5-1ec1b11ab630",
+      "url": "https://ll.thespacedevs.com/2.3.0/launches/18441371-8b2e-457c-afb5-1ec1b11ab630/",
+      "slug": "falcon-9-block-5-crew-13",
+      "name": "Falcon 9 Block 5 | Crew-13",
+      "status": {
+        "id": 2,
+        "name": "To Be Determined",
+        "abbrev": "TBD"
+      },
+      "last_updated": "2026-08-30T01:29:52Z",
+      "net": "2026-09-30T00:00:00Z",
+      "net_precision": {
+        "id": 7,
+        "name": "Month",
+        "abbrev": "M"
+      },
+      "window_start": "2026-09-30T00:00:00Z",
+      "window_end": "2026-09-30T00:00:00Z",
+      "image": {
+        "id": 1385,
+        "name": "Crew Dragon at sunset",
+        "image_url": "https://thespacedevs-prod.nyc3.digitaloceanspaces.com/media/images/falcon2520925_image_20220301072106.jpeg",
+        "thumbnail_url": "https://thespacedevs-prod.nyc3.digitaloceanspaces.com/media/images/255bauto255d__image_thumbnail_20240305192609.jpeg",
+        "credit": "SpaceX",
+        "license": {
+          "id": 5,
+          "name": "CC BY-NC 2.0",
+          "link": "https://creativecommons.org/licenses/by-nc/2.0/"
+        }
+      },
+      "launch_service_provider": {
+        "id": 121,
+        "url": "https://ll.thespacedevs.com/2.3.0/agencies/121/",
+        "name": "SpaceX",
+        "abbrev": "SpX",
+        "type": {
+          "id": 3,
+          "name": "Commercial"
+        }
+      },
+      "rocket": {
+        "id": 7600,
+        "configuration": {
+          "id": 164,
+          "url": "https://ll.thespacedevs.com/2.3.0/launcher_configurations/164/",
+          "name": "Falcon 9",
+          "full_name": "Falcon 9 Block 5",
+          "variant": "Block 5"
+        }
+      },
+      "mission": {
+        "id": 6043,
+        "name": "Crew-13",
+        "type": "Human Exploration",
+        "description": "SpaceX Crew-13 is the thirteenth crewed operational flight of a Crew Dragon spacecraft to the International Space Station as part of NASA's Commercial Crew Program.",
+        "orbit": {
+          "id": 8,
+          "name": "Low Earth Orbit",
+          "abbrev": "LEO"
+        }
+      },
+      "pad": {
+        "id": 80,
+        "url": "https://ll.thespacedevs.com/2.3.0/pads/80/",
+        "name": "Space Launch Complex 40",
+        "latitude": 28.56194122,
+        "longitude": -80.57735736,
+        "country": {
+          "id": 2,
+          "name": "United States of America",
+          "alpha_2_code": "US"
+        },
+        "location": {
+          "id": 12,
+          "url": "https://ll.thespacedevs.com/2.3.0/locations/12/",
+          "name": "Cape Canaveral SFS, FL, USA",
+          "timezone_name": "America/New_York",
+          "latitude": 28.488889,
+          "longitude": -80.577778,
+          "country": {
+            "id": 2,
+            "name": "United States of America",
+            "alpha_2_code": "US"
+          }
+        }
+      },
+      "webcast_live": false,
+      "program": [
+        {
+          "id": 17,
+          "url": "https://ll.thespacedevs.com/2.3.0/programs/17/",
+          "name": "International Space Station"
+        },
+        {
+          "id": 5,
+          "url": "https://ll.thespacedevs.com/2.3.0/programs/5/",
+          "name": "Commercial Crew Program"
+        }
+      ],
+      "updates": [
+        {
+          "id": 15979,
+          "comment": "Launch delayed due to Dragon propulsion system leak.",
+          "info_url": "https://www.nasa.gov/blogs/spacestation/2026/08/29/nasa-spacex-adjust-crew-13-launch-date/",
+          "created_on": "2026-08-30T01:29:00Z"
+        },
+        {
+          "id": 15726,
+          "comment": "Updated launch time.",
+          "info_url": "https://www.launchphotography.com/Launch_Viewing_Guide.html",
+          "created_on": "2026-08-03T16:17:00Z"
+        },
+        {
+          "id": 15724,
+          "comment": "NET September 12.",
+          "info_url": "https://www.youtube.com/watch?v=IDUtReQSlb0",
+          "created_on": "2026-08-03T16:09:00Z"
+        },
+        {
+          "id": 14796,
+          "comment": "NET mid-September.",
+          "info_url": "https://www.nasa.gov/news-release/nasa-shares-spacex-crew-13-assignments-for-space-station-mission/",
+          "created_on": "2026-04-23T23:28:00Z"
+        }
+      ],
+      "vid_urls": []
+    },
+    {
+      "id": "4651fd8a-43de-4166-bf8f-c168b3bd1d2c",
+      "url": "https://ll.thespacedevs.com/2.3.0/launches/4651fd8a-43de-4166-bf8f-c168b3bd1d2c/",
+      "slug": "falcon-heavy-nrol-97",
+      "name": "Falcon Heavy | NROL-97",
+      "status": {
+        "id": 2,
+        "name": "To Be Determined",
+        "abbrev": "TBD"
+      },
+      "last_updated": "2026-09-08T16:00:29Z",
+      "net": "2026-10-31T00:00:00Z",
+      "net_precision": {
+        "id": 11,
+        "name": "Quarter 4",
+        "abbrev": "Q4"
+      },
+      "window_start": "2026-10-31T00:00:00Z",
+      "window_end": "2026-10-31T00:00:00Z",
+      "image": {
+        "id": 1739,
+        "name": "[AUTO] Falcon Heavy - image",
+        "image_url": "https://thespacedevs-prod.nyc3.digitaloceanspaces.com/media/images/falcon_heavy_image_20220129192819.jpeg",
+        "thumbnail_url": "https://thespacedevs-prod.nyc3.digitaloceanspaces.com/media/images/255bauto255d__image_thumbnail_20240305193632.jpeg",
+        "credit": null,
+        "license": {
+          "id": 1,
+          "name": "Unknown",
+          "link": null
+        }
+      },
+      "launch_service_provider": {
+        "id": 121,
+        "url": "https://ll.thespacedevs.com/2.3.0/agencies/121/",
+        "name": "SpaceX",
+        "abbrev": "SpX",
+        "type": {
+          "id": 3,
+          "name": "Commercial"
+        }
+      },
+      "rocket": {
+        "id": 8574,
+        "configuration": {
+          "id": 161,
+          "url": "https://ll.thespacedevs.com/2.3.0/launcher_configurations/161/",
+          "name": "Falcon Heavy",
+          "full_name": "Falcon Heavy",
+          "variant": "Heavy"
+        }
+      },
+      "mission": {
+        "id": 7165,
+        "name": "NROL-97",
+        "type": "Government/Top Secret",
+        "description": "Classified payload for the US National Reconnaissance Office",
+        "orbit": {
+          "id": 25,
+          "name": "Unknown",
+          "abbrev": "N/A"
+        }
+      },
+      "pad": {
+        "id": 87,
+        "url": "https://ll.thespacedevs.com/2.3.0/pads/87/",
+        "name": "Launch Complex 39A",
+        "latitude": 28.60822681,
+        "longitude": -80.60428186,
+        "country": {
+          "id": 2,
+          "name": "United States of America",
+          "alpha_2_code": "US"
+        },
+        "location": {
+          "id": 27,
+          "url": "https://ll.thespacedevs.com/2.3.0/locations/27/",
+          "name": "Kennedy Space Center, FL, USA",
+          "timezone_name": "America/New_York",
+          "latitude": 28.524167,
+          "longitude": -80.650833,
+          "country": {
+            "id": 2,
+            "name": "United States of America",
+            "alpha_2_code": "US"
+          }
+        }
+      },
+      "webcast_live": false,
+      "program": [],
+      "updates": [
+        {
+          "id": 16077,
+          "comment": "NET early fall 2026 (launch identity per https://forum.nasaspaceflight.com/index.php?topic=55784.msg2715269#msg2715269; booster assignments per https://www.youtube.com/watch?v=l5OJk1FuEKg).",
+          "info_url": "https://www.launchphotography.com/Launch_Viewing_Guide.html",
+          "created_on": "2026-09-08T16:00:00Z"
+        },
+        {
+          "id": 10699,
+          "comment": "Updated launch vehicle configuration.",
+          "info_url": "https://arstechnica.com/space/2025/04/a-key-spacex-competitor-says-he-has-not-been-impacted-by-musks-ties-to-trump/",
+          "created_on": "2025-04-10T06:12:00Z"
+        },
+        {
+          "id": 10669,
+          "comment": "Adding launch, year TBD",
+          "info_url": "https://www.ssc.spaceforce.mil/Newsroom/Article/4148471/space-systems-command-releases-national-security-space-launch-phase-3-lane-2-fy",
+          "created_on": "2025-04-09T19:03:00Z"
+        }
+      ],
+      "vid_urls": []
+    },
+    {
+      "id": "c9605b67-8a53-4239-a8ae-577fe3b79799",
+      "url": "https://ll.thespacedevs.com/2.3.0/launches/c9605b67-8a53-4239-a8ae-577fe3b79799/",
+      "slug": "long-march-2fg-shenzhou-24",
+      "name": "Long March 2F/G | Shenzhou 24",
+      "status": {
+        "id": 2,
+        "name": "To Be Determined",
+        "abbrev": "TBD"
+      },
+      "last_updated": "2026-01-23T08:16:32Z",
+      "net": "2026-12-31T00:00:00Z",
+      "net_precision": {
+        "id": 13,
+        "name": "Year Half 2",
+        "abbrev": "H2"
+      },
+      "window_start": "2026-12-31T00:00:00Z",
+      "window_end": "2026-12-31T00:00:00Z",
+      "image": {
+        "id": 2580,
+        "name": "Shenzhou 22 launch",
+        "image_url": "https://thespacedevs-prod.nyc3.digitaloceanspaces.com/media/images/shenzhou_22_lau_image_20251129175823.jpg",
+        "thumbnail_url": "https://thespacedevs-prod.nyc3.digitaloceanspaces.com/media/images/shenzhou_22_lau_image_thumbnail_20251129175823.jpeg",
+        "credit": "Xinhua",
+        "license": {
+          "id": 1,
+          "name": "Unknown",
+          "link": null
+        }
+      },
+      "launch_service_provider": {
+        "id": 88,
+        "url": "https://ll.thespacedevs.com/2.3.0/agencies/88/",
+        "name": "China Aerospace Science and Technology Corporation",
+        "abbrev": "CASC",
+        "type": {
+          "id": 1,
+          "name": "Government"
+        }
+      },
+      "rocket": {
+        "id": 8901,
+        "configuration": {
+          "id": 84,
+          "url": "https://ll.thespacedevs.com/2.3.0/launcher_configurations/84/",
+          "name": "Long March 2F/G",
+          "full_name": "Long March 2F/G",
+          "variant": "F/G"
+        }
+      },
+      "mission": {
+        "id": 7492,
+        "name": "Shenzhou 24",
+        "type": "Human Exploration",
+        "description": "Shenzhou 24 will be the 24th flight of the Shenzhou program.",
+        "orbit": {
+          "id": 8,
+          "name": "Low Earth Orbit",
+          "abbrev": "LEO"
+        }
+      },
+      "pad": {
+        "id": 37,
+        "url": "https://ll.thespacedevs.com/2.3.0/pads/37/",
+        "name": "Launch Area 91 (SLS-1 / 921)",
+        "latitude": 40.957893,
+        "longitude": 100.290944,
+        "country": {
+          "id": 6,
+          "name": "China",
+          "alpha_2_code": "CN"
+        },
+        "location": {
+          "id": 17,
+          "url": "https://ll.thespacedevs.com/2.3.0/locations/17/",
+          "name": "Jiuquan Satellite Launch Center, People's Republic of China",
+          "timezone_name": "Asia/Shanghai",
+          "latitude": 40.958056,
+          "longitude": 100.291111,
+          "country": {
+            "id": 6,
+            "name": "China",
+            "alpha_2_code": "CN"
+          }
+        }
+      },
+      "webcast_live": false,
+      "program": [
+        {
+          "id": 19,
+          "url": "https://ll.thespacedevs.com/2.3.0/programs/19/",
+          "name": "Tiangong space station"
+        },
+        {
+          "id": 7,
+          "url": "https://ll.thespacedevs.com/2.3.0/programs/7/",
+          "name": "Shenzhou"
+        }
+      ],
+      "updates": [
+        {
+          "id": 13765,
+          "comment": "Added launch",
+          "info_url": "https://spacenews.com/damaged-shenzhou-20-spacecraft-survives-reentry-shenzhou-23-arrives-at-spaceport/",
+          "created_on": "2026-01-23T08:16:00Z"
+        }
+      ],
+      "vid_urls": []
+    },
+    {
+      "id": "07e945c1-2ec6-4d29-a500-1afbe920440f",
+      "url": "https://ll.thespacedevs.com/2.3.0/launches/07e945c1-2ec6-4d29-a500-1afbe920440f/",
+      "slug": "atlas-v-n22-starliner-1",
+      "name": "Atlas V N22 | Starliner-1",
+      "status": {
+        "id": 2,
+        "name": "To Be Determined",
+        "abbrev": "TBD"
+      },
+      "last_updated": "2026-03-11T15:12:58Z",
+      "net": "2026-12-31T00:00:00Z",
+      "net_precision": {
+        "id": 14,
+        "name": "Year",
+        "abbrev": "Y"
+      },
+      "window_start": "2026-12-31T00:00:00Z",
+      "window_end": "2026-12-31T00:00:00Z",
+      "image": {
+        "id": 1706,
+        "name": "[AUTO] Atlas V N22 - image",
+        "image_url": "https://thespacedevs-prod.nyc3.digitaloceanspaces.com/media/images/atlas_v_n22_image_20210813082339.jpeg",
+        "thumbnail_url": "https://thespacedevs-prod.nyc3.digitaloceanspaces.com/media/images/255bauto255d__image_thumbnail_20240305193538.jpeg",
+        "credit": null,
+        "license": {
+          "id": 1,
+          "name": "Unknown",
+          "link": null
+        }
+      },
+      "launch_service_provider": {
+        "id": 124,
+        "url": "https://ll.thespacedevs.com/2.3.0/agencies/124/",
+        "name": "United Launch Alliance",
+        "abbrev": "ULA",
+        "type": {
+          "id": 3,
+          "name": "Commercial"
+        }
+      },
+      "rocket": {
+        "id": 2710,
+        "configuration": {
+          "id": 166,
+          "url": "https://ll.thespacedevs.com/2.3.0/launcher_configurations/166/",
+          "name": "Atlas V N22",
+          "full_name": "Atlas V N22",
+          "variant": "V N22"
+        }
+      },
+      "mission": {
+        "id": 1113,
+        "name": "Starliner-1",
+        "type": "Human Exploration",
+        "description": "Starliner-1 is the first operational flight of a Starliner spacecraft to the International Space Station as part of NASA's Commercial Crew Program. Due to problems with the Starliner spacecraft's RCS attitude control system during the Crew Flight Test mission in 2024, this mission has been re-scoped to not carry a crew by NASA. It will instead deliver necessary cargo to the orbital laboratory and allow in-flight validation of the system upgrades implemented following the Crew Flight Test mission last year.",
+        "orbit": {
+          "id": 8,
+          "name": "Low Earth Orbit",
+          "abbrev": "LEO"
+        }
+      },
+      "pad": {
+        "id": 29,
+        "url": "https://ll.thespacedevs.com/2.3.0/pads/29/",
+        "name": "Space Launch Complex 41",
+        "latitude": 28.58341025,
+        "longitude": -80.58303644,
+        "country": {
+          "id": 2,
+          "name": "United States of America",
+          "alpha_2_code": "US"
+        },
+        "location": {
+          "id": 12,
+          "url": "https://ll.thespacedevs.com/2.3.0/locations/12/",
+          "name": "Cape Canaveral SFS, FL, USA",
+          "timezone_name": "America/New_York",
+          "latitude": 28.488889,
+          "longitude": -80.577778,
+          "country": {
+            "id": 2,
+            "name": "United States of America",
+            "alpha_2_code": "US"
+          }
+        }
+      },
+      "webcast_live": false,
+      "program": [
+        {
+          "id": 5,
+          "url": "https://ll.thespacedevs.com/2.3.0/programs/5/",
+          "name": "Commercial Crew Program"
+        },
+        {
+          "id": 17,
+          "url": "https://ll.thespacedevs.com/2.3.0/programs/17/",
+          "name": "International Space Station"
+        }
+      ],
+      "updates": [
+        {
+          "id": 14236,
+          "comment": "Reverted back to NET 2026 pending additional previous mishaps’ investigations updates.",
+          "info_url": "https://spacenews.com/starliner-investigation-identifies-flawed-nasa-decision-making/",
+          "created_on": "2026-03-11T15:12:00Z"
+        },
+        {
+          "id": 13027,
+          "comment": "NET April 2026.",
+          "info_url": "https://x.com/NASASpaceflight/status/1993015720372797553",
+          "created_on": "2025-11-24T18:14:00Z"
+        },
+        {
+          "id": 11213,
+          "comment": "NET Q1 2026.",
+          "info_url": "https://x.com/NASASpaceflight/status/1931090899506753718",
+          "created_on": "2025-06-07T02:12:00Z"
+        },
+        {
+          "id": 8907,
+          "comment": "NET 2025 pending certification plan update.",
+          "info_url": "https://blogs.nasa.gov/commercialcrew/2024/10/15/nasa-updates-2025-commercial-crew-plan/",
+          "created_on": "2024-10-15T18:25:00Z"
+        }
+      ],
+      "vid_urls": []
+    },
+    {
+      "id": "a67b40f9-cfcc-4614-a355-a156280b4bb3",
+      "url": "https://ll.thespacedevs.com/2.3.0/launches/a67b40f9-cfcc-4614-a355-a156280b4bb3/",
+      "slug": "vulcan-vc4l-dream-chaser-crs-2-flight-1",
+      "name": "Vulcan VC4L | Dream Chaser CRS 2 Flight 1",
+      "status": {
+        "id": 2,
+        "name": "To Be Determined",
+        "abbrev": "TBD"
+      },
+      "last_updated": "2025-09-26T15:20:52Z",
+      "net": "2026-12-31T00:00:00Z",
+      "net_precision": {
+        "id": 11,
+        "name": "Quarter 4",
+        "abbrev": "Q4"
+      },
+      "window_start": "2026-12-31T00:00:00Z",
+      "window_end": "2026-12-31T00:00:00Z",
+      "image": null,
+      "launch_service_provider": {
+        "id": 124,
+        "url": "https://ll.thespacedevs.com/2.3.0/agencies/124/",
+        "name": "United Launch Alliance",
+        "abbrev": "ULA",
+        "type": {
+          "id": 3,
+          "name": "Commercial"
+        }
+      },
+      "rocket": {
+        "id": 2529,
+        "configuration": {
+          "id": 202,
+          "url": "https://ll.thespacedevs.com/2.3.0/launcher_configurations/202/",
+          "name": "Vulcan VC4L",
+          "full_name": "Vulcan VC4L",
+          "variant": "VC4L"
+        }
+      },
+      "mission": {
+        "id": 6519,
+        "name": "Dream Chaser CRS 2 Flight 1",
+        "type": "Test Flight",
+        "description": "First flight of the Dream Chaser Spaceplane, on a free-flying mission in Low Earth Orbit.",
+        "orbit": {
+          "id": 8,
+          "name": "Low Earth Orbit",
+          "abbrev": "LEO"
+        }
+      },
+      "pad": {
+        "id": 29,
+        "url": "https://ll.thespacedevs.com/2.3.0/pads/29/",
+        "name": "Space Launch Complex 41",
+        "latitude": 28.58341025,
+        "longitude": -80.58303644,
+        "country": {
+          "id": 2,
+          "name": "United States of America",
+          "alpha_2_code": "US"
+        },
+        "location": {
+          "id": 12,
+          "url": "https://ll.thespacedevs.com/2.3.0/locations/12/",
+          "name": "Cape Canaveral SFS, FL, USA",
+          "timezone_name": "America/New_York",
+          "latitude": 28.488889,
+          "longitude": -80.577778,
+          "country": {
+            "id": 2,
+            "name": "United States of America",
+            "alpha_2_code": "US"
+          }
+        }
+      },
+      "webcast_live": false,
+      "program": [
+        {
+          "id": 11,
+          "url": "https://ll.thespacedevs.com/2.3.0/programs/11/",
+          "name": "Commercial Resupply Services"
+        }
+      ],
+      "updates": [
+        {
+          "id": 12394,
+          "comment": "NET late 2026 with ISS docking cancelled.",
+          "info_url": "https://www.sierraspace.com/press-releases/dream-chaser-advances-toward-first-flight-eyes-multi-use-applications/",
+          "created_on": "2025-09-26T15:20:00Z"
+        },
+        {
+          "id": 11716,
+          "comment": "NET late 2025.",
+          "info_url": "https://www.youtube.com/watch?v=O5KhZbe_mS0",
+          "created_on": "2025-08-01T18:11:00Z"
+        },
+        {
+          "id": 10372,
+          "comment": "NET late summer.",
+          "info_url": "https://x.com/jeff_foust/status/1899124444225843231",
+          "created_on": "2025-03-10T16:25:00Z"
+        },
+        {
+          "id": 8807,
+          "comment": "NET May 2025.",
+          "info_url": "https://x.com/SciGuySpace/status/1844087210859167976",
+          "created_on": "2024-10-10T02:19:00Z"
+        }
+      ],
+      "vid_urls": []
+    },
+    {
+      "id": "8effc13a-c658-4d2e-9f15-8dba4d7fe2dd",
+      "url": "https://ll.thespacedevs.com/2.3.0/launches/8effc13a-c658-4d2e-9f15-8dba4d7fe2dd/",
+      "slug": "vega-c-sentinel-3c-flex",
+      "name": "Vega-C | Sentinel-3C & FLEX",
+      "status": {
+        "id": 1,
+        "name": "Go for Launch",
+        "abbrev": "Go"
+      },
+      "last_updated": "2026-07-30T14:09:43Z",
+      "net": "2026-09-15T01:21:07Z",
+      "net_precision": {
+        "id": 0,
+        "name": "Second",
+        "abbrev": "SEC"
+      },
+      "window_start": "2026-09-15T01:21:07Z",
+      "window_end": "2026-09-15T01:21:07Z",
+      "image": {
+        "id": 1861,
+        "name": "Vega-C liftoff on its maiden flight (LARES-2)",
+        "image_url": "https://thespacedevs-prod.nyc3.digitaloceanspaces.com/media/images/vega-c_image_20220713154437.jpg",
+        "thumbnail_url": "https://thespacedevs-prod.nyc3.digitaloceanspaces.com/media/images/255bauto255d__image_thumbnail_20240305193950.jpeg",
+        "credit": "ESA/CNES/Arianespace/Optique vidéo du CSG–S. Martin",
+        "license": {
+          "id": 2,
+          "name": "ESA Standard Licence",
+          "link": "https://www.esa.int/ESA_Multimedia/Terms_and_conditions_of_use_of_images_and_videos_available_on_the_esa_website"
+        }
+      },
+      "launch_service_provider": {
+        "id": 159,
+        "url": "https://ll.thespacedevs.com/2.3.0/agencies/159/",
+        "name": "Avio S.p.A",
+        "abbrev": "Avio",
+        "type": {
+          "id": 3,
+          "name": "Commercial"
+        }
+      },
+      "rocket": {
+        "id": 7714,
+        "configuration": {
+          "id": 127,
+          "url": "https://ll.thespacedevs.com/2.3.0/launcher_configurations/127/",
+          "name": "Vega-C",
+          "full_name": "Vega-C",
+          "variant": ""
+        }
+      },
+      "mission": {
+        "id": 6236,
+        "name": "Sentinel-3C & FLEX",
+        "type": "Earth Science",
+        "description": "Sentinel-3C is the third satellite in the Sentinel-3 constellation, which provides high-accuracy optical, radar and altimetry data for marine and land services.\r\n\r\nThe Fluorescence Explorer (FLEX) satellite is a part of ESA's Earth Explorer program. The satellite will map vegetation fluorescence to quantify photosynthetic activity.",
+        "orbit": {
+          "id": 17,
+          "name": "Sun-Synchronous Orbit",
+          "abbrev": "SSO"
+        }
+      },
+      "pad": {
+        "id": 34,
+        "url": "https://ll.thespacedevs.com/2.3.0/pads/34/",
+        "name": "Ariane Launch Area 1 (ELV)",
+        "latitude": 5.236,
+        "longitude": -52.775,
+        "country": {
+          "id": 50,
+          "name": "French Guiana",
+          "alpha_2_code": "GF"
+        },
+        "location": {
+          "id": 13,
+          "url": "https://ll.thespacedevs.com/2.3.0/locations/13/",
+          "name": "Guiana Space Centre, French Guiana",
+          "timezone_name": "America/Cayenne",
+          "latitude": 5.169,
+          "longitude": -52.6903,
+          "country": {
+            "id": 50,
+            "name": "French Guiana",
+            "alpha_2_code": "GF"
+          }
+        }
+      },
+      "webcast_live": false,
+      "program": [
+        {
+          "id": 22,
+          "url": "https://ll.thespacedevs.com/2.3.0/programs/22/",
+          "name": "Copernicus"
+        }
+      ],
+      "updates": [
+        {
+          "id": 15708,
+          "comment": "GO for launch on September 15 UTC.",
+          "info_url": "https://x.com/Avio_Group/status/2082739494067786159",
+          "created_on": "2026-07-30T14:09:00Z"
+        },
+        {
+          "id": 15356,
+          "comment": "NET September 11",
+          "info_url": "https://centrespatialguyanais.cnes.fr/fr/calendrier-lancements",
+          "created_on": "2026-06-25T12:08:00Z"
+        },
+        {
+          "id": 15209,
+          "comment": "NET September 9.",
+          "info_url": "https://centrespatialguyanais.cnes.fr/fr/calendrier-lancements",
+          "created_on": "2026-06-05T14:22:00Z"
+        },
+        {
+          "id": 13600,
+          "comment": "NET September 1st, together with FLEX.",
+          "info_url": "https://earth.esa.int/eogateway/announcement-of-opportunity/flex-cal-val",
+          "created_on": "2026-01-11T21:34:00Z"
+        }
+      ],
+      "vid_urls": []
+    },
+    {
+      "id": "d1471f9d-e9d0-4146-8e97-90863e48bfc8",
+      "url": "https://ll.thespacedevs.com/2.3.0/launches/d1471f9d-e9d0-4146-8e97-90863e48bfc8/",
+      "slug": "falcon-9-block-5-starlink-group-15-27",
+      "name": "Falcon 9 Block 5 | Starlink Group 15-27",
+      "status": {
+        "id": 1,
+        "name": "Go for Launch",
+        "abbrev": "Go"
+      },
+      "last_updated": "2026-09-08T13:59:37Z",
+      "net": "2026-09-20T01:47:00Z",
+      "net_precision": {
+        "id": 1,
+        "name": "Minute",
+        "abbrev": "MIN"
+      },
+      "window_start": "2026-09-20T01:47:00Z",
+      "window_end": "2026-09-20T05:47:00Z",
+      "image": {
+        "id": 1296,
+        "name": "Starlink night fairing",
+        "image_url": "https://thespacedevs-prod.nyc3.digitaloceanspaces.com/media/images/falcon2520925_image_20221009234147.png",
+        "thumbnail_url": "https://thespacedevs-prod.nyc3.digitaloceanspaces.com/media/images/255bauto255d__image_thumbnail_20240305192320.png",
+        "credit": "SpaceX",
+        "license": {
+          "id": 5,
+          "name": "CC BY-NC 2.0",
+          "link": "https://creativecommons.org/licenses/by-nc/2.0/"
+        }
+      },
+      "launch_service_provider": {
+        "id": 121,
+        "url": "https://ll.thespacedevs.com/2.3.0/agencies/121/",
+        "name": "SpaceX",
+        "abbrev": "SpX",
+        "type": {
+          "id": 3,
+          "name": "Commercial"
+        }
+      },
+      "rocket": {
+        "id": 9131,
+        "configuration": {
+          "id": 164,
+          "url": "https://ll.thespacedevs.com/2.3.0/launcher_configurations/164/",
+          "name": "Falcon 9",
+          "full_name": "Falcon 9 Block 5",
+          "variant": "Block 5"
+        }
+      },
+      "mission": {
+        "id": 7730,
+        "name": "Starlink Group 15-27",
+        "type": "Communications",
+        "description": "A batch of 27 satellites for the Starlink mega-constellation - SpaceX's project for space-based Internet communication system.",
+        "orbit": {
+          "id": 8,
+          "name": "Low Earth Orbit",
+          "abbrev": "LEO"
+        }
+      },
+      "pad": {
+        "id": 16,
+        "url": "https://ll.thespacedevs.com/2.3.0/pads/16/",
+        "name": "Space Launch Complex 4E",
+        "latitude": 34.632,
+        "longitude": -120.611,
+        "country": {
+          "id": 2,
+          "name": "United States of America",
+          "alpha_2_code": "US"
+        },
+        "location": {
+          "id": 11,
+          "url": "https://ll.thespacedevs.com/2.3.0/locations/11/",
+          "name": "Vandenberg SFB, CA, USA",
+          "timezone_name": "America/Los_Angeles",
+          "latitude": 34.75133,
+          "longitude": -120.52023,
+          "country": {
+            "id": 2,
+            "name": "United States of America",
+            "alpha_2_code": "US"
+          }
+        }
+      },
+      "webcast_live": false,
+      "program": [
+        {
+          "id": 25,
+          "url": "https://ll.thespacedevs.com/2.3.0/programs/25/",
+          "name": "Starlink"
+        }
+      ],
+      "updates": [
+        {
+          "id": 16076,
+          "comment": "Added launch.",
+          "info_url": "https://www.spacex.com/launches/sl-15-27",
+          "created_on": "2026-09-08T13:59:00Z"
+        }
+      ],
+      "vid_urls": [
+        {
+          "priority": 10,
+          "source": "x.com",
+          "publisher": "SpaceX",
+          "title": "Starlink Mission",
+          "url": "https://x.com/i/broadcasts/1nxnRBXEladxO",
+          "start_time": "2026-09-20T01:37:00Z",
+          "end_time": "2026-09-20T03:37:00Z",
+          "live": false,
+          "type": {
+            "id": 1,
+            "name": "Official Webcast"
+          }
+        }
+      ]
+    },
+    {
+      "id": "7766f3bb-674c-4c71-b986-963bd633fcfe",
+      "url": "https://ll.thespacedevs.com/2.3.0/launches/7766f3bb-674c-4c71-b986-963bd633fcfe/",
+      "slug": "electron-6x-hawkeye-360",
+      "name": "Electron | 6x HawkEye 360",
+      "status": {
+        "id": 2,
+        "name": "To Be Determined",
+        "abbrev": "TBD"
+      },
+      "last_updated": "2026-08-06T15:20:35Z",
+      "net": "2026-09-30T00:00:00Z",
+      "net_precision": {
+        "id": 10,
+        "name": "Quarter 3",
+        "abbrev": "Q3"
+      },
+      "window_start": "2026-09-30T00:00:00Z",
+      "window_end": "2026-09-30T00:00:00Z",
+      "image": {
+        "id": 1727,
+        "name": "[AUTO] Electron - image",
+        "image_url": "https://thespacedevs-prod.nyc3.digitaloceanspaces.com/media/images/electron_image_20190705175640.jpeg",
+        "thumbnail_url": "https://thespacedevs-prod.nyc3.digitaloceanspaces.com/media/images/255bauto255d__image_thumbnail_20240305193613.jpeg",
+        "credit": null,
+        "license": {
+          "id": 1,
+          "name": "Unknown",
+          "link": null
+        }
+      },
+      "launch_service_provider": {
+        "id": 147,
+        "url": "https://ll.thespacedevs.com/2.3.0/agencies/147/",
+        "name": "Rocket Lab",
+        "abbrev": "RL",
+        "type": {
+          "id": 3,
+          "name": "Commercial"
+        }
+      },
+      "rocket": {
+        "id": 7567,
+        "configuration": {
+          "id": 26,
+          "url": "https://ll.thespacedevs.com/2.3.0/launcher_configurations/26/",
+          "name": "Electron",
+          "full_name": "Electron",
+          "variant": ""
+        }
+      },
+      "mission": {
+        "id": 6792,
+        "name": "6x HawkEye 360",
+        "type": "Earth Science",
+        "description": "HawkEye 360 is a a space-based civil global intelligence satellite network using radio frequency (RF) technology to help monitor transportation across air, land and sea and assist with emergencies, and to provide civil SIGINT (Signal Intelligence) mission.\r\n\r\nThe constellation of small satellites (named Hawk ) will collect information on specific radio signals worldwide to provide high-precision radio frequency mapping and analytics from Low Earth orbit (LEO).",
+        "orbit": {
+          "id": 8,
+          "name": "Low Earth Orbit",
+          "abbrev": "LEO"
+        }
+      },
+      "pad": {
+        "id": 210,
+        "url": "https://ll.thespacedevs.com/2.3.0/pads/210/",
+        "name": "Unknown Pad",
+        "latitude": -39.260881,
+        "longitude": 177.865826,
+        "country": {
+          "id": 51,
+          "name": "New Zealand",
+          "alpha_2_code": "NZ"
+        },
+        "location": {
+          "id": 10,
+          "url": "https://ll.thespacedevs.com/2.3.0/locations/10/",
+          "name": "Rocket Lab Launch Complex 1, Mahia Peninsula, New Zealand",
+          "timezone_name": "Pacific/Auckland",
+          "latitude": -39.26085,
+          "longitude": 177.86586,
+          "country": {
+            "id": 51,
+            "name": "New Zealand",
+            "alpha_2_code": "NZ"
+          }
+        }
+      },
+      "webcast_live": false,
+      "program": [],
+      "updates": [
+        {
+          "id": 15763,
+          "comment": "NET Q3, from LC-1.",
+          "info_url": "https://www.mbie.govt.nz/dmsdocument/32340-permitting-decision-summary-cluster-16-pdf",
+          "created_on": "2026-08-06T15:20:00Z"
+        },
+        {
+          "id": 1576,
+          "comment": "Adding launch",
+          "info_url": "https://www.businesswire.com/news/home/20220419006088/en/Rocket-Lab-Secures-Multi-Launch-Contract-with-HawkEye-360-Confirms-First-Launch-Planned-from-Virginia",
+          "created_on": "2022-04-20T08:40:05Z"
+        }
+      ],
+      "vid_urls": []
+    },
+    {
+      "id": "599ba2df-7483-4b2f-a083-2b5ddc06e069",
+      "url": "https://ll.thespacedevs.com/2.3.0/launches/599ba2df-7483-4b2f-a083-2b5ddc06e069/",
+      "slug": "electron-loxsat-1",
+      "name": "Electron | LOXSAT 1",
+      "status": {
+        "id": 2,
+        "name": "To Be Determined",
+        "abbrev": "TBD"
+      },
+      "last_updated": "2026-08-24T01:41:31Z",
+      "net": "2026-09-30T00:00:00Z",
+      "net_precision": {
+        "id": 7,
+        "name": "Month",
+        "abbrev": "M"
+      },
+      "window_start": "2026-09-30T00:00:00Z",
+      "window_end": "2026-09-30T00:00:00Z",
+      "image": {
+        "id": 1727,
+        "name": "[AUTO] Electron - image",
+        "image_url": "https://thespacedevs-prod.nyc3.digitaloceanspaces.com/media/images/electron_image_20190705175640.jpeg",
+        "thumbnail_url": "https://thespacedevs-prod.nyc3.digitaloceanspaces.com/media/images/255bauto255d__image_thumbnail_20240305193613.jpeg",
+        "credit": null,
+        "license": {
+          "id": 1,
+          "name": "Unknown",
+          "link": null
+        }
+      },
+      "launch_service_provider": {
+        "id": 147,
+        "url": "https://ll.thespacedevs.com/2.3.0/agencies/147/",
+        "name": "Rocket Lab",
+        "abbrev": "RL",
+        "type": {
+          "id": 3,
+          "name": "Commercial"
+        }
+      },
+      "rocket": {
+        "id": 8764,
+        "configuration": {
+          "id": 26,
+          "url": "https://ll.thespacedevs.com/2.3.0/launcher_configurations/26/",
+          "name": "Electron",
+          "full_name": "Electron",
+          "variant": ""
+        }
+      },
+      "mission": {
+        "id": 7355,
+        "name": "LOXSAT 1",
+        "type": "Technology",
+        "description": "LOXSAT 1 is a demonstration satellite of a complete cryogenic oxygen fluid management system in orbit, developed by Eta Space and sponsored by NASA's Tipping Point program.\r\n\r\nThe system will be integrated on a Rocket Lab Photon-LEO satellite bus and collect critical cryogenic fluid management data in orbit for 9 months, demonstrating capabilities of in-space cryogenic storage and transferal. Eta Space plans to use technology developed for this mission to develop a truly commercial depot intended to serve multiple customers in the future.",
+        "orbit": {
+          "id": 8,
+          "name": "Low Earth Orbit",
+          "abbrev": "LEO"
+        }
+      },
+      "pad": {
+        "id": 210,
+        "url": "https://ll.thespacedevs.com/2.3.0/pads/210/",
+        "name": "Unknown Pad",
+        "latitude": -39.260881,
+        "longitude": 177.865826,
+        "country": {
+          "id": 51,
+          "name": "New Zealand",
+          "alpha_2_code": "NZ"
+        },
+        "location": {
+          "id": 10,
+          "url": "https://ll.thespacedevs.com/2.3.0/locations/10/",
+          "name": "Rocket Lab Launch Complex 1, Mahia Peninsula, New Zealand",
+          "timezone_name": "Pacific/Auckland",
+          "latitude": -39.26085,
+          "longitude": 177.86586,
+          "country": {
+            "id": 51,
+            "name": "New Zealand",
+            "alpha_2_code": "NZ"
+          }
+        }
+      },
+      "webcast_live": false,
+      "program": [],
+      "updates": [
+        {
+          "id": 14970,
+          "comment": "NET July 17.",
+          "info_url": "https://www.nasa.gov/directorates/stmd/tech-demo-missions-program/cryogenic-fluid-management-cfm/nasa-industry-prepare-cryogenic-fuel-technology-demo/",
+          "created_on": "2026-05-15T13:14:00Z"
+        },
+        {
+          "id": 13967,
+          "comment": "NET June 25.",
+          "info_url": "https://etaspace.com/loxsat",
+          "created_on": "2026-02-14T21:37:00Z"
+        },
+        {
+          "id": 12509,
+          "comment": "Added launch.",
+          "info_url": "https://natlawreview.com/press-releases/eta-spaces-loxsat-rolls-out-rocket-lab-launch-integration",
+          "created_on": "2025-10-08T03:33:00Z"
+        }
+      ],
+      "vid_urls": []
+    }
+  ]
+}

@@ -1,0 +1,187 @@
+{
+ "head": {
+  "vars": [
+   "item",
+   "itemLabel",
+   "d",
+   "prec",
+   "cal",
+   "sl",
+   "enwiki",
+   "image",
+   "isos"
+  ]
+ },
+ "results": {
+  "bindings": [
+   {
+    "item": {
+     "type": "uri",
+     "value": "http://www.wikidata.org/entity/Q465627"
+    },
+    "itemLabel": {
+     "xml:lang": "en",
+     "type": "literal",
+     "value": "Sack of Rome, 1527"
+    },
+    "prec": {
+     "datatype": "http://www.w3.org/2001/XMLSchema#integer",
+     "type": "literal",
+     "value": "11"
+    },
+    "cal": {
+     "type": "uri",
+     "value": "http://www.wikidata.org/entity/Q1985786"
+    },
+    "sl": {
+     "datatype": "http://www.w3.org/2001/XMLSchema#integer",
+     "type": "literal",
+     "value": "37"
+    },
+    "enwiki": {
+     "type": "uri",
+     "value": "https://en.wikipedia.org/wiki/Sack_of_Rome_(1527)"
+    },
+    "d": {
+     "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+     "type": "literal",
+     "value": "1527-05-16T00:00:00Z"
+    },
+    "image": {
+     "type": "uri",
+     "value": "http://commons.wikimedia.org/wiki/Special:FilePath/Sack%20of%20Rome%20of%201527%20by%20Johannes%20Lingelbach%2017th%20century.jpg"
+    },
+    "isos": {
+     "type": "literal",
+     "value": ""
+    }
+   },
+   {
+    "item": {
+     "type": "uri",
+     "value": "http://www.wikidata.org/entity/Q1147471"
+    },
+    "itemLabel": {
+     "xml:lang": "en",
+     "type": "literal",
+     "value": "Treaty of Zaragoza"
+    },
+    "prec": {
+     "datatype": "http://www.w3.org/2001/XMLSchema#integer",
+     "type": "literal",
+     "value": "11"
+    },
+    "cal": {
+     "type": "uri",
+     "value": "http://www.wikidata.org/entity/Q1985786"
+    },
+    "sl": {
+     "datatype": "http://www.w3.org/2001/XMLSchema#integer",
+     "type": "literal",
+     "value": "39"
+    },
+    "enwiki": {
+     "type": "uri",
+     "value": "https://en.wikipedia.org/wiki/Treaty_of_Zaragoza"
+    },
+    "d": {
+     "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+     "type": "literal",
+     "value": "1529-05-02T00:00:00Z"
+    },
+    "image": {
+     "type": "uri",
+     "value": "http://commons.wikimedia.org/wiki/Special:FilePath/Spain%20and%20Portugal.png"
+    },
+    "isos": {
+     "type": "literal",
+     "value": "ES,PT"
+    }
+   },
+   {
+    "item": {
+     "type": "uri",
+     "value": "http://www.wikidata.org/entity/Q14043328"
+    },
+    "itemLabel": {
+     "xml:lang": "en",
+     "type": "literal",
+     "value": "treaty of Cambrai"
+    },
+    "prec": {
+     "datatype": "http://www.w3.org/2001/XMLSchema#integer",
+     "type": "literal",
+     "value": "11"
+    },
+    "cal": {
+     "type": "uri",
+     "value": "http://www.wikidata.org/entity/Q1985786"
+    },
+    "sl": {
+     "datatype": "http://www.w3.org/2001/XMLSchema#integer",
+     "type": "literal",
+     "value": "27"
+    },
+    "enwiki": {
+     "type": "uri",
+     "value": "https://en.wikipedia.org/wiki/Treaty_of_Cambrai"
+    },
+    "d": {
+     "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+     "type": "literal",
+     "value": "1529-08-15T00:00:00Z"
+    },
+    "image": {
+     "type": "uri",
+     "value": "http://commons.wikimedia.org/wiki/Special:FilePath/Paix%20des%20Dames.png"
+    },
+    "isos": {
+     "type": "literal",
+     "value": "FR"
+    }
+   },
+   {
+    "item": {
+     "type": "uri",
+     "value": "http://www.wikidata.org/entity/Q1425362"
+    },
+    "itemLabel": {
+     "xml:lang": "en",
+     "type": "literal",
+     "value": "Battle of Cajamarca"
+    },
+    "prec": {
+     "datatype": "http://www.w3.org/2001/XMLSchema#integer",
+     "type": "literal",
+     "value": "11"
+    },
+    "cal": {
+     "type": "uri",
+     "value": "http://www.wikidata.org/entity/Q1985727"
+    },
+    "sl": {
+     "datatype": "http://www.w3.org/2001/XMLSchema#integer",
+     "type": "literal",
+     "value": "24"
+    },
+    "enwiki": {
+     "type": "uri",
+     "value": "https://en.wikipedia.org/wiki/Battle_of_Cajamarca"
+    },
+    "d": {
+     "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+     "type": "literal",
+     "value": "1532-11-16T00:00:00Z"
+    },
+    "image": {
+     "type": "uri",
+     "value": "http://commons.wikimedia.org/wiki/Special:FilePath/La%20Captura%20de%20Atahualpa%20-%20Juan%20Lepiani%201920s.png"
+    },
+    "isos": {
+     "type": "literal",
+     "value": "PE"
+    }
+   }
+  ]
+ }
+}

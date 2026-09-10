@@ -1,0 +1,760 @@
+{
+ "entities": {
+  "Q132877730": {
+   "type": "item",
+   "id": "Q132877730",
+   "labels": {
+    "en": {
+     "language": "en",
+     "value": "Eurovision Song Contest 2028"
+    }
+   },
+   "sitelinks": {
+    "enwiki": {
+     "site": "enwiki",
+     "title": "Eurovision Song Contest 2027"
+    }
+   },
+   "claims": {
+    "P31": [
+     {
+      "mainsnak": {
+       "snaktype": "value",
+       "property": "P31",
+       "datavalue": {
+        "value": {
+         "entity-type": "item",
+         "numeric-id": 110288240,
+         "id": "Q110288240"
+        },
+        "type": "wikibase-entityid"
+       }
+      },
+      "type": "statement",
+      "rank": "normal"
+     }
+    ],
+    "P17": [
+     {
+      "mainsnak": {
+       "snaktype": "value",
+       "property": "P17",
+       "datavalue": {
+        "value": {
+         "entity-type": "item",
+         "numeric-id": 219,
+         "id": "Q219"
+        },
+        "type": "wikibase-entityid"
+       }
+      },
+      "type": "statement",
+      "rank": "normal"
+     }
+    ],
+    "P585": [
+     {
+      "mainsnak": {
+       "snaktype": "value",
+       "property": "P585",
+       "datavalue": {
+        "value": {
+         "time": "+2027-05-00T00:00:00Z",
+         "timezone": 0,
+         "before": 0,
+         "after": 0,
+         "precision": 10,
+         "calendarmodel": "http://www.wikidata.org/entity/Q1985727"
+        },
+        "type": "time"
+       }
+      },
+      "type": "statement",
+      "rank": "normal"
+     }
+    ],
+    "P580": [
+     {
+      "mainsnak": {
+       "snaktype": "value",
+       "property": "P580",
+       "datavalue": {
+        "value": {
+         "time": "+2027-05-00T00:00:00Z",
+         "timezone": 0,
+         "before": 0,
+         "after": 0,
+         "precision": 10,
+         "calendarmodel": "http://www.wikidata.org/entity/Q1985727"
+        },
+        "type": "time"
+       }
+      },
+      "type": "statement",
+      "rank": "normal"
+     }
+    ],
+    "P582": [
+     {
+      "mainsnak": {
+       "snaktype": "value",
+       "property": "P582",
+       "datavalue": {
+        "value": {
+         "time": "+2027-05-00T00:00:00Z",
+         "timezone": 0,
+         "before": 0,
+         "after": 0,
+         "precision": 10,
+         "calendarmodel": "http://www.wikidata.org/entity/Q1985727"
+        },
+        "type": "time"
+       }
+      },
+      "type": "statement",
+      "rank": "normal"
+     }
+    ]
+   }
+  },
+  "Q140349740": {
+   "type": "item",
+   "id": "Q140349740",
+   "labels": {
+    "en": {
+     "language": "en",
+     "value": "Melodifestivalen 2027"
+    }
+   },
+   "sitelinks": {
+    "enwiki": {
+     "site": "enwiki",
+     "title": "Melodifestivalen 2027"
+    }
+   },
+   "claims": {
+    "P31": [
+     {
+      "mainsnak": {
+       "snaktype": "value",
+       "property": "P31",
+       "datavalue": {
+        "value": {
+         "entity-type": "item",
+         "numeric-id": 110616917,
+         "id": "Q110616917"
+        },
+        "type": "wikibase-entityid"
+       }
+      },
+      "type": "statement",
+      "rank": "normal"
+     }
+    ],
+    "P17": [
+     {
+      "mainsnak": {
+       "snaktype": "value",
+       "property": "P17",
+       "datavalue": {
+        "value": {
+         "entity-type": "item",
+         "numeric-id": 34,
+         "id": "Q34"
+        },
+        "type": "wikibase-entityid"
+       }
+      },
+      "type": "statement",
+      "rank": "normal"
+     }
+    ],
+    "P585": [
+     {
+      "mainsnak": {
+       "snaktype": "value",
+       "property": "P585",
+       "datavalue": {
+        "value": {
+         "time": "+2027-00-00T00:00:00Z",
+         "timezone": 0,
+         "before": 0,
+         "after": 0,
+         "precision": 9,
+         "calendarmodel": "http://www.wikidata.org/entity/Q1985727"
+        },
+        "type": "time"
+       }
+      },
+      "type": "statement",
+      "rank": "normal"
+     }
+    ]
+   }
+  },
+  "Q123819436": {
+   "type": "item",
+   "id": "Q123819436",
+   "labels": {
+    "en": {
+     "language": "en",
+     "value": "Super Bowl LXI"
+    }
+   },
+   "sitelinks": {
+    "enwiki": {
+     "site": "enwiki",
+     "title": "Super Bowl LXI"
+    }
+   },
+   "claims": {
+    "P31": [
+     {
+      "mainsnak": {
+       "snaktype": "value",
+       "property": "P31",
+       "datavalue": {
+        "value": {
+         "entity-type": "item",
+         "numeric-id": 32096,
+         "id": "Q32096"
+        },
+        "type": "wikibase-entityid"
+       }
+      },
+      "type": "statement",
+      "rank": "normal"
+     }
+    ],
+    "P17": [
+     {
+      "mainsnak": {
+       "snaktype": "value",
+       "property": "P17",
+       "datavalue": {
+        "value": {
+         "entity-type": "item",
+         "numeric-id": 30,
+         "id": "Q30"
+        },
+        "type": "wikibase-entityid"
+       }
+      },
+      "type": "statement",
+      "rank": "normal"
+     }
+    ],
+    "P585": [
+     {
+      "mainsnak": {
+       "snaktype": "value",
+       "property": "P585",
+       "datavalue": {
+        "value": {
+         "time": "+2027-02-14T00:00:00Z",
+         "timezone": 0,
+         "before": 0,
+         "after": 0,
+         "precision": 11,
+         "calendarmodel": "http://www.wikidata.org/entity/Q1985727"
+        },
+        "type": "time"
+       }
+      },
+      "type": "statement",
+      "rank": "normal"
+     }
+    ]
+   }
+  },
+  "Q190511": {
+   "type": "item",
+   "id": "Q190511",
+   "labels": {
+    "en": {
+     "language": "en",
+     "value": "Apophis"
+    }
+   },
+   "sitelinks": {
+    "enwiki": {
+     "site": "enwiki",
+     "title": "Apophis"
+    }
+   },
+   "claims": {
+    "P31": [
+     {
+      "mainsnak": {
+       "snaktype": "value",
+       "property": "P31",
+       "datavalue": {
+        "value": {
+         "entity-type": "item",
+         "numeric-id": 146083,
+         "id": "Q146083"
+        },
+        "type": "wikibase-entityid"
+       }
+      },
+      "type": "statement",
+      "rank": "normal"
+     },
+     {
+      "mainsnak": {
+       "snaktype": "value",
+       "property": "P31",
+       "datavalue": {
+        "value": {
+         "entity-type": "item",
+         "numeric-id": 60788817,
+         "id": "Q60788817"
+        },
+        "type": "wikibase-entityid"
+       }
+      },
+      "type": "statement",
+      "rank": "normal"
+     }
+    ]
+   }
+  },
+  "Q118931": {
+   "type": "item",
+   "id": "Q118931",
+   "labels": {
+    "en": {
+     "language": "en",
+     "value": "99942 Apophis"
+    }
+   },
+   "sitelinks": {
+    "enwiki": {
+     "site": "enwiki",
+     "title": "99942 Apophis"
+    }
+   },
+   "claims": {
+    "P31": [
+     {
+      "mainsnak": {
+       "snaktype": "value",
+       "property": "P31",
+       "datavalue": {
+        "value": {
+         "entity-type": "item",
+         "numeric-id": 59423687,
+         "id": "Q59423687"
+        },
+        "type": "wikibase-entityid"
+       }
+      },
+      "type": "statement",
+      "rank": "normal"
+     },
+     {
+      "mainsnak": {
+       "snaktype": "value",
+       "property": "P31",
+       "datavalue": {
+        "value": {
+         "entity-type": "item",
+         "numeric-id": 217526,
+         "id": "Q217526"
+        },
+        "type": "wikibase-entityid"
+       }
+      },
+      "type": "statement",
+      "rank": "normal"
+     },
+     {
+      "mainsnak": {
+       "snaktype": "value",
+       "property": "P31",
+       "datavalue": {
+        "value": {
+         "entity-type": "item",
+         "numeric-id": 265392,
+         "id": "Q265392"
+        },
+        "type": "wikibase-entityid"
+       }
+      },
+      "type": "statement",
+      "rank": "normal"
+     }
+    ]
+   }
+  },
+  "Q2620078": {
+   "type": "item",
+   "id": "Q2620078",
+   "labels": {
+    "en": {
+     "language": "en",
+     "value": "solar eclipse of April 8, 2024"
+    }
+   },
+   "sitelinks": {
+    "enwiki": {
+     "site": "enwiki",
+     "title": "Solar eclipse of April 8, 2024"
+    }
+   },
+   "claims": {
+    "P31": [
+     {
+      "mainsnak": {
+       "snaktype": "value",
+       "property": "P31",
+       "datavalue": {
+        "value": {
+         "entity-type": "item",
+         "numeric-id": 3887,
+         "id": "Q3887"
+        },
+        "type": "wikibase-entityid"
+       }
+      },
+      "type": "statement",
+      "rank": "normal"
+     },
+     {
+      "mainsnak": {
+       "snaktype": "value",
+       "property": "P31",
+       "datavalue": {
+        "value": {
+         "entity-type": "item",
+         "numeric-id": 11086064,
+         "id": "Q11086064"
+        },
+        "type": "wikibase-entityid"
+       }
+      },
+      "type": "statement",
+      "rank": "preferred"
+     }
+    ],
+    "P17": [
+     {
+      "mainsnak": {
+       "snaktype": "value",
+       "property": "P17",
+       "datavalue": {
+        "value": {
+         "entity-type": "item",
+         "numeric-id": 96,
+         "id": "Q96"
+        },
+        "type": "wikibase-entityid"
+       }
+      },
+      "type": "statement",
+      "rank": "normal"
+     },
+     {
+      "mainsnak": {
+       "snaktype": "value",
+       "property": "P17",
+       "datavalue": {
+        "value": {
+         "entity-type": "item",
+         "numeric-id": 30,
+         "id": "Q30"
+        },
+        "type": "wikibase-entityid"
+       }
+      },
+      "type": "statement",
+      "rank": "normal"
+     },
+     {
+      "mainsnak": {
+       "snaktype": "value",
+       "property": "P17",
+       "datavalue": {
+        "value": {
+         "entity-type": "item",
+         "numeric-id": 16,
+         "id": "Q16"
+        },
+        "type": "wikibase-entityid"
+       }
+      },
+      "type": "statement",
+      "rank": "normal"
+     }
+    ],
+    "P585": [
+     {
+      "mainsnak": {
+       "snaktype": "value",
+       "property": "P585",
+       "datavalue": {
+        "value": {
+         "time": "+2024-04-08T00:00:00Z",
+         "timezone": 0,
+         "before": 0,
+         "after": 0,
+         "precision": 11,
+         "calendarmodel": "http://www.wikidata.org/entity/Q1985727"
+        },
+        "type": "time"
+       }
+      },
+      "type": "statement",
+      "rank": "normal"
+     }
+    ]
+   }
+  },
+  "Q2464643": {
+   "type": "item",
+   "id": "Q2464643",
+   "labels": {
+    "en": {
+     "language": "en",
+     "value": "solar eclipse of 12 August 2026"
+    }
+   },
+   "sitelinks": {
+    "enwiki": {
+     "site": "enwiki",
+     "title": "Solar eclipse of August 12, 2026"
+    }
+   },
+   "claims": {
+    "P31": [
+     {
+      "mainsnak": {
+       "snaktype": "value",
+       "property": "P31",
+       "datavalue": {
+        "value": {
+         "entity-type": "item",
+         "numeric-id": 3887,
+         "id": "Q3887"
+        },
+        "type": "wikibase-entityid"
+       }
+      },
+      "type": "statement",
+      "rank": "normal"
+     },
+     {
+      "mainsnak": {
+       "snaktype": "value",
+       "property": "P31",
+       "datavalue": {
+        "value": {
+         "entity-type": "item",
+         "numeric-id": 11086064,
+         "id": "Q11086064"
+        },
+        "type": "wikibase-entityid"
+       }
+      },
+      "type": "statement",
+      "rank": "normal"
+     }
+    ],
+    "P17": [
+     {
+      "mainsnak": {
+       "snaktype": "value",
+       "property": "P17",
+       "datavalue": {
+        "value": {
+         "entity-type": "item",
+         "numeric-id": 159,
+         "id": "Q159"
+        },
+        "type": "wikibase-entityid"
+       }
+      },
+      "type": "statement",
+      "rank": "normal"
+     },
+     {
+      "mainsnak": {
+       "snaktype": "value",
+       "property": "P17",
+       "datavalue": {
+        "value": {
+         "entity-type": "item",
+         "numeric-id": 35,
+         "id": "Q35"
+        },
+        "type": "wikibase-entityid"
+       }
+      },
+      "type": "statement",
+      "rank": "normal"
+     },
+     {
+      "mainsnak": {
+       "snaktype": "value",
+       "property": "P17",
+       "datavalue": {
+        "value": {
+         "entity-type": "item",
+         "numeric-id": 189,
+         "id": "Q189"
+        },
+        "type": "wikibase-entityid"
+       }
+      },
+      "type": "statement",
+      "rank": "normal"
+     },
+     {
+      "mainsnak": {
+       "snaktype": "value",
+       "property": "P17",
+       "datavalue": {
+        "value": {
+         "entity-type": "item",
+         "numeric-id": 45,
+         "id": "Q45"
+        },
+        "type": "wikibase-entityid"
+       }
+      },
+      "type": "statement",
+      "rank": "normal"
+     },
+     {
+      "mainsnak": {
+       "snaktype": "value",
+       "property": "P17",
+       "datavalue": {
+        "value": {
+         "entity-type": "item",
+         "numeric-id": 29,
+         "id": "Q29"
+        },
+        "type": "wikibase-entityid"
+       }
+      },
+      "type": "statement",
+      "rank": "normal"
+     }
+    ],
+    "P585": [
+     {
+      "mainsnak": {
+       "snaktype": "value",
+       "property": "P585",
+       "datavalue": {
+        "value": {
+         "time": "+2026-08-12T00:00:00Z",
+         "timezone": 0,
+         "before": 0,
+         "after": 0,
+         "precision": 11,
+         "calendarmodel": "http://www.wikidata.org/entity/Q1985727"
+        },
+        "type": "time"
+       }
+      },
+      "type": "statement",
+      "rank": "normal"
+     }
+    ]
+   }
+  },
+  "Q3577554": {
+   "type": "item",
+   "id": "Q3577554",
+   "labels": {
+    "en": {
+     "language": "en",
+     "value": "solar eclipse of August 2, 2027"
+    }
+   },
+   "sitelinks": {
+    "enwiki": {
+     "site": "enwiki",
+     "title": "Solar eclipse of August 2, 2027"
+    }
+   },
+   "claims": {
+    "P31": [
+     {
+      "mainsnak": {
+       "snaktype": "value",
+       "property": "P31",
+       "datavalue": {
+        "value": {
+         "entity-type": "item",
+         "numeric-id": 3887,
+         "id": "Q3887"
+        },
+        "type": "wikibase-entityid"
+       }
+      },
+      "type": "statement",
+      "rank": "normal"
+     },
+     {
+      "mainsnak": {
+       "snaktype": "value",
+       "property": "P31",
+       "datavalue": {
+        "value": {
+         "entity-type": "item",
+         "numeric-id": 11086064,
+         "id": "Q11086064"
+        },
+        "type": "wikibase-entityid"
+       }
+      },
+      "type": "statement",
+      "rank": "normal"
+     }
+    ],
+    "P17": [
+     {
+      "mainsnak": {
+       "snaktype": "value",
+       "property": "P17",
+       "datavalue": {
+        "value": {
+         "entity-type": "item",
+         "numeric-id": 79,
+         "id": "Q79"
+        },
+        "type": "wikibase-entityid"
+       }
+      },
+      "type": "statement",
+      "rank": "normal"
+     }
+    ],
+    "P585": [
+     {
+      "mainsnak": {
+       "snaktype": "value",
+       "property": "P585",
+       "datavalue": {
+        "value": {
+         "time": "+2027-08-02T00:00:00Z",
+         "timezone": 0,
+         "before": 0,
+         "after": 0,
+         "precision": 11,
+         "calendarmodel": "http://www.wikidata.org/entity/Q1985727"
+        },
+        "type": "time"
+       }
+      },
+      "type": "statement",
+      "rank": "normal"
+     }
+    ]
+   }
+  }
+ }
+}

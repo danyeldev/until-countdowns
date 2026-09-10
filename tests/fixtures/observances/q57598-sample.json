@@ -1,0 +1,844 @@
+{
+ "head": {
+  "vars": [
+   "item",
+   "itemLabel",
+   "sl",
+   "day",
+   "dayLabel",
+   "rank",
+   "stIso",
+   "itemIso",
+   "img",
+   "enwiki"
+  ]
+ },
+ "results": {
+  "bindings": [
+   {
+    "item": {
+     "type": "uri",
+     "value": "http://www.wikidata.org/entity/Q110192210"
+    },
+    "day": {
+     "type": "uri",
+     "value": "http://www.wikidata.org/entity/Q2413"
+    },
+    "dayLabel": {
+     "xml:lang": "en",
+     "type": "literal",
+     "value": "December 17"
+    },
+    "itemLabel": {
+     "xml:lang": "en",
+     "type": "literal",
+     "value": "National School Shooting Day"
+    },
+    "rank": {
+     "type": "uri",
+     "value": "http://wikiba.se/ontology#NormalRank"
+    },
+    "sl": {
+     "datatype": "http://www.w3.org/2001/XMLSchema#integer",
+     "type": "literal",
+     "value": "0"
+    }
+   },
+   {
+    "item": {
+     "type": "uri",
+     "value": "http://www.wikidata.org/entity/Q309530"
+    },
+    "itemIso": {
+     "type": "literal",
+     "value": "IL"
+    },
+    "day": {
+     "type": "uri",
+     "value": "http://www.wikidata.org/entity/Q2912331"
+    },
+    "dayLabel": {
+     "xml:lang": "en",
+     "type": "literal",
+     "value": "27 Nisan"
+    },
+    "itemLabel": {
+     "xml:lang": "en",
+     "type": "literal",
+     "value": "Yom HaShoah"
+    },
+    "rank": {
+     "type": "uri",
+     "value": "http://wikiba.se/ontology#NormalRank"
+    },
+    "sl": {
+     "datatype": "http://www.w3.org/2001/XMLSchema#integer",
+     "type": "literal",
+     "value": "39"
+    },
+    "enwiki": {
+     "type": "uri",
+     "value": "https://en.wikipedia.org/wiki/Yom_HaShoah"
+    },
+    "img": {
+     "type": "uri",
+     "value": "http://commons.wikimedia.org/wiki/Special:FilePath/Isaac%20Herzog%20in%20Jerusalem%2C%20April%202023%20%28GPOHZ0%204529%29.jpg"
+    }
+   },
+   {
+    "item": {
+     "type": "uri",
+     "value": "http://www.wikidata.org/entity/Q156397"
+    },
+    "itemIso": {
+     "type": "literal",
+     "value": "ES"
+    },
+    "day": {
+     "type": "uri",
+     "value": "http://www.wikidata.org/entity/Q2851"
+    },
+    "dayLabel": {
+     "xml:lang": "en",
+     "type": "literal",
+     "value": "September 11"
+    },
+    "itemLabel": {
+     "xml:lang": "en",
+     "type": "literal",
+     "value": "National Day of Catalonia"
+    },
+    "rank": {
+     "type": "uri",
+     "value": "http://wikiba.se/ontology#NormalRank"
+    },
+    "sl": {
+     "datatype": "http://www.w3.org/2001/XMLSchema#integer",
+     "type": "literal",
+     "value": "28"
+    },
+    "enwiki": {
+     "type": "uri",
+     "value": "https://en.wikipedia.org/wiki/National_Day_of_Catalonia"
+    },
+    "img": {
+     "type": "uri",
+     "value": "http://commons.wikimedia.org/wiki/Special:FilePath/Rafael%20Casanova%2011%20Setembre.jpg"
+    }
+   },
+   {
+    "item": {
+     "type": "uri",
+     "value": "http://www.wikidata.org/entity/Q156397"
+    },
+    "itemIso": {
+     "type": "literal",
+     "value": "ES"
+    },
+    "day": {
+     "type": "uri",
+     "value": "http://www.wikidata.org/entity/Q2851"
+    },
+    "dayLabel": {
+     "xml:lang": "en",
+     "type": "literal",
+     "value": "September 11"
+    },
+    "itemLabel": {
+     "xml:lang": "en",
+     "type": "literal",
+     "value": "National Day of Catalonia"
+    },
+    "rank": {
+     "type": "uri",
+     "value": "http://wikiba.se/ontology#NormalRank"
+    },
+    "sl": {
+     "datatype": "http://www.w3.org/2001/XMLSchema#integer",
+     "type": "literal",
+     "value": "28"
+    },
+    "enwiki": {
+     "type": "uri",
+     "value": "https://en.wikipedia.org/wiki/National_Day_of_Catalonia"
+    },
+    "img": {
+     "type": "uri",
+     "value": "http://commons.wikimedia.org/wiki/Special:FilePath/Placa%20de%20la%20Diada%20Nacional%20de%20Catalunya.jpg"
+    }
+   },
+   {
+    "item": {
+     "type": "uri",
+     "value": "http://www.wikidata.org/entity/Q483236"
+    },
+    "itemIso": {
+     "type": "literal",
+     "value": "AF"
+    },
+    "day": {
+     "type": "uri",
+     "value": "http://www.wikidata.org/entity/Q12889843"
+    },
+    "dayLabel": {
+     "xml:lang": "en",
+     "type": "literal",
+     "value": "March equinox"
+    },
+    "itemLabel": {
+     "xml:lang": "en",
+     "type": "literal",
+     "value": "Nowruz"
+    },
+    "rank": {
+     "type": "uri",
+     "value": "http://wikiba.se/ontology#NormalRank"
+    },
+    "sl": {
+     "datatype": "http://www.w3.org/2001/XMLSchema#integer",
+     "type": "literal",
+     "value": "100"
+    },
+    "enwiki": {
+     "type": "uri",
+     "value": "https://en.wikipedia.org/wiki/Nowruz"
+    },
+    "img": {
+     "type": "uri",
+     "value": "http://commons.wikimedia.org/wiki/Special:FilePath/White%20house%20haft%20seen.jpg"
+    }
+   },
+   {
+    "item": {
+     "type": "uri",
+     "value": "http://www.wikidata.org/entity/Q483236"
+    },
+    "itemIso": {
+     "type": "literal",
+     "value": "IR"
+    },
+    "day": {
+     "type": "uri",
+     "value": "http://www.wikidata.org/entity/Q12889843"
+    },
+    "dayLabel": {
+     "xml:lang": "en",
+     "type": "literal",
+     "value": "March equinox"
+    },
+    "itemLabel": {
+     "xml:lang": "en",
+     "type": "literal",
+     "value": "Nowruz"
+    },
+    "rank": {
+     "type": "uri",
+     "value": "http://wikiba.se/ontology#NormalRank"
+    },
+    "sl": {
+     "datatype": "http://www.w3.org/2001/XMLSchema#integer",
+     "type": "literal",
+     "value": "100"
+    },
+    "enwiki": {
+     "type": "uri",
+     "value": "https://en.wikipedia.org/wiki/Nowruz"
+    },
+    "img": {
+     "type": "uri",
+     "value": "http://commons.wikimedia.org/wiki/Special:FilePath/White%20house%20haft%20seen.jpg"
+    }
+   },
+   {
+    "item": {
+     "type": "uri",
+     "value": "http://www.wikidata.org/entity/Q483236"
+    },
+    "itemIso": {
+     "type": "literal",
+     "value": "AZ"
+    },
+    "day": {
+     "type": "uri",
+     "value": "http://www.wikidata.org/entity/Q12889843"
+    },
+    "dayLabel": {
+     "xml:lang": "en",
+     "type": "literal",
+     "value": "March equinox"
+    },
+    "itemLabel": {
+     "xml:lang": "en",
+     "type": "literal",
+     "value": "Nowruz"
+    },
+    "rank": {
+     "type": "uri",
+     "value": "http://wikiba.se/ontology#NormalRank"
+    },
+    "sl": {
+     "datatype": "http://www.w3.org/2001/XMLSchema#integer",
+     "type": "literal",
+     "value": "100"
+    },
+    "enwiki": {
+     "type": "uri",
+     "value": "https://en.wikipedia.org/wiki/Nowruz"
+    },
+    "img": {
+     "type": "uri",
+     "value": "http://commons.wikimedia.org/wiki/Special:FilePath/White%20house%20haft%20seen.jpg"
+    }
+   },
+   {
+    "item": {
+     "type": "uri",
+     "value": "http://www.wikidata.org/entity/Q483236"
+    },
+    "itemIso": {
+     "type": "literal",
+     "value": "AF"
+    },
+    "day": {
+     "type": "uri",
+     "value": "http://www.wikidata.org/entity/Q2433"
+    },
+    "dayLabel": {
+     "xml:lang": "en",
+     "type": "literal",
+     "value": "March 21"
+    },
+    "itemLabel": {
+     "xml:lang": "en",
+     "type": "literal",
+     "value": "Nowruz"
+    },
+    "rank": {
+     "type": "uri",
+     "value": "http://wikiba.se/ontology#NormalRank"
+    },
+    "sl": {
+     "datatype": "http://www.w3.org/2001/XMLSchema#integer",
+     "type": "literal",
+     "value": "100"
+    },
+    "enwiki": {
+     "type": "uri",
+     "value": "https://en.wikipedia.org/wiki/Nowruz"
+    },
+    "img": {
+     "type": "uri",
+     "value": "http://commons.wikimedia.org/wiki/Special:FilePath/White%20house%20haft%20seen.jpg"
+    }
+   },
+   {
+    "item": {
+     "type": "uri",
+     "value": "http://www.wikidata.org/entity/Q483236"
+    },
+    "itemIso": {
+     "type": "literal",
+     "value": "IR"
+    },
+    "day": {
+     "type": "uri",
+     "value": "http://www.wikidata.org/entity/Q2433"
+    },
+    "dayLabel": {
+     "xml:lang": "en",
+     "type": "literal",
+     "value": "March 21"
+    },
+    "itemLabel": {
+     "xml:lang": "en",
+     "type": "literal",
+     "value": "Nowruz"
+    },
+    "rank": {
+     "type": "uri",
+     "value": "http://wikiba.se/ontology#NormalRank"
+    },
+    "sl": {
+     "datatype": "http://www.w3.org/2001/XMLSchema#integer",
+     "type": "literal",
+     "value": "100"
+    },
+    "enwiki": {
+     "type": "uri",
+     "value": "https://en.wikipedia.org/wiki/Nowruz"
+    },
+    "img": {
+     "type": "uri",
+     "value": "http://commons.wikimedia.org/wiki/Special:FilePath/White%20house%20haft%20seen.jpg"
+    }
+   },
+   {
+    "item": {
+     "type": "uri",
+     "value": "http://www.wikidata.org/entity/Q483236"
+    },
+    "itemIso": {
+     "type": "literal",
+     "value": "AZ"
+    },
+    "day": {
+     "type": "uri",
+     "value": "http://www.wikidata.org/entity/Q2433"
+    },
+    "dayLabel": {
+     "xml:lang": "en",
+     "type": "literal",
+     "value": "March 21"
+    },
+    "itemLabel": {
+     "xml:lang": "en",
+     "type": "literal",
+     "value": "Nowruz"
+    },
+    "rank": {
+     "type": "uri",
+     "value": "http://wikiba.se/ontology#NormalRank"
+    },
+    "sl": {
+     "datatype": "http://www.w3.org/2001/XMLSchema#integer",
+     "type": "literal",
+     "value": "100"
+    },
+    "enwiki": {
+     "type": "uri",
+     "value": "https://en.wikipedia.org/wiki/Nowruz"
+    },
+    "img": {
+     "type": "uri",
+     "value": "http://commons.wikimedia.org/wiki/Special:FilePath/White%20house%20haft%20seen.jpg"
+    }
+   },
+   {
+    "item": {
+     "type": "uri",
+     "value": "http://www.wikidata.org/entity/Q483236"
+    },
+    "itemIso": {
+     "type": "literal",
+     "value": "AF"
+    },
+    "day": {
+     "type": "uri",
+     "value": "http://www.wikidata.org/entity/Q14896458"
+    },
+    "dayLabel": {
+     "xml:lang": "en",
+     "type": "literal",
+     "value": "1 Farvardin"
+    },
+    "itemLabel": {
+     "xml:lang": "en",
+     "type": "literal",
+     "value": "Nowruz"
+    },
+    "rank": {
+     "type": "uri",
+     "value": "http://wikiba.se/ontology#NormalRank"
+    },
+    "sl": {
+     "datatype": "http://www.w3.org/2001/XMLSchema#integer",
+     "type": "literal",
+     "value": "100"
+    },
+    "enwiki": {
+     "type": "uri",
+     "value": "https://en.wikipedia.org/wiki/Nowruz"
+    },
+    "img": {
+     "type": "uri",
+     "value": "http://commons.wikimedia.org/wiki/Special:FilePath/White%20house%20haft%20seen.jpg"
+    }
+   },
+   {
+    "item": {
+     "type": "uri",
+     "value": "http://www.wikidata.org/entity/Q483236"
+    },
+    "itemIso": {
+     "type": "literal",
+     "value": "IR"
+    },
+    "day": {
+     "type": "uri",
+     "value": "http://www.wikidata.org/entity/Q14896458"
+    },
+    "dayLabel": {
+     "xml:lang": "en",
+     "type": "literal",
+     "value": "1 Farvardin"
+    },
+    "itemLabel": {
+     "xml:lang": "en",
+     "type": "literal",
+     "value": "Nowruz"
+    },
+    "rank": {
+     "type": "uri",
+     "value": "http://wikiba.se/ontology#NormalRank"
+    },
+    "sl": {
+     "datatype": "http://www.w3.org/2001/XMLSchema#integer",
+     "type": "literal",
+     "value": "100"
+    },
+    "enwiki": {
+     "type": "uri",
+     "value": "https://en.wikipedia.org/wiki/Nowruz"
+    },
+    "img": {
+     "type": "uri",
+     "value": "http://commons.wikimedia.org/wiki/Special:FilePath/White%20house%20haft%20seen.jpg"
+    }
+   },
+   {
+    "item": {
+     "type": "uri",
+     "value": "http://www.wikidata.org/entity/Q483236"
+    },
+    "itemIso": {
+     "type": "literal",
+     "value": "AZ"
+    },
+    "day": {
+     "type": "uri",
+     "value": "http://www.wikidata.org/entity/Q14896458"
+    },
+    "dayLabel": {
+     "xml:lang": "en",
+     "type": "literal",
+     "value": "1 Farvardin"
+    },
+    "itemLabel": {
+     "xml:lang": "en",
+     "type": "literal",
+     "value": "Nowruz"
+    },
+    "rank": {
+     "type": "uri",
+     "value": "http://wikiba.se/ontology#NormalRank"
+    },
+    "sl": {
+     "datatype": "http://www.w3.org/2001/XMLSchema#integer",
+     "type": "literal",
+     "value": "100"
+    },
+    "enwiki": {
+     "type": "uri",
+     "value": "https://en.wikipedia.org/wiki/Nowruz"
+    },
+    "img": {
+     "type": "uri",
+     "value": "http://commons.wikimedia.org/wiki/Special:FilePath/White%20house%20haft%20seen.jpg"
+    }
+   },
+   {
+    "item": {
+     "type": "uri",
+     "value": "http://www.wikidata.org/entity/Q1059995"
+    },
+    "itemIso": {
+     "type": "literal",
+     "value": "JP"
+    },
+    "day": {
+     "type": "uri",
+     "value": "http://www.wikidata.org/entity/Q2335"
+    },
+    "dayLabel": {
+     "xml:lang": "en",
+     "type": "literal",
+     "value": "February 11"
+    },
+    "itemLabel": {
+     "xml:lang": "en",
+     "type": "literal",
+     "value": "National Foundation Day"
+    },
+    "rank": {
+     "type": "uri",
+     "value": "http://wikiba.se/ontology#NormalRank"
+    },
+    "sl": {
+     "datatype": "http://www.w3.org/2001/XMLSchema#integer",
+     "type": "literal",
+     "value": "24"
+    },
+    "enwiki": {
+     "type": "uri",
+     "value": "https://en.wikipedia.org/wiki/National_Foundation_Day_(Japan)"
+    },
+    "img": {
+     "type": "uri",
+     "value": "http://commons.wikimedia.org/wiki/Special:FilePath/National-Foundation-Day-of-Japan-Mikoshi-Feb-11-2016.png"
+    }
+   },
+   {
+    "item": {
+     "type": "uri",
+     "value": "http://www.wikidata.org/entity/Q10862448"
+    },
+    "itemIso": {
+     "type": "literal",
+     "value": "NL"
+    },
+    "day": {
+     "type": "uri",
+     "value": "http://www.wikidata.org/entity/Q2550"
+    },
+    "dayLabel": {
+     "xml:lang": "en",
+     "type": "literal",
+     "value": "May 5"
+    },
+    "itemLabel": {
+     "xml:lang": "en",
+     "type": "literal",
+     "value": "Liberation Day"
+    },
+    "rank": {
+     "type": "uri",
+     "value": "http://wikiba.se/ontology#NormalRank"
+    },
+    "sl": {
+     "datatype": "http://www.w3.org/2001/XMLSchema#integer",
+     "type": "literal",
+     "value": "17"
+    },
+    "enwiki": {
+     "type": "uri",
+     "value": "https://en.wikipedia.org/wiki/Liberation_Day_(Netherlands)"
+    },
+    "img": {
+     "type": "uri",
+     "value": "http://commons.wikimedia.org/wiki/Special:FilePath/Utrecht%20corso%20B.jpg"
+    }
+   },
+   {
+    "item": {
+     "type": "uri",
+     "value": "http://www.wikidata.org/entity/Q13470307"
+    },
+    "itemIso": {
+     "type": "literal",
+     "value": "RU"
+    },
+    "day": {
+     "type": "uri",
+     "value": "http://www.wikidata.org/entity/Q55550931"
+    },
+    "dayLabel": {
+     "xml:lang": "en",
+     "type": "literal",
+     "value": "Sunday in June"
+    },
+    "itemLabel": {
+     "xml:lang": "en",
+     "type": "literal",
+     "value": "Juhannus"
+    },
+    "rank": {
+     "type": "uri",
+     "value": "http://wikiba.se/ontology#NormalRank"
+    },
+    "sl": {
+     "datatype": "http://www.w3.org/2001/XMLSchema#integer",
+     "type": "literal",
+     "value": "4"
+    },
+    "enwiki": {
+     "type": "uri",
+     "value": "https://en.wikipedia.org/wiki/Juhannus"
+    },
+    "img": {
+     "type": "uri",
+     "value": "http://commons.wikimedia.org/wiki/Special:FilePath/Juhannuskokko%20Imatra%202011%202.JPG"
+    }
+   },
+   {
+    "item": {
+     "type": "uri",
+     "value": "http://www.wikidata.org/entity/Q13470307"
+    },
+    "itemIso": {
+     "type": "literal",
+     "value": "FI"
+    },
+    "day": {
+     "type": "uri",
+     "value": "http://www.wikidata.org/entity/Q55550931"
+    },
+    "dayLabel": {
+     "xml:lang": "en",
+     "type": "literal",
+     "value": "Sunday in June"
+    },
+    "itemLabel": {
+     "xml:lang": "en",
+     "type": "literal",
+     "value": "Juhannus"
+    },
+    "rank": {
+     "type": "uri",
+     "value": "http://wikiba.se/ontology#NormalRank"
+    },
+    "sl": {
+     "datatype": "http://www.w3.org/2001/XMLSchema#integer",
+     "type": "literal",
+     "value": "4"
+    },
+    "enwiki": {
+     "type": "uri",
+     "value": "https://en.wikipedia.org/wiki/Juhannus"
+    },
+    "img": {
+     "type": "uri",
+     "value": "http://commons.wikimedia.org/wiki/Special:FilePath/Juhannuskokko%20Imatra%202011%202.JPG"
+    }
+   },
+   {
+    "item": {
+     "type": "uri",
+     "value": "http://www.wikidata.org/entity/Q103461996"
+    },
+    "itemIso": {
+     "type": "literal",
+     "value": "AZ"
+    },
+    "day": {
+     "type": "uri",
+     "value": "http://www.wikidata.org/entity/Q2990"
+    },
+    "dayLabel": {
+     "xml:lang": "en",
+     "type": "literal",
+     "value": "November 8"
+    },
+    "itemLabel": {
+     "xml:lang": "en",
+     "type": "literal",
+     "value": "Victory Day"
+    },
+    "rank": {
+     "type": "uri",
+     "value": "http://wikiba.se/ontology#NormalRank"
+    },
+    "sl": {
+     "datatype": "http://www.w3.org/2001/XMLSchema#integer",
+     "type": "literal",
+     "value": "17"
+    },
+    "enwiki": {
+     "type": "uri",
+     "value": "https://en.wikipedia.org/wiki/Victory_Day_(Azerbaijan)"
+    },
+    "img": {
+     "type": "uri",
+     "value": "http://commons.wikimedia.org/wiki/Special:FilePath/Azerbaijani%20people%20celebrating%20victory%20in%20Karabakh.%20Bulbul%20avenue2.jpg"
+    }
+   },
+   {
+    "item": {
+     "type": "uri",
+     "value": "http://www.wikidata.org/entity/Q21588246"
+    },
+    "itemIso": {
+     "type": "literal",
+     "value": "AR"
+    },
+    "day": {
+     "type": "uri",
+     "value": "http://www.wikidata.org/entity/Q3015"
+    },
+    "dayLabel": {
+     "xml:lang": "en",
+     "type": "literal",
+     "value": "November 30"
+    },
+    "itemLabel": {
+     "xml:lang": "en",
+     "type": "literal",
+     "value": "National Mate Day"
+    },
+    "rank": {
+     "type": "uri",
+     "value": "http://wikiba.se/ontology#NormalRank"
+    },
+    "sl": {
+     "datatype": "http://www.w3.org/2001/XMLSchema#integer",
+     "type": "literal",
+     "value": "1"
+    }
+   },
+   {
+    "item": {
+     "type": "uri",
+     "value": "http://www.wikidata.org/entity/Q21588246"
+    },
+    "itemIso": {
+     "type": "literal",
+     "value": "CL"
+    },
+    "day": {
+     "type": "uri",
+     "value": "http://www.wikidata.org/entity/Q3015"
+    },
+    "dayLabel": {
+     "xml:lang": "en",
+     "type": "literal",
+     "value": "November 30"
+    },
+    "itemLabel": {
+     "xml:lang": "en",
+     "type": "literal",
+     "value": "National Mate Day"
+    },
+    "rank": {
+     "type": "uri",
+     "value": "http://wikiba.se/ontology#NormalRank"
+    },
+    "sl": {
+     "datatype": "http://www.w3.org/2001/XMLSchema#integer",
+     "type": "literal",
+     "value": "1"
+    }
+   },
+   {
+    "item": {
+     "type": "uri",
+     "value": "http://www.wikidata.org/entity/Q112678738"
+    },
+    "itemIso": {
+     "type": "literal",
+     "value": "ES"
+    },
+    "day": {
+     "type": "uri",
+     "value": "http://www.wikidata.org/entity/Q2665"
+    },
+    "dayLabel": {
+     "xml:lang": "en",
+     "type": "literal",
+     "value": "June 24"
+    },
+    "rank": {
+     "type": "uri",
+     "value": "http://wikiba.se/ontology#NormalRank"
+    },
+    "sl": {
+     "datatype": "http://www.w3.org/2001/XMLSchema#integer",
+     "type": "literal",
+     "value": "2"
+    },
+    "img": {
+     "type": "uri",
+     "value": "http://commons.wikimedia.org/wiki/Special:FilePath/Encesa%20de%20la%20Flama%20al%20cim%20del%20Canig%C3%B3.JPG"
+    }
+   }
+  ]
+ }
+}

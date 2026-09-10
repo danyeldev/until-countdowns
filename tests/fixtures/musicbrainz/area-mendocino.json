@@ -1,0 +1,150 @@
+{
+  "sort-name": "Mendocino County",
+  "relations": [
+    {
+      "target-type": "area",
+      "attributes": [],
+      "source-credit": "",
+      "type-id": "de7cc874-8b1b-3a05-8272-f3834c968fb7",
+      "begin": null,
+      "attribute-ids": {},
+      "end": null,
+      "ended": false,
+      "target-credit": "",
+      "attribute-values": {},
+      "type": "part of",
+      "direction": "backward",
+      "area": {
+        "name": "California",
+        "iso-3166-2-codes": [
+          "US-CA"
+        ],
+        "type": "Subdivision",
+        "disambiguation": "",
+        "type-id": "fd3d44c5-80a1-3842-9745-2c4972d35afa",
+        "sort-name": "California",
+        "id": "ae0110b6-13d4-4998-9116-5b926287aa23"
+      }
+    },
+    {
+      "target-type": "area",
+      "attributes": [],
+      "source-credit": "",
+      "end": null,
+      "ended": false,
+      "type-id": "de7cc874-8b1b-3a05-8272-f3834c968fb7",
+      "begin": null,
+      "attribute-ids": {},
+      "direction": "forward",
+      "area": {
+        "type-id": "6fd8f29a-3d0a-32fc-980d-ea697b69da78",
+        "name": "Willits",
+        "type": "City",
+        "sort-name": "Willits",
+        "disambiguation": "",
+        "id": "b675c04b-2188-4095-8af5-65c84aa9803b"
+      },
+      "target-credit": "",
+      "attribute-values": {},
+      "type": "part of"
+    },
+    {
+      "source-credit": "",
+      "attributes": [],
+      "target-type": "area",
+      "area": {
+        "id": "d16faa1e-3e2d-4589-b65b-957311ed2873",
+        "disambiguation": "",
+        "name": "Fort Bragg",
+        "type-id": "6fd8f29a-3d0a-32fc-980d-ea697b69da78",
+        "type": "City",
+        "sort-name": "Fort Bragg"
+      },
+      "direction": "forward",
+      "attribute-values": {},
+      "target-credit": "",
+      "type": "part of",
+      "end": null,
+      "ended": false,
+      "begin": null,
+      "type-id": "de7cc874-8b1b-3a05-8272-f3834c968fb7",
+      "attribute-ids": {}
+    },
+    {
+      "direction": "forward",
+      "area": {
+        "sort-name": "Point Arena",
+        "type": "City",
+        "name": "Point Arena",
+        "type-id": "6fd8f29a-3d0a-32fc-980d-ea697b69da78",
+        "disambiguation": "",
+        "id": "3d567acf-c1f3-4b69-a96c-6805fdb8818e"
+      },
+      "target-credit": "",
+      "attribute-values": {},
+      "type": "part of",
+      "end": null,
+      "ended": false,
+      "type-id": "de7cc874-8b1b-3a05-8272-f3834c968fb7",
+      "begin": null,
+      "attribute-ids": {},
+      "source-credit": "",
+      "target-type": "area",
+      "attributes": []
+    },
+    {
+      "source-credit": "",
+      "attributes": [],
+      "target-type": "area",
+      "attribute-values": {},
+      "target-credit": "",
+      "type": "part of",
+      "area": {
+        "id": "4769b871-ac88-4496-a09f-13b3715b552e",
+        "disambiguation": "",
+        "type": "City",
+        "sort-name": "Ukiah",
+        "name": "Ukiah",
+        "type-id": "6fd8f29a-3d0a-32fc-980d-ea697b69da78"
+      },
+      "direction": "forward",
+      "begin": null,
+      "type-id": "de7cc874-8b1b-3a05-8272-f3834c968fb7",
+      "attribute-ids": {},
+      "end": null,
+      "ended": false
+    },
+    {
+      "source-credit": "",
+      "target-type": "area",
+      "attributes": [],
+      "direction": "forward",
+      "area": {
+        "type": "City",
+        "sort-name": "Laytonville",
+        "type-id": "6fd8f29a-3d0a-32fc-980d-ea697b69da78",
+        "name": "Laytonville",
+        "disambiguation": "",
+        "id": "2cbf2dac-076f-4fb4-b6d5-2788baa615cd"
+      },
+      "type": "part of",
+      "target-credit": "",
+      "attribute-values": {},
+      "ended": false,
+      "end": null,
+      "attribute-ids": {},
+      "type-id": "de7cc874-8b1b-3a05-8272-f3834c968fb7",
+      "begin": null
+    }
+  ],
+  "type-id": "bcecec27-8bdb-3e00-8254-d948dda502fa",
+  "id": "ec1ace43-68b0-41fb-8de2-9077d96b8e4f",
+  "life-span": {
+    "ended": false,
+    "end": null,
+    "begin": null
+  },
+  "type": "County",
+  "name": "Mendocino County",
+  "disambiguation": ""
+}

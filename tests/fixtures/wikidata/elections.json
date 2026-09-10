@@ -1,0 +1,766 @@
+{
+ "results": {
+  "bindings": [
+   {
+    "item": {
+     "type": "uri",
+     "value": "http://www.wikidata.org/entity/Q111586203"
+    },
+    "iso": {
+     "type": "literal",
+     "value": "DE"
+    },
+    "enwiki": {
+     "type": "uri",
+     "value": "https://en.wikipedia.org/wiki/2026_Mecklenburg-Vorpommern_state_election"
+    },
+    "d": {
+     "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+     "type": "literal",
+     "value": "2026-09-20T00:00:00Z"
+    },
+    "prec": {
+     "datatype": "http://www.w3.org/2001/XMLSchema#integer",
+     "type": "literal",
+     "value": "11"
+    },
+    "sl": {
+     "datatype": "http://www.w3.org/2001/XMLSchema#integer",
+     "type": "literal",
+     "value": "8"
+    },
+    "itemLabel": {
+     "xml:lang": "en",
+     "type": "literal",
+     "value": "2026 Mecklenburg-Vorpommern state election"
+    },
+    "rank": {
+     "type": "uri",
+     "value": "http://wikiba.se/ontology#NormalRank"
+    }
+   },
+   {
+    "item": {
+     "type": "uri",
+     "value": "http://www.wikidata.org/entity/Q111586203"
+    },
+    "iso": {
+     "type": "literal",
+     "value": "DE"
+    },
+    "enwiki": {
+     "type": "uri",
+     "value": "https://en.wikipedia.org/wiki/2026_Mecklenburg-Vorpommern_state_election"
+    },
+    "d": {
+     "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+     "type": "literal",
+     "value": "2026-09-20T00:00:00Z"
+    },
+    "prec": {
+     "datatype": "http://www.w3.org/2001/XMLSchema#integer",
+     "type": "literal",
+     "value": "11"
+    },
+    "sl": {
+     "datatype": "http://www.w3.org/2001/XMLSchema#integer",
+     "type": "literal",
+     "value": "8"
+    },
+    "itemLabel": {
+     "xml:lang": "en",
+     "type": "literal",
+     "value": "2026 Mecklenburg-Vorpommern state election"
+    },
+    "rank": {
+     "type": "uri",
+     "value": "http://wikiba.se/ontology#NormalRank"
+    }
+   },
+   {
+    "item": {
+     "type": "uri",
+     "value": "http://www.wikidata.org/entity/Q115620205"
+    },
+    "iso": {
+     "type": "literal",
+     "value": "LV"
+    },
+    "enwiki": {
+     "type": "uri",
+     "value": "https://en.wikipedia.org/wiki/2026_Latvian_parliamentary_election"
+    },
+    "d": {
+     "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+     "type": "literal",
+     "value": "2026-10-03T00:00:00Z"
+    },
+    "prec": {
+     "datatype": "http://www.w3.org/2001/XMLSchema#integer",
+     "type": "literal",
+     "value": "11"
+    },
+    "sl": {
+     "datatype": "http://www.w3.org/2001/XMLSchema#integer",
+     "type": "literal",
+     "value": "7"
+    },
+    "itemLabel": {
+     "xml:lang": "en",
+     "type": "literal",
+     "value": "2026 Latvian parliamentary election"
+    },
+    "rank": {
+     "type": "uri",
+     "value": "http://wikiba.se/ontology#NormalRank"
+    }
+   },
+   {
+    "item": {
+     "type": "uri",
+     "value": "http://www.wikidata.org/entity/Q115632178"
+    },
+    "iso": {
+     "type": "literal",
+     "value": "BR"
+    },
+    "enwiki": {
+     "type": "uri",
+     "value": "https://en.wikipedia.org/wiki/2026_Brazilian_general_election"
+    },
+    "d": {
+     "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+     "type": "literal",
+     "value": "2026-10-04T00:00:00Z"
+    },
+    "prec": {
+     "datatype": "http://www.w3.org/2001/XMLSchema#integer",
+     "type": "literal",
+     "value": "11"
+    },
+    "sl": {
+     "datatype": "http://www.w3.org/2001/XMLSchema#integer",
+     "type": "literal",
+     "value": "12"
+    },
+    "itemLabel": {
+     "xml:lang": "en",
+     "type": "literal",
+     "value": "2026 Brazilian general election"
+    },
+    "rank": {
+     "type": "uri",
+     "value": "http://wikiba.se/ontology#NormalRank"
+    }
+   },
+   {
+    "item": {
+     "type": "uri",
+     "value": "http://www.wikidata.org/entity/Q134389638"
+    },
+    "iso": {
+     "type": "literal",
+     "value": "BA"
+    },
+    "enwiki": {
+     "type": "uri",
+     "value": "https://en.wikipedia.org/wiki/2026_Bosnian_general_election"
+    },
+    "d": {
+     "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+     "type": "literal",
+     "value": "2026-10-04T00:00:00Z"
+    },
+    "prec": {
+     "datatype": "http://www.w3.org/2001/XMLSchema#integer",
+     "type": "literal",
+     "value": "11"
+    },
+    "sl": {
+     "datatype": "http://www.w3.org/2001/XMLSchema#integer",
+     "type": "literal",
+     "value": "5"
+    },
+    "itemLabel": {
+     "xml:lang": "en",
+     "type": "literal",
+     "value": "2026 Bosnian general election"
+    },
+    "rank": {
+     "type": "uri",
+     "value": "http://wikiba.se/ontology#NormalRank"
+    }
+   },
+   {
+    "item": {
+     "type": "uri",
+     "value": "http://www.wikidata.org/entity/Q110159977"
+    },
+    "iso": {
+     "type": "literal",
+     "value": "BG"
+    },
+    "enwiki": {
+     "type": "uri",
+     "value": "https://en.wikipedia.org/wiki/2026_Bulgarian_presidential_election"
+    },
+    "d": {
+     "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+     "type": "literal",
+     "value": "2026-10-25T00:00:00Z"
+    },
+    "prec": {
+     "datatype": "http://www.w3.org/2001/XMLSchema#integer",
+     "type": "literal",
+     "value": "11"
+    },
+    "sl": {
+     "datatype": "http://www.w3.org/2001/XMLSchema#integer",
+     "type": "literal",
+     "value": "5"
+    },
+    "itemLabel": {
+     "xml:lang": "en",
+     "type": "literal",
+     "value": "2026 Bulgarian presidential election"
+    },
+    "rank": {
+     "type": "uri",
+     "value": "http://wikiba.se/ontology#NormalRank"
+    }
+   },
+   {
+    "item": {
+     "type": "uri",
+     "value": "http://www.wikidata.org/entity/Q115632178"
+    },
+    "iso": {
+     "type": "literal",
+     "value": "BR"
+    },
+    "enwiki": {
+     "type": "uri",
+     "value": "https://en.wikipedia.org/wiki/2026_Brazilian_general_election"
+    },
+    "d": {
+     "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+     "type": "literal",
+     "value": "2026-10-25T00:00:00Z"
+    },
+    "prec": {
+     "datatype": "http://www.w3.org/2001/XMLSchema#integer",
+     "type": "literal",
+     "value": "11"
+    },
+    "sl": {
+     "datatype": "http://www.w3.org/2001/XMLSchema#integer",
+     "type": "literal",
+     "value": "12"
+    },
+    "itemLabel": {
+     "xml:lang": "en",
+     "type": "literal",
+     "value": "2026 Brazilian general election"
+    },
+    "rank": {
+     "type": "uri",
+     "value": "http://wikiba.se/ontology#NormalRank"
+    }
+   },
+   {
+    "item": {
+     "type": "uri",
+     "value": "http://www.wikidata.org/entity/Q115632366"
+    },
+    "iso": {
+     "type": "literal",
+     "value": "IL"
+    },
+    "enwiki": {
+     "type": "uri",
+     "value": "https://en.wikipedia.org/wiki/2026_Israeli_legislative_election"
+    },
+    "d": {
+     "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+     "type": "literal",
+     "value": "2026-10-27T00:00:00Z"
+    },
+    "prec": {
+     "datatype": "http://www.w3.org/2001/XMLSchema#integer",
+     "type": "literal",
+     "value": "11"
+    },
+    "sl": {
+     "datatype": "http://www.w3.org/2001/XMLSchema#integer",
+     "type": "literal",
+     "value": "18"
+    },
+    "itemLabel": {
+     "xml:lang": "en",
+     "type": "literal",
+     "value": "2026 Israeli legislative election"
+    },
+    "rank": {
+     "type": "uri",
+     "value": "http://wikiba.se/ontology#NormalRank"
+    }
+   },
+   {
+    "item": {
+     "type": "uri",
+     "value": "http://www.wikidata.org/entity/Q115857612"
+    },
+    "iso": {
+     "type": "literal",
+     "value": "US"
+    },
+    "enwiki": {
+     "type": "uri",
+     "value": "https://en.wikipedia.org/wiki/2026_United_States_elections"
+    },
+    "d": {
+     "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+     "type": "literal",
+     "value": "2026-11-03T00:00:00Z"
+    },
+    "prec": {
+     "datatype": "http://www.w3.org/2001/XMLSchema#integer",
+     "type": "literal",
+     "value": "11"
+    },
+    "sl": {
+     "datatype": "http://www.w3.org/2001/XMLSchema#integer",
+     "type": "literal",
+     "value": "15"
+    },
+    "itemLabel": {
+     "xml:lang": "en",
+     "type": "literal",
+     "value": "2026 United States elections"
+    },
+    "rank": {
+     "type": "uri",
+     "value": "http://wikiba.se/ontology#NormalRank"
+    }
+   },
+   {
+    "item": {
+     "type": "uri",
+     "value": "http://www.wikidata.org/entity/Q115862480"
+    },
+    "iso": {
+     "type": "literal",
+     "value": "US"
+    },
+    "enwiki": {
+     "type": "uri",
+     "value": "https://en.wikipedia.org/wiki/2026_United_States_gubernatorial_elections"
+    },
+    "d": {
+     "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+     "type": "literal",
+     "value": "2026-11-03T00:00:00Z"
+    },
+    "prec": {
+     "datatype": "http://www.w3.org/2001/XMLSchema#integer",
+     "type": "literal",
+     "value": "11"
+    },
+    "sl": {
+     "datatype": "http://www.w3.org/2001/XMLSchema#integer",
+     "type": "literal",
+     "value": "7"
+    },
+    "itemLabel": {
+     "xml:lang": "en",
+     "type": "literal",
+     "value": "2026 United States gubernatorial elections"
+    },
+    "rank": {
+     "type": "uri",
+     "value": "http://wikiba.se/ontology#NormalRank"
+    }
+   },
+   {
+    "item": {
+     "type": "uri",
+     "value": "http://www.wikidata.org/entity/Q104843407"
+    },
+    "iso": {
+     "type": "literal",
+     "value": "NZ"
+    },
+    "enwiki": {
+     "type": "uri",
+     "value": "https://en.wikipedia.org/wiki/2026_New_Zealand_general_election"
+    },
+    "d": {
+     "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+     "type": "literal",
+     "value": "2026-11-07T00:00:00Z"
+    },
+    "prec": {
+     "datatype": "http://www.w3.org/2001/XMLSchema#integer",
+     "type": "literal",
+     "value": "11"
+    },
+    "sl": {
+     "datatype": "http://www.w3.org/2001/XMLSchema#integer",
+     "type": "literal",
+     "value": "6"
+    },
+    "itemLabel": {
+     "xml:lang": "en",
+     "type": "literal",
+     "value": "2026 New Zealand general election"
+    },
+    "rank": {
+     "type": "uri",
+     "value": "http://wikiba.se/ontology#NormalRank"
+    }
+   },
+   {
+    "item": {
+     "type": "uri",
+     "value": "http://www.wikidata.org/entity/Q104843407"
+    },
+    "iso": {
+     "type": "literal",
+     "value": "NZ"
+    },
+    "enwiki": {
+     "type": "uri",
+     "value": "https://en.wikipedia.org/wiki/2026_New_Zealand_general_election"
+    },
+    "d": {
+     "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+     "type": "literal",
+     "value": "2026-11-07T00:00:00Z"
+    },
+    "prec": {
+     "datatype": "http://www.w3.org/2001/XMLSchema#integer",
+     "type": "literal",
+     "value": "11"
+    },
+    "sl": {
+     "datatype": "http://www.w3.org/2001/XMLSchema#integer",
+     "type": "literal",
+     "value": "6"
+    },
+    "itemLabel": {
+     "xml:lang": "en",
+     "type": "literal",
+     "value": "2026 New Zealand general election"
+    },
+    "rank": {
+     "type": "uri",
+     "value": "http://wikiba.se/ontology#NormalRank"
+    }
+   },
+   {
+    "item": {
+     "type": "uri",
+     "value": "http://www.wikidata.org/entity/Q136171366"
+    },
+    "iso": {
+     "type": "literal",
+     "value": "TW"
+    },
+    "enwiki": {
+     "type": "uri",
+     "value": "https://en.wikipedia.org/wiki/2026_Taiwanese_local_elections"
+    },
+    "d": {
+     "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+     "type": "literal",
+     "value": "2026-11-28T00:00:00Z"
+    },
+    "prec": {
+     "datatype": "http://www.w3.org/2001/XMLSchema#integer",
+     "type": "literal",
+     "value": "11"
+    },
+    "sl": {
+     "datatype": "http://www.w3.org/2001/XMLSchema#integer",
+     "type": "literal",
+     "value": "5"
+    },
+    "itemLabel": {
+     "xml:lang": "en",
+     "type": "literal",
+     "value": "2026 Taiwanese local elections"
+    },
+    "rank": {
+     "type": "uri",
+     "value": "http://wikiba.se/ontology#NormalRank"
+    }
+   },
+   {
+    "item": {
+     "type": "uri",
+     "value": "http://www.wikidata.org/entity/Q17020570"
+    },
+    "iso": {
+     "type": "literal",
+     "value": "SS"
+    },
+    "enwiki": {
+     "type": "uri",
+     "value": "https://en.wikipedia.org/wiki/2026_South_Sudanese_general_election"
+    },
+    "d": {
+     "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+     "type": "literal",
+     "value": "2026-12-22T00:00:00Z"
+    },
+    "prec": {
+     "datatype": "http://www.w3.org/2001/XMLSchema#integer",
+     "type": "literal",
+     "value": "11"
+    },
+    "sl": {
+     "datatype": "http://www.w3.org/2001/XMLSchema#integer",
+     "type": "literal",
+     "value": "6"
+    },
+    "itemLabel": {
+     "xml:lang": "en",
+     "type": "literal",
+     "value": "2026 South Sudanese general election"
+    },
+    "rank": {
+     "type": "uri",
+     "value": "http://wikiba.se/ontology#NormalRank"
+    }
+   },
+   {
+    "item": {
+     "type": "uri",
+     "value": "http://www.wikidata.org/entity/Q111594692"
+    },
+    "iso": {
+     "type": "literal",
+     "value": "FR"
+    },
+    "enwiki": {
+     "type": "uri",
+     "value": "https://en.wikipedia.org/wiki/2027_French_presidential_election"
+    },
+    "d": {
+     "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+     "type": "literal",
+     "value": "2027-04-18T00:00:00Z"
+    },
+    "prec": {
+     "datatype": "http://www.w3.org/2001/XMLSchema#integer",
+     "type": "literal",
+     "value": "11"
+    },
+    "sl": {
+     "datatype": "http://www.w3.org/2001/XMLSchema#integer",
+     "type": "literal",
+     "value": "16"
+    },
+    "itemLabel": {
+     "xml:lang": "en",
+     "type": "literal",
+     "value": "2027 French presidential election"
+    },
+    "rank": {
+     "type": "uri",
+     "value": "http://wikiba.se/ontology#NormalRank"
+    }
+   },
+   {
+    "item": {
+     "type": "uri",
+     "value": "http://www.wikidata.org/entity/Q111594692"
+    },
+    "iso": {
+     "type": "literal",
+     "value": "FR"
+    },
+    "enwiki": {
+     "type": "uri",
+     "value": "https://en.wikipedia.org/wiki/2027_French_presidential_election"
+    },
+    "d": {
+     "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+     "type": "literal",
+     "value": "2027-04-18T00:00:00Z"
+    },
+    "prec": {
+     "datatype": "http://www.w3.org/2001/XMLSchema#integer",
+     "type": "literal",
+     "value": "11"
+    },
+    "sl": {
+     "datatype": "http://www.w3.org/2001/XMLSchema#integer",
+     "type": "literal",
+     "value": "16"
+    },
+    "itemLabel": {
+     "xml:lang": "en",
+     "type": "literal",
+     "value": "2027 French presidential election"
+    },
+    "rank": {
+     "type": "uri",
+     "value": "http://wikiba.se/ontology#NormalRank"
+    }
+   },
+   {
+    "item": {
+     "type": "uri",
+     "value": "http://www.wikidata.org/entity/Q117442866"
+    },
+    "iso": {
+     "type": "literal",
+     "value": "FI"
+    },
+    "enwiki": {
+     "type": "uri",
+     "value": "https://en.wikipedia.org/wiki/2027_Finnish_parliamentary_election"
+    },
+    "d": {
+     "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+     "type": "literal",
+     "value": "2027-04-18T00:00:00Z"
+    },
+    "prec": {
+     "datatype": "http://www.w3.org/2001/XMLSchema#integer",
+     "type": "literal",
+     "value": "11"
+    },
+    "sl": {
+     "datatype": "http://www.w3.org/2001/XMLSchema#integer",
+     "type": "literal",
+     "value": "6"
+    },
+    "itemLabel": {
+     "xml:lang": "en",
+     "type": "literal",
+     "value": "2027 Finnish parliamentary election"
+    },
+    "rank": {
+     "type": "uri",
+     "value": "http://wikiba.se/ontology#NormalRank"
+    }
+   },
+   {
+    "item": {
+     "type": "uri",
+     "value": "http://www.wikidata.org/entity/Q111594692"
+    },
+    "iso": {
+     "type": "literal",
+     "value": "FR"
+    },
+    "enwiki": {
+     "type": "uri",
+     "value": "https://en.wikipedia.org/wiki/2027_French_presidential_election"
+    },
+    "d": {
+     "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+     "type": "literal",
+     "value": "2027-05-02T00:00:00Z"
+    },
+    "prec": {
+     "datatype": "http://www.w3.org/2001/XMLSchema#integer",
+     "type": "literal",
+     "value": "11"
+    },
+    "sl": {
+     "datatype": "http://www.w3.org/2001/XMLSchema#integer",
+     "type": "literal",
+     "value": "16"
+    },
+    "itemLabel": {
+     "xml:lang": "en",
+     "type": "literal",
+     "value": "2027 French presidential election"
+    },
+    "rank": {
+     "type": "uri",
+     "value": "http://wikiba.se/ontology#NormalRank"
+    }
+   },
+   {
+    "item": {
+     "type": "uri",
+     "value": "http://www.wikidata.org/entity/Q132731902"
+    },
+    "iso": {
+     "type": "literal",
+     "value": "DE"
+    },
+    "enwiki": {
+     "type": "uri",
+     "value": "https://en.wikipedia.org/wiki/Next_German_federal_election"
+    },
+    "d": {
+     "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+     "type": "literal",
+     "value": "2029-01-01T00:00:00Z"
+    },
+    "prec": {
+     "datatype": "http://www.w3.org/2001/XMLSchema#integer",
+     "type": "literal",
+     "value": "9"
+    },
+    "sl": {
+     "datatype": "http://www.w3.org/2001/XMLSchema#integer",
+     "type": "literal",
+     "value": "7"
+    },
+    "itemLabel": {
+     "xml:lang": "en",
+     "type": "literal",
+     "value": "next German federal election"
+    },
+    "rank": {
+     "type": "uri",
+     "value": "http://wikiba.se/ontology#NormalRank"
+    }
+   },
+   {
+    "item": {
+     "type": "uri",
+     "value": "http://www.wikidata.org/entity/Q132731902"
+    },
+    "iso": {
+     "type": "literal",
+     "value": "DE"
+    },
+    "enwiki": {
+     "type": "uri",
+     "value": "https://en.wikipedia.org/wiki/Next_German_federal_election"
+    },
+    "d": {
+     "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+     "type": "literal",
+     "value": "2029-01-01T00:00:00Z"
+    },
+    "prec": {
+     "datatype": "http://www.w3.org/2001/XMLSchema#integer",
+     "type": "literal",
+     "value": "9"
+    },
+    "sl": {
+     "datatype": "http://www.w3.org/2001/XMLSchema#integer",
+     "type": "literal",
+     "value": "7"
+    },
+    "itemLabel": {
+     "xml:lang": "en",
+     "type": "literal",
+     "value": "next German federal election"
+    },
+    "rank": {
+     "type": "uri",
+     "value": "http://wikiba.se/ontology#NormalRank"
+    }
+   }
+  ]
+ }
+}

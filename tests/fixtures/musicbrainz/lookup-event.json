@@ -1,0 +1,183 @@
+{
+  "life-span": {
+    "end": "2027-07-10",
+    "ended": true,
+    "begin": "2027-07-07"
+  },
+  "id": "39aa7c23-a621-4a07-86b0-7c12d692ac97",
+  "type": "Festival",
+  "type-id": "b6ded574-b592-3f0e-b56e-5b5f06aa0678",
+  "setlist": "",
+  "cancelled": false,
+  "disambiguation": "",
+  "relations": [
+    {
+      "ended": false,
+      "attribute-ids": {},
+      "artist": {
+        "id": "41f4d85a-0bd7-4602-a3e3-8c47f36efb0a",
+        "name": "Accept",
+        "type": "Group",
+        "country": "DE",
+        "sort-name": "Accept",
+        "disambiguation": "German heavy metal band"
+      },
+      "target-credit": "",
+      "source-credit": "",
+      "type-id": "936c7c95-3156-3889-a062-8a0cd57f8946",
+      "attribute-values": {},
+      "attributes": [],
+      "end": null,
+      "type": "main performer",
+      "begin": null,
+      "direction": "backward",
+      "target-type": "artist"
+    },
+    {
+      "type-id": "936c7c95-3156-3889-a062-8a0cd57f8946",
+      "attribute-values": {},
+      "attributes": [],
+      "end": null,
+      "begin": null,
+      "type": "main performer",
+      "direction": "backward",
+      "target-type": "artist",
+      "target-credit": "",
+      "source-credit": "",
+      "attribute-ids": {},
+      "artist": {
+        "id": "c0252a1b-0133-46bb-8c4f-cade46349ec3",
+        "name": "Alestorm",
+        "type": "Group",
+        "country": "GB",
+        "sort-name": "Alestorm",
+        "disambiguation": "Scottish folk/power metal band"
+      },
+      "ended": false
+    },
+    {
+      "source-credit": "",
+      "target-credit": "",
+      "begin": null,
+      "type": "main performer",
+      "target-type": "artist",
+      "direction": "backward",
+      "attribute-values": {},
+      "type-id": "936c7c95-3156-3889-a062-8a0cd57f8946",
+      "attributes": [],
+      "end": null,
+      "ended": false,
+      "artist": {
+        "id": "727c7f52-812d-44a2-982e-c756705ddb3d",
+        "name": "All for Metal",
+        "type": "Group",
+        "country": "XW",
+        "sort-name": "All for Metal",
+        "disambiguation": ""
+      },
+      "attribute-ids": {}
+    },
+    {
+      "ended": false,
+      "attribute-ids": {},
+      "artist": {
+        "id": "e631bb92-3e2b-43e3-a2cb-b605e2fb53bd",
+        "name": "Arch Enemy",
+        "type": "Group",
+        "country": "SE",
+        "sort-name": "Arch Enemy",
+        "disambiguation": ""
+      },
+      "target-credit": "",
+      "source-credit": "",
+      "attribute-values": {},
+      "type-id": "936c7c95-3156-3889-a062-8a0cd57f8946",
+      "end": null,
+      "attributes": [],
+      "type": "main performer",
+      "begin": null,
+      "target-type": "artist",
+      "direction": "backward"
+    },
+    {
+      "end": null,
+      "attributes": [],
+      "attribute-values": {},
+      "type-id": "936c7c95-3156-3889-a062-8a0cd57f8946",
+      "target-type": "artist",
+      "direction": "backward",
+      "type": "main performer",
+      "begin": null,
+      "target-credit": "",
+      "source-credit": "",
+      "attribute-ids": {},
+      "artist": {
+        "id": "30c526fb-ccdc-4166-bcf3-a00e3ddb3753",
+        "name": "Coppelius",
+        "type": "Group",
+        "country": "DE",
+        "sort-name": "Coppelius",
+        "disambiguation": ""
+      },
+      "ended": false
+    },
+    {
+      "target-credit": "",
+      "source-credit": "",
+      "attributes": [],
+      "end": null,
+      "attribute-values": {},
+      "type-id": "936c7c95-3156-3889-a062-8a0cd57f8946",
+      "target-type": "artist",
+      "direction": "backward",
+      "begin": null,
+      "type": "main performer",
+      "ended": false,
+      "attribute-ids": {},
+      "artist": {
+        "id": "4266e965-7a2f-4556-acf6-2fb3257023aa",
+        "name": "dArtagnan",
+        "type": "Group",
+        "country": "DE",
+        "sort-name": "dArtagnan",
+        "disambiguation": "German folk rock"
+      }
+    },
+    {
+      "attribute-ids": {},
+      "ended": false,
+      "direction": "forward",
+      "target-type": "place",
+      "type": "held at",
+      "begin": null,
+      "attributes": [],
+      "end": null,
+      "type-id": "e2c6f697-07dc-38b1-be0b-83d740165532",
+      "attribute-values": {},
+      "target-credit": "",
+      "source-credit": "",
+      "place": {
+        "id": "ae184b49-342c-44ca-9881-a18b23e71a62",
+        "type": "Venue",
+        "type-id": "cd92781a-a73f-30e8-a430-55d7521338db",
+        "area": {
+          "name": "Ballenstedt",
+          "type-id": "6fd8f29a-3d0a-32fc-980d-ea697b69da78",
+          "id": "cf5e00d1-20f0-4b8c-a5d7-d4518f682491",
+          "sort-name": "Ballenstedt",
+          "type": "City",
+          "disambiguation": ""
+        },
+        "address": "Asmusstedt 13, 06493 Ballenstedt",
+        "disambiguation": "",
+        "coordinates": {
+          "latitude": 51.742067,
+          "longitude": 11.232683
+        },
+        "name": "Rockharz Open Air Festival Grounds"
+      }
+    }
+  ],
+  "name": "Rockharz Open Air 2027",
+  "time": ""
+}

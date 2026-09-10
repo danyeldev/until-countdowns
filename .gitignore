@@ -39,6 +39,3 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
-
-# packed catalog is stored as split base64 parts
-src/data/events.json.gz

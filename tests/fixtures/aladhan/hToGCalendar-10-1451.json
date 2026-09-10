@@ -1,0 +1,107 @@
+{
+ "code": 200,
+ "status": "OK",
+ "data": [
+  {
+   "hijri": {
+    "date": "01-10-1451",
+    "format": "DD-MM-YYYY",
+    "day": "1",
+    "weekday": {
+     "en": "Al Athnayn"
+    },
+    "month": {
+     "number": 10,
+     "en": "Shawwāl",
+     "days": 29
+    },
+    "year": "1451",
+    "holidays": [
+     "Eid-ul-Fitr"
+    ],
+    "adjustedHolidays": [],
+    "method": "HJCoSA"
+   },
+   "gregorian": {
+    "date": "04-02-2030",
+    "format": "DD-MM-YYYY",
+    "day": "04",
+    "weekday": {
+     "en": "Monday"
+    },
+    "month": {
+     "number": 2,
+     "en": "February"
+    },
+    "year": "2030",
+    "lunarSighting": false
+   }
+  },
+  {
+   "hijri": {
+    "date": "02-10-1451",
+    "format": "DD-MM-YYYY",
+    "day": "2",
+    "weekday": {
+     "en": "Al Thalaata"
+    },
+    "month": {
+     "number": 10,
+     "en": "Shawwāl",
+     "days": 29
+    },
+    "year": "1451",
+    "holidays": [],
+    "adjustedHolidays": [],
+    "method": "HJCoSA"
+   },
+   "gregorian": {
+    "date": "05-02-2030",
+    "format": "DD-MM-YYYY",
+    "day": "05",
+    "weekday": {
+     "en": "Tuesday"
+    },
+    "month": {
+     "number": 2,
+     "en": "February"
+    },
+    "year": "2030",
+    "lunarSighting": false
+   }
+  },
+  {
+   "hijri": {
+    "date": "29-10-1451",
+    "format": "DD-MM-YYYY",
+    "day": "29",
+    "weekday": {
+     "en": "Al Athnayn"
+    },
+    "month": {
+     "number": 10,
+     "en": "Shawwāl",
+     "days": 29
+    },
+    "year": "1451",
+    "holidays": [],
+    "adjustedHolidays": [],
+    "method": "HJCoSA"
+   },
+   "gregorian": {
+    "date": "04-03-2030",
+    "format": "DD-MM-YYYY",
+    "day": "04",
+    "weekday": {
+     "en": "Monday"
+    },
+    "month": {
+     "number": 3,
+     "en": "March"
+    },
+    "year": "2030",
+    "lunarSighting": false
+   }
+  }
+ ]
+}

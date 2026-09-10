@@ -1,0 +1,142 @@
+{
+ "code": 200,
+ "status": "OK",
+ "data": [
+  {
+   "hijri": {
+    "date": "01-09-1451",
+    "format": "DD-MM-YYYY",
+    "day": "1",
+    "weekday": {
+     "en": "Al Sabt"
+    },
+    "month": {
+     "number": 9,
+     "en": "Ramaḍān",
+     "days": 30
+    },
+    "year": "1451",
+    "holidays": [
+     "1st Day of Ramadan"
+    ],
+    "adjustedHolidays": [],
+    "method": "HJCoSA"
+   },
+   "gregorian": {
+    "date": "05-01-2030",
+    "format": "DD-MM-YYYY",
+    "day": "05",
+    "weekday": {
+     "en": "Saturday"
+    },
+    "month": {
+     "number": 1,
+     "en": "January"
+    },
+    "year": "2030",
+    "lunarSighting": false
+   }
+  },
+  {
+   "hijri": {
+    "date": "02-09-1451",
+    "format": "DD-MM-YYYY",
+    "day": "2",
+    "weekday": {
+     "en": "Al Ahad"
+    },
+    "month": {
+     "number": 9,
+     "en": "Ramaḍān",
+     "days": 30
+    },
+    "year": "1451",
+    "holidays": [],
+    "adjustedHolidays": [],
+    "method": "HJCoSA"
+   },
+   "gregorian": {
+    "date": "06-01-2030",
+    "format": "DD-MM-YYYY",
+    "day": "06",
+    "weekday": {
+     "en": "Sunday"
+    },
+    "month": {
+     "number": 1,
+     "en": "January"
+    },
+    "year": "2030",
+    "lunarSighting": false
+   }
+  },
+  {
+   "hijri": {
+    "date": "27-09-1451",
+    "format": "DD-MM-YYYY",
+    "day": "27",
+    "weekday": {
+     "en": "Al Khamees"
+    },
+    "month": {
+     "number": 9,
+     "en": "Ramaḍān",
+     "days": 30
+    },
+    "year": "1451",
+    "holidays": [
+     "Lailat-ul-Qadr"
+    ],
+    "adjustedHolidays": [],
+    "method": "HJCoSA"
+   },
+   "gregorian": {
+    "date": "31-01-2030",
+    "format": "DD-MM-YYYY",
+    "day": "31",
+    "weekday": {
+     "en": "Thursday"
+    },
+    "month": {
+     "number": 1,
+     "en": "January"
+    },
+    "year": "2030",
+    "lunarSighting": false
+   }
+  },
+  {
+   "hijri": {
+    "date": "30-09-1451",
+    "format": "DD-MM-YYYY",
+    "day": "30",
+    "weekday": {
+     "en": "Al Ahad"
+    },
+    "month": {
+     "number": 9,
+     "en": "Ramaḍān",
+     "days": 30
+    },
+    "year": "1451",
+    "holidays": [],
+    "adjustedHolidays": [],
+    "method": "HJCoSA"
+   },
+   "gregorian": {
+    "date": "03-02-2030",
+    "format": "DD-MM-YYYY",
+    "day": "03",
+    "weekday": {
+     "en": "Sunday"
+    },
+    "month": {
+     "number": 2,
+     "en": "February"
+    },
+    "year": "2030",
+    "lunarSighting": false
+   }
+  }
+ ]
+}

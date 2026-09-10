@@ -1,0 +1,143 @@
+{
+ "batchcomplete": true,
+ "query": {
+  "pages": [
+   {
+    "pageid": 12076,
+    "ns": 0,
+    "title": "G-League 2013/Western Qualifier",
+    "index": 18,
+    "revisions": [
+     {
+      "slots": {
+       "main": {
+        "contentmodel": "wikitext",
+        "contentformat": "text/x-wiki",
+        "content": "{{DISPLAYTITLE:G-League 2013 Western Qualifiers}}{{G-League Navbox}}<br>\n{{G-League 2013 Tabs|This=3}}__NOTOC__\n{{Infobox league\n|name=G-League 2013: Western Qualifiers\n|image=G-League logo.png\n|series=G-League\n|country=World\n|type=Online\n|sdate=\n|edate=2013-11-12\n|liquipediatier=1 |liquipediatiertype=Qualifier\n|leagueid=114\n|team_number=\n}}\n"
+       }
+      }
+     }
+    ]
+   },
+   {
+    "pageid": 113362,
+    "ns": 0,
+    "title": "World Electronic Sports Games/2019",
+    "index": 15,
+    "revisions": [
+     {
+      "slots": {
+       "main": {
+        "contentmodel": "wikitext",
+        "contentformat": "text/x-wiki",
+        "content": "{{DISPLAYTITLE:World Electronic Sports Games 2019}}{{Liquipedia links|counterstrike=World Electronic Sports Games/2019 |starcraft2=World Electronic Sports Games/2019}}\n{{WESG Navbox}}\n{{WESG 2019 Tabs|Main Tournament=1}}\n{{Infobox league\n|name=World Electronic Sports Games 2019\n|tickername=WESG 2019\n|image=WESG 2018 full lightmode.png\n|imagedark=WESG 2018 full darkmode.png\n|icon=WESG 2018 icon lightmode.png\n|icondarkmode=WESG 2018 icon darkmode.png\n|series=World Electronic Sports Games\n|organizer=Alisports\n|organizer-link=https://www.alisports.com/\n|sponsor=\n|patch=\n|type=Offline\n|country=China\n|city=Chongqing\n|venue=\n|sdate=\n|edate=\n|team_number=24\n|prizepoolusd=800000\n|liquipediatier=1\n|leagueid=\n|website=https://www.wesg.com/en/\n|twitter=wesgcom\n|bracket=\n|previous=World_Electronic_Sports_Games/2018{{!}}WESG 2018\n|next=\n}}\n\n{{Cancelled Tournament|confirmed=true|ref=<ref>{{cite web|url=https://twitter.com/WESGcom/status/1224985066377363457|title=The disease known as the coronavirus is becoming an epidemic.|author=WESG|date=2020-02-05}}</ref>}}<br>{{#vardefine:cancelled_tournament|true}}\n\n"
+       }
+      }
+     }
+    ]
+   },
+   {
+    "pageid": 175888,
+    "ns": 0,
+    "title": "BLAST/SLAM/8",
+    "index": 14,
+    "revisions": [
+     {
+      "slots": {
+       "main": {
+        "contentmodel": "wikitext",
+        "contentformat": "text/x-wiki",
+        "content": "{{DISPLAYTITLE:BLAST SLAM VIII}}\n{{BLASTSLAM8Tabs|mt}}\n{{Under construction|type=tournament page}}\n{{Infobox league\n|name=BLAST SLAM VIII\n|tickername=BLAST SLAM VIII\n|image=BLAST SLAM Dota lightmode.png\n|imagedark=BLAST SLAM Dota darkmode.png\n|icon=BLAST SLAM Dota icon lightmode.png\n|icondark=BLAST SLAM Dota icon darkmode.png\n|series=BLAST SLAM\n|organizer=BLAST\n|sponsor=\n|patch=\n|server=Europe West\n|country=Europe\n|country2=Malta\n|city=\n|venue=BLAST Arena Studios\n|venuedesc=Playoffs\n|type=Online & Offline\n|sdate=2026-09-29\n|edate=2026-10-11\n|team_number=16\n|format=GSL group stage<br>Double-elimination playoffs\n|prizepoolusd=750,000\n|liquipediatier=1\n|leagueid=19102\n|blasttv=tournaments/blast-slam-viii\n|facebook=61567468346485\n|instagram=blastdota\n|kick=blastdota\n|tiktok=blastdota\n|twitch=BLASTDota\n|twitter=BLASTDota\n|youtube=@BLASTDota\n|bracket=\n|rulebook=https://assets.blast.tv/rulebook/2026_BLAST_DOTA_SLAM_Rulebook.pdf\n|headtohead=true\n|previous={{BASEPAGENAME}}/{{#expr:{{SUBPAGENAME}}-1}}{{!}}SLAM VII\n|next={{BASEPAGENAME}}/{{#expr:{{SUBPAGENAME}}+1}}{{!}}SLAM IX\n}}\n"
+       }
+      }
+     }
+    ]
+   },
+   {
+    "pageid": 183764,
+    "ns": 0,
+    "title": "PGL/Wallachia/9",
+    "index": 12,
+    "revisions": [
+     {
+      "slots": {
+       "main": {
+        "contentmodel": "wikitext",
+        "contentformat": "text/x-wiki",
+        "content": "{{DISPLAYTITLE:PGL Wallachia Season 9}}\n{{PGL Navbox}}<!--\n{{PGLWallachiaS9Tabs|mt}}-->\n{{Under construction|type=tournament page}}\n{{Infobox league\n|name=PGL Wallachia Season 9\n|tickername=PGL Wallachia S9\n|image=PGL Wallachia allmode.png\n|icon=PGL Wallachia icon allmode.png\n|series=PGL Wallachia\n|organizer=PGL\n|sponsor=\n|patch=\n|server=Europe West\n|country=Romania\n|city=Bucharest\n|venue=PGL Studio\n|type=Offline\n|sdate=2026-09-17\n|edate=2026-09-27\n|team_number=16\n|format=Swiss group stage<br>Double-elimination playoffs\n|prizepoolusd=1,000,000\n|liquipediatier=1\n|leagueid=\n|website=https://www.pglesports.com\n|facebook=pgl\n|instagram=pglesports\n|kick=pgldota2\n|twitch=pgl_dota2\n|twitter=pgldota2\n|twitter2=pglesports\n|youtube=@pgl\n|bracket=\n|rulebook=\n|headtohead=true\n|previous={{BASEPAGENAME}}/{{#expr:{{SUBPAGENAME}}-1}}{{!}}Season {{#expr:{{SUBPAGENAME}}-1}}\n|next={{BASEPAGENAME}}/{{#expr:{{SUBPAGENAME}}+1}}{{!}}Season {{#expr:{{SUBPAGENAME}}+1}}\n}}\n"
+       }
+      }
+     }
+    ]
+   },
+   {
+    "pageid": 187828,
+    "ns": 0,
+    "title": "Esports Nations Cup/2026",
+    "index": 8,
+    "revisions": [
+     {
+      "slots": {
+       "main": {
+        "contentmodel": "wikitext",
+        "contentformat": "text/x-wiki",
+        "content": "{{DISPLAYTITLE:Esports Nations Cup 2026}}{{Liquipedia links/Esports Nations Cup 2026}}\n{{EsportsNationsCup2026Tabs}}\n{{Under construction|type=tournament page}}\n{{Infobox league\n|name=Esports Nations Cup 2026\n|shortname=ENC 2026\n|tickername=ENC 2026\n|image=Esports Nations Cup lightmode.png\n|imagedark=Esports Nations Cup darkmode.png\n|icon=Esports Nations Cup icon lightmode.png\n|icondark=Esports Nations Cup icon darkmode.png\n|series=Esports Nations Cup\n|organizer1=Esports Foundation\n|organizer1-link=https://esportsworldcup.com/\n|sponsor=\n|patch=\n|type=Offline\n|country=Saudi Arabia\n|city=Riyadh\n|venue=\n|venuelink=\n|team_number=32\n|format=Round-robin group stage<br>Single-elimination playoff\n|sdate=2027-11-??\n|edate=\n|prizepoolusd=1500000\n|liquipediatier=1\n|liquipediatiertype=National\n|leagueid=\n|website=https://esportsnationscup.com/en/competitions/2026/dota2\n|facebook=EsportsNationsCup\n|instagram=enc_en\n|tiktok=enc_en\n|twitch=enc_en\n|twitter=ENC_EN\n|weibo=9096218548\n|youtube=channel/UCChLuScKhRrPv2uYN8mXWXA\n|bracket=\n|rulebook=https://d30fi9kdqxg7ko.cloudfront.net/ENC_National_Ranking_Rules_and_Regulations_May_4_c1a469820a.pdf\n|rulebook2=\n|headtohead=true\n|next=\n}}\n\n"
+       }
+      }
+     }
+    ]
+   },
+   {
+    "pageid": 188790,
+    "ns": 0,
+    "title": "PGL/Wallachia/13",
+    "index": 7,
+    "revisions": [
+     {
+      "slots": {
+       "main": {
+        "contentmodel": "wikitext",
+        "contentformat": "text/x-wiki",
+        "content": "{{DISPLAYTITLE:PGL Wallachia Season 13}}\n{{PGL Navbox}}<!--\n{{PGLWallachiaS13Tabs|mt}}-->\n{{Under construction|type=tournament page}}\n{{Infobox league\n|name=PGL Wallachia Season 13\n|tickername=PGL Wallachia S13\n|image=PGL Wallachia allmode.png\n|icon=PGL Wallachia icon allmode.png\n|series=PGL Wallachia\n|organizer=PGL\n|sponsor=\n|patch=\n|server=Europe West\n|country=Romania\n|city=Bucharest\n|venue=PGL Studio\n|type=Offline\n|sdate=2028-03-01\n|edate=2028-03-12\n|team_number=16\n|format=Swiss group stage<br>Double-elimination playoffs\n|prizepoolusd=1,000,000\n|liquipediatier=1\n|leagueid=\n|website=https://www.pglesports.com\n|facebook=pgl\n|instagram=pglesports\n|kick=pgldota2\n|twitch=pgl_dota2\n|twitter=pgldota2\n|twitter2=pglesports\n|youtube=@PGL_DOTA2\n|bracket=\n|rulebook=\n|headtohead=true\n|previous={{BASEPAGENAME}}/{{#expr:{{SUBPAGENAME}}-1}}{{!}}Season {{#expr:{{SUBPAGENAME}}-1}}\n|next={{BASEPAGENAME}}/{{#expr:{{SUBPAGENAME}}+1}}{{!}}Season {{#expr:{{SUBPAGENAME}}+1}}\n}}\n"
+       }
+      }
+     }
+    ]
+   },
+   {
+    "pageid": 191332,
+    "ns": 0,
+    "title": "PGL/Wallachia/14",
+    "index": 6,
+    "revisions": [
+     {
+      "slots": {
+       "main": {
+        "contentmodel": "wikitext",
+        "contentformat": "text/x-wiki",
+        "content": "{{DISPLAYTITLE:PGL Wallachia Season 14}}\n{{PGL Navbox}}<!--\n{{PGLWallachiaS14Tabs|mt}}-->\n{{Under construction|type=tournament page}}\n{{Infobox league\n|name=PGL Wallachia Season 14\n|tickername=PGL Wallachia S14\n|image=PGL Wallachia allmode.png\n|icon=PGL Wallachia icon allmode.png\n|series=PGL Wallachia\n|organizer=PGL\n|sponsor=\n|patch=\n|server=Europe West\n|country=Romania\n|city=Bucharest\n|venue=PGL Studio\n|type=Offline\n|sdate=2028-05-08\n|edate=2028-05-21\n|team_number=16\n|format=Swiss group stage<br>Double-elimination playoffs\n|prizepoolusd=1,000,000\n|liquipediatier=1\n|leagueid=\n|website=https://www.pglesports.com\n|facebook=pgl\n|instagram=pglesports\n|kick=pgldota2\n|twitch=pgl_dota2\n|twitter=pgldota2\n|twitter2=pglesports\n|youtube=@PGL_DOTA2\n|bracket=\n|rulebook=\n|headtohead=true\n|previous={{BASEPAGENAME}}/{{#expr:{{SUBPAGENAME}}-1}}{{!}}Season {{#expr:{{SUBPAGENAME}}-1}}\n|next={{BASEPAGENAME}}/{{#expr:{{SUBPAGENAME}}+1}}{{!}}Season {{#expr:{{SUBPAGENAME}}+1}}\n}}\n"
+       }
+      }
+     }
+    ]
+   },
+   {
+    "pageid": 193500,
+    "ns": 0,
+    "title": "BLAST/SLAM/9/Europe",
+    "index": 5,
+    "revisions": [
+     {
+      "slots": {
+       "main": {
+        "contentmodel": "wikitext",
+        "contentformat": "text/x-wiki",
+        "content": "{{DISPLAYTITLE:RES Unchained 6: BLAST SLAM IX Europe Closed Qualifier}}\n{{BLASTSLAM9Tabs|2oq}}\n{{Infobox league\n|name=RES Unchained 6: BLAST SLAM IX Europe Closed Qualifier\n|tickername=RES Unchained 6 EU\n|image=RES Unchained EU 2026 lightmode.png\n|imagedark=RES Unchained EU 2026 darkmode.png\n|icon=RLG 2023 icon allmode.png\n|series=RES Unchained\n|organizer=Relog Media\n|patch=\n|server=Europe West\n|country=Europe\n|type=Online\n|sdate=2026-09-12\n|edate=2026-09-13\n|team_number=8\n|format=Single-elimination\n|liquipediatier=1\n|liquipediatiertype=Qualifier\n|leagueid=20145\n|facebook=RelogMedia\n|instagram=relog.media\n|twitch=rlg_dota2\n|twitter=REScircuit_EN\n|bracket=https://docs.google.com/spreadsheets/d/17IDfzSnrtNS63QcgIxih7NFJiuzSY2H1bg3c7y3FSMo/edit?gid=1883066472\n|rulebook=https://drive.google.com/file/d/1fqwwD9LpCNDW8FX8eFHLy5kcw_Cb5-q3/view\n|rulebook2=https://docs.google.com/spreadsheets/d/1r_Xkdyo5Vqad7mUAZAnKdOo2av-TVcgeY047-ISc4v4/edit?gid=744361463\n|headtohead=true\n|previous=BLAST/SLAM/{{#expr:{{#invoke:string|sub|{{BASEPAGENAME}}|12|-1}}-1}}/{{SUBPAGENAME}}{{!}}SLAM VIII\n|next=BLAST/SLAM/{{#expr:{{#invoke:string|sub|{{BASEPAGENAME}}|12|-1}}+1}}/{{SUBPAGENAME}}{{!}}SLAM X\n}}\n"
+       }
+      }
+     }
+    ]
+   }
+  ]
+ }
+}

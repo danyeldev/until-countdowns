@@ -1,0 +1,19 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`liquipedia adapter plan/run > run follows gsroffset continuation, dedupes by source_key, emits only valid rows; stable across two runs 1`] = `
+[
+  "starladder-starseries-fall-2026-2026-09-17",
+  "esl-pro-league-season-24-2026-10-03",
+  "thunderpick-world-championship-2026-2026-10-14",
+  "blast-rivals-fall-2026-2026-11-11",
+  "pgl-major-singapore-2026-2026-11-25",
+  "intel-extreme-masters-krakow-2027-2027-01-27",
+  "blast-open-spring-2027-2027-03-19",
+  "fissure-playground-6-2027-04-15",
+  "blast-open-summer-2027-2027-05-10",
+  "esports-world-cup-2027-2027-07-16",
+  "starladder-starseries-fall-2027-2027-10-21",
+  "cs2-major-championship-winter-2027-2027-11-22",
+  "fissure-playground-10-2028-02-09",
+]
+`;

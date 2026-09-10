@@ -1,0 +1,146 @@
+{
+ "code": 200,
+ "status": "OK",
+ "data": [
+  {
+   "hijri": {
+    "date": "01-03-1451",
+    "format": "DD-MM-YYYY",
+    "day": "1",
+    "weekday": {
+     "en": "Al Juma'a"
+    },
+    "month": {
+     "number": 3,
+     "en": "Rabīʿ al-awwal",
+     "days": 29
+    },
+    "year": "1451",
+    "holidays": [],
+    "adjustedHolidays": [],
+    "method": "HJCoSA"
+   },
+   "gregorian": {
+    "date": "13-07-2029",
+    "format": "DD-MM-YYYY",
+    "day": "13",
+    "weekday": {
+     "en": "Friday"
+    },
+    "month": {
+     "number": 7,
+     "en": "July"
+    },
+    "year": "2029",
+    "lunarSighting": false
+   }
+  },
+  {
+   "hijri": {
+    "date": "02-03-1451",
+    "format": "DD-MM-YYYY",
+    "day": "2",
+    "weekday": {
+     "en": "Al Sabt"
+    },
+    "month": {
+     "number": 3,
+     "en": "Rabīʿ al-awwal",
+     "days": 29
+    },
+    "year": "1451",
+    "holidays": [],
+    "adjustedHolidays": [],
+    "method": "HJCoSA"
+   },
+   "gregorian": {
+    "date": "14-07-2029",
+    "format": "DD-MM-YYYY",
+    "day": "14",
+    "weekday": {
+     "en": "Saturday"
+    },
+    "month": {
+     "number": 7,
+     "en": "July"
+    },
+    "year": "2029",
+    "lunarSighting": false
+   }
+  },
+  {
+   "hijri": {
+    "date": "12-03-1451",
+    "format": "DD-MM-YYYY",
+    "day": "12",
+    "weekday": {
+     "en": "Al Thalaata"
+    },
+    "month": {
+     "number": 3,
+     "en": "Rabīʿ al-awwal",
+     "days": 29
+    },
+    "year": "1451",
+    "holidays": [
+     "Mawlid (Birth) al-Nabi ﷺ",
+     "Veiling of the Prophet Muhammad ﷺ",
+     "Birth of Mawlana Shaykh Abdullāh al Dāghestāni ق",
+     "Urs of Shaykh Abu Yāqub Yūsuf al-Hamadāni ق",
+     "Urs of Shaykh Abdul Khāliq al-Ghujdawāni ق",
+     "Urs of Mawlāna Ubaydullaāh Ahrār ق",
+     "Urs of Shaykh Muhammad az-Zāhid ق"
+    ],
+    "adjustedHolidays": [],
+    "method": "HJCoSA"
+   },
+   "gregorian": {
+    "date": "24-07-2029",
+    "format": "DD-MM-YYYY",
+    "day": "24",
+    "weekday": {
+     "en": "Tuesday"
+    },
+    "month": {
+     "number": 7,
+     "en": "July"
+    },
+    "year": "2029",
+    "lunarSighting": false
+   }
+  },
+  {
+   "hijri": {
+    "date": "29-03-1451",
+    "format": "DD-MM-YYYY",
+    "day": "29",
+    "weekday": {
+     "en": "Al Juma'a"
+    },
+    "month": {
+     "number": 3,
+     "en": "Rabīʿ al-awwal",
+     "days": 29
+    },
+    "year": "1451",
+    "holidays": [],
+    "adjustedHolidays": [],
+    "method": "HJCoSA"
+   },
+   "gregorian": {
+    "date": "10-08-2029",
+    "format": "DD-MM-YYYY",
+    "day": "10",
+    "weekday": {
+     "en": "Friday"
+    },
+    "month": {
+     "number": 8,
+     "en": "August"
+    },
+    "year": "2029",
+    "lunarSighting": false
+   }
+  }
+ ]
+}

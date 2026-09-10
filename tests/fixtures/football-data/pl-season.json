@@ -1,0 +1,60 @@
+{
+  "_note": "Synthesised from the documented football-data.org v4 match shape (no API key was available to record a live response on 2026-09-09). Season dates match the real 2026-27 Premier League season from the tokenless catalogue; ids are fictional.",
+  "filters": { "season": 2026 },
+  "resultSet": { "count": 3, "first": "2026-08-21", "last": "2026-08-23", "played": 0 },
+  "competition": { "id": 2021, "name": "Premier League", "code": "PL", "type": "LEAGUE", "emblem": "https://crests.football-data.org/PL.png" },
+  "matches": [
+    {
+      "area": { "id": 2072, "name": "England", "code": "ENG", "flag": "https://crests.football-data.org/770.svg" },
+      "competition": { "id": 2021, "name": "Premier League", "code": "PL", "type": "LEAGUE", "emblem": "https://crests.football-data.org/PL.png" },
+      "season": { "id": 2502, "startDate": "2026-08-21", "endDate": "2027-05-30", "currentMatchday": 1, "winner": null },
+      "id": 556002,
+      "utcDate": "2026-08-22T14:00:00Z",
+      "status": "TIMED",
+      "matchday": 1,
+      "stage": "REGULAR_SEASON",
+      "group": null,
+      "lastUpdated": "2026-07-01T10:00:00Z",
+      "homeTeam": { "id": 66, "name": "Manchester United FC", "shortName": "Man United", "tla": "MUN", "crest": "https://crests.football-data.org/66.png" },
+      "awayTeam": { "id": 58, "name": "Aston Villa FC", "shortName": "Aston Villa", "tla": "AVL", "crest": "https://crests.football-data.org/58.png" },
+      "score": { "winner": null, "duration": "REGULAR", "fullTime": { "home": null, "away": null }, "halfTime": { "home": null, "away": null } },
+      "odds": { "msg": "Activate Odds-Package in User-Panel to retrieve odds." },
+      "referees": []
+    },
+    {
+      "area": { "id": 2072, "name": "England", "code": "ENG", "flag": "https://crests.football-data.org/770.svg" },
+      "competition": { "id": 2021, "name": "Premier League", "code": "PL", "type": "LEAGUE", "emblem": "https://crests.football-data.org/PL.png" },
+      "season": { "id": 2502, "startDate": "2026-08-21", "endDate": "2027-05-30", "currentMatchday": 1, "winner": null },
+      "id": 556001,
+      "utcDate": "2026-08-21T19:00:00Z",
+      "status": "TIMED",
+      "matchday": 1,
+      "stage": "REGULAR_SEASON",
+      "group": null,
+      "lastUpdated": "2026-07-01T10:00:00Z",
+      "homeTeam": { "id": 64, "name": "Liverpool FC", "shortName": "Liverpool", "tla": "LIV", "crest": "https://crests.football-data.org/64.png" },
+      "awayTeam": { "id": 1044, "name": "AFC Bournemouth", "shortName": "Bournemouth", "tla": "BOU", "crest": "https://crests.football-data.org/1044.png" },
+      "venue": "Anfield",
+      "score": { "winner": null, "duration": "REGULAR", "fullTime": { "home": null, "away": null }, "halfTime": { "home": null, "away": null } },
+      "odds": { "msg": "Activate Odds-Package in User-Panel to retrieve odds." },
+      "referees": []
+    },
+    {
+      "area": { "id": 2072, "name": "England", "code": "ENG", "flag": "https://crests.football-data.org/770.svg" },
+      "competition": { "id": 2021, "name": "Premier League", "code": "PL", "type": "LEAGUE", "emblem": "https://crests.football-data.org/PL.png" },
+      "season": { "id": 2502, "startDate": "2026-08-21", "endDate": "2027-05-30", "currentMatchday": 1, "winner": null },
+      "id": 556003,
+      "utcDate": "2026-08-23T15:30:00Z",
+      "status": "SCHEDULED",
+      "matchday": 1,
+      "stage": "REGULAR_SEASON",
+      "group": null,
+      "lastUpdated": "2026-07-01T10:00:00Z",
+      "homeTeam": { "id": 61, "name": "Chelsea FC", "shortName": "Chelsea", "tla": "CHE", "crest": "https://crests.football-data.org/61.png" },
+      "awayTeam": { "id": 65, "name": "Manchester City FC", "shortName": "Man City", "tla": "MCI", "crest": "https://crests.football-data.org/65.png" },
+      "score": { "winner": null, "duration": "REGULAR", "fullTime": { "home": null, "away": null }, "halfTime": { "home": null, "away": null } },
+      "odds": { "msg": "Activate Odds-Package in User-Panel to retrieve odds." },
+      "referees": []
+    }
+  ]
+}
