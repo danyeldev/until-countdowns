@@ -77,7 +77,28 @@ Locally, `unstable_cache` results also persist on disk between runs (`.next/cach
 
 ### Licence policy
 
-Only sources whose terms allow commercial use and persistent storage are ingested (Wikidata CC0, Wikipedia and date-holidays CC BY-SA with visible attribution, NASA / public computation). Every event page shows its source and when the date was last verified. Nager.Date, TMDB, IGDB, ESPN and similar restricted feeds are deliberately not used.
+Two different things used to be filed under one heading. They are not the same and no longer carry
+the same weight.
+
+**Copyright, which binds.** Prose and photographs are creative works. Wikipedia summaries are CC
+BY-SA 4.0 and every page carrying one says so and links the article; every image goes through the
+two-part gate in `src/lib/enrich/images/license.ts` before a byte is stored, and a ShareAlike file
+never becomes an OG card (see [Images](#images) and
+[ShareAlike](#sharealike-and-what-may-be-made-from-a-photo)). None of that is negotiable, and none
+of it is relaxed by anything below.
+
+**Terms of service, which is a business judgement.** *A schedule is not a creative work.* "UFC Fight
+Night is on 12 September at 18:00" is a fact, and facts are not copyrightable — a feed's terms may
+still forbid scraping it, but that is a contract question and a risk to weigh, not a legal bar. The
+project previously treated the two as one and ruled out Nager.Date, TMDB, IGDB, ESPN and similar
+outright. It no longer does: a schedule source is chosen on data quality, reliability and the risk
+its terms actually carry.
+
+The `Rejected alternatives` notes in each adapter's doc comment are kept as a record of what each
+feed's terms say, so the trade-off is made with the facts in front of you rather than re-litigated
+from memory. They are notes, not a prohibition.
+
+Every event page still shows its source and when the date was last verified.
 
 ## Ingestion
 
@@ -147,6 +168,7 @@ The script runs the same `runSource()` as the cron routes (via `tsx --conditions
 | `/api/cron/curated` | `30 2 * * *` | curated one-offs + series expansion (now … +14 years), syncs `series` / `series_aliases` |
 | `/api/cron/wikidata` | `0 3 * * *` | precision-guarded SPARQL per class (one query at a time, 1.5 s spacing) |
 | `/api/cron/wikipedia` | `20 3 * * *` | year pages, this year … +4 |
+| `/api/cron/espn` | `40 4 * * *` | ESPN MMA scoreboard — UFC cards with a real start time (rank 6, so an instant displaces the day-precision Wikidata row) |
 | `/api/cron/housekeeping` | `0 8 * * *` | popularity decay (−1/week for non-curated rows unseen 30 days), prune `ingest_runs` > 90 days, `[ingest] STALE <source>` log |
 
 Every route needs `Authorization: Bearer $CRON_SECRET` (401 otherwise) and answers with the run summary JSON (`{ ok: false, status: "error", error }` with HTTP 500 when the runner cannot even start, e.g. missing env or a failed lease RPC). `GET /api/cron/<source>?force=1` ignores the cursor and backoff, `?dry=1` validates without writing, `?budget=<ms>` caps the run (clamped to `maxDuration − 20 s`). `GET /api/cron/status` returns the last 30 runs, `ingest_state` and `catalog_stats`.

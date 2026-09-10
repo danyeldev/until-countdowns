@@ -1,0 +1,26 @@
+<!doctype html>
+<!--
+  HAND-AUTHORED fixture — NOT recorded from espn.com, and not a copy of any real vendor's challenge
+  page. It stands for the most likely first-run failure (see the docblock in
+  src/lib/ingest/sources/espn.ts): a 200 OK interstitial served to a non-browser User-Agent, with
+  none of the three markers the scraper looks for. What matters is what is MISSING — no
+  `window['__…__'] = {` state assignment, no linked-data script block, no link into a fight page —
+  and that the run must warn rather than report a quiet week. The markers are named obliquely here
+  on purpose: spelling either of them out in this comment would make the page test positive for
+  them, which is exactly the false negative the marker report has to avoid.
+-->
+<html lang="en">
+  <head>
+    <title>Access to this page is temporarily unavailable</title>
+    <meta name="robots" content="noindex" />
+  </head>
+  <body>
+    <div id="challenge">
+      <h1>Checking your browser before you continue</h1>
+      <p>This request was blocked by our security service. If you believe this is an error, contact support and quote the reference below.</p>
+      <p class="ref">Reference ID: 0f1e2d3c-4b5a-6978-8796-a5b4c3d2e1f0</p>
+    </div>
+    <script>window.__chl_opt = { cvId: "3", chlApiWidgetId: "0f1e2d3c" };</script>
+    <noscript>Enable JavaScript and cookies to continue.</noscript>
+  </body>
+</html>

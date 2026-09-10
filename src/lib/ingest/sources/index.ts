@@ -158,6 +158,13 @@ export const SOURCES: Record<string, SourceEntry> = {
     cadence: "daily",
     load: () => import("./football-data").then((m) => m.adapter),
   },
+  espn: {
+    id: "espn",
+    label: "ESPN MMA scoreboard (UFC start times)",
+    rank: 6,
+    cadence: "daily",
+    load: () => import("./espn").then((m) => m.adapter),
+  },
   musicbrainz: {
     id: "musicbrainz",
     label: "MusicBrainz festival events",

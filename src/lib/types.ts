@@ -51,7 +51,8 @@ export type KnownSource =
   | "musicbrainz"
   | "wanted"
   | "wikipedia-categories"
-  | "anniversaries";
+  | "anniversaries"
+  | "espn";
 
 export type EventSource = KnownSource | (string & {});
 

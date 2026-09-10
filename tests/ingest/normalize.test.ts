@@ -195,3 +195,20 @@ describe("sports classification", () => {
     expect(classify("Video Games Day", "culture").category).toBe("culture");
   });
 });
+
+describe("classify: a surname is not a feast day", () => {
+  it("does not read Whitlock, Whittaker or White as Whitsun", () => {
+    // `whit` used to be an unanchored alternative in the Christian-feast rule, so a UFC card came
+    // back tagged religious and categorised as a holiday. Robert Whittaker is a real fighter.
+    for (const title of ["UFC 349: Ferreira vs. Whitlock", "UFC 320: Whittaker vs. Costa", "Dana White's Contender Series"]) {
+      expect(classify(title, "sports")).toEqual({ category: "sports", tags: [] });
+    }
+    expect(classify("Amazon Kindle Paperwhite (11th Generation) end of life", "tech").tags).toEqual([]);
+  });
+
+  it("still reads the feast it was written for", () => {
+    for (const title of ["Whit Sunday", "Whit Monday", "Whitsun", "Whitsuntide"]) {
+      expect(classify(title, "sports")).toEqual({ category: "holidays", tags: ["religious", "christian"] });
+    }
+  });
+});

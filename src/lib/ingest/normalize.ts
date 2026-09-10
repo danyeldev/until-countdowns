@@ -21,7 +21,10 @@ export const TAG_RULES: TagRule[] = [
   [/new year|a[nñ]o nuevo|nouvel an|neujahr|ano novo|hogmanay/i, "holidays", ["new-year"]],
   [/easter|pascua|ostern|p[aá]scoa|p[âa]ques|pasqua/i, "holidays", ["easter", "religious"]],
   [
-    /good friday|holy (thursday|saturday)|ascension|pentecost|whit|maundy|corpus christi|assumption|immaculate|epiphany|three kings|all saints|all souls/i,
+    // `whit` was unanchored and matched any word containing it — Robert Whittaker and Dana White
+    // are UFC fixtures, so a fight card came back tagged religious and categorised as a holiday.
+    // The feast is Whitsun / Whit Sunday / Whit Monday and nothing else.
+    /good friday|holy (thursday|saturday)|ascension|pentecost|whitsun\w*|whit (sunday|monday)|maundy|corpus christi|assumption|immaculate|epiphany|three kings|all saints|all souls/i,
     "holidays",
     ["religious", "christian"],
   ],

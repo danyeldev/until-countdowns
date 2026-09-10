@@ -68,6 +68,10 @@
       "schedule": "30 4 * * 0"
     },
     {
+      "path": "/api/cron/espn",
+      "schedule": "40 4 * * *"
+    },
+    {
       "path": "/api/cron/endoflife",
       "schedule": "0 5 * * *"
     },

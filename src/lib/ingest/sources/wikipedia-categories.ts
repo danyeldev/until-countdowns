@@ -32,9 +32,11 @@ import {
  * (`sources.attribution` = "Event titles and dates from Wikipedia (CC BY-SA 4.0)"). Wikidata
  * statements are CC0. Lead images are proposed only when they live on Commons
  * (`/wikipedia/commons/`); `/wikipedia/en/` uploads are fair-use logos and are never re-hosted.
- * Rejected alternatives (do not add): ESPN site.api (ToU bans scripts/commercial use),
- * TheSportsDB free tier (personal use only), fixturedownload.com (no storage), IFES ElectionGuide
- * (bot-blocked, no open licence), Sportradar/Stats Perform (enterprise redistribution terms).
+ * Rejected alternatives: TheSportsDB free tier (personal use only), fixturedownload.com (no
+ * storage), IFES ElectionGuide (bot-blocked, no open licence), Sportradar/Stats Perform
+ * (enterprise redistribution terms). ESPN site.api WAS rejected here for its ToU and now supplies
+ * MMA start times (`espn.ts`), which is why UFC cards this adapter dates to the day alone come
+ * back with an hour: rank 6 beats this source's 3 on the merge.
  *
  * Network: Wikimedia asks for a descriptive User-Agent and serial requests (200 req/min with a
  * UA, 10/min without, 429 + Retry-After); `limits` keep one request every 400 ms.
