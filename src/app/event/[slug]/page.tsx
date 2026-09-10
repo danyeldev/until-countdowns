@@ -269,7 +269,7 @@ export default async function EventPage({ params }: PageProps<"/event/[slug]">) 
       </div>
 
       <div className="mt-8 flex flex-wrap items-center gap-2">
-        <CalendarButtons event={event} />
+        <CalendarButtons event={event} url={absoluteUrl(sharePath)} />
         <SaveButton id={event.id} />
         <ShareButton title={event.title} path={sharePath} />
       </div>

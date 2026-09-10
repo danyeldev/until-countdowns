@@ -226,6 +226,13 @@ Three ways out of the site, all built on the same document.
 | **Embed** | `<iframe src="/embed/<slug>">` on someone else's site |
 | **Stream** | the same URL as an OBS / Streamlabs **browser source**, background keyed out |
 
+The calendar exports (`src/lib/calendar.ts`) are the fourth way out, and they carry a link home:
+every Google, Outlook and `.ics` entry ends with `Countdown: <the page>` plus `Source: <the
+origin>` when the catalog has one, because a reminder that fires eight months later is no use
+without the way back. The `.ics` repeats the page in `URL:` (a URI value, so its punctuation is
+left unescaped where the description's is) and folds its lines at 75 octets, counted in octets so
+a title in Arabic or Thai is never cut through a UTF-8 sequence.
+
 `/embed/[slug]` is a **route handler, not a page** (`src/app/embed/[slug]/route.ts`). The app has a
 single root layout — header, footer, gradient body — and an embed has to be a bare, transparent,
 dependency-free document, so it is rendered as one self-contained HTML string by
