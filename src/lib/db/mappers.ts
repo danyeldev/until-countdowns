@@ -88,6 +88,7 @@ export function rowToEvent(row: EventRow): CountdownEvent {
     date: row.date ?? "",
     endDate: row.end_date ?? undefined,
     allDay: row.all_day ?? true,
+    timezone: row.timezone ?? undefined,
     category: toCategory(row.category),
     tags: row.tags ?? [],
     regions: row.regions && row.regions.length > 0 ? row.regions : ["GLOBAL"],

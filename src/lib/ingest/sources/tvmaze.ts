@@ -1,4 +1,5 @@
 import { buildEvent, isFarFuture, sanitizeTitle, slugify } from "../normalize";
+import { catalogDay } from "@/lib/time";
 import type { Adapter, IngestContext, IngestEvent, IngestLogger, Json, Plan, Unit } from "../types";
 
 /**
@@ -246,12 +247,13 @@ export function episodeToEvent(ep: TvmazeEpisode, now: Date, threshold = minWeig
   const code = countryCode(country);
   const tz = timezoneOf(country);
   const hasAirtime = typeof ep.airtime === "string" && /^\d{2}:\d{2}/.test(ep.airtime);
-  const instantRaw = hasAirtime ? toUtcInstant(ep.airstamp) : null;
-  // Keep the instant only when its UTC day is still the local air day: `buildEvent` derives the slug
-  // and the catalog day from `date.slice(0, 10)` in UTC and `src/lib/time.ts` formats compact dates
-  // in UTC, so a 22:00 ET premiere would otherwise be slugged and listed one day late.
-  const instant = instantRaw && instantRaw.slice(0, 10) === airdate ? instantRaw : null;
-  const day = (instant ?? airdate).slice(0, 10);
+  // `airstamp` is on every episode, but only an explicit `airtime` proves the hour is real rather
+  // than a midnight placeholder — so the airstamp is trusted exactly as far as the airtime is.
+  const instant = hasAirtime ? toUtcInstant(ep.airstamp) : null;
+  // The instant is kept even when it lands on the next UTC day. `buildEvent` now files a row under
+  // its own zone's day, so a 22:00 ET premiere keeps its time AND still lists on the 12th; before
+  // that, keeping it would have slugged and listed the row a day late, so the time was dropped.
+  const day = catalogDay(instant ?? airdate, instant ? (tz ?? "UTC") : tz);
   // Label-year check: a year-numbered edition must air in the year it is named after ("Grammy
   // Awards 2027" in 2027), measured on the day the row actually carries, not on the raw airdate.
   if (isYearSeason(ep.season) && String(ep.season) !== day.slice(0, 4)) return { reject: "label-year" };

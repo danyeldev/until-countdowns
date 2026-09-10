@@ -90,6 +90,12 @@ export type CountdownEvent = {
   date: string;
   endDate?: string;
   allDay: boolean;
+  /**
+   * IANA zone of a timed event (`events.timezone`). It is what makes the date a *place's* date: a
+   * 22:00 premiere in New York is on the 12th wherever you read about it, though its instant is the
+   * 13th in UTC. Undefined for all-day dates, which belong to no zone in particular.
+   */
+  timezone?: string;
   category: Category;
   tags: string[];
   regions: string[];

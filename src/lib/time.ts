@@ -1,5 +1,35 @@
 import type { DatePrecision } from "./types";
 
+/**
+ * The calendar day a row belongs to — what the slug carries, what the listings file it under, and
+ * what `starts_on` has to agree with.
+ *
+ * For an all-day date that is simply the date. For an instant it is the day in the event's OWN
+ * zone, not in UTC: a 22:00 premiere in New York happens on the 12th where it airs, though its
+ * instant is the 13th in UTC. Taking the UTC prefix is what used to force adapters to choose
+ * between keeping the time and filing the row on the right day — tvmaze threw the time away.
+ * Without a zone there is nothing better to go on than UTC.
+ */
+export function catalogDay(date: string, timezone?: string | null): string {
+  const utcDay = date.slice(0, 10);
+  if (!date.includes("T") || !timezone) return utcDay;
+  const ms = Date.parse(date);
+  if (Number.isNaN(ms)) return utcDay;
+  try {
+    // en-CA renders as YYYY-MM-DD, which is the shape the rest of the pipeline expects.
+    return new Intl.DateTimeFormat("en-CA", {
+      timeZone: timezone,
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+    }).format(ms);
+  } catch {
+    // An unrecognised zone must never fail a whole ingest pass.
+    return utcDay;
+  }
+}
+
+
 export type Remaining = {
   totalMs: number;
   past: boolean;
@@ -63,14 +93,15 @@ export function formatWhen(date: string, allDay = true): string {
   }).format(eventInstant(date, allDay));
 }
 
-export function formatCompactDate(date: string): string {
+export function formatCompactDate(date: string, timezone?: string | null): string {
   if (!isValidDate(date)) return "—";
+  // Rendered from the catalog day, so a listing never contradicts the day the row is filed under.
   return new Intl.DateTimeFormat("en", {
     year: "numeric",
     month: "short",
     day: "numeric",
     timeZone: "UTC",
-  }).format(utcParts(date));
+  }).format(utcParts(catalogDay(date, timezone)));
 }
 
 export function formatRange(start: string, end?: string): string {

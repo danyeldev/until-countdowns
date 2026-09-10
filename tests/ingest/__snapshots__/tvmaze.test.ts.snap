@@ -32,8 +32,8 @@ exports[`tvmaze fixture → rows > is deterministic across two calls; sorted by 
   [
     "tvmaze:ep:3444239",
     "the-emmy-awards-2026-2026-09-14",
-    "2026-09-14",
-    "day",
+    "2026-09-15T00:00:00Z",
+    "instant",
     "America/New_York",
     "US",
     "tv",
