@@ -1,0 +1,467 @@
+{
+  "_note": "HAND-AUTHORED from the documented ESPN MMA scoreboard shape \u2014 NOT recorded from a live response. This container has no internet access, so nothing here was verified against site.api.espn.com. Envelope and field names follow GET /apis/site/v2/sports/mma/ufc/scoreboard?dates=20260910-20261208; event ids, card numbers, matchups and venues are fictional. Replace this file with a recorded response on the first real run.",
+  "leagues": [
+    {
+      "id": "26",
+      "uid": "s:3300~l:26",
+      "name": "Ultimate Fighting Championship",
+      "abbreviation": "UFC",
+      "slug": "ufc",
+      "season": {
+        "year": 2026,
+        "startDate": "2026-01-01T08:00Z",
+        "endDate": "2026-12-31T07:59Z"
+      }
+    }
+  ],
+  "events": [
+    {
+      "id": "401612345",
+      "uid": "s:3300~l:26~e:401612345",
+      "date": "2026-09-12T22:00Z",
+      "name": "UFC Fight Night: Silva vs. Delgado",
+      "shortName": "Silva vs. Delgado",
+      "season": {
+        "year": 2026,
+        "type": 1
+      },
+      "status": {
+        "type": {
+          "id": "1",
+          "name": "STATUS_SCHEDULED",
+          "state": "pre",
+          "completed": false,
+          "description": "Scheduled"
+        }
+      },
+      "competitions": [
+        {
+          "id": "401612345",
+          "uid": "s:3300~l:26~e:401612345~c:401612345",
+          "date": "2026-09-12T22:00Z",
+          "venue": {
+            "id": "7404",
+            "fullName": "UFC APEX",
+            "address": {
+              "city": "Las Vegas",
+              "state": "NV",
+              "country": "USA"
+            }
+          },
+          "status": {
+            "type": {
+              "id": "1",
+              "name": "STATUS_SCHEDULED",
+              "state": "pre",
+              "completed": false
+            }
+          },
+          "timeValid": true
+        }
+      ],
+      "links": [
+        {
+          "language": "en-US",
+          "rel": [
+            "event",
+            "desktop"
+          ],
+          "href": "https://www.espn.com/mma/fightcenter/_/id/401612345",
+          "text": "Fight Center"
+        }
+      ]
+    },
+    {
+      "id": "401612349",
+      "uid": "s:3300~l:26~e:401612349",
+      "date": "2026-10-03T02:00Z",
+      "name": "UFC 349: Ferreira vs. Whitlock",
+      "shortName": "Ferreira vs. Whitlock",
+      "season": {
+        "year": 2026,
+        "type": 1
+      },
+      "status": {
+        "type": {
+          "id": "1",
+          "name": "STATUS_SCHEDULED",
+          "state": "pre",
+          "completed": false,
+          "description": "Scheduled"
+        }
+      },
+      "competitions": [
+        {
+          "id": "401612349",
+          "date": "2026-10-03T02:00Z",
+          "venue": {
+            "id": "3671",
+            "fullName": "T-Mobile Arena",
+            "address": {
+              "city": "Las Vegas",
+              "state": "NV",
+              "country": "USA"
+            }
+          },
+          "status": {
+            "type": {
+              "id": "1",
+              "name": "STATUS_SCHEDULED",
+              "state": "pre",
+              "completed": false
+            }
+          },
+          "timeValid": true
+        }
+      ],
+      "links": [
+        {
+          "language": "en-US",
+          "rel": [
+            "event",
+            "desktop"
+          ],
+          "href": "https://www.espn.com/mma/fightcenter/_/id/401612349",
+          "text": "Fight Center"
+        }
+      ]
+    },
+    {
+      "id": "401612350",
+      "uid": "s:3300~l:26~e:401612350",
+      "date": "2026-11-14T16:00Z",
+      "name": "UFC 350: Okafor vs. Rahimov",
+      "shortName": "Okafor vs. Rahimov",
+      "season": {
+        "year": 2026,
+        "type": 1
+      },
+      "status": {
+        "type": {
+          "id": "1",
+          "name": "STATUS_SCHEDULED",
+          "state": "pre",
+          "completed": false,
+          "description": "Scheduled"
+        }
+      },
+      "competitions": [
+        {
+          "id": "401612350",
+          "date": "2026-11-14T16:00Z",
+          "venue": {
+            "id": "6210",
+            "fullName": "Etihad Arena",
+            "address": {
+              "city": "Abu Dhabi",
+              "country": "ARE"
+            }
+          },
+          "status": {
+            "type": {
+              "id": "1",
+              "name": "STATUS_SCHEDULED",
+              "state": "pre",
+              "completed": false
+            }
+          },
+          "timeValid": true
+        }
+      ],
+      "links": [
+        {
+          "language": "en-US",
+          "rel": [
+            "event",
+            "desktop"
+          ],
+          "href": "https://www.espn.com/mma/fightcenter/_/id/401612350",
+          "text": "Fight Center"
+        }
+      ]
+    },
+    {
+      "id": "401612377",
+      "uid": "s:3300~l:26~e:401612377",
+      "date": "2026-11-21T21:30Z",
+      "name": "UFC Fight Night: Novak vs. Ellery",
+      "shortName": "Novak vs. Ellery",
+      "season": {
+        "year": 2026,
+        "type": 1
+      },
+      "status": {
+        "type": {
+          "id": "1",
+          "name": "STATUS_SCHEDULED",
+          "state": "pre",
+          "completed": false,
+          "description": "Scheduled"
+        }
+      },
+      "competitions": [
+        {
+          "id": "401612377",
+          "date": "2026-11-21T21:30Z",
+          "status": {
+            "type": {
+              "id": "1",
+              "name": "STATUS_SCHEDULED",
+              "state": "pre",
+              "completed": false
+            }
+          },
+          "timeValid": true
+        }
+      ],
+      "links": [
+        {
+          "language": "en-US",
+          "rel": [
+            "event",
+            "desktop"
+          ],
+          "href": "https://www.espn.com/mma/fightcenter/_/id/401612377",
+          "text": "Fight Center"
+        }
+      ]
+    },
+    {
+      "id": "401612300",
+      "uid": "s:3300~l:26~e:401612300",
+      "date": "2026-09-10T02:00Z",
+      "name": "UFC Fight Night: Moreno vs. Pantoja",
+      "shortName": "Moreno vs. Pantoja",
+      "season": {
+        "year": 2026,
+        "type": 1
+      },
+      "status": {
+        "type": {
+          "id": "3",
+          "name": "STATUS_FINAL",
+          "state": "post",
+          "completed": true,
+          "description": "Final"
+        }
+      },
+      "competitions": [
+        {
+          "id": "401612300",
+          "date": "2026-09-10T02:00Z",
+          "venue": {
+            "id": "7404",
+            "fullName": "UFC APEX",
+            "address": {
+              "city": "Las Vegas",
+              "state": "NV",
+              "country": "USA"
+            }
+          },
+          "status": {
+            "type": {
+              "id": "3",
+              "name": "STATUS_FINAL",
+              "state": "post",
+              "completed": true
+            }
+          }
+        }
+      ],
+      "links": [
+        {
+          "language": "en-US",
+          "rel": [
+            "event",
+            "desktop"
+          ],
+          "href": "https://www.espn.com/mma/fightcenter/_/id/401612300",
+          "text": "Fight Center"
+        }
+      ]
+    },
+    {
+      "id": "401612351",
+      "uid": "s:3300~l:26~e:401612351",
+      "date": "2026-12-05T00:00Z",
+      "name": "UFC 351: Ivanova vs. Bright",
+      "shortName": "Ivanova vs. Bright",
+      "season": {
+        "year": 2026,
+        "type": 1
+      },
+      "status": {
+        "type": {
+          "id": "1",
+          "name": "STATUS_SCHEDULED",
+          "state": "pre",
+          "completed": false,
+          "description": "Scheduled"
+        }
+      },
+      "competitions": [
+        {
+          "id": "401612351",
+          "date": "2026-12-05T00:00Z",
+          "venue": {
+            "id": "3928",
+            "fullName": "Madison Square Garden",
+            "address": {
+              "city": "New York",
+              "state": "NY",
+              "country": "USA"
+            }
+          },
+          "status": {
+            "type": {
+              "id": "1",
+              "name": "STATUS_SCHEDULED",
+              "state": "pre",
+              "completed": false
+            }
+          },
+          "timeValid": false
+        }
+      ],
+      "links": [
+        {
+          "language": "en-US",
+          "rel": [
+            "event",
+            "desktop"
+          ],
+          "href": "https://www.espn.com/mma/fightcenter/_/id/401612351",
+          "text": "Fight Center"
+        }
+      ]
+    },
+    {
+      "id": "401612907",
+      "uid": "s:3300~l:26~e:401612907",
+      "name": "UFC Fight Night: TBD vs. TBD",
+      "season": {
+        "year": 2026,
+        "type": 1
+      },
+      "status": {
+        "type": {
+          "id": "1",
+          "name": "STATUS_SCHEDULED",
+          "state": "pre",
+          "completed": false
+        }
+      },
+      "competitions": [
+        {
+          "id": "401612907",
+          "status": {
+            "type": {
+              "id": "1",
+              "name": "STATUS_SCHEDULED",
+              "state": "pre",
+              "completed": false
+            }
+          }
+        }
+      ],
+      "links": [
+        {
+          "language": "en-US",
+          "rel": [
+            "event",
+            "desktop"
+          ],
+          "href": "https://www.espn.com/mma/fightcenter/_/id/401612907",
+          "text": "Fight Center"
+        }
+      ]
+    },
+    {
+      "id": "401612908",
+      "uid": "s:3300~l:26~e:401612908",
+      "date": "2026-11-28T23:00Z",
+      "season": {
+        "year": 2026,
+        "type": 1
+      },
+      "status": {
+        "type": {
+          "id": "1",
+          "name": "STATUS_SCHEDULED",
+          "state": "pre",
+          "completed": false
+        }
+      },
+      "competitions": [
+        {
+          "id": "401612908",
+          "date": "2026-11-28T23:00Z",
+          "venue": {
+            "id": "5901",
+            "fullName": "Accor Arena",
+            "address": {
+              "city": "Paris",
+              "country": "FRA"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "401612390",
+      "uid": "s:3301~l:3301~e:401612390",
+      "date": "2026-12-19T19:00Z",
+      "name": "UFC Fight Night: Brandt vs. Osei",
+      "shortName": "Brandt vs. Osei",
+      "season": {
+        "year": 2026,
+        "type": 1
+      },
+      "status": {
+        "type": {
+          "id": "1",
+          "name": "STATUS_SCHEDULED",
+          "state": "pre",
+          "completed": false,
+          "description": "Scheduled"
+        }
+      },
+      "competitions": [
+        {
+          "id": "401612390",
+          "uid": "s:3301~l:3301~e:401612390~c:401612390",
+          "date": "2026-12-19T19:00Z",
+          "venue": {
+            "id": "7404",
+            "fullName": "UFC APEX",
+            "address": {
+              "city": "Las Vegas",
+              "state": "NV",
+              "country": "USA"
+            }
+          },
+          "status": {
+            "type": {
+              "id": "1",
+              "name": "STATUS_SCHEDULED",
+              "state": "pre",
+              "completed": false
+            }
+          },
+          "timeValid": false
+        }
+      ],
+      "links": [
+        {
+          "language": "en-US",
+          "rel": [
+            "event",
+            "desktop"
+          ],
+          "href": "https://www.espn.com/mma/fightcenter/_/id/401612390",
+          "text": "Fight Center"
+        }
+      ]
+    }
+  ]
+}

@@ -33,8 +33,9 @@ import type { Adapter, IngestContext, IngestEvent, IngestLogger, IngestPrecision
  *
  * Rejected esports alternatives (never add): the undocumented lolesports API (leaked shared key,
  * match-level only), PandaScore (display-only licence + mandatory "Source: PandaScore" credit,
- * no public export — optional later path, not v1), ESPN site.api (Disney ToU bans scripts and
- * dataset creation), TheSportsDB free tier (personal, non-commercial).
+ * no public export — optional later path, not v1), TheSportsDB free tier (personal,
+ * non-commercial). ESPN site.api is no longer rejected outright — its ToU restricts scripted
+ * access, which the project weighed and accepted for schedule data (see `espn.ts`).
  *
  * Units: one per wiki; `after = { afterWiki }` so a resumed pass continues with the next wiki in
  * `WIKIS` order (content-addressed, never an index). Rows: `source_key = liquipedia:<wiki>:<pageid>`.

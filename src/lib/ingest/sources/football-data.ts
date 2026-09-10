@@ -65,9 +65,10 @@ import { labelYearConsistent } from "./wikidata/common";
  * Licence: terms are silent on caching/commercial use — written permission from
  * football-data.org is pending (brief §14); docs ask for attribution, stored on `public.sources`
  * ("Football data provided by football-data.org"). Crests/emblems are trademarks: no
- * `image_candidate_url`, ever. Rejected alternatives (brief §20): ESPN site API (ToU bans scripts
- * and commercial use), TheSportsDB free tier (non-commercial), fixturedownload.com (no storage),
- * Sportradar/Stats Perform/SportsDataIO (enterprise), jolpica-f1 (CC BY-NC-SA).
+ * `image_candidate_url`, ever. Rejected alternatives (brief §20): TheSportsDB free tier
+ * (non-commercial), fixturedownload.com (no storage), Sportradar/Stats Perform/SportsDataIO
+ * (enterprise), jolpica-f1 (CC BY-NC-SA). ESPN's site API was on this list for its ToU; it is now
+ * used for MMA (see `espn.ts`) — a schedule is facts, and that trade-off was made deliberately.
  */
 
 export const FD_BASE = "https://api.football-data.org/v4";

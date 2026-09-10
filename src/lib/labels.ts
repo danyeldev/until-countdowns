@@ -77,6 +77,7 @@ export const SOURCE_LABELS: Record<string, string> = {
   endoflife: "endoflife.date",
   confs: "confs.tech",
   liquipedia: "Liquipedia",
+  espn: "ESPN",
 };
 
 /** Display name for a source id: DB label first, then the static fallback, then the raw id. */

@@ -168,6 +168,7 @@ The script runs the same `runSource()` as the cron routes (via `tsx --conditions
 | `/api/cron/curated` | `30 2 * * *` | curated one-offs + series expansion (now … +14 years), syncs `series` / `series_aliases` |
 | `/api/cron/wikidata` | `0 3 * * *` | precision-guarded SPARQL per class (one query at a time, 1.5 s spacing) |
 | `/api/cron/wikipedia` | `20 3 * * *` | year pages, this year … +4 |
+| `/api/cron/espn` | `40 4 * * *` | ESPN MMA scoreboard — UFC cards with a real start time (rank 6, so an instant displaces the day-precision Wikidata row) |
 | `/api/cron/housekeeping` | `0 8 * * *` | popularity decay (−1/week for non-curated rows unseen 30 days), prune `ingest_runs` > 90 days, `[ingest] STALE <source>` log |
 
 Every route needs `Authorization: Bearer $CRON_SECRET` (401 otherwise) and answers with the run summary JSON (`{ ok: false, status: "error", error }` with HTTP 500 when the runner cannot even start, e.g. missing env or a failed lease RPC). `GET /api/cron/<source>?force=1` ignores the cursor and backoff, `?dry=1` validates without writing, `?budget=<ms>` caps the run (clamped to `maxDuration − 20 s`). `GET /api/cron/status` returns the last 30 runs, `ingest_state` and `catalog_stats`.
