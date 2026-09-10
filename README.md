@@ -10,6 +10,7 @@ A catalog of future dates — public holidays from nearly every country, schedul
 - Open a full-page ticking countdown (dates without a confirmed day show "expected …" instead of a clock)
 - Add any date to Google Calendar, Outlook, or download an `.ics`
 - Create personal countdowns (stored in the browser, shareable via URL)
+- Put any countdown on your own site as an `<iframe>`, or on a stream as an OBS browser source — colours, font, size, units and position all live in the URL
 
 ## Catalog
 
@@ -214,6 +215,95 @@ Mixed-case paths (`/country/Ae`, `/event/Foo-…`) are 404s, never redirects: an
 Metadata comes from `src/lib/seo.ts` (`buildMetadata()`; titles rotate by category and never carry the day count; descriptions do, from SQL `days_until`). JSON-LD builders live in `src/lib/jsonld.ts`: `BreadcrumbList` everywhere, `WebSite` + `Organization` on `/`, `EventSeries` on series pages (its `subEvent` list carries `Event` items only for `jsonld_eligible` occurrences), schema.org `Event` only for `jsonld_eligible` rows (no FAQPage, no SearchAction). Sitemaps: `generateSitemaps()` in `src/app/sitemap.ts` shards into `hubs`, `series` and `events-<year>` (`-h1/-h2` above 40k URLs), served at `/sitemap/<id>.xml`; `/sitemap-index.xml` is a hand-written index because Next emits none. `lastmod` is `updated_at`, no priority/changefreq.
 
 Open Graph cards are route handlers under `src/app/og/*` (`src/lib/og.tsx`, `ImageResponse`, Fraunces + Geist Mono woff from `@fontsource/*`, traced with `outputFileTracingIncludes`). Event and series cards embed the metadata date in the URL (`/og/event/<slug>/<yyyy-mm-dd>.png`) so the day count is fixed per URL and social scrapers refetch daily; dated URLs are `s-maxage=86400, immutable`, undated hubs `s-maxage=3600`. Unknown slugs get the default card (200); a malformed date is a 400. A card only uses a photo when the licence allows adaptations (see [ShareAlike](#sharealike-and-what-may-be-made-from-a-photo)); everything else draws the seeded gradient. Cards stay under 600 KB (WhatsApp limit) — the PNG is quantised in steps and, if it still will not fit, the photo is dropped for the gradient rather than shipped over budget. `GOOGLE_SITE_VERIFICATION` (optional) is emitted from the root layout.
+
+## Sharing
+
+Three ways out of the site, all built on the same document.
+
+| Surface | What it is |
+|---|---|
+| Link | `ShareButton` — `navigator.share`, falling back to the clipboard |
+| **Embed** | `<iframe src="/embed/<slug>">` on someone else's site |
+| **Stream** | the same URL as an OBS / Streamlabs **browser source**, background keyed out |
+
+`/embed/[slug]` is a **route handler, not a page** (`src/app/embed/[slug]/route.ts`). The app has a
+single root layout — header, footer, gradient body — and an embed has to be a bare, transparent,
+dependency-free document, so it is rendered as one self-contained HTML string by
+`src/lib/embed/html.ts`: inline CSS, a ~40-line ES5 ticker, no React, no hydration, no webfont, no
+third-party request. It answers with `Content-Security-Policy: frame-ancestors *` (the one route on
+the site meant to be framed anywhere), `X-Robots-Tag: noindex` and
+`Cache-Control: s-maxage=3600` — the markup depends only on the slug and the query string, because
+the clock itself is computed in the viewer's browser. `/embed/` joins `/event/share-` in the
+`robots.txt` disallow list: a widget is linked from every page that hosts it, and `noindex` alone
+does not save crawl budget.
+
+The slug resolves in three ways, so every kind of countdown can travel:
+
+1. `share-<payload>` — a personal countdown, carried whole in the URL (nothing is stored server-side).
+2. an event slug (`christmas-day-2026-12-25`), through the same alias redirect the event page uses.
+3. a **series** slug (`christmas`) — the evergreen case: the widget ticks to the series' *next*
+   occurrence, so an embed put up for one year keeps working the next without the owner touching
+   the snippet.
+
+`mine-…` slugs never resolve here: they live in one browser's `localStorage`, and a third-party
+iframe is storage-partitioned anyway. The customiser always hands out the `share-` form instead.
+
+### Look and feel
+
+Everything a person can change travels in the query string, parsed by `parseEmbedTheme()` in
+`src/lib/embed/theme.ts`. That parser is the security boundary — the values end up in generated CSS
+and HTML — so it is closed: every parameter is an enum member, an integer clamped to a range, or a
+`#rrggbb` colour, and anything else silently falls back to the preset. A broken URL still renders a
+readable countdown.
+
+| Parameter | Values | Default |
+|---|---|---|
+| `preset` | `dark` `light` `amber` `mono` `neon` `clear` | `dark` |
+| `accent` / `text` | `#rrggbb`, `#rgb`, with or without the `#` | from the preset |
+| `bg` | a colour, or `transparent` (also `none` / `clear` / `chroma`) — the card's fill under `frame=card`, the whole canvas otherwise, so a widget on a blog is a card and not a coloured band | from the preset |
+| `font` | `serif` `sans` `mono` (CSS stacks — no webfont is fetched) | `mono` |
+| `scale` | 40–400 (% of the base type size) | `100` |
+| `layout` | `row` `stack` `compact` `big` | `row` |
+| `pos` | the nine-grid: `top-left` … `center` … `bottom-right` | `center` |
+| `units` | `dhms` `dhm` `dh` `d` `hms` `hm` `ms` | `dhms` |
+| `frame` | `card` `outline` `none` | `card` |
+| `sep` | `colon` `dot` `space` `none` | `colon` |
+| `radius` | 0–48 px | `24` |
+| `pad` | 0–96 px — the inset from the **canvas edge**, which is how a corner overlay is placed | `24` |
+| `labels` `title` `date` `note` `brand` `glow` `trim` | `1` / `0` | see `presetTheme()` |
+| `done` | up to 60 characters replacing "It's here." | — |
+
+Only what differs from the named preset is serialised (`embedQuery()`), so switching preset
+shortens the URL again instead of freezing the old palette into it.
+
+Two details worth knowing:
+
+- **The largest enabled unit absorbs everything above it.** `units=hms` on a three-day countdown
+  shows 76 hours, not 4 — the ticker walks the enabled units in order, taking the whole remainder
+  at the first one.
+- **All-day dates tick to the viewer's local midnight**, the same rule `eventInstant()` uses. The
+  server renders a UTC figure as the no-JS fallback and first paint; the inline script corrects it
+  before the first frame.
+
+### The customiser
+
+`src/components/EmbedStudio.tsx` is a closed disclosure on every countdown page (event, series,
+`/create`, and a personal countdown's own page). It opens on **Embed on your site** or **Add to your
+stream**, drives one `EmbedTheme` through colour, font, size, layout, unit, separator, frame and
+nine-grid position controls, previews the real document in an `<iframe>` (debounced, and on a
+checkerboard in the stream tab so a keyed-out background is visible), and hands over either the
+`<iframe>` snippet or the browser-source URL.
+
+### oEmbed
+
+`GET /api/oembed?url=<an Until URL>` returns the `rich` payload for `/event/…`, `/days-until/…` and
+`/embed/…` URLs on this origin, so pasting a plain countdown link into WordPress, Ghost or Notion
+produces the widget. Event and series pages advertise it as
+`<link rel="alternate" type="application/json+oembed">` (`oembedDiscoveryUrl()` in `src/lib/seo.ts`).
+`format=xml` is a 501; `maxwidth` / `maxheight` clamp the box.
+
+> The embed ships inline `<style>` and `<script>`. If the site ever grows a `Content-Security-Policy`
+> for its own pages, `/embed/*` needs a hash or nonce — or an exemption.
 
 ## Deploy
 

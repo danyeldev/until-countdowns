@@ -4,6 +4,7 @@ import { notFound, permanentRedirect } from "next/navigation";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { CalendarButtons } from "@/components/CalendarButtons";
 import { Countdown } from "@/components/Countdown";
+import { EmbedStudio } from "@/components/EmbedStudio";
 import { EventImage } from "@/components/EventImage";
 import { EventTable } from "@/components/EventTable";
 import { FallbackCard } from "@/components/FallbackCard";
@@ -22,8 +23,17 @@ import {
 import { eventSeries } from "@/lib/jsonld";
 import { CATEGORY_LABELS } from "@/lib/labels";
 import { regionSummary } from "@/lib/regions";
-import { buildMetadata, formatShortDate, ogDatedPath, seriesDescription, seriesTitle, todayUtc } from "@/lib/seo";
-import { humanDays } from "@/lib/time";
+import {
+  buildMetadata,
+  formatShortDate,
+  oembedDiscoveryUrl,
+  ogDatedPath,
+  seriesDescription,
+  seriesTitle,
+  siteUrl,
+  todayUtc,
+} from "@/lib/seo";
+import { humanDays, isCoarsePrecision } from "@/lib/time";
 
 export const revalidate = 3600;
 
@@ -40,7 +50,7 @@ export async function generateMetadata({ params }: { params: Promise<{ series: s
   const { series: slug } = await params;
   const series = await getSeries(slug);
   if (!series) return { title: "Days until", robots: { index: false, follow: true } };
-  return buildMetadata({
+  const metadata = buildMetadata({
     title: seriesTitle(series),
     description: seriesDescription(series),
     canonical: `/days-until/${series.slug}`,
@@ -48,6 +58,15 @@ export async function generateMetadata({ params }: { params: Promise<{ series: s
     // A series with no future occurrence is a thin page: reachable, out of the index and the sitemap.
     noindex: !series.nextDate,
   });
+  // Same gate as the embed itself: a dormant series, or one whose next occurrence is only pinned to
+  // a month, has nothing to hand an oEmbed consumer, so it does not claim it can.
+  if (series.nextDate && !isCoarsePrecision(series.nextPrecision)) {
+    metadata.alternates = {
+      ...metadata.alternates,
+      types: { "application/json+oembed": oembedDiscoveryUrl(`/days-until/${series.slug}`) },
+    };
+  }
+  return metadata;
 }
 
 export default async function SeriesPage({ params }: { params: Promise<{ series: string }> }) {
@@ -156,6 +175,12 @@ export default async function SeriesPage({ params }: { params: Promise<{ series:
         ) : null}
         <ShareButton title={`Days until ${series.title}`} path={path} />
       </div>
+
+      {/* The embed follows the series, not one occurrence: a widget put up for Christmas 2026
+          keeps ticking to Christmas 2027 the day after, without the owner touching the snippet. */}
+      {series.nextDate && !isCoarsePrecision(series.nextPrecision) ? (
+        <EmbedStudio slug={series.slug} title={series.title} origin={siteUrl()} />
+      ) : null}
 
       <section className="mt-14">
         <h2 className="font-serif text-2xl text-paper">Upcoming dates</h2>

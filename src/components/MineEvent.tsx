@@ -6,9 +6,11 @@ import { encodeSharePayload } from "@/lib/user-events";
 import { useMine } from "@/lib/use-local-store";
 import { CalendarButtons } from "./CalendarButtons";
 import { Countdown } from "./Countdown";
+import { EmbedStudio } from "./EmbedStudio";
 import { SaveButton } from "./SaveButton";
 import { ShareButton } from "./ShareButton";
 import { CATEGORY_LABELS } from "@/lib/labels";
+import { siteUrl } from "@/lib/seo";
 import { formatRange } from "@/lib/time";
 
 export function MineEvent({ slug }: { slug: string }) {
@@ -30,7 +32,8 @@ export function MineEvent({ slug }: { slug: string }) {
     );
   }
 
-  const sharePath = `/event/share-${encodeSharePayload(event)}`;
+  const shareSlug = `share-${encodeSharePayload(event)}`;
+  const sharePath = `/event/${shareSlug}`;
 
   return (
     <article>
@@ -46,6 +49,9 @@ export function MineEvent({ slug }: { slug: string }) {
         <SaveButton id={event.id} />
         <ShareButton title={event.title} path={sharePath} />
       </div>
+      {/* The embed points at the payload URL, never at this `mine-…` slug: the widget has to work
+          on someone else's site, where this browser's localStorage does not exist. */}
+      <EmbedStudio slug={shareSlug} title={event.title} origin={siteUrl()} />
     </article>
   );
 }
