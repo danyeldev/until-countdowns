@@ -44,6 +44,7 @@ const MON = 1;
 const TUE = 2;
 const WED = 3;
 const THU = 4;
+const SAT = 6;
 
 /** Former RECURRING_ASTRONOMY: fixed calendar dates (mean peaks; exact times vary by a day). */
 const ASTRONOMY: SeriesRule[] = [
@@ -454,7 +455,174 @@ const MOVEABLE: SeriesRule[] = [
   },
 ];
 
-export const SERIES: SeriesRule[] = [...ASTRONOMY, ...CULTURE, ...MOVEABLE];
+/**
+ * Music — the annual dates. Why this block exists: `/category/music` held ONE published future row
+ * against 169 for `festivals` and 15 for `entertainment` (live counts from the catalog survey that
+ * asked for this work — not measured here), and its "Every year" rail was empty. The one row is
+ * accounted for: expanding this file plus src/data/curated.ts for a 2026-09-10 "now" produced
+ * exactly one `music` row before this block existed, the 2029 Woodstock anniversary (measured here,
+ * `computeCuratedRows`) — so no other source is contributing music at all. Nothing in the catalog
+ * *can* produce a recurring music date:
+ *
+ *   • Wikidata phase 1 queries Q4504495 (award ceremony) directly with `fallback: "entertainment"`,
+ *     and `categoryFor()` (sources/wikidata.ts) only lets a tag rule override a fallback that is in
+ *     GENERIC — which holds `culture` alone. So a Grammy or BRITs row from that class is
+ *     `entertainment` by construction and can never reach `music`.
+ *   • The AWARD_CATEGORIES map that would send "grammy|brit awards|eurovision" to `music`
+ *     (sources/wikidata/more.ts) is only ever consulted by phase 2, and phase 2's awards family
+ *     carries `minusDirect: true` — `MINUS { ?item wdt:P31 wd:Q4504495 }` — i.e. it excludes exactly
+ *     the items phase 1 just took. The map can only recategorise ceremonies that sit DEEPER in the
+ *     subtree; the ones this hub wants are direct instances.
+ *   • Neither phase can make a SERIES either. `finalize_catalog()` (0009_indexable_summary.sql)
+ *     derives series only from `holidays|curated|observances|astronomy|hebcal|aladhan|hindu|
+ *     curiosities|openholidays` rows whose slug base repeats across ≥ 2 years, and a Wikidata
+ *     ceremony label carries its ordinal, so the base differs yearly. GUESS how general that is —
+ *     the only labels anyone here has seen are the two recorded in tests/fixtures/wikidata/
+ *     awards.json ("99th Academy Awards", "78th Primetime Emmy Awards"), both ordinal-carrying.
+ *
+ * A rule here is therefore the only route to that rail. Cost: `finalize_catalog()` queues a summary
+ * AND an image job for every series-linked future row whatever its popularity (`or e.series_slug is
+ * not null`), so the 71 rows these five rules expand to (measured here at a 2026-09-10 "now" and
+ * pinned in tests/ingest/recurrence.test.ts: five rules × 15 years, less the four occurrences
+ * already past this year) are 142 jobs on the first pass after this lands. At the per-job costs in
+ * src/lib/enrich/run.ts (2.5 s summary, 3.5 s image) against its 240 s budget, and the ten-minute
+ * enrich cron in vercel.json, that is two or three runs if the queue is otherwise empty — half an
+ * hour, once — and then five rows a year.
+ *
+ * WHAT IS NOT VERIFIED. No date below was checked against a source: this was written on a machine
+ * with no outbound network — no SPARQL query, no ticket page, nothing fetched — so every "held on X
+ * since Y" is recalled from the author's knowledge. GUESS, all of it; the per-rule comments name the
+ * years the recollection covers so a reviewer can spot-check them instead of trusting a claim. What
+ * IS checked is the arithmetic: the weekday and ordinal of every date quoted below were computed
+ * here, and tests/ingest/recurrence.test.ts pins the occurrence each rule produces.
+ *
+ * DELIBERATELY ABSENT. Each of these moves on no rule any {@link Recurrence} kind can state, and a
+ * rule that is a week wrong every other year is worse than an absent row — it would ship a
+ * confidently wrong countdown forever. They belong in src/data/curated.ts as dated one-offs the day
+ * their date is announced (`series:` links them to a rule here when one exists, exactly as
+ * "Super Bowl LX" does):
+ *   • Eurovision Song Contest — a Saturday in May chosen by the EBU with the host broadcaster, and
+ *     it wanders: 2023-05-13 and 2024-05-11 were second Saturdays, 2025-05-17 and 2026-05-16 third,
+ *     2021-05-22 fourth, 2010-05-29 fifth. See the skipped 2026 entry in src/data/curated.ts.
+ *   • BRIT Awards — 2024-03-02 and 2025-03-01 were first Saturdays of March, 2026-02-28 the last
+ *     Saturday of February, 2023-02-11 the second: same weekday, no rule.
+ *   • MTV VMAs — not even a fixed weekday (2022-08-28 Sun, 2023-09-12 Tue, 2024-09-11 Wed,
+ *     2025-09-07 Sun), and the month flips between August and September.
+ *   • Mercury Prize — a September ceremony for years, then 2025-10-16 in Bradford once it began
+ *     moving around the UK.
+ *   • Glastonbury — fallow years break any rule outright (2026 was announced as one), and even the
+ *     Wednesday moves: 2023-06-21 was the third Wednesday of June, 2024-06-26 and 2025-06-25 the
+ *     last, 2022-06-22 the fourth of five.
+ *   • Rock in Rio — alternates Rio and Lisbon on a biennial-per-city cycle, which is a two-year
+ *     recurrence; every kind here is annual.
+ *   • Montreux Jazz — anchored near 1 July, but 2022-07-01 and 2025-07-04 opened on the first Friday
+ *     of July while 2023-06-30 and 2019-06-28 opened in June.
+ *   • Coachella and Tomorrowland are omitted for a different reason: they are music FESTIVALS, and
+ *     this repo files those under `festivals` (sources/wanted/resolve.ts maps Q868557 "music
+ *     festival" → festivals; musicbrainz.ts does the same), which is the hub that already has 169
+ *     rows. Adding them here would not fill the music rail and would risk a second row beside the
+ *     Wikidata festival one. FWIW the rules look real if anyone wants them in `festivals`:
+ *     Tomorrowland's first weekend was the third Friday of July in 2018, 2019, 2022, 2023, 2024 and
+ *     2025; Coachella's was the second Friday of April in 2019 and 2023-2026 but the third in 2016
+ *     and 2022 — both Aprils that opened on a Friday.
+ */
+const MUSIC: SeriesRule[] = [
+  {
+    slug: "grammy-awards",
+    title: "Grammy Awards",
+    category: "music",
+    tags: ["awards", "grammys", "ceremony"],
+    regions: ["US", "GLOBAL"],
+    // First Sunday of February — 2023-02-05, 2024-02-04, 2025-02-02 and 2026-02-01, four running.
+    // Only four: the ceremony moved freely before that (2019-02-10 a second Sunday, 2020-01-26 a
+    // January one, 2021-03-14 and 2022-04-03 pandemic reschedules), which is why this is `tentative`
+    // at 0.8 rather than a flat rule. The Recording Academy still announces each date, and a dated
+    // one-off carrying `series: "grammy-awards"` replaces the computed occurrence for that year.
+    recurrence: { kind: "nth-weekday", month: 2, weekday: SUN, n: 1 },
+    description:
+      "Music's awards night: the Recording Academy hands out the gramophones on the first Sunday of February, with the exact date confirmed by the Academy each year.",
+    popularity: 72,
+    confidence: 0.8,
+    status: "tentative",
+    aliases: ["grammys", "the-grammys"],
+  },
+  {
+    slug: "fete-de-la-musique",
+    title: "Fête de la Musique",
+    category: "music",
+    tags: ["music-day", "street-music", "solstice"],
+    regions: ["FR", "GLOBAL"],
+    // 21 June by definition, not by scheduling: France's Ministry of Culture pinned it to the
+    // summer solstice when it started in 1982, and the adoptions abroad (as World Music Day or Make
+    // Music Day) kept the same day — so, unlike a ceremony, there is no year that picks a different
+    // one. GUESS like every date in this block; no counter-example is recalled, none was looked up.
+    //
+    // OVERLAP: the `observances` adapter harvests Wikidata P837 world days and files them as
+    // `awareness`, so this day may already arrive from there. That is not a duplicate — curated is
+    // rank 9 and `upsert_events` lets the higher rank overwrite `category`, so the row moves to
+    // `music` and gains its series link — but only if the titles produce the same slug base. This
+    // one is spelled as Wikidata's English label (GUESS: unverified here); if the harvest emits
+    // "World Music Day" instead, 21 June carries two rows until the titles are reconciled.
+    recurrence: { kind: "fixed", month: 6, day: 21 },
+    description:
+      "Free music in the streets on the summer solstice, from the 1982 French original to the many countries that now join in as World Music Day.",
+    popularity: 55,
+    aliases: ["world-music-day", "make-music-day"],
+  },
+  {
+    slug: "international-jazz-day",
+    title: "International Jazz Day",
+    category: "music",
+    tags: ["jazz", "unesco"],
+    // 30 April, fixed by the UNESCO General Conference resolution that created the day (2011, first
+    // held 2012 — recalled, GUESS, like every date in this block). What makes the rule safe is not
+    // the citation but the shape: a designated international day IS a date, so unlike a ceremony
+    // there is nothing to reconcile each year. Same `observances` overlap as Fête de la Musique.
+    recurrence: { kind: "fixed", month: 4, day: 30 },
+    description:
+      "UNESCO's day for jazz as a language of freedom, marked every 30 April with concerts, workshops and an all-star global gala.",
+    popularity: 48,
+    aliases: ["jazz-day"],
+  },
+  {
+    slug: "last-night-of-the-proms",
+    title: "Last Night of the Proms",
+    category: "music",
+    tags: ["classical", "bbc", "royal-albert-hall"],
+    regions: ["GB"],
+    // Second Saturday of September, closing the BBC Proms season: 2017-09-09, 2018-09-08,
+    // 2019-09-14, 2021-09-11, 2023-09-09, 2024-09-14, 2025-09-13 — seven recalled seasons with no
+    // counter-example among them (2020's season was rebuilt without audiences). Long enough to state
+    // as a rule; the BBC still publishes the season each spring, hence 0.85, the same treatment
+    // Wimbledon's last-Monday rule gets. The `bbc-proms` alias points here rather than at the season
+    // opening in mid-July because the opening moves (13-19 July across recent years) and the closing
+    // night does not — the last night is the only Proms date this file can state truthfully.
+    recurrence: { kind: "nth-weekday", month: 9, weekday: SAT, n: 2 },
+    description:
+      "The Royal Albert Hall sings out the BBC Proms season on the second Saturday of September — flags, Elgar, and the Fantasia on British Sea Songs.",
+    popularity: 52,
+    confidence: 0.85,
+    aliases: ["bbc-proms", "the-proms"],
+  },
+  {
+    slug: "vienna-new-year-s-concert",
+    title: "Vienna New Year's Concert",
+    category: "music",
+    tags: ["classical", "strauss", "new-year"],
+    regions: ["AT", "GLOBAL"],
+    // 1 January, every year since 1941 (the first was played on 31 December 1939 — recalled, GUESS,
+    // like every date in this block). Safe as a `fixed` rule for the same reason as the two days
+    // above and unlike the Grammys: New Year's morning is the identity of the concert, not a slot
+    // someone books, so there is no announcement each year that could move it.
+    recurrence: { kind: "fixed", month: 1, day: 1 },
+    description:
+      "The Vienna Philharmonic plays Strauss waltzes and polkas in the Musikverein on New Year's morning, broadcast around the world.",
+    popularity: 50,
+    aliases: ["neujahrskonzert"],
+  },
+];
+
+export const SERIES: SeriesRule[] = [...ASTRONOMY, ...CULTURE, ...MOVEABLE, ...MUSIC];
 
 function slugOf(title: string): string {
   return title

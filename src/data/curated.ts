@@ -531,6 +531,27 @@ export const CURATED: CuratedEvent[] = [
       "CES Las Vegas, early January.",
   },
   {
+    // EXPIRED, and a year-titled one-off can never come back on its own: `expandCurated()` keeps
+    // only rows dated after `now - 2 days`, so this has emitted nothing since 18 May 2026 and every
+    // pass from here to eternity drops it silently. Skipped rather than deleted because
+    // tests/ingest/recurrence.test.ts pins this file against the legacy copy in scripts/curated.mjs
+    // (which still lists it) and `skip` is the documented way to keep a row for the record.
+    //
+    // NOT replaced by a series, deliberately. The grand final is a Saturday in May agreed between
+    // the EBU and the host broadcaster — not a rule: 2023-05-13 and 2024-05-11 fell on the second
+    // Saturday, 2025-05-17 and 2026-05-16 on the third, 2021-05-22 on the fourth, 2010-05-29 on the
+    // fifth (weekday and ordinal computed, the dates themselves recalled — GUESS). No `Recurrence`
+    // kind in src/data/series.ts can express that, and a rule that is a week wrong every other year
+    // would ship a confidently wrong countdown forever, which is worse than no row at all. The right
+    // shape is a dated one-off here — like "Super Bowl LX" above — the day the EBU announces 2027.
+    // Nothing else in the pipeline covered the gap when this was written: the on-demand `wanted`
+    // path finds the Wikidata item for a query like "eurovision 2027" and then REFUSES it with a
+    // `label-year` rejection, which deliberately stops the walk instead of emitting the next hit
+    // ("Melodifestivalen 2027"). See the FALLTHROUGH_REASONS doc comment in
+    // src/lib/ingest/sources/wanted/resolve.ts. That refusal is code, so it is certain; WHY it
+    // fires is read off the recorded fixture (tests/fixtures/wanted/wbgetentities.json: label
+    // "Eurovision Song Contest 2028" against a 2027 sitelink and P585), not off live Wikidata,
+    // which nothing here could reach — an editor fixing that label would let the item through.
     title: "Eurovision Song Contest 2026",
     date: "2026-05-16",
     category: "music",
@@ -540,6 +561,7 @@ export const CURATED: CuratedEvent[] = [
     popularity: 80,
     description:
       "Europe's glittering pop final (grand final typically a Saturday in mid-May).",
+    skip: true,
   },
   {
     title: "Academy Awards 2027",

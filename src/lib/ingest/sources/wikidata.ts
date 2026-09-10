@@ -22,6 +22,86 @@ export type { SparqlBinding } from "./wikidata/common";
  * (elections with regions, award ceremonies, expos/festivals, launches, film/game releases,
  * official openings) in ./wikidata/more.ts; those units carry a `more` cursor instead of
  * `{ i, page }`.
+ *
+ * MUSIC CLASSES — Q1573906 (concert tour) and Q182832 (concert). READ THIS BEFORE TRUSTING THE
+ * COVERAGE THEY IMPLY. The reason they exist is REPORTED, not measured here: a survey asked for
+ * them on the grounds that the catalog's `music` category held one published future row against
+ * 169 for `festivals`, with no tours and no concerts at all, and that the gig feeds which would
+ * fill that gap are dead (Songkick, Last.fm events, JamBase), consent-gated (Bandsintown) or
+ * key-gated at listings granularity (Ticketmaster, SeatGeek). None of those counts and none of
+ * those feeds was checked from here — no network — so read them as why the change was made, not
+ * as facts this file stands behind. What IS checkable from here: both QIDs are already mapped to
+ * `music` by the on-demand `wanted` path (sources/wanted/resolve.ts `P31_CATEGORY`), so the two
+ * routes now agree on the category instead of only one of them knowing about it.
+ *
+ * `range: true` on the tour is the Q132241 (festival) shape: the class is queried twice, once as
+ * P585 with `FILTER NOT EXISTS { ?item wdt:P580 [] }` and once as P580 + OPTIONAL P582, so an item
+ * with both dates comes from exactly one variant and its slug cannot flip between passes. That a
+ * tour actually carries P580 + P582 (and a one-night concert P585) is how Wikidata's property
+ * documentation reads and how tour items are described there — it was NOT checked against live
+ * data. GUESS. It is a cheap one to be wrong about: the pair is self-covering, so tours that state
+ * only P585 are picked up by the point variant regardless.
+ *
+ * Q182832 is not `range` because a one-night concert has a date, not a span. It is the weaker of
+ * the two bets, and it rests on an ASSUMPTION about upstream data that was not checked: that the
+ * enwiki gate below (`?article schema:about ?item`) leaves only the countdown-shaped one-offs — a
+ * farewell show, a reunion, a benefit — because an ordinary arena date has no Wikipedia article
+ * and so never reaches the mapper. If that is wrong, the class comes back either empty or full of
+ * routine gigs, and the first run's log line says which. What IS verified is the cost of the other
+ * way of being wrong, towards history (the class may be mostly past concerts): the query window
+ * opens at 1 January of the current year, so past concerts are excluded by WDQS rather than
+ * fetched and discarded, and the far end is `year + FAR_FUTURE_YEARS` (phase 1 never calls
+ * `isFarFuture`; the window IS the far-future bound). So the downside there is one query per pass
+ * returning nothing, not a flood.
+ *
+ * HOW MANY ROWS EITHER CLASS ADDS IS UNVERIFIED. This was written on a machine with no outbound
+ * network: no SPARQL was run and no count taken, so no row count anywhere below is a measurement.
+ * Size it from the log — every unit prints `Q1573906 concert tour [P580] page 1: <n> bindings,
+ * <k> kept` — or ask WDQS for the count form of what {@link buildWikidataQuery} sends (paste at
+ * https://query.wikidata.org/, or GET https://query.wikidata.org/sparql?query=<urlencoded> with
+ * `Accept: application/sparql-results+json`). Only the label service is dropped from it, a count
+ * having no labels to fetch; `hint:rangeSafe` is kept, because the comment on
+ * {@link buildWikidataQuery} says this shape times out at 60 s on a large class without it. The
+ * dates are the 2026 pass — the code builds `<current year>-01-01` to `+ FAR_FUTURE_YEARS` (15),
+ * so move both literals if you run this later:
+ *
+ *     SELECT (COUNT(DISTINCT ?item) AS ?n) WHERE {
+ *       ?item wdt:P31 wd:Q1573906 .
+ *       ?item wdt:P580 ?date . hint:Prior hint:rangeSafe true .
+ *       FILTER(?date >= "2026-01-01T00:00:00Z"^^xsd:dateTime && ?date < "2041-01-01T00:00:00Z"^^xsd:dateTime)
+ *       ?item p:P580 ?st . ?st psv:P580 ?v . ?v wikibase:timeValue ?date ; wikibase:timePrecision ?prec .
+ *       FILTER(?prec >= 9)
+ *       ?article schema:about ?item ; schema:isPartOf <https://en.wikipedia.org/> .
+ *     }
+ *
+ * For the tour's other variant swap every `P580` above for `P585` (all three — `wdt:`, `p:`,
+ * `psv:`) and add `FILTER NOT EXISTS { ?item wdt:P580 [] }`; for Q182832 use that P585 form
+ * without the FILTER (one variant, no end date). Reading the answer:
+ *   • under ~10 kept rows for a class — it was not worth it. Delete the entry: it costs a WDQS
+ *     query per variant per daily pass (cron `0 3 * * *`, vercel.json), and `wanted` already
+ *     resolves either QID on demand for anything a visitor actually asks for.
+ *   • ~10 to WD_PAGE (3000) — the band this was written for. One page per variant, nothing to tune.
+ *   • above WD_PAGE — paging starts and the class can reach MAX_PAGES × WD_PAGE = 30 000 rows per
+ *     variant. A number that big means the class is not what this comment assumes; re-check it and
+ *     the enrichment arithmetic below before a second pass runs.
+ *
+ * ENRICHMENT COST OF `popularity: 45`. That constant is load-bearing, not decoration:
+ * `finalize_catalog` queues a `wikipedia_summary` AND an `image` job for every published future
+ * row at `popularity >= 45` that is still missing each one (the same branch in every version of
+ * the function since 0001_core.sql; current one in supabase/migrations/0009_indexable_summary.sql).
+ * Phase-1 Wikidata rows sit exactly ON that boundary — all of them, not just these two classes —
+ * so N newly kept rows cost 2N jobs. The drain rate below is arithmetic from the constants, not
+ * an observed figure: the worker runs every 10 minutes (vercel.json), claims at most
+ * `DEFAULT_LIMIT` = 60 per kind, and sizes each claim to the 240 s budget with the per-job costs
+ * measured in src/lib/enrich/run.ts (2.5 s summary, 3.5 s image), so a run beginning with
+ * summaries clears ~85 jobs and one beginning with images ~70 (the kinds alternate run to run),
+ * for roughly 450 an hour. N rows therefore cost about 2N/450 hours of queue, once — and what N
+ * is, is exactly what this file cannot know.
+ *
+ * Do NOT tune this class BELOW 45 to dodge that queue: the description written here is 30
+ * characters against the publication gate's 80, so the summary job is the only thing that ever
+ * fills `summary` and makes such a row indexable at all. If a first run comes back in the
+ * thousands, it is that row count that needs revisiting, not the 45.
  */
 
 export const WD_PAGE = 3000;
@@ -49,6 +129,12 @@ export const WIKIDATA_CLASSES: WikidataClass[] = [
   { qid: "Q7889", label: "video game", prop: "P577", fallback: "games" },
   { qid: "Q132241", label: "festival", prop: "P585", fallback: "festivals", range: true },
   { qid: "Q2761147", label: "meeting", prop: "P585", fallback: "politics" },
+  // Appended, never inserted: a pass in flight resumes from a stored `{ i, page }` index into
+  // VARIANTS, so inserting mid-list would point yesterday's cursor at a different class for one
+  // pass. Appending only ever adds work at the end, and run.ts clears the cursor when a pass
+  // finishes, so the new variants are picked up from the next pass on.
+  { qid: "Q1573906", label: "concert tour", prop: "P585", fallback: "music", range: true },
+  { qid: "Q182832", label: "concert", prop: "P585", fallback: "music" },
 ];
 
 export type Variant = { cls: WikidataClass; prop: WikidataClass["prop"]; withEnd: boolean };

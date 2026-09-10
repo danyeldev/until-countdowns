@@ -75,6 +75,40 @@ curl -X POST -H "Authorization: Bearer $CRON_SECRET" "$NEXT_PUBLIC_SITE_URL/api/
 
 Locally, `unstable_cache` results also persist on disk between runs (`.next/cache/fetch-cache` for `next build`/`next start`, `.next/dev/cache/fetch-cache` for `next dev`); delete those directories when the dev server keeps showing an old catalog.
 
+### Music, and why there are no gig listings
+
+`music` is a thin category on purpose. Tours and notable one-off concerts arrive from Wikidata
+(`Q1573906`, `Q182832` in `WIKIDATA_CLASSES`), the annual dates from the five rules in the `MUSIC`
+block of `src/data/series.ts`, and music festivals stay filed under `festivals`, where MusicBrainz
+already supplies most of the catalog's 169.
+
+Individual gigs are **not** ingested, and the reason is not the licence policy below. Two reasons,
+in order of weight:
+
+1. **A single arena date is a bad countdown, and the pipeline already says so.** The slug is
+   `slugify(title)-<local day>` and nothing else, so two shows of one tour on one night collapse
+   into a single row — first city wins, silently, and the loser is reported "unchanged" forever.
+   The publication gate refuses the shape as well. Sixty tour dates would be sixty thin pages
+   competing with each other. If per-city dates are ever wanted, they need a `slugSuffix` on
+   `buildEvent()` and a tour-as-series parent first, not an adapter.
+2. **The feeds are mostly gone.** Songkick's public programme is closed, Last.fm removed its events
+   API, JamBase went commercial, Setlist.fm indexes only what was already played, Bandsintown
+   requires written consent and sends zone-less timestamps, and Resident Advisor, Dice, AXS and
+   Live Nation publish nothing. Ticketmaster Discovery is alive and has the best data of the lot —
+   `localDate` + `localTime` + a UTC `dateTime` + an IANA zone — behind a free key. It is a
+   judgement call, not a legal bar (see below), and the open question is scale, not permission:
+   a roster-scoped adapter is plausible, a firehose is not.
+
+One design note for whoever tries: a "tour opens" row with an `end_date` does **not** stay visible
+for the run of the tour. `events_before_write` sets `sort_at := starts_at` at instant and day
+precision and every listing filters `sort_at > now()`, so such a row disappears the morning after
+opening night. Only the coarse precisions get the span. Tours need the series model, not `end_date`.
+
+Calendar entries carry the venue: `LOCATION` (and `GEO` where coordinates are known) in the `.ics`,
+plus a `location` parameter on the Google and Outlook links. That is built from `location.name`,
+`location.city` and `location.country` — narrowest first, a bare country omitted, because a country
+on its own only tells a client to drop a pin in the middle of it.
+
 ### Licence policy
 
 Two different things used to be filed under one heading. They are not the same and no longer carry
