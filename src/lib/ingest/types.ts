@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { catalogDay } from "@/lib/time";
 import { CATEGORIES } from "@/lib/types";
 
 /**
@@ -94,8 +95,10 @@ export const IngestEventSchema = z
     message: "end_date must not be before date",
     path: ["end_date"],
   })
-  .refine((r) => r.slug.endsWith(r.date.slice(0, 10)), {
-    message: "slug must end with the event day (slugify(title)-YYYY-MM-DD)",
+  // The day here is the event's own, not UTC's: a 20:00 New York premiere carries the instant
+  // `2026-09-15T00:00:00Z` and is filed, correctly, under `2026-09-14`.
+  .refine((r) => r.slug.endsWith(catalogDay(r.date, r.timezone)), {
+    message: "slug must end with the event day (slugify(title)-YYYY-MM-DD, in the event's zone)",
     path: ["slug"],
   });
 

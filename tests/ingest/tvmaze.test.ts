@@ -1,6 +1,7 @@
 import { readFileSync } from "node:fs";
 import { afterEach, describe, expect, it } from "vitest";
 import { IngestEventSchema, type IngestContext } from "@/lib/ingest/types";
+import { catalogDay } from "@/lib/time";
 import {
   adapter,
   channelOf,
@@ -196,24 +197,26 @@ describe("tvmaze fixture → rows", () => {
     expect(anime.regions).toEqual(["JP"]);
     expect(anime.tags).toEqual(expect.arrayContaining(["anime", "adventure", "fantasy", "season-3", "cbc"]));
   });
-  it("an instant whose UTC day runs past the local air day falls back to the all-day airdate (slug and page agree)", () => {
-    // 20:00 America/New_York is 00:00Z the next day. buildEvent slugs and files the row by
-    // date.slice(0, 10) in UTC and src/lib/time.ts renders cards in UTC, so emitting the instant
-    // would list this premiere on the 15th while its own description says the 14th.
+  it("an instant whose UTC day runs past the local air day keeps its time and is still filed on the local day", () => {
+    // 20:00 America/New_York is 00:00Z the next day. The row keeps the instant and is slugged and
+    // filed by `catalogDay()` in the show's own zone, so the countdown ticks to 20:00 on the 14th
+    // and every listing still says the 14th. Before the local-day derivation the adapter had to
+    // choose, and chose the day — dropping the time from 95 of its 199 all-day rows.
     const emmy = byKey.get("tvmaze:ep:3444239")!;
     expect(emmy.title).toBe("The Emmy Awards 2026");
-    expect((emmy.raw as { airstamp: string }).airstamp).toBe("2026-09-15T00:00:00+00:00"); // the instant is kept in raw
-    expect(emmy.date).toBe("2026-09-14");
+    expect((emmy.raw as { airstamp: string }).airstamp).toBe("2026-09-15T00:00:00+00:00");
+    expect(emmy.date).toBe("2026-09-15T00:00:00Z");
     expect(emmy.slug).toBe("the-emmy-awards-2026-2026-09-14");
-    expect(emmy.all_day).toBe(true);
-    expect(emmy.date_precision).toBe("day");
+    expect(emmy.all_day).toBe(false);
+    expect(emmy.date_precision).toBe("instant");
     expect(emmy.timezone).toBe("America/New_York");
     expect(emmy.description).toContain("on September 14, 2026"); // the day the row carries
     expect(emmy.description).toContain("at 20:00 local time");
     expect(emmy.tags).toContain("season-2026");
     expect(emmy.tags).not.toContain("series-premiere");
     expect(emmy.external_ids).toEqual({ thetvdb: 115021, tvmaze_episode: 3444239, tvmaze_show: 6755 }); // imdb null → omitted
-    for (const r of rows) expect(r.date.slice(0, 10)).toBe((r.raw as { airdate: string }).airdate);
+    // Every row is filed under the day it airs locally, whatever its instant does in UTC.
+    for (const r of rows) expect(catalogDay(r.date, r.timezone)).toBe((r.raw as { airdate: string }).airdate);
   });
   it("filters: talk shows, low weight, specials, non-first episodes, past airdates, year-season mismatch", () => {
     expect(byKey.has("tvmaze:ep:3717920")).toBe(false); // The View: Talk Show

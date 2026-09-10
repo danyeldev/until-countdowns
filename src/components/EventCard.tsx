@@ -27,7 +27,7 @@ export function EventCard({ event, live = true }: { event: CountdownEvent; live?
           <StatusBadge status={event.status} />
         </span>
         <time className="font-mono text-xs text-muted" dateTime={event.date}>
-          {coarse ? formatApproximate(event.date, event.datePrecision) : formatCompactDate(event.date)}
+          {coarse ? formatApproximate(event.date, event.datePrecision) : formatCompactDate(event.date, event.timezone)}
         </time>
       </div>
       <h3 className="px-5 font-serif text-xl leading-snug text-paper group-hover:text-amber">

@@ -8,7 +8,7 @@
  */
 import type { Metadata } from "next";
 import { CATEGORY_LABELS } from "./labels";
-import { formatApproximate, isCoarsePrecision, isValidDate } from "./time";
+import { catalogDay, formatApproximate, isCoarsePrecision, isValidDate } from "./time";
 import type { Category, CountdownEvent, DatePrecision, Series } from "./types";
 
 const DEFAULT_SITE_URL = "https://until-inky.vercel.app";
@@ -80,9 +80,9 @@ export function formatLongDate(date: string): string {
 }
 
 /** "Fri, 25 Dec 2026". */
-export function formatShortDate(date: string): string {
+export function formatShortDate(date: string, timezone?: string | null): string {
   if (!isValidDate(date)) return "TBA";
-  const [y, m, d] = date.slice(0, 10).split("-").map(Number);
+  const [y, m, d] = catalogDay(date, timezone).split("-").map(Number);
   const utc = new Date(Date.UTC(y, (m || 1) - 1, d || 1));
   return `${WEEKDAY_NAMES[utc.getUTCDay()].slice(0, 3)}, ${utc.getUTCDate()} ${MONTH_NAMES[utc.getUTCMonth()].slice(0, 3)} ${utc.getUTCFullYear()}`;
 }

@@ -25,6 +25,24 @@ cp .env.example .env.local   # fill in the Supabase URL, publishable key and sec
 npm run push                 # runs scripts/push-catalog.mjs with the secret key
 ```
 
+### Intraday events
+
+An event is timed whenever its `date` carries a `T`; `buildEvent()` derives `all_day` and
+`date_precision: instant` from that alone, and the countdown, the Google/Outlook links and the
+`.ics` all follow. ll2, football-data, astronomy and tvmaze emit real instants.
+
+The day a row is **filed** under — its slug, `starts_on`, and every listing — is the day in the
+event's own `timezone`, not in UTC. `catalogDay()` in `src/lib/time.ts` and the `starts_on`
+derivation in `events_before_write` (migration `0011_local_day.sql`) compute it the same way, and
+must keep doing so. A 20:00 premiere in New York carries the instant `2026-09-15T00:00:00Z` and is
+filed, correctly, under `2026-09-14`.
+
+That rule is what lets an adapter keep a time it would otherwise have to discard: tvmaze used to
+keep an episode's `airstamp` only while its UTC day still matched the local air day, which cost the
+time on 95 of its 199 all-day rows. Where a source has no hour — holidays, software end-of-life
+dates, multi-day conferences and tournaments, Wikidata's day-precision claims — all-day is the
+honest answer and inventing a midnight would be worse.
+
 ### Search
 
 `search_events` (rewritten in `supabase/migrations/0010_search.sql`) matches through the indexes

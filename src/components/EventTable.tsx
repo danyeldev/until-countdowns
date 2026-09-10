@@ -34,7 +34,7 @@ export function EventTable({
               <tr key={event.id} className="border-t border-line/60 align-top">
                 <td className="whitespace-nowrap py-2.5 pr-4 font-mono text-xs text-muted">
                   <time dateTime={event.date}>
-                    {coarse ? formatApproximate(event.date, event.datePrecision) : formatShortDate(event.date)}
+                    {coarse ? formatApproximate(event.date, event.datePrecision) : formatShortDate(event.date, event.timezone)}
                   </time>
                 </td>
                 <td className="py-2.5 pr-4">

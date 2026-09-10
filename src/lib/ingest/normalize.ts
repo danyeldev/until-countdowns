@@ -1,4 +1,5 @@
 import { createHash } from "node:crypto";
+import { catalogDay } from "@/lib/time";
 import { CATEGORIES, type Category } from "@/lib/types";
 import type { IngestEvent, IngestPrecision, IngestStatus } from "./types";
 
@@ -340,7 +341,7 @@ export function buildEvent(input: BuildEventInput): IngestEvent {
   const title = sanitizeTitle(input.title);
   const isInstant = input.date.includes("T");
   const allDay = input.allDay !== false && !isInstant;
-  const day = input.date.slice(0, 10);
+  const day = catalogDay(input.date, input.timezone);
   const date = allDay ? day : input.date;
   const slug = `${slugBase(title, input.slugFallbackPrefix ?? input.source)}-${day}`;
   const precision: IngestPrecision = isInstant ? "instant" : (input.datePrecision ?? "day");
