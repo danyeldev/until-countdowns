@@ -10,7 +10,7 @@ import { EmbedStudio } from "./EmbedStudio";
 import { SaveButton } from "./SaveButton";
 import { ShareButton } from "./ShareButton";
 import { CATEGORY_LABELS } from "@/lib/labels";
-import { siteUrl } from "@/lib/seo";
+import { absoluteUrl, siteUrl } from "@/lib/seo";
 import { formatRange } from "@/lib/time";
 
 export function MineEvent({ slug }: { slug: string }) {
@@ -45,7 +45,7 @@ export function MineEvent({ slug }: { slug: string }) {
         <Countdown date={event.date} allDay={event.allDay} size="hero" />
       </div>
       <div className="mt-8 flex flex-wrap items-center gap-2">
-        <CalendarButtons event={event} />
+        <CalendarButtons event={event} url={absoluteUrl(sharePath)} />
         <SaveButton id={event.id} />
         <ShareButton title={event.title} path={sharePath} />
       </div>

@@ -111,6 +111,25 @@ export default async function Home({ searchParams }: PageProps<"/">) {
 
   return (
     <div>
+      {/* The sticky header carries the search from `sm` up, where that row has space for it. On a
+          phone it does not, so the box lives here — at the top of the page, ahead of the hub,
+          rather than below the whole of it where nobody would scroll to find it. */}
+      <form action="/" className="mb-8 sm:hidden">
+        <label className="sr-only" htmlFor="mobile-search">
+          Search
+        </label>
+        <input
+          id="mobile-search"
+          name="q"
+          type="search"
+          defaultValue={q}
+          enterKeyHint="search"
+          autoComplete="off"
+          placeholder="Search the catalog…"
+          className="w-full rounded-full border border-line bg-ink-2 px-4 py-2.5 text-sm outline-none placeholder:text-muted focus:border-amber/60"
+        />
+      </form>
+
       {hub && featured ? (
         <>
           <FeaturedHero event={featured} />
@@ -239,19 +258,6 @@ export default async function Home({ searchParams }: PageProps<"/">) {
           </section>
         </>
       ) : null}
-
-      <form action="/" className="mt-8 sm:hidden">
-        <label className="sr-only" htmlFor="mobile-search">
-          Search
-        </label>
-        <input
-          id="mobile-search"
-          name="q"
-          defaultValue={q}
-          placeholder="Search the catalog…"
-          className="w-full rounded-full border border-line bg-ink-2 px-4 py-2.5 text-sm outline-none placeholder:text-muted focus:border-amber/60"
-        />
-      </form>
 
       <CatalogExplorer
         events={result.items}

@@ -24,6 +24,7 @@ import { eventSeries } from "@/lib/jsonld";
 import { CATEGORY_LABELS } from "@/lib/labels";
 import { regionSummary } from "@/lib/regions";
 import {
+  absoluteUrl,
   buildMetadata,
   formatShortDate,
   oembedDiscoveryUrl,
@@ -164,7 +165,7 @@ export default async function SeriesPage({ params }: { params: Promise<{ series:
       ) : null}
 
       <div className="mt-8 flex flex-wrap items-center gap-2">
-        {next ? <CalendarButtons event={next} /> : null}
+        {next ? <CalendarButtons event={next} url={absoluteUrl(path)} /> : null}
         {next ? (
           <Link
             href={`/event/${next.slug}`}

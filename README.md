@@ -25,6 +25,27 @@ cp .env.example .env.local   # fill in the Supabase URL, publishable key and sec
 npm run push                 # runs scripts/push-catalog.mjs with the secret key
 ```
 
+### Search
+
+`search_events` (rewritten in `supabase/migrations/0010_search.sql`) matches through the indexes
+0001 already built and then scores what survives. Three ways in, OR'd together:
+
+| Way in | Index | Catches |
+|---|---|---|
+| `search @@ to_tsquery('simple', 'w1:* & w2:*')` | `events_search_gin` | every word, each as a prefix — "world cup 2027", "chris" → Christmas |
+| `title_initials(title) like 'gta%'` | `events_title_initials_idx` | acronyms — "GTA vi" → Grand Theft Auto VI |
+| `lower(title) % needle` | `events_title_trgm` | misspellings — "haloween" → Halloween |
+
+Scoring then ranks by where the match landed (exact title 100 · title prefix 85 · every word at a
+word start in the title 75 · initials 70 · every word anywhere 60 · trigram 30), and the default
+order is `score * 2 + popularity` — relevance leads, but popularity is what puts "Total Solar
+Eclipse" (93) above "Eclipse Temurin 26 end of life" (30) when both merely contain the word.
+
+The previous version matched the whole query as one literal substring, which meant "GTA vi" found
+nothing, "gta" returned four **Wagtail** end-of-life dates (`%gta%` matches "wa`gta`il"), and no
+typo was ever forgiven although pg_trgm had been installed since day one. Word starts are anchored
+with `\m`, which is the entire difference between finding Grand Theft Auto and finding Wagtail.
+
 `push` is idempotent: rows are keyed by a stable `source_key` and a content hash, so a second run reports `inserted=0, updated=0, unchanged=N`. Curated records win when sources disagree.
 
 The app caches its reads (Next.js Data Cache, tags `events` and `stats`, 1 h each), and the push script does not invalidate them. After a push — or whenever the site shows a stale or empty catalog — call the ops route with the cron bearer:
@@ -225,6 +246,13 @@ Three ways out of the site, all built on the same document.
 | Link | `ShareButton` — `navigator.share`, falling back to the clipboard |
 | **Embed** | `<iframe src="/embed/<slug>">` on someone else's site |
 | **Stream** | the same URL as an OBS / Streamlabs **browser source**, background keyed out |
+
+The calendar exports (`src/lib/calendar.ts`) are the fourth way out, and they carry a link home:
+every Google, Outlook and `.ics` entry ends with `Countdown: <the page>` plus `Source: <the
+origin>` when the catalog has one, because a reminder that fires eight months later is no use
+without the way back. The `.ics` repeats the page in `URL:` (a URI value, so its punctuation is
+left unescaped where the description's is) and folds its lines at 75 octets, counted in octets so
+a title in Arabic or Thai is never cut through a UTF-8 sequence.
 
 `/embed/[slug]` is a **route handler, not a page** (`src/app/embed/[slug]/route.ts`). The app has a
 single root layout — header, footer, gradient body — and an embed has to be a bare, transparent,

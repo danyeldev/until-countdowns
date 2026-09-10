@@ -7,7 +7,7 @@ import { Countdown } from "@/components/Countdown";
 import { EmbedStudio } from "@/components/EmbedStudio";
 import { CATEGORIES, type Category } from "@/lib/types";
 import { CATEGORY_LABELS } from "@/lib/labels";
-import { siteUrl } from "@/lib/seo";
+import { absoluteUrl, siteUrl } from "@/lib/seo";
 import { isValidDate } from "@/lib/time";
 import { encodeSharePayload, upsertMine, userEventFromDraft } from "@/lib/user-events";
 
@@ -132,7 +132,7 @@ export function CreateForm() {
         </div>
         {isValidDate(event.date) && (
           <div className="mt-8">
-            <CalendarButtons event={event} />
+            <CalendarButtons event={event} url={absoluteUrl(sharePath)} />
           </div>
         )}
       </aside>
