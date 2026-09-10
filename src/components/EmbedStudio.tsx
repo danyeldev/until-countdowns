@@ -53,6 +53,8 @@ import type {
 const CAPTION = "text-xs uppercase tracking-[0.16em] text-muted";
 const FIELD = "mt-2 w-full rounded-xl border border-line bg-ink-2 px-4 py-3 text-paper outline-none focus:border-amber/60";
 const BUTTON = "rounded-full border border-line px-4 py-2 text-sm text-paper hover:border-amber/50 hover:text-amber";
+/** The two options share their row evenly on a phone, and take their own width once there is space. */
+const TRIGGER = `${BUTTON} flex-1 basis-40 whitespace-nowrap sm:flex-none sm:basis-auto`;
 const CHIP = "rounded-full border px-3 py-1.5 text-xs";
 const CHIP_ON = "border-amber/60 bg-amber/10 text-amber";
 const CHIP_OFF = "border-line text-paper-dim hover:border-amber/40 hover:text-amber";
@@ -376,28 +378,33 @@ export function EmbedStudio({ slug, title, origin }: { slug: string; title: stri
 
   return (
     <section className="mt-10 border-t border-line pt-8">
-      <div className="flex flex-wrap items-center gap-3">
-        <h2 className="mr-auto text-[11px] uppercase tracking-[0.22em] text-amber">Take it with you</h2>
-        <button
-          type="button"
-          onClick={() => trigger("embed")}
-          aria-expanded={open && !stream}
-          // Only while this tab's panel exists: a controls relationship pointing at nothing sends a
-          // screen reader's jump-to-controlled-element into a dead end.
-          aria-controls={open && !stream ? panelId : undefined}
-          className={`${BUTTON} ${open && !stream ? "border-amber/60 text-amber" : ""}`}
-        >
-          Embed on your site
-        </button>
-        <button
-          type="button"
-          onClick={() => trigger("stream")}
-          aria-expanded={open && stream}
-          aria-controls={open && stream ? panelId : undefined}
-          className={`${BUTTON} ${open && stream ? "border-amber/60 text-amber" : ""}`}
-        >
-          Add to your stream
-        </button>
+      {/* The heading only shares a line with the buttons once there is room for all three. Below
+          that it sits above its own row, so the two options stay a pair instead of one landing
+          hard right and the other alone underneath it. */}
+      <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
+        <h2 className="text-[11px] uppercase tracking-[0.22em] text-amber sm:mr-auto">Take it with you</h2>
+        <div className="flex flex-wrap gap-2 sm:gap-3">
+          <button
+            type="button"
+            onClick={() => trigger("embed")}
+            aria-expanded={open && !stream}
+            // Only while this tab's panel exists: a controls relationship pointing at nothing sends
+            // a screen reader's jump-to-controlled-element into a dead end.
+            aria-controls={open && !stream ? panelId : undefined}
+            className={`${TRIGGER} ${open && !stream ? "border-amber/60 text-amber" : ""}`}
+          >
+            Embed on your site
+          </button>
+          <button
+            type="button"
+            onClick={() => trigger("stream")}
+            aria-expanded={open && stream}
+            aria-controls={open && stream ? panelId : undefined}
+            className={`${TRIGGER} ${open && stream ? "border-amber/60 text-amber" : ""}`}
+          >
+            Add to your stream
+          </button>
+        </div>
       </div>
 
       {open && (
