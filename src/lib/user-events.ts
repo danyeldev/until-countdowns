@@ -1,4 +1,4 @@
-import type { Category, CountdownEvent } from "./types";
+import { CATEGORIES, type Category, type CountdownEvent } from "./types";
 
 const MINE_KEY = "until:mine";
 const SAVED_KEY = "until:saved";
@@ -54,13 +54,14 @@ export function decodeSharePayload(payload: string): CountdownEvent | null {
   try {
     const padded = payload.replace(/-/g, "+").replace(/_/g, "/");
     const json = decodeURIComponent(escape(atob(padded)));
-    const data = JSON.parse(json) as { t?: string; d?: string; b?: string; c?: Category };
+    const data = JSON.parse(json) as { t?: string; d?: string; b?: string; c?: string };
     if (!data.t || !data.d) return null;
+    const category: Category = CATEGORIES.includes(data.c as Category) ? (data.c as Category) : "culture";
     return userEventFromDraft({
       title: data.t,
       date: data.d,
       description: data.b,
-      category: data.c,
+      category,
     });
   } catch {
     return null;

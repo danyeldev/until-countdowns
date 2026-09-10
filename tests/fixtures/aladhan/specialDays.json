@@ -1,0 +1,396 @@
+{
+ "code": 200,
+ "status": "OK",
+ "data": [
+  {
+   "month": 1,
+   "day": 1,
+   "name": "Birth of Khas Muhammad ash-Shirwani ق"
+  },
+  {
+   "month": 1,
+   "day": 9,
+   "name": "Urs of Sayyidina Qāsim ibn Muḥammad ibn Abī Bakr ق"
+  },
+  {
+   "month": 1,
+   "day": 10,
+   "name": "Ashura"
+  },
+  {
+   "month": 1,
+   "day": 10,
+   "name": "Urs of Shaykh Shamsuddin Habīb Allah ق"
+  },
+  {
+   "month": 1,
+   "day": 10,
+   "name": "Urs of Shaykh Abū al‑Hassan al‑Kharqāni ق"
+  },
+  {
+   "month": 1,
+   "day": 10,
+   "name": "Birth of Imam Rābbani Ahmad Al-Fāruqi As-Sirhindi ق"
+  },
+  {
+   "month": 1,
+   "day": 14,
+   "name": "Birth of Khwaja Bahauddin Shah Naqshband ق"
+  },
+  {
+   "month": 1,
+   "day": 16,
+   "name": "Birth of Shaykh Jamaluddin al-Ghumuqi al-Husayni ق"
+  },
+  {
+   "month": 1,
+   "day": 17,
+   "name": "Urs of Shaykh Muhammad Effendi al‑Yaraghi ق"
+  },
+  {
+   "month": 1,
+   "day": 19,
+   "name": "Urs of Shaykh Darwish Muhammad ق"
+  },
+  {
+   "month": 1,
+   "day": 25,
+   "name": "Urs of Sayyidina Ali ibn Zayn al-Abidin ق"
+  },
+  {
+   "month": 2,
+   "day": 1,
+   "name": "End of the holy months"
+  },
+  {
+   "month": 2,
+   "day": 5,
+   "name": "Urs of Shaykh Yaʿqub al-Charkhi (ق)"
+  },
+  {
+   "month": 2,
+   "day": 12,
+   "name": "Urs of Shaykh Abdullah Dahlawi (ق)"
+  },
+  {
+   "month": 2,
+   "day": 17,
+   "name": "Urs of Imam Rabbani Ahmad al-Faruqi as-Sirhindi (ق)"
+  },
+  {
+   "month": 2,
+   "day": 28,
+   "name": "Martyrdom of Sayyidina al-Hassan al-Mujtaba (ر)"
+  },
+  {
+   "month": 3,
+   "day": 3,
+   "name": "Urs of Shaykh Bahaʾuddin Shah Naqshband ق"
+  },
+  {
+   "month": 3,
+   "day": 6,
+   "name": "Birth of Mawlāna Jalāluddīn Rūmi ق"
+  },
+  {
+   "month": 3,
+   "day": 9,
+   "name": "Urs of Shaykh Muhammad al-Masūm ق"
+  },
+  {
+   "month": 3,
+   "day": 12,
+   "name": "Mawlid (Birth) al-Nabi ﷺ"
+  },
+  {
+   "month": 3,
+   "day": 12,
+   "name": "Veiling of the Prophet Muhammad ﷺ"
+  },
+  {
+   "month": 3,
+   "day": 12,
+   "name": "Birth of Mawlana Shaykh Abdullāh al Dāghestāni ق"
+  },
+  {
+   "month": 3,
+   "day": 12,
+   "name": "Urs of Shaykh Abu Yāqub Yūsuf al-Hamadāni ق"
+  },
+  {
+   "month": 3,
+   "day": 12,
+   "name": "Urs of Shaykh Abdul Khāliq al-Ghujdawāni ق"
+  },
+  {
+   "month": 3,
+   "day": 12,
+   "name": "Urs of Mawlāna Ubaydullaāh Ahrār ق"
+  },
+  {
+   "month": 3,
+   "day": 12,
+   "name": "Urs of Shaykh Muhammad az-Zāhid ق"
+  },
+  {
+   "month": 3,
+   "day": 17,
+   "name": "Urs of Shaykh Mahmūd al-Anjir al-Faghnāwi ق"
+  },
+  {
+   "month": 3,
+   "day": 17,
+   "name": "Urs of Shaykh Abu Ahmad as-Sughūri ق"
+  },
+  {
+   "month": 3,
+   "day": 18,
+   "name": "Urs of Shaykh Adnān Kabbāni ق"
+  },
+  {
+   "month": 4,
+   "day": 11,
+   "name": "Urs of Shaykh Abdul Qadir Jilāni ق"
+  },
+  {
+   "month": 4,
+   "day": 14,
+   "name": "Urs of Imām Abu Hamīd al-Ghazzāli ق"
+  },
+  {
+   "month": 4,
+   "day": 22,
+   "name": "Urs of Shaykh Muhiyuddīn Ibn al-‘Arabi ق"
+  },
+  {
+   "month": 5,
+   "day": 27,
+   "name": "Urs of Shaykh Sharafuddīn ad-Daghestāni ق"
+  },
+  {
+   "month": 6,
+   "day": 3,
+   "name": "Urs of Mawlānā Shaykh Hishām Kabbāni ق"
+  },
+  {
+   "month": 6,
+   "day": 10,
+   "name": "Urs of Muhammad Bābā as-Samasi ق"
+  },
+  {
+   "month": 6,
+   "day": 14,
+   "name": "Urs of Muhammad Bāqi Billāh  ق"
+  },
+  {
+   "month": 7,
+   "day": 1,
+   "name": "Beginning of the holy months"
+  },
+  {
+   "month": 7,
+   "day": 6,
+   "name": "Urs of Hadhrat Shaykh Moīn al-Dīn Chishti (ق)"
+  },
+  {
+   "month": 7,
+   "day": 8,
+   "name": "Urs of Mawlāna Shaykh Nāzim al-Haqqāni (ق)"
+  },
+  {
+   "month": 7,
+   "day": 13,
+   "name": "Birth of Sayyidina `Ali ibn Abi Talib (ر)"
+  },
+  {
+   "month": 7,
+   "day": 15,
+   "name": "Urs of Sayyidina Jāfar as-Sādiq (ق)"
+  },
+  {
+   "month": 7,
+   "day": 15,
+   "name": "Urs of Zaynab bint Ali (ر)"
+  },
+  {
+   "month": 7,
+   "day": 27,
+   "name": "Lailat-ul-Miraj"
+  },
+  {
+   "month": 8,
+   "day": 3,
+   "name": "Birth of Sayyidina Husayn ibn `Ali (ر)"
+  },
+  {
+   "month": 8,
+   "day": 4,
+   "name": "Birth of Sayyidina Abbas ibn `Ali (ر)"
+  },
+  {
+   "month": 8,
+   "day": 5,
+   "name": "Birth of Sayyidina `Ali ibn Husayn (ر)"
+  },
+  {
+   "month": 8,
+   "day": 5,
+   "name": "Urs of Imam Shamil al-Daghestani (ق)"
+  },
+  {
+   "month": 8,
+   "day": 7,
+   "name": "Birth of Sayyidina Qasim ibn Hasan (ر)"
+  },
+  {
+   "month": 8,
+   "day": 11,
+   "name": "Birth of Sayyidina Ali Akbar ibn Husayn (ر)"
+  },
+  {
+   "month": 8,
+   "day": 15,
+   "name": "Lailat-ul-Bara'at"
+  },
+  {
+   "month": 8,
+   "day": 15,
+   "name": "Urs of Sayyidina Abu Yazid al-Bistami (ق)"
+  },
+  {
+   "month": 8,
+   "day": 22,
+   "name": "Urs of Muhammad Usman Damani (ق)"
+  },
+  {
+   "month": 9,
+   "day": 1,
+   "name": "1st Day of Ramadan"
+  },
+  {
+   "month": 9,
+   "day": 21,
+   "name": "Lailat-ul-Qadr"
+  },
+  {
+   "month": 9,
+   "day": 23,
+   "name": "Lailat-ul-Qadr"
+  },
+  {
+   "month": 9,
+   "day": 25,
+   "name": "Lailat-ul-Qadr"
+  },
+  {
+   "month": 9,
+   "day": 27,
+   "name": "Lailat-ul-Qadr"
+  },
+  {
+   "month": 9,
+   "day": 29,
+   "name": "Lailat-ul-Qadr"
+  },
+  {
+   "month": 10,
+   "day": 1,
+   "name": "Eid-ul-Fitr"
+  },
+  {
+   "month": 10,
+   "day": 3,
+   "name": "Urs of Hajjah Amina Ādil ق"
+  },
+  {
+   "month": 10,
+   "day": 13,
+   "name": "Birth of Imam Bukhārī (ر)"
+  },
+  {
+   "month": 11,
+   "day": 1,
+   "name": "Treaty of Hudaybiyya"
+  },
+  {
+   "month": 11,
+   "day": 2,
+   "name": "Birth of Muhammad Effendi al-Yaraghi (ق) "
+  },
+  {
+   "month": 11,
+   "day": 3,
+   "name": "Birth of Sharafuddin ad-Daghestani (ق)"
+  },
+  {
+   "month": 11,
+   "day": 7,
+   "name": "Birth of Ismail Muhammad ash-Shirwani (ق)"
+  },
+  {
+   "month": 11,
+   "day": 13,
+   "name": "Urs of Khalid al-Baghdadi (ق)"
+  },
+  {
+   "month": 11,
+   "day": 18,
+   "name": "Urs of Ali ar-Ramitani (ق)"
+  },
+  {
+   "month": 12,
+   "day": 8,
+   "name": "Hajj"
+  },
+  {
+   "month": 12,
+   "day": 9,
+   "name": "Hajj"
+  },
+  {
+   "month": 12,
+   "day": 9,
+   "name": "Arafa"
+  },
+  {
+   "month": 12,
+   "day": 10,
+   "name": "Eid-ul-Adha"
+  },
+  {
+   "month": 12,
+   "day": 10,
+   "name": "Hajj"
+  },
+  {
+   "month": 12,
+   "day": 10,
+   "name": "Urs Ismail Muhammad ash-Shirwani ق"
+  },
+  {
+   "month": 12,
+   "day": 11,
+   "name": "Hajj"
+  },
+  {
+   "month": 12,
+   "day": 11,
+   "name": "Urs of Uthman ibn Affan (3rd Caliph) (ر)"
+  },
+  {
+   "month": 12,
+   "day": 12,
+   "name": "Hajj"
+  },
+  {
+   "month": 12,
+   "day": 13,
+   "name": "Hajj"
+  },
+  {
+   "month": 12,
+   "day": 19,
+   "name": "First time Adhan was called in 622 AD"
+  }
+ ]
+}

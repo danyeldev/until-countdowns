@@ -1,0 +1,147 @@
+{
+ "batchcomplete": true,
+ "continue": {
+  "gsroffset": 20,
+  "continue": "gsroffset||"
+ },
+ "query": {
+  "pages": [
+   {
+    "pageid": 345115,
+    "ns": 0,
+    "title": "PGL/2026/Singapore",
+    "index": 5,
+    "revisions": [
+     {
+      "slots": {
+       "main": {
+        "contentmodel": "wikitext",
+        "contentformat": "text/x-wiki",
+        "content": "{{DISPLAYTITLE:PGL Major Singapore 2026}}\n{{Majors Navbox}}<!--<br/>\n{{PGL Major 2026 Tabs}}-->\n{{Infobox league\n|name=PGL Major Singapore 2026\n|image=PGL Major Singapore 2026 lightmode.png\n|imagedark=PGL Major Singapore 2026 darkmode.png\n|icon=PGL Major Singapore 2026 icon lightmode.png\n|icondark=PGL Major Singapore 2026 icon darkmode.png\n|organizer=PGL\n|type=Offline\n|prizepoolusd=1,250,000\n|liquipediatier=S-Tier\n|publishertier=Major\n|country=Singapore\n|city=Kallang\n|venue=[https://www.thekallang.com.sg/venues-facilities/singapore-indoor-stadium Singapore Indoor Stadium]\n|venuedesc=Playoffs\n|sdate=2026-11-25\n|edate=2026-12-13\n|web=https://www.pglesports.com/cs2/pgl-major-singapore-2026/\n|sponsor=\n|rulebook=https://github.com/ValveSoftware/counter-strike_rules_and_regs/blob/main/major-supplemental-rulebook.md\n|twitter=pglesports\n|facebook=pgl\n|instagram=pgl_cs2\n|youtube=PGL\n|twitch=PGL\n|kick=PGL\n|game=cs2\n|map1=Ancient\n|map2=Anubis\n|map3=Cache\n|map4=Dust II\n|map5=Inferno\n|map6=Mirage\n|map7=Nuke\n|team_number=32\n|previous=Intel Extreme Masters/2026/Cologne{{!}}IEM Cologne 2026\n|next=FiReSPORTS/Major/2027/Buenos Aires{{!}}FiRe Buenos Aires 2027\n}}\n"
+       }
+      }
+     }
+    ]
+   },
+   {
+    "pageid": 362801,
+    "ns": 0,
+    "title": "PGL/2026/Fall",
+    "index": 14,
+    "revisions": [
+     {
+      "slots": {
+       "main": {
+        "contentmodel": "wikitext",
+        "contentformat": "text/x-wiki",
+        "content": "{{DISPLAYTITLE:PGL Fall 2026}}\n{{PGL Navbox}}<br/>\n{{Tabs static\n|name1=Overview |link1=PGL/2026/Fall\n|name2=European Qualifier |link2=PGL/2026/Fall/Europe\n|name3=North American Qualifier |link3=PGL/2026/Fall/North America\n|name4=South American Qualifier |link4=PGL/2026/Fall/South America\n|name5=Asian Qualifier |link5=PGL/2026/Fall/Asia\n}}\n{{Infobox league\n|name=PGL Fall 2026\n|image=PGL allmode.png\n|icon=PGL allmode.png\n|organizer=PGL\n|type=Offline\n|country=World\n|city={{Abbr/TBA}}\n|venue=\n|prizepoolusd=1,250,000\n|liquipediatier=S-Tier\n|publishertier=Tier 1\n|sdate=2026-10-01\n|edate=2026-10-11\n|web=https://www.pglesports.com/\n|rulebook=\n|twitter=pglesports\n|facebook=pgl\n|instagram=pglesports\n|youtube=PGL\n|twitch=PGL\n|kick=PGL\n|sponsor=\n|game=cs2\n|map1=Ancient\n|map2=Anubis\n|map3=Cache\n|map4=Dust II\n|map5=Inferno\n|map6=Mirage\n|map7=Nuke\n|team_number=16\n|previous=PGL/2026/Summer{{!}}<s>Summer 2026</s>\n|previous2=PGL/2026/Astana{{!}}Astana 2026\n|next=PGL/2026/Masters{{!}}Masters Bucharest 2026\n}}\n\n\n{{Cancelled Tournament|confirmed=true|ref=<ref>{{cite web|url=https://news.pglesports.com/news/1763198372488-updates-on-the-pgl-cs2-2026-calendar|title=Updates on the PGL CS2 2026 Calendar|date=2025-11-19|publisher=[[PGL]]}}</ref>}}\n"
+       }
+      }
+     }
+    ]
+   },
+   {
+    "pageid": 364469,
+    "ns": 0,
+    "title": "BLAST/Rivals/2026/Fall",
+    "index": 9,
+    "revisions": [
+     {
+      "slots": {
+       "main": {
+        "contentmodel": "wikitext",
+        "contentformat": "text/x-wiki",
+        "content": "{{DISPLAYTITLE:BLAST Rivals Fall 2026}}\n{{BLAST Premier Navbox}}\n{{Infobox league\n|name=BLAST Rivals Fall 2026\n|image=BLAST Rivals 2026 lightmode.png\n|imagedark=BLAST Rivals 2026 darkmode.png\n|icon=BLAST Rivals icon allmode.png\n|organizer=BLAST\n|series=BLAST Premier\n|shortname=Rivals Fall 2026\n|type=Offline\n|prizepoolusd=1,000,000\n|liquipediatier=S-Tier\n|publishertier=Wildcard\n|country=Hong Kong\n|city=Chek Lap Kok\n|venue=[https://www.asiaworld-expo.com/ AsiaWorld-Expo]\n|sdate=2026-11-11\n|edate=2026-11-15\n|web=https://blast.tv/cs/tournaments/rivals-2026-season-2\n|rulebook=https://assets.blast.tv/rulebook/BLAST_Premier_Handbook_2026.pdf\n|sponsor=\n|twitter=BLASTPremier\n|facebook=BLASTPremier\n|instagram=BLASTPremier\n|youtube=BLASTPremier\n|twitch=BLASTPremier\n|kick=BLASTPremier\n|game=cs2\n|map1=Ancient\n|map2=Anubis\n|map3=Cache\n|map4=Dust II\n|map5=Inferno\n|map6=Mirage\n|map7=Nuke\n|team_number=8\n}}\n"
+       }
+      }
+     }
+    ]
+   },
+   {
+    "pageid": 367692,
+    "ns": 0,
+    "title": "BLAST/Open/2027/Spring",
+    "index": 11,
+    "revisions": [
+     {
+      "slots": {
+       "main": {
+        "contentmodel": "wikitext",
+        "contentformat": "text/x-wiki",
+        "content": "{{DISPLAYTITLE:BLAST Open Spring 2027}}\n{{BLAST Premier Navbox}}\n{{Infobox league\n|name=BLAST Open Spring 2027\n|image=BLAST lightmode.png\n|imagedark=BLAST darkmode.png\n|icon=BLAST Open icon allmode.png\n|organizer=BLAST\n|series=BLAST Premier\n|shortname=Open Spring 2027\n|type=Offline\n|prizepoolusd=1,100,000\n|liquipediatier=S-Tier\n|publishertier=Tier 1\n|country=Singapore\n|city=\n|venue=\n|sdate=2027-03-19\n|edate=2027-03-28\n|web=https://blast.tv/cs/tournaments/blast-premier-event-2-2027\n|sponsor=\n|rulebook=https://assets.blast.tv/rulebook/BLAST_Premier_Handbook_2027.pdf\n|twitter=BLASTPremier\n|facebook=BLASTPremier\n|instagram=BLASTPremier\n|youtube=BLASTPremier\n|twitch=BLASTPremier\n|kick=BLASTPremier\n|game=cs2\n|map1=Ancient\n|map2=Anubis\n|map3=Cache\n|map4=Dust II\n|map5=Inferno\n|map6=Mirage\n|map7=Nuke\n|team_number=16\n}}\n"
+       }
+      }
+     }
+    ]
+   },
+   {
+    "pageid": 367693,
+    "ns": 0,
+    "title": "BLAST/Open/2027/Summer",
+    "index": 13,
+    "revisions": [
+     {
+      "slots": {
+       "main": {
+        "contentmodel": "wikitext",
+        "contentformat": "text/x-wiki",
+        "content": "{{DISPLAYTITLE:BLAST Open Summer 2027}}\n{{BLAST Premier Navbox}}\n{{Infobox league\n|name=BLAST Open Summer 2027\n|image=BLAST lightmode.png\n|imagedark=BLAST darkmode.png\n|icon=BLAST Open icon allmode.png\n|organizer=BLAST\n|organizer2=MESA\n|series=BLAST Premier\n|shortname=Open Summer 2027\n|type=Offline\n|prizepoolusd=1,100,000\n|liquipediatier=S-Tier\n|publishertier=Tier 1\n|country=Mongolia|city=Ulaanbaatar<!--\n|country2=Denmark|city2=Copenhagen-->\n|venue1=[https://www.aicsteppearena.mn/ Steppe Arena]<!--|venue1desc=Playoffs\n|venue2=BLAST Studios|venue2desc=Group Stage-->\n|sdate=2027-05-10\n|edate=2027-05-23\n|web=https://blast.tv/cs/tournaments/blast-premier-event-3-2027\n|sponsor=\n|rulebook=https://assets.blast.tv/rulebook/BLAST_Premier_Handbook_2027.pdf\n|twitter=BLASTPremier\n|facebook=BLASTPremier\n|instagram=BLASTPremier\n|youtube=BLASTPremier\n|twitch=BLASTPremier\n|kick=BLASTPremier\n|game=cs2\n|map1=Ancient\n|map2=Anubis\n|map3=Cache\n|map4=Dust II\n|map5=Inferno\n|map6=Mirage\n|map7=Nuke\n|team_number=16\n}}\n"
+       }
+      }
+     }
+    ]
+   },
+   {
+    "pageid": 374646,
+    "ns": 0,
+    "title": "StarLadder/StarSeries/2026/Fall",
+    "index": 18,
+    "revisions": [
+     {
+      "slots": {
+       "main": {
+        "contentmodel": "wikitext",
+        "contentformat": "text/x-wiki",
+        "content": "{{DISPLAYTITLE:StarLadder StarSeries Fall 2026}}\n{{StarLadder Navbox}}<br/>\n{{Tabs static\n|name1=Overview |link1=StarLadder/StarSeries/2026/Fall\n|name2=European Qualifier |link2=StarLadder/StarSeries/2026/Fall/Europe\n|name3=North American Qualifier |link3=StarLadder/StarSeries/2026/Fall/North America\n|name4=South American Qualifier |link4=StarLadder/StarSeries/2026/Fall/South America\n}}\n{{Infobox league\n|name=StarLadder StarSeries Fall&nbsp;2026\n|image=StarLadder StarSeries lightmode.png\n|imagedark=StarLadder StarSeries darkmode.png\n|icondarkmode=StarLadder icon darkmode.png\n|icon=StarLadder icon lightmode.png\n|tickername=SL StarSeries Fall 2026\n|organizer=StarLadder\n|series=StarSeries\n|type=Offline\n|country=Spain\n|city=Barcelona\n|venue=\n|prizepoolusd=500,000\n|liquipediatier=S-Tier\n|publishertier=Tier 1\n|sdate=2026-09-17\n|edate=2026-09-20\n|web=https://starladder.com/\n|rulebook=https://drive.google.com/file/d/1IQjvcADCldVpEtm9zHxy3NhKkHL8USxr\n|twitter=StarLadder_CS\n|facebook=StarLadderCS\n|instagram=StarLadderCS\n|telegram=starladder_cs\n|twitch=starladder_cs_en\n|kick=starladder\n|youtube=StarLadderCSGOEN\n|sponsor=\n|game=cs2\n|map1=Ancient\n|map2=Anubis\n|map3=Cache\n|map4=Dust II\n|map5=Inferno\n|map6=Mirage\n|map7=Nuke\n|team_number=8\n}}\n"
+       }
+      }
+     }
+    ]
+   },
+   {
+    "pageid": 375078,
+    "ns": 0,
+    "title": "ESL/Pro League/Season 24",
+    "index": 6,
+    "revisions": [
+     {
+      "slots": {
+       "main": {
+        "contentmodel": "wikitext",
+        "contentformat": "text/x-wiki",
+        "content": "{{DISPLAYTITLE:ESL Pro League Season 24}}\n{{ESL Grand Slam VII Navbox}}\n{{ESL Pro League Navbox}}<br>\n{{Infobox league|darkmodeforced=true\n|name=ESL Pro League Season 24\n|image=ESL Pro League Season 24 lightmode.png\n|imagedark=ESL Pro League Season 24 darkmode.png\n|icon=ESL Pro League 2019 new icon.png\n|organizer=ESL\n|series=ESL Pro League\n|shortname=Season 24\n|series2=ESL Grand Slam VII\n|abbreviation2=ESL Grand Slam\n|type=Offline\n|prizepoolusd=1,000,000\n|liquipediatier=S-Tier\n|publishertier=Wildcard\n|eslprotier=Masters\n|sdate=2026-10-03\n|edate=2026-10-11\n|country=Poland\n|city=Katowice\n|venue=[http://www.spodekkatowice.pl/en/ Spodek Arena]\n|venuedesc=Playoffs\n|web=https://pro.eslgaming.com/csgo/proleague/\n|sponsor=[https://www.intel.com/ Intel]<br>[https://www.acer.com/ Acer Predator]<br>[https://inmotion.dhl/en/esports DHL]<br>[https://qiddiya.com/qiddiya-city/gaming/ Qiddiya]<br>[https://www.monsterenergy.com/ Monster Energy]<br>[https://www.airforce.com/ U.S. Air Force]<br>[https://1xbet.com/ 1xBet]<br>[https://white.market/ White Market]<br>[https://www.logitechg.com/ Logitech G]\n|rulebook=https://drive.google.com/drive/folders/1u2SqqmHftSCaUwaftisXdf-sxiAT1HY5\n|twitter=ESLCS\n|facebook=ESLCS\n|instagram=eslcs\n|youtube=ESLCS\n|twitch=ESLCS\n|game=cs2\n|map1=Ancient\n|map2=Anubis\n|map3=Cache\n|map4=Dust II\n|map5=Inferno\n|map6=Mirage\n|map7=Nuke\n|team_number=16\n}}\n"
+       }
+      }
+     }
+    ]
+   },
+   {
+    "pageid": 377719,
+    "ns": 0,
+    "title": "Intel Extreme Masters/2027/Kraków",
+    "index": 2,
+    "revisions": [
+     {
+      "slots": {
+       "main": {
+        "contentmodel": "wikitext",
+        "contentformat": "text/x-wiki",
+        "content": "{{DISPLAYTITLE: Intel Extreme Masters Kraków 2027}}\n{{ESL Grand Slam VII Navbox}}\n{{IEM navbox}}<br>\n{{Infobox league\n|name=Intel Extreme Masters Kraków 2027\n|image=Intel Extreme Masters 2022 lightmode.png\n|imagedark=Intel Extreme Masters 2022 darkmode.png\n|icon=Intel Extreme Masters 2022 icon allmode.png\n|tickername=IEM Kraków 2027\n|organizer=ESL\n|series=IEM\n|shortname=Kraków 2027\n|series2=ESL Grand Slam VII\n|abbreviation2=ESL Grand Slam\n|type=Offline\n|prizepoolusd=1,000,000\n|liquipediatier=S-Tier\n|publishertier=Tier 1\n|eslprotier=Masters Championship\n|country=Poland\n|city=Kraków\n|venue=[https://www.tauronarenakrakow.pl/ TAURON Arena Kraków]\n|venuedesc=Playoffs\n|sdate=2027-01-27\n|edate=2027-02-07\n|web=https://pro.eslgaming.com/tour/cs/krakow/\n|rulebook=https://drive.google.com/drive/folders/1u2SqqmHftSCaUwaftisXdf-sxiAT1HY5\n|sponsor=[https://www.intel.com/ Intel]<br>[https://inmotion.dhl/en/esports DHL]<br>[https://www.faceit.com/ FACEIT]\n|twitter=IEM\n|facebook=IEM\n|instagram=eslcs\n|youtube=ESLCS\n|twitch=ESLCS\n|game=cs2\n|map1=Ancient\n|map2=Anubis\n|map3=Cache\n|map4=Dust II\n|map5=Inferno\n|map6=Mirage\n|map7=Nuke\n|team_number=24\n}}\n"
+       }
+      }
+     }
+    ]
+   }
+  ]
+ }
+}

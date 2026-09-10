@@ -1,43 +1,100 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { remainingUntil, type Remaining } from "@/lib/time";
+import { formatApproximate, isCoarsePrecision, localDateString, remainingUntil } from "@/lib/time";
+import type { DatePrecision } from "@/lib/types";
+import { useNow } from "@/lib/use-now";
 
-function Unit({ value, label, huge }: { value: number; label: string; huge?: boolean }) {
+const PLACEHOLDER = "--";
+/** Width reserved for the days cell when no server figure is known (personal countdowns): fits up to 999. */
+const UNKNOWN_DAYS_CHARS = 3;
+
+function Unit({
+  value,
+  label,
+  huge,
+  minChars = 2,
+}: {
+  value: string;
+  label: string;
+  huge?: boolean;
+  minChars?: number;
+}) {
   return (
-    <div className="flex flex-col items-center min-w-0">
+    <div className="flex min-w-0 flex-col items-center">
       <span
-        className={`tabular font-mono tracking-tight text-amber amber-glow ${
+        className={`tabular amber-glow inline-block text-center font-mono tracking-tight text-amber ${
           huge ? "text-5xl sm:text-7xl md:text-8xl" : "text-2xl sm:text-3xl"
         }`}
+        style={{ minWidth: `${Math.max(2, minChars)}ch` }}
       >
-        {String(value).padStart(2, "0")}
+        {value}
       </span>
       <span className="mt-1 text-[10px] uppercase tracking-[0.22em] text-muted">{label}</span>
     </div>
   );
 }
 
+function pad(n: number): string {
+  return String(n).padStart(2, "0");
+}
+
+/**
+ * First-paint day figure that agrees with the live clock.
+ *
+ * SQL `days_until` is a calendar-day difference (`starts_on - current_date`, UTC). The live
+ * clock for an all-day event counts down to local midnight at the START of that day, so its
+ * days unit is `floor(ms / 1 day)` = calendar difference − 1 whenever hours > 0 (all day but
+ * the exact midnight second). Timed events already use the same floor in SQL. The residual
+ * ±1 for visitors far from UTC resolves on the first client tick.
+ */
+function initialDayFigure(initialDays: number | null | undefined, allDay: boolean): number | null {
+  if (typeof initialDays !== "number" || !Number.isFinite(initialDays)) return null;
+  return Math.max(0, allDay ? initialDays - 1 : initialDays);
+}
+
 export function Countdown({
   date,
   allDay = true,
   size = "card",
+  initialDays,
+  precision,
 }: {
   date: string;
   allDay?: boolean;
   size?: "card" | "hero";
+  /** Whole days until the event as computed by SQL at render time; shown until the client clock is live. */
+  initialDays?: number | null;
+  precision?: DatePrecision | null;
 }) {
-  const [now, setNow] = useState(() => Date.now());
-
-  useEffect(() => {
-    const id = setInterval(() => setNow(Date.now()), 1000);
-    return () => clearInterval(id);
-  }, []);
-
-  const r: Remaining = remainingUntil(date, allDay, now);
+  const now = useNow();
   const huge = size === "hero";
 
-  if (r.past) {
+  if (isCoarsePrecision(precision)) {
+    return (
+      <p className={`font-serif italic text-amber ${huge ? "text-3xl sm:text-4xl" : "text-lg"}`}>
+        {formatApproximate(date, precision)}
+      </p>
+    );
+  }
+
+  const dateOnly = allDay && !date.includes("T");
+  const live = now !== null ? remainingUntil(date, allDay, now) : null;
+
+  // An all-day event on its own day: the clock has reached midnight but the day is not over.
+  // Server-side that is SQL `days_until === 0`; client-side, the local date equals the event date.
+  const today = dateOnly && (live ? live.past && localDateString(now as number) === date.slice(0, 10) : initialDays === 0);
+
+  if (today) {
+    return (
+      <p className={`font-serif italic text-amber ${huge ? "text-4xl sm:text-5xl" : "text-xl"}`} data-live={live ? "true" : "false"}>
+        Today.
+      </p>
+    );
+  }
+
+  const past = live ? live.past : typeof initialDays === "number" && initialDays < 0;
+
+  if (past) {
     return (
       <p className={`font-serif italic text-muted ${huge ? "text-2xl" : "text-sm"}`}>
         This one already happened.
@@ -45,15 +102,27 @@ export function Countdown({
     );
   }
 
+  const days = live ? live.days : initialDayFigure(initialDays, allDay);
+  const daysText = days === null ? PLACEHOLDER : pad(days);
+  const daysChars = days === null ? UNKNOWN_DAYS_CHARS : Math.max(2, daysText.length);
+  const hours = live ? pad(live.hours) : PLACEHOLDER;
+  const minutes = live ? pad(live.minutes) : PLACEHOLDER;
+  const seconds = live ? pad(live.seconds) : PLACEHOLDER;
+  const sep = <span className={`pb-4 text-muted ${huge ? "text-4xl" : "text-lg"}`}>:</span>;
+
   return (
-    <div className={`flex items-end justify-between gap-3 ${huge ? "max-w-3xl" : ""}`}>
-      <Unit value={r.days} label={r.days === 1 ? "day" : "days"} huge={huge} />
-      <span className={`text-muted pb-4 ${huge ? "text-4xl" : "text-lg"}`}>:</span>
-      <Unit value={r.hours} label="hrs" huge={huge} />
-      <span className={`text-muted pb-4 ${huge ? "text-4xl" : "text-lg"}`}>:</span>
-      <Unit value={r.minutes} label="min" huge={huge} />
-      <span className={`text-muted pb-4 ${huge ? "text-4xl" : "text-lg"}`}>:</span>
-      <Unit value={r.seconds} label="sec" huge={huge} />
+    <div
+      className={`flex items-end justify-between gap-3 ${huge ? "max-w-3xl" : ""}`}
+      aria-live="off"
+      data-live={live ? "true" : "false"}
+    >
+      <Unit value={daysText} label={days === 1 ? "day" : "days"} huge={huge} minChars={daysChars} />
+      {sep}
+      <Unit value={hours} label="hrs" huge={huge} />
+      {sep}
+      <Unit value={minutes} label="min" huge={huge} />
+      {sep}
+      <Unit value={seconds} label="sec" huge={huge} />
     </div>
   );
 }

@@ -1,0 +1,116 @@
+[
+  {
+    "id": "a9951b88-fbfa-4634-8b80-39c60abb2a0c",
+    "startDate": "2027-01-01",
+    "endDate": "2027-01-01",
+    "type": "Public",
+    "name": [
+      {
+        "language": "EN",
+        "text": "New Year's Day"
+      }
+    ],
+    "regionalScope": "Regional",
+    "temporalScope": "FullDay",
+    "nationwide": true
+  },
+  {
+    "id": "341c9738-8063-4e1b-99d3-336174cf42de",
+    "startDate": "2027-01-06",
+    "endDate": "2027-01-06",
+    "type": "Public",
+    "name": [
+      {
+        "language": "EN",
+        "text": "Epiphany"
+      }
+    ],
+    "regionalScope": "Regional",
+    "temporalScope": "FullDay",
+    "nationwide": false,
+    "subdivisions": [
+      {
+        "code": "DE-ST",
+        "shortName": "ST"
+      },
+      {
+        "code": "DE-BW",
+        "shortName": "BW"
+      },
+      {
+        "code": "DE-BY",
+        "shortName": "BY"
+      }
+    ]
+  },
+  {
+    "id": "1ddfa412-ebda-4571-a6fd-aa8e2ba340d5",
+    "startDate": "2027-03-08",
+    "endDate": "2027-03-08",
+    "type": "Public",
+    "name": [
+      {
+        "language": "EN",
+        "text": "International Women's Day"
+      }
+    ],
+    "regionalScope": "Regional",
+    "temporalScope": "FullDay",
+    "nationwide": false,
+    "subdivisions": [
+      {
+        "code": "DE-BE",
+        "shortName": "BE"
+      },
+      {
+        "code": "DE-MV",
+        "shortName": "MV"
+      }
+    ]
+  },
+  {
+    "id": "fcd0558e-3e01-4902-b785-d8bd45baba24",
+    "startDate": "2027-03-29",
+    "endDate": "2027-03-29",
+    "type": "Public",
+    "name": [
+      {
+        "language": "EN",
+        "text": "Easter Monday"
+      }
+    ],
+    "regionalScope": "Regional",
+    "temporalScope": "FullDay",
+    "nationwide": true
+  },
+  {
+    "id": "3e88b5c4-993a-4bd1-9f9a-149545598bc6",
+    "startDate": "2027-10-03",
+    "endDate": "2027-10-03",
+    "type": "Public",
+    "name": [
+      {
+        "language": "EN",
+        "text": "Day of German Unity"
+      }
+    ],
+    "regionalScope": "National",
+    "temporalScope": "FullDay",
+    "nationwide": true
+  },
+  {
+    "id": "ba7542be-fca8-427b-ac2d-797470860c62",
+    "startDate": "2027-12-25",
+    "endDate": "2027-12-25",
+    "type": "Public",
+    "name": [
+      {
+        "language": "EN",
+        "text": "Christmas Day"
+      }
+    ],
+    "regionalScope": "Regional",
+    "temporalScope": "FullDay",
+    "nationwide": true
+  }
+]

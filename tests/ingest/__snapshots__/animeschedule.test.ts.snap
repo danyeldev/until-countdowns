@@ -1,0 +1,41 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`animeschedule fixture → rows > is deterministic across two calls and keeps upstream order 1`] = `
+[
+  [
+    "animeschedule:CvsP",
+    "tensei-shitara-ken-deshita-2-premiere-2026-09-30",
+    "2026-09-30",
+    25,
+    "anime+premiere+fall+tv+action+adventure+fantasy+isekai+magic",
+  ],
+  [
+    "animeschedule:BXez",
+    "kusuriya-no-hitorigoto-3rd-season-premiere-2026-10-02",
+    "2026-10-02",
+    25,
+    "anime+premiere+fall+tv+drama+historical+mystery",
+  ],
+  [
+    "animeschedule:9n6q",
+    "kusuriya-no-hitorigoto-movie-bouhi-no-hihou-premiere-2026-12-11",
+    "2026-12-11",
+    20,
+    "anime+premiere+fall+movie+drama+historical+mystery",
+  ],
+  [
+    "animeschedule:i245",
+    "cyberpunk-edgerunners-ii-premiere-2026-10-20",
+    "2026-10-20",
+    20,
+    "anime+premiere+fall+ona+action+drama+sci-fi",
+  ],
+  [
+    "animeschedule:Qa3q",
+    "mahoutsukai-no-yoru-premiere-2026-11-20",
+    "2026-11-20",
+    20,
+    "anime+premiere+fall+movie+action+drama+fantasy+magic+mystery+supernatural",
+  ],
+]
+`;

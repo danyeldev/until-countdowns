@@ -1,0 +1,6 @@
+{
+  "your_request_limit": 15,
+  "limit_frequency_secs": 3600,
+  "current_use": 0,
+  "next_use_secs": 0
+}

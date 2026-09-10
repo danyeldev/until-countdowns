@@ -1,0 +1,38 @@
+{
+ "Q40": {
+  "claims": {
+   "P297": [
+    {
+     "mainsnak": {
+      "snaktype": "value",
+      "property": "P297",
+      "datavalue": {
+       "value": "AT",
+       "type": "string"
+      }
+     },
+     "type": "statement",
+     "rank": "normal"
+    }
+   ]
+  }
+ },
+ "Q23635": {
+  "claims": {
+   "P297": [
+    {
+     "mainsnak": {
+      "snaktype": "value",
+      "property": "P297",
+      "datavalue": {
+       "value": "BM",
+       "type": "string"
+      }
+     },
+     "type": "statement",
+     "rank": "normal"
+    }
+   ]
+  }
+ }
+}

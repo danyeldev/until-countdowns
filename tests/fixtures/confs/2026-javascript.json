@@ -1,0 +1,39 @@
+[
+  {
+    "name": "CityJS Singapore",
+    "url": "https://singapore.cityjsconf.org",
+    "startDate": "2026-02-04",
+    "endDate": "2026-02-06",
+    "city": "Singapore",
+    "country": "Singapore",
+    "online": false,
+    "locales": "EN",
+    "cocUrl": "https://singapore.cityjsconf.org/coc",
+    "cfpUrl": "https://docs.google.com/forms/d/e/1FAIpQLSdCB9sjowyPA6srn50l5M_rNxwC7D2_6vcTwRv57-vvk1wOBw/viewform",
+    "cfpEndDate": "2025-12-31"
+  },
+  {
+    "name": "AI Coding Summit",
+    "url": "https://aicodingsummit.com",
+    "startDate": "2026-02-26",
+    "endDate": "2026-02-27",
+    "online": true,
+    "locales": "EN",
+    "cocUrl": "https://gitnation.com/coc",
+    "cfpUrl": "https://gitnation.com/events/ai-coding-summit-2026/cfp",
+    "cfpEndDate": "2026-01-26"
+  },
+  {
+    "name": "ZurichJS Conf",
+    "url": "https://conf.zurichjs.com",
+    "startDate": "2026-09-10",
+    "endDate": "2026-09-11",
+    "city": "Zurich",
+    "country": "Switzerland",
+    "online": false,
+    "locales": "EN",
+    "cocUrl": "https://conf.zurichjs.com/info/code-of-conduct",
+    "cfpUrl": "https://conf.zurichjs.com/cfp",
+    "cfpEndDate": "2026-04-01"
+  }
+]

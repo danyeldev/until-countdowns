@@ -1,5 +1,5 @@
 import type { CountdownEvent } from "./types";
-import { googleDates, icsDate, isValidDate } from "./time";
+import { googleDates, icsDate, isValidDate, shiftDay } from "./time";
 
 export function googleCalendarUrl(event: CountdownEvent): string {
   if (!isValidDate(event.date)) return "#";
@@ -40,10 +40,12 @@ export function icsContent(event: CountdownEvent): string {
   const uid = `${event.id}@until`;
   const stamp = new Date().toISOString().replace(/[-:]/g, "").replace(/\.\d{3}Z$/, "Z");
   const start = icsDate(event.date, event.allDay);
-  const end = event.endDate
-    ? icsDate(event.endDate, event.allDay)
-    : event.allDay
-      ? icsDate(event.date, true)
+  // RFC 5545: an all-day DTEND (VALUE=DATE) is exclusive, so it is the day AFTER the last day —
+  // the same +1 that googleDates() applies. Timed events without an end default to one hour.
+  const end = event.allDay
+    ? icsDate(shiftDay(event.endDate && isValidDate(event.endDate) ? event.endDate : event.date, 1), true)
+    : event.endDate && isValidDate(event.endDate)
+      ? icsDate(event.endDate, false)
       : icsDate(new Date(new Date(event.date).getTime() + 3_600_000).toISOString(), false);
   const desc = (event.description || event.title).replace(/\n/g, "\\n");
   const lines = [

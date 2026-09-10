@@ -1,0 +1,847 @@
+{
+ "entities": {
+  "Q1451505": {
+   "type": "item",
+   "id": "Q1451505",
+   "labels": {
+    "en": {
+     "language": "en",
+     "value": "2028 Summer Olympics"
+    }
+   },
+   "sitelinks": {
+    "enwiki": {
+     "site": "enwiki",
+     "title": "2028 Summer Olympics",
+     "badges": []
+    }
+   },
+   "claims": {
+    "P580": [
+     {
+      "mainsnak": {
+       "snaktype": "value",
+       "property": "P580",
+       "datavalue": {
+        "value": {
+         "time": "+2028-07-14T00:00:00Z",
+         "timezone": 0,
+         "before": 0,
+         "after": 0,
+         "precision": 11,
+         "calendarmodel": "http://www.wikidata.org/entity/Q1985727"
+        },
+        "type": "time"
+       }
+      },
+      "rank": "normal"
+     }
+    ],
+    "P582": [
+     {
+      "mainsnak": {
+       "snaktype": "value",
+       "property": "P582",
+       "datavalue": {
+        "value": {
+         "time": "+2028-07-30T00:00:00Z",
+         "timezone": 0,
+         "before": 0,
+         "after": 0,
+         "precision": 11,
+         "calendarmodel": "http://www.wikidata.org/entity/Q1985727"
+        },
+        "type": "time"
+       }
+      },
+      "rank": "normal"
+     }
+    ],
+    "P585": [
+     {
+      "mainsnak": {
+       "snaktype": "value",
+       "property": "P585",
+       "datavalue": {
+        "value": {
+         "time": "+2028-00-00T00:00:00Z",
+         "timezone": 0,
+         "before": 0,
+         "after": 0,
+         "precision": 9,
+         "calendarmodel": "http://www.wikidata.org/entity/Q1985727"
+        },
+        "type": "time"
+       }
+      },
+      "rank": "normal"
+     }
+    ],
+    "P17": [
+     {
+      "mainsnak": {
+       "snaktype": "value",
+       "property": "P17",
+       "datavalue": {
+        "value": {
+         "entity-type": "item",
+         "numeric-id": 30,
+         "id": "Q30"
+        },
+        "type": "wikibase-entityid"
+       }
+      },
+      "rank": "normal"
+     }
+    ],
+    "P276": [
+     {
+      "mainsnak": {
+       "snaktype": "value",
+       "property": "P276",
+       "datavalue": {
+        "value": {
+         "entity-type": "item",
+         "numeric-id": 65,
+         "id": "Q65"
+        },
+        "type": "wikibase-entityid"
+       }
+      },
+      "rank": "normal"
+     }
+    ],
+    "P625": [
+     {
+      "mainsnak": {
+       "snaktype": "value",
+       "property": "P625",
+       "datavalue": {
+        "value": {
+         "latitude": 34.1,
+         "longitude": -118.2,
+         "altitude": null,
+         "precision": 0.010848427905063896,
+         "globe": "http://www.wikidata.org/entity/Q2"
+        },
+        "type": "globecoordinate"
+       }
+      },
+      "rank": "normal"
+     }
+    ]
+   }
+  },
+  "Q27016751": {
+   "type": "item",
+   "id": "Q27016751",
+   "labels": {
+    "en": {
+     "language": "en",
+     "value": "2026 Asian Games"
+    }
+   },
+   "sitelinks": {
+    "enwiki": {
+     "site": "enwiki",
+     "title": "2026 Asian Games",
+     "badges": []
+    }
+   },
+   "claims": {
+    "P580": [
+     {
+      "mainsnak": {
+       "snaktype": "value",
+       "property": "P580",
+       "datavalue": {
+        "value": {
+         "time": "+2026-09-19T00:00:00Z",
+         "timezone": 0,
+         "before": 0,
+         "after": 0,
+         "precision": 11,
+         "calendarmodel": "http://www.wikidata.org/entity/Q1985727"
+        },
+        "type": "time"
+       }
+      },
+      "rank": "normal"
+     }
+    ],
+    "P582": [
+     {
+      "mainsnak": {
+       "snaktype": "value",
+       "property": "P582",
+       "datavalue": {
+        "value": {
+         "time": "+2026-10-04T00:00:00Z",
+         "timezone": 0,
+         "before": 0,
+         "after": 0,
+         "precision": 11,
+         "calendarmodel": "http://www.wikidata.org/entity/Q1985727"
+        },
+        "type": "time"
+       }
+      },
+      "rank": "normal"
+     }
+    ],
+    "P585": [
+     {
+      "mainsnak": {
+       "snaktype": "value",
+       "property": "P585",
+       "datavalue": {
+        "value": {
+         "time": "+2026-00-00T00:00:00Z",
+         "timezone": 0,
+         "before": 0,
+         "after": 0,
+         "precision": 9,
+         "calendarmodel": "http://www.wikidata.org/entity/Q1985727"
+        },
+        "type": "time"
+       }
+      },
+      "rank": "normal"
+     }
+    ],
+    "P17": [
+     {
+      "mainsnak": {
+       "snaktype": "value",
+       "property": "P17",
+       "datavalue": {
+        "value": {
+         "entity-type": "item",
+         "numeric-id": 17,
+         "id": "Q17"
+        },
+        "type": "wikibase-entityid"
+       }
+      },
+      "rank": "normal"
+     }
+    ],
+    "P276": [
+     {
+      "mainsnak": {
+       "snaktype": "value",
+       "property": "P276",
+       "datavalue": {
+        "value": {
+         "entity-type": "item",
+         "numeric-id": 80434,
+         "id": "Q80434"
+        },
+        "type": "wikibase-entityid"
+       }
+      },
+      "rank": "normal"
+     }
+    ]
+   }
+  },
+  "Q31039462": {
+   "type": "item",
+   "id": "Q31039462",
+   "labels": {
+    "en": {
+     "language": "en",
+     "value": "2032 Summer Olympics"
+    }
+   },
+   "sitelinks": {
+    "enwiki": {
+     "site": "enwiki",
+     "title": "2032 Summer Olympics",
+     "badges": []
+    }
+   },
+   "claims": {
+    "P580": [
+     {
+      "mainsnak": {
+       "snaktype": "value",
+       "property": "P580",
+       "datavalue": {
+        "value": {
+         "time": "+2032-07-23T00:00:00Z",
+         "timezone": 0,
+         "before": 0,
+         "after": 0,
+         "precision": 11,
+         "calendarmodel": "http://www.wikidata.org/entity/Q1985727"
+        },
+        "type": "time"
+       }
+      },
+      "rank": "normal"
+     }
+    ],
+    "P582": [
+     {
+      "mainsnak": {
+       "snaktype": "value",
+       "property": "P582",
+       "datavalue": {
+        "value": {
+         "time": "+2032-08-08T00:00:00Z",
+         "timezone": 0,
+         "before": 0,
+         "after": 0,
+         "precision": 11,
+         "calendarmodel": "http://www.wikidata.org/entity/Q1985727"
+        },
+        "type": "time"
+       }
+      },
+      "rank": "normal"
+     }
+    ],
+    "P585": [
+     {
+      "mainsnak": {
+       "snaktype": "value",
+       "property": "P585",
+       "datavalue": {
+        "value": {
+         "time": "+2032-00-00T00:00:00Z",
+         "timezone": 0,
+         "before": 0,
+         "after": 0,
+         "precision": 9,
+         "calendarmodel": "http://www.wikidata.org/entity/Q1985727"
+        },
+        "type": "time"
+       }
+      },
+      "rank": "normal"
+     }
+    ],
+    "P17": [
+     {
+      "mainsnak": {
+       "snaktype": "value",
+       "property": "P17",
+       "datavalue": {
+        "value": {
+         "entity-type": "item",
+         "numeric-id": 408,
+         "id": "Q408"
+        },
+        "type": "wikibase-entityid"
+       }
+      },
+      "rank": "normal"
+     }
+    ],
+    "P276": [
+     {
+      "mainsnak": {
+       "snaktype": "value",
+       "property": "P276",
+       "datavalue": {
+        "value": {
+         "entity-type": "item",
+         "numeric-id": 34932,
+         "id": "Q34932"
+        },
+        "type": "wikibase-entityid"
+       }
+      },
+      "rank": "normal"
+     }
+    ],
+    "P625": [
+     {
+      "mainsnak": {
+       "snaktype": "value",
+       "property": "P625",
+       "datavalue": {
+        "value": {
+         "latitude": -27.4678,
+         "longitude": 153.0278,
+         "altitude": null,
+         "precision": 0.010124483953412066,
+         "globe": "http://www.wikidata.org/entity/Q2"
+        },
+        "type": "globecoordinate"
+       }
+      },
+      "rank": "normal"
+     }
+    ]
+   }
+  },
+  "Q55602686": {
+   "type": "item",
+   "id": "Q55602686",
+   "labels": {
+    "en": {
+     "language": "en",
+     "value": "2027 Rugby World Cup"
+    }
+   },
+   "sitelinks": {
+    "enwiki": {
+     "site": "enwiki",
+     "title": "2027 Rugby World Cup",
+     "badges": []
+    }
+   },
+   "claims": {
+    "P580": [
+     {
+      "mainsnak": {
+       "snaktype": "value",
+       "property": "P580",
+       "datavalue": {
+        "value": {
+         "time": "+2027-10-01T00:00:00Z",
+         "timezone": 0,
+         "before": 0,
+         "after": 0,
+         "precision": 11,
+         "calendarmodel": "http://www.wikidata.org/entity/Q1985727"
+        },
+        "type": "time"
+       }
+      },
+      "rank": "normal"
+     }
+    ],
+    "P582": [
+     {
+      "mainsnak": {
+       "snaktype": "value",
+       "property": "P582",
+       "datavalue": {
+        "value": {
+         "time": "+2027-11-13T00:00:00Z",
+         "timezone": 0,
+         "before": 0,
+         "after": 0,
+         "precision": 11,
+         "calendarmodel": "http://www.wikidata.org/entity/Q1985727"
+        },
+        "type": "time"
+       }
+      },
+      "rank": "normal"
+     }
+    ],
+    "P17": [
+     {
+      "mainsnak": {
+       "snaktype": "value",
+       "property": "P17",
+       "datavalue": {
+        "value": {
+         "entity-type": "item",
+         "numeric-id": 408,
+         "id": "Q408"
+        },
+        "type": "wikibase-entityid"
+       }
+      },
+      "rank": "normal"
+     }
+    ],
+    "P276": [
+     {
+      "mainsnak": {
+       "snaktype": "value",
+       "property": "P276",
+       "datavalue": {
+        "value": {
+         "entity-type": "item",
+         "numeric-id": 408,
+         "id": "Q408"
+        },
+        "type": "wikibase-entityid"
+       }
+      },
+      "rank": "normal"
+     }
+    ]
+   }
+  },
+  "Q29389034": {
+   "type": "item",
+   "id": "Q29389034",
+   "labels": {
+    "en": {
+     "language": "en",
+     "value": "2030 Winter Olympics"
+    }
+   },
+   "sitelinks": {
+    "enwiki": {
+     "site": "enwiki",
+     "title": "2030 Winter Olympics",
+     "badges": []
+    }
+   },
+   "claims": {
+    "P580": [
+     {
+      "mainsnak": {
+       "snaktype": "value",
+       "property": "P580",
+       "datavalue": {
+        "value": {
+         "time": "+2030-02-01T00:00:00Z",
+         "timezone": 0,
+         "before": 0,
+         "after": 0,
+         "precision": 11,
+         "calendarmodel": "http://www.wikidata.org/entity/Q1985727"
+        },
+        "type": "time"
+       }
+      },
+      "rank": "normal"
+     }
+    ],
+    "P582": [
+     {
+      "mainsnak": {
+       "snaktype": "value",
+       "property": "P582",
+       "datavalue": {
+        "value": {
+         "time": "+2030-02-17T00:00:00Z",
+         "timezone": 0,
+         "before": 0,
+         "after": 0,
+         "precision": 11,
+         "calendarmodel": "http://www.wikidata.org/entity/Q1985727"
+        },
+        "type": "time"
+       }
+      },
+      "rank": "normal"
+     }
+    ],
+    "P585": [
+     {
+      "mainsnak": {
+       "snaktype": "value",
+       "property": "P585",
+       "datavalue": {
+        "value": {
+         "time": "+2030-02-00T00:00:00Z",
+         "timezone": 0,
+         "before": 0,
+         "after": 0,
+         "precision": 10,
+         "calendarmodel": "http://www.wikidata.org/entity/Q1985727"
+        },
+        "type": "time"
+       }
+      },
+      "rank": "normal"
+     }
+    ],
+    "P17": [
+     {
+      "mainsnak": {
+       "snaktype": "value",
+       "property": "P17",
+       "datavalue": {
+        "value": {
+         "entity-type": "item",
+         "numeric-id": 142,
+         "id": "Q142"
+        },
+        "type": "wikibase-entityid"
+       }
+      },
+      "rank": "normal"
+     }
+    ],
+    "P276": [
+     {
+      "mainsnak": {
+       "snaktype": "value",
+       "property": "P276",
+       "datavalue": {
+        "value": {
+         "entity-type": "item",
+         "numeric-id": 1630884,
+         "id": "Q1630884"
+        },
+        "type": "wikibase-entityid"
+       }
+      },
+      "rank": "normal"
+     }
+    ]
+   }
+  },
+  "Q29545388": {
+   "type": "item",
+   "id": "Q29545388",
+   "labels": {
+    "en": {
+     "language": "en",
+     "value": "2027 Pan American Games"
+    }
+   },
+   "sitelinks": {
+    "enwiki": {
+     "site": "enwiki",
+     "title": "2027 Pan American Games",
+     "badges": []
+    }
+   },
+   "claims": {
+    "P580": [
+     {
+      "mainsnak": {
+       "snaktype": "value",
+       "property": "P580",
+       "datavalue": {
+        "value": {
+         "time": "+2027-07-02T00:00:00Z",
+         "timezone": 0,
+         "before": 0,
+         "after": 0,
+         "precision": 11,
+         "calendarmodel": "http://www.wikidata.org/entity/Q1985727"
+        },
+        "type": "time"
+       }
+      },
+      "rank": "normal"
+     }
+    ],
+    "P582": [
+     {
+      "mainsnak": {
+       "snaktype": "value",
+       "property": "P582",
+       "datavalue": {
+        "value": {
+         "time": "+2027-07-18T00:00:00Z",
+         "timezone": 0,
+         "before": 0,
+         "after": 0,
+         "precision": 11,
+         "calendarmodel": "http://www.wikidata.org/entity/Q1985727"
+        },
+        "type": "time"
+       }
+      },
+      "rank": "normal"
+     }
+    ],
+    "P17": [
+     {
+      "mainsnak": {
+       "snaktype": "value",
+       "property": "P17",
+       "datavalue": {
+        "value": {
+         "entity-type": "item",
+         "numeric-id": 419,
+         "id": "Q419"
+        },
+        "type": "wikibase-entityid"
+       }
+      },
+      "rank": "normal"
+     }
+    ]
+   }
+  },
+  "Q123501726": {
+   "type": "item",
+   "id": "Q123501726",
+   "labels": {
+    "en": {
+     "language": "en",
+     "value": "Bids for the 2036 Summer Olympics"
+    }
+   },
+   "sitelinks": {
+    "enwiki": {
+     "site": "enwiki",
+     "title": "Bids for the 2036 Summer Olympics",
+     "badges": []
+    }
+   },
+   "claims": {}
+  },
+  "Q97622525": {
+   "type": "item",
+   "id": "Q97622525",
+   "labels": {
+    "en": {
+     "language": "en",
+     "value": "2026 Summer Youth Olympics"
+    }
+   },
+   "sitelinks": {
+    "enwiki": {
+     "site": "enwiki",
+     "title": "2026 Summer Youth Olympics",
+     "badges": []
+    }
+   },
+   "claims": {
+    "P585": [
+     {
+      "mainsnak": {
+       "snaktype": "value",
+       "property": "P585",
+       "datavalue": {
+        "value": {
+         "time": "+2026-00-00T00:00:00Z",
+         "timezone": 0,
+         "before": 0,
+         "after": 0,
+         "precision": 9,
+         "calendarmodel": "http://www.wikidata.org/entity/Q1985727"
+        },
+        "type": "time"
+       }
+      },
+      "rank": "normal"
+     }
+    ],
+    "P17": [
+     {
+      "mainsnak": {
+       "snaktype": "value",
+       "property": "P17",
+       "datavalue": {
+        "value": {
+         "entity-type": "item",
+         "numeric-id": 1041,
+         "id": "Q1041"
+        },
+        "type": "wikibase-entityid"
+       }
+      },
+      "rank": "normal"
+     }
+    ],
+    "P276": [
+     {
+      "mainsnak": {
+       "snaktype": "value",
+       "property": "P276",
+       "datavalue": {
+        "value": {
+         "entity-type": "item",
+         "numeric-id": 3718,
+         "id": "Q3718"
+        },
+        "type": "wikibase-entityid"
+       }
+      },
+      "rank": "normal"
+     }
+    ]
+   }
+  },
+  "Q61091458": {
+   "type": "item",
+   "id": "Q61091458",
+   "labels": {
+    "en": {
+     "language": "en",
+     "value": "2026 Asian Para Games"
+    }
+   },
+   "sitelinks": {
+    "enwiki": {
+     "site": "enwiki",
+     "title": "2026 Asian Para Games",
+     "badges": []
+    }
+   },
+   "claims": {
+    "P17": [
+     {
+      "mainsnak": {
+       "snaktype": "value",
+       "property": "P17",
+       "datavalue": {
+        "value": {
+         "entity-type": "item",
+         "numeric-id": 17,
+         "id": "Q17"
+        },
+        "type": "wikibase-entityid"
+       }
+      },
+      "rank": "normal"
+     }
+    ]
+   }
+  },
+  "Q139569350": {
+   "type": "item",
+   "id": "Q139569350",
+   "labels": {
+    "en": {
+     "language": "en",
+     "value": "2029 World Games"
+    }
+   },
+   "sitelinks": {
+    "enwiki": {
+     "site": "enwiki",
+     "title": "2029 World Games",
+     "badges": []
+    }
+   },
+   "claims": {
+    "P585": [
+     {
+      "mainsnak": {
+       "snaktype": "value",
+       "property": "P585",
+       "datavalue": {
+        "value": {
+         "time": "+2029-00-00T00:00:00Z",
+         "timezone": 0,
+         "before": 0,
+         "after": 0,
+         "precision": 9,
+         "calendarmodel": "http://www.wikidata.org/entity/Q1985727"
+        },
+        "type": "time"
+       }
+      },
+      "rank": "normal"
+     }
+    ],
+    "P17": [
+     {
+      "mainsnak": {
+       "snaktype": "value",
+       "property": "P17",
+       "datavalue": {
+        "value": {
+         "entity-type": "item",
+         "numeric-id": 183,
+         "id": "Q183"
+        },
+        "type": "wikibase-entityid"
+       }
+      },
+      "rank": "normal"
+     }
+    ]
+   }
+  }
+ },
+ "success": 1
+}

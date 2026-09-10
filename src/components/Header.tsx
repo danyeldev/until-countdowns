@@ -4,6 +4,14 @@ import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { FormEvent, useState } from "react";
 
+const NAV: { href: string; label: string; match: (path: string) => boolean }[] = [
+  { href: "/category", label: "Categories", match: (p) => p.startsWith("/category") },
+  { href: "/country", label: "Countries", match: (p) => p.startsWith("/country") },
+  { href: "/days-until", label: "Days until", match: (p) => p.startsWith("/days-until") },
+  { href: "/create", label: "Create", match: (p) => p === "/create" },
+  { href: "/about", label: "About", match: (p) => p === "/about" },
+];
+
 export function Header() {
   const pathname = usePathname();
   const router = useRouter();
@@ -38,19 +46,16 @@ export function Header() {
             className="w-full rounded-full border border-line bg-ink-2 px-4 py-2 text-sm text-paper outline-none placeholder:text-muted focus:border-amber/60"
           />
         </form>
-        <nav className="ml-auto flex items-center gap-4 text-sm text-paper-dim">
-          <Link
-            href="/?sort=popular"
-            className={pathname === "/" ? "text-paper" : "hover:text-paper"}
-          >
-            Catalog
-          </Link>
-          <Link href="/create" className={pathname === "/create" ? "text-paper" : "hover:text-paper"}>
-            Create
-          </Link>
-          <Link href="/about" className={pathname === "/about" ? "text-paper" : "hover:text-paper"}>
-            About
-          </Link>
+        <nav className="ml-auto flex items-center gap-3 overflow-x-auto text-sm text-paper-dim sm:gap-4">
+          {NAV.map((item) => (
+            <Link
+              key={item.href}
+              href={item.href}
+              className={`shrink-0 ${item.match(pathname) ? "text-paper" : "hover:text-paper"}`}
+            >
+              {item.label}
+            </Link>
+          ))}
         </nav>
       </div>
     </header>

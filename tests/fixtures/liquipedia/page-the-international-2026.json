@@ -1,0 +1,23 @@
+{
+ "batchcomplete": true,
+ "query": {
+  "pages": [
+   {
+    "pageid": 183825,
+    "ns": 0,
+    "title": "The International/2026",
+    "revisions": [
+     {
+      "slots": {
+       "main": {
+        "contentmodel": "wikitext",
+        "contentformat": "text/x-wiki",
+        "content": "{{DISPLAYTITLE:The International 2026}}\n{{TI2026Tabs|mt}}\n{{Infobox league \n|name=The International 2026 \n|shortname=TI 15 \n|tickername=TI 2026 \n|image=The International 2026 allmode.png\n|icon=The International 2026 aegis allmode.png\n|series=The International \n|organizer=Valve \n|organizer2=PGL\n|organizer3=Perfect World\n|patch=7.41e\n|type=Offline \n|country=China \n|city=Shanghai \n|venue1=Oriental Sports Center\n|venue1link=https://en.wikipedia.org/wiki/Shanghai_Oriental_Sports_Center\n|venue1desc=Playoffs\n|team_number=16\n|format='''Group Stage'''<br>Modified Swiss-system<br>'''Playoffs'''<br>Double-elimination\n|sdate=2026-08-13 \n|edate=2026-08-23\n|prizepoolusd={{:The International/2026/prizepool}}\n|liquipediatier=1\n|publishertier=international\n|leagueid=19719\n|website=https://www.dota2.com/esports/ti15\n|facebook=dota2\n|instagram=dota2\n|twitch=dota2ti\n|twitter=dota2ti\n|weibo=dota2comcn\n|youtube=dota2\n|bracket=https://www.dota2.com/esports/ti15/schedule\n|rulebook=https://www.dota2.com/esports/ti15/tirules\n|headtohead=true\n|previous={{BASEPAGENAME}}/2025{{!}}2025\n|next=\n}}\n\n"
+       }
+      }
+     }
+    ]
+   }
+  ]
+ }
+}

@@ -1,0 +1,68 @@
+{{Short description|Worldwide national elections held in 2027}}
+{{For|local elections|2027 local electoral calendar}}
+
+{{Use dmy dates|date=November 2025}}
+{{Infobox election
+| previous_election = 2026 national electoral calendar
+| previous_year = 2026
+| next_election = 2028 national electoral calendar
+| next_year = ''2028''
+| map_image = 2027 National electoral calendar.svg
+| map_caption = Countries with national elections or referendums:
+{{leftlegend|red|Executive}}
+{{leftlegend|blue|Legislative}}
+{{leftlegend|purple|Executive and legislative}}
+{{leftlegend|yellow|Referendum}}
+{{leftlegend|green|Legislative and referendum}}
+}}
+
+This '''national electoral calendar for 2027''' lists the national and federal elections scheduled to be held in 2027 in all [[List of sovereign states|sovereign states]] and their [[Dependent territory|dependent territories]]. [[By-election]]s are excluded, though national [[referendum]]s are included. Specific dates are given when known.
+{{Elections}}
+
+==January==
+* 16 January: [[Elections in Nigeria|Nigeria]], [[2027 Nigerian general election|President, Senate and House of Representatives]]
+* 27 January: [[Elections in Kyrgyzstan|Kyrgyzstan]], [[2027 Kyrgyz presidential election|President]]<ref>{{Cite web |last=Chipegin |first=Anton |date=2025-04-16 |title=Kyrgyzstan Sets Date for 2027 Presidential Election - The Times Of Central Asia |url=https://timesca.com/kyrgyzstan-sets-date-for-2027-presidential-election/ |access-date=2026-03-27 |language=en-US}}</ref>
+
+==February==
+* 28 February: [[Elections in El Salvador|El Salvador]], [[2027 Salvadoran presidential election|President]] and [[2027 Salvadoran legislative election|Legislative Assembly]]<ref>{{cite web|url=https://lanoticiasv.com/el-tse-reafirma-que-las-elecciones-de-2027-se-realizaran-el-28-de-febrero/|title=Las elecciones de 2027 se realizarán el 28 de febrero |language=es|date=6 October 2025 |work=La Noticia SV|first1=David|last1=Morales}}</ref>
+
+==March==
+* March: [[Estonia]], [[Next Estonian parliamentary election|Parliament]]
+* 2 March: [[Elections in Micronesia|Micronesia]], [[2027 Micronesian general election|Parliament]]
+* March: ''[[Elections in Somaliland|Somaliland]], [[2027 Somaliland parliamentary election|Parliament]]''
+
+==April==
+* 10 April: [[Elections in the Gambia|Gambia]], [[2027 Gambian parliamentary election|Parliament]]<ref>{{Cite web |last=cfeditoren |date=2025-10-13 |title=IEC Announces 2026-2027 Election Dates |url=https://www.africa-press.net/gambia/all-news/iec-announces-2026-2027-election-dates |access-date=2026-04-14 |website=Gambia |language=en-US}}</ref>
+* 18 April: 
+** [[Elections in France|France]], [[2027 French presidential election|President]]<ref>{{cite web |title=Quelles sont les dates des prochaines élections ? |url=https://www.service-public.gouv.fr/particuliers/vosdroits/F34852/5_0?lang=en |website=Service Public |publisher=Government of France |language=fr |date=27 August 2025}}</ref>
+** [[Elections in Finland|Finland]], [[2027 Finnish parliamentary election|Parliament]]<ref>{{Cite web|url=https://vaalit.fi/en/schedule-in-the-parliamentary-elections|title=Schedule for the 2027 parliamentary elections|publisher=Vaalit.fi|access-date=17 January 2026}}</ref>
+* April: [[Elections in Andorra|Andorra]], [[2027 Andorran parliamentary election|Parliament]]
+
+==Unknown date==
+{{unreferenced section|date=March 2026}}
+* [[Elections in Bahrain|Bahrain]], [[Next Bahraini general election|Parliament]]
+* [[Elections in Cameroon|Cameroon]], [[2026 Cameroonian parliamentary election|Parliament]]<ref>{{Cite web |date=2026-07-25 |title=Cameroon: SDF Rejects Any Delay to Legislative and Municipal Elections |url=https://panafricanvisions.com/2026/07/cameroon-sdf-rejects-any-delay-to-legislative-and-municipal-elections/ |access-date=2026-08-27 |website=Pan African Visions |language=en}}</ref>
+* [[Elections in Dominica|Dominica]], [[2027 Dominican general election|Parliament]]
+* [[Elections in Equatorial Guinea|Equatorial Guinea]], [[2027 Equatorial Guinean parliamentary election|Parliament]]
+* [[Elections in Grenada|Grenada]], [[2027 Grenadian general election|Parliament]]
+* [[Elections in Italy|Italy]], [[Next Italian general election|Chamber of Deputies and Senate]]
+* [[Elections in Lesotho|Lesotho]], [[Next Lesotho general election|Parliament]]
+* [[Elections in Libya|Libya]], [[Next Libyan presidential election|President]] and [[Next Libyan parliamentary election|Parliament]]<ref>https://middle-east-online.com/en/libya-sets-2027-election-goal-washington-presses-national-unity</ref>
+* [[Elections in Montenegro|Montenegro]], [[Next Montenegrin parliamentary election|Parliament]]
+* [[Elections in Papua New Guinea|Papua New Guinea]], [[Next Papua New Guinean general election|Parliament]]
+* [[Elections in Poland|Poland]], [[Next Polish parliamentary election|Sejm and Senate]]
+* [[Elections in the Republic of the Congo|Republic of the Congo]], [[2027 Republic of the Congo parliamentary election|Parliament]]
+* [[Elections in Saint Kitts and Nevis|Saint Kitts and Nevis]], [[Next Saint Kitts and Nevis general election|Parliament]]
+* [[Elections in Serbia|Serbia]], [[Next Serbian presidential election|President]]
+* [[Elections in Slovakia|Slovakia]], [[Next Slovak parliamentary election|Parliament]]
+* [[Elections in Slovenia|Slovenia]], [[2027 Slovenian presidential election|President]]
+* [[Elections in Spain|Spain]], [[Next Spanish general election|Senate and Congress of Deputies]]
+* [[Elections in Tajikistan|Tajikistan]], [[2027 Tajik presidential election|President]]
+* [[Elections in Timor-Leste|Timor-Leste]], [[2027 East Timorese presidential election|President]]
+* [[Elections in Tunisia|Tunisia]], [[2027 Tunisian parliamentary election|Parliament]]
+* [[Politics of United Arab Emirates|United Arab Emirates]], [[2027 Emirati parliamentary election|Parliament]]
+
+== Indirect elections ==
+* 30 January: [[Elections in Germany|Germany]], [[2027 German presidential election|President]]
+* July: [[Elections in India|India]], [[2027 Indian presidential election|President]]
+

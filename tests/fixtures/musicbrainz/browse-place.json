@@ -1,0 +1,141 @@
+{
+  "events": [
+    {
+      "id": "096ab011-b17f-40d5-a30a-631ca26418e6",
+      "type": "Festival",
+      "disambiguation": "",
+      "setlist": "",
+      "time": "18:00",
+      "type-id": "b6ded574-b592-3f0e-b56e-5b5f06aa0678",
+      "name": "Supervue Festival 2017, Day 1: Point de Vue",
+      "cancelled": false,
+      "life-span": {
+        "ended": true,
+        "end": "2017-07-28",
+        "begin": "2017-07-28"
+      }
+    },
+    {
+      "disambiguation": "",
+      "setlist": "",
+      "type": "Festival",
+      "id": "141b7ce1-ee38-4009-819b-5641ea8add56",
+      "life-span": {
+        "ended": true,
+        "begin": "2017-07-29",
+        "end": "2017-07-29"
+      },
+      "name": "Supervue Festival 2017, Day 2: La Plaine",
+      "cancelled": false,
+      "type-id": "b6ded574-b592-3f0e-b56e-5b5f06aa0678",
+      "time": "14:15"
+    },
+    {
+      "name": "Supervue Festival 2017",
+      "cancelled": false,
+      "life-span": {
+        "ended": true,
+        "begin": "2017-07-28",
+        "end": "2017-07-29"
+      },
+      "time": "14:00",
+      "type-id": "b6ded574-b592-3f0e-b56e-5b5f06aa0678",
+      "setlist": "",
+      "disambiguation": "",
+      "id": "3e1968f0-f5a7-4800-811b-cd23349acb66",
+      "type": "Festival"
+    },
+    {
+      "type-id": "b6ded574-b592-3f0e-b56e-5b5f06aa0678",
+      "time": "16:00",
+      "life-span": {
+        "end": "2017-07-28",
+        "begin": "2017-07-28",
+        "ended": true
+      },
+      "cancelled": false,
+      "name": "Supervue Festival 2017, Day 1: Le Parvis",
+      "type": "Festival",
+      "id": "74e92d41-f182-4589-add9-f65a21eee8f8",
+      "setlist": "",
+      "disambiguation": ""
+    },
+    {
+      "disambiguation": "",
+      "setlist": "",
+      "id": "8dbcbb0f-6724-40d1-b611-5ae635d2e6be",
+      "type": "Festival",
+      "name": "Supervue Festival 2017, Day 2: Point de Vue",
+      "cancelled": false,
+      "life-span": {
+        "end": "2017-07-29",
+        "begin": "2017-07-29",
+        "ended": true
+      },
+      "time": "16:15",
+      "type-id": "b6ded574-b592-3f0e-b56e-5b5f06aa0678"
+    },
+    {
+      "disambiguation": "",
+      "setlist": "",
+      "type": "Festival",
+      "id": "92481c8f-d7cf-42ff-950c-b27c75491fc6",
+      "life-span": {
+        "ended": true,
+        "begin": "2017-07-28",
+        "end": "2017-07-28"
+      },
+      "cancelled": false,
+      "name": "Supervue Festival 2017, Day 1: La Plaine",
+      "type-id": "b6ded574-b592-3f0e-b56e-5b5f06aa0678",
+      "time": "16:15"
+    },
+    {
+      "disambiguation": "",
+      "setlist": "",
+      "id": "948b7cf7-451d-4208-8ea4-079a8b714522",
+      "type": "Festival",
+      "cancelled": false,
+      "name": "Supervue Festival 2017, Day 2: Le Parvis",
+      "life-span": {
+        "begin": "2027-07-29",
+        "end": "2027-07-29",
+        "ended": true
+      },
+      "time": "16:00",
+      "type-id": "b6ded574-b592-3f0e-b56e-5b5f06aa0678"
+    },
+    {
+      "disambiguation": "",
+      "setlist": "",
+      "id": "9ec29cfd-f8e7-4b75-a2e1-47e8221d2835",
+      "type": "Festival",
+      "name": "Supervue Festival 2017, Day 1",
+      "cancelled": false,
+      "life-span": {
+        "end": "2027-07-28",
+        "begin": "2027-07-28",
+        "ended": true
+      },
+      "time": "14:00",
+      "type-id": "b6ded574-b592-3f0e-b56e-5b5f06aa0678"
+    },
+    {
+      "type-id": "b6ded574-b592-3f0e-b56e-5b5f06aa0678",
+      "time": "16:00",
+      "life-span": {
+        "end": "2017-07-29",
+        "begin": "2017-07-29",
+        "ended": true
+      },
+      "cancelled": false,
+      "name": "Supervue Festival 2017, Day 2",
+      "type": "Festival",
+      "id": "d8106216-bc5f-4466-9939-92cf51d92530",
+      "disambiguation": "",
+      "setlist": ""
+    }
+  ],
+  "event-offset": 0,
+  "event-count": 9
+}

@@ -1,0 +1,208 @@
+{
+  "page": 1,
+  "totalAmount": 32,
+  "anime": [
+    {
+      "id": "IyNV",
+      "title": "Killtube",
+      "route": "killtube",
+      "premier": "0001-01-01T00:00:00Z",
+      "subPremier": "0001-01-01T00:00:00Z",
+      "dubPremier": "0001-01-01T00:00:00Z",
+      "year": 2026,
+      "season": {
+        "title": "2026",
+        "year": "2026",
+        "season": "",
+        "route": "2026"
+      },
+      "delayedFrom": "0001-01-01T00:00:00Z",
+      "delayedUntil": "0001-01-01T00:00:00Z",
+      "genres": [
+        {
+          "name": "Action",
+          "route": "action"
+        },
+        {
+          "name": "Fantasy",
+          "route": "fantasy"
+        }
+      ],
+      "studios": [
+        {
+          "name": "STUDIO DOTOU",
+          "route": "studio-dotou"
+        }
+      ],
+      "sources": [
+        {
+          "name": "Original",
+          "route": "original"
+        }
+      ],
+      "mediaTypes": [
+        {
+          "name": "Movie",
+          "route": "movie"
+        }
+      ],
+      "episodes": 1,
+      "status": "Upcoming",
+      "updatedAt": "2026-09-09T16:02:13.203Z",
+      "imageVersionRoute": "anime/jpg/default/killtube-8154a956cb6a41947b45814af3e1710b.jpg",
+      "names": {
+        "native": "KILLTUBE",
+        "synonyms": [
+          "キルチューブ"
+        ]
+      },
+      "websites": {
+        "official": "www.killtu.be/en/",
+        "mal": "myanimelist.net/anime/58756/Killtube",
+        "aniList": "anilist.co/anime/176910/KILLTUBE/",
+        "kitsu": "kitsu.app/anime/killtube",
+        "animePlanet": "www.anime-planet.com/anime/killtube",
+        "anidb": "anidb.net/anime/19450"
+      },
+      "description": "",
+      "stats": {
+        "trackedCount": 22
+      }
+    },
+    {
+      "id": "PLvy",
+      "title": "Sheng Xu",
+      "route": "sheng-xu",
+      "premier": "0001-01-01T00:00:00Z",
+      "subPremier": "0001-01-01T00:00:00Z",
+      "dubPremier": "0001-01-01T00:00:00Z",
+      "year": 2026,
+      "season": {
+        "title": "2026",
+        "year": "2026",
+        "season": "",
+        "route": "2026"
+      },
+      "delayedFrom": "0001-01-01T00:00:00Z",
+      "delayedUntil": "0001-01-01T00:00:00Z",
+      "genres": [
+        {
+          "name": "Action",
+          "route": "action"
+        },
+        {
+          "name": "Fantasy",
+          "route": "fantasy"
+        },
+        {
+          "name": "Martial Arts",
+          "route": "martial-arts"
+        }
+      ],
+      "studios": [
+        {
+          "name": "BUILD DREAM",
+          "route": "build-dream"
+        }
+      ],
+      "sources": [
+        {
+          "name": "Web Novel",
+          "route": "web-novel"
+        }
+      ],
+      "mediaTypes": [
+        {
+          "name": "ONA (Chinese)",
+          "route": "ona-chinese"
+        }
+      ],
+      "status": "Upcoming",
+      "updatedAt": "2026-09-09T16:02:05.411Z",
+      "imageVersionRoute": "anime/jpg/default/sheng-xu-ab8d8ab57fee0de13b2293f641d4884a.jpg",
+      "names": {
+        "romaji": "Sheng Xu",
+        "english": "The Sacred Ruins",
+        "native": "圣墟"
+      },
+      "websites": {
+        "official": "v.qq.com/x/cover/mzc002005skjl5b/k4101ce0qi1.html",
+        "mal": "myanimelist.net/anime/62715/Sheng_Xu",
+        "aniList": "anilist.co/anime/210465/Sheng-Xu/",
+        "animePlanet": "www.anime-planet.com/anime/sheng-xu"
+      },
+      "description": "",
+      "stats": {
+        "trackedCount": 13
+      }
+    },
+    {
+      "id": "xgAu",
+      "title": "Wan Xiang Zhi Wang",
+      "route": "wan-xiang-zhi-wang",
+      "premier": "0001-01-01T00:00:00Z",
+      "subPremier": "0001-01-01T00:00:00Z",
+      "dubPremier": "0001-01-01T00:00:00Z",
+      "year": 2026,
+      "season": {
+        "title": "2026",
+        "year": "2026",
+        "season": "",
+        "route": "2026"
+      },
+      "delayedFrom": "0001-01-01T00:00:00Z",
+      "delayedUntil": "0001-01-01T00:00:00Z",
+      "genres": [
+        {
+          "name": "Action",
+          "route": "action"
+        },
+        {
+          "name": "Adventure",
+          "route": "adventure"
+        },
+        {
+          "name": "Fantasy",
+          "route": "fantasy"
+        }
+      ],
+      "studios": [
+        {
+          "name": "CG Year",
+          "route": "cg-year"
+        }
+      ],
+      "sources": [
+        {
+          "name": "Web Novel",
+          "route": "web-novel"
+        }
+      ],
+      "mediaTypes": [
+        {
+          "name": "ONA (Chinese)",
+          "route": "ona-chinese"
+        }
+      ],
+      "episodes": 36,
+      "status": "Upcoming",
+      "updatedAt": "2026-09-09T16:01:55.117Z",
+      "imageVersionRoute": "anime/jpg/default/wan-xiang-zhi-wang-2c2d9097d5c03eda71ef39ef75defd41.jpg",
+      "names": {
+        "romaji": "Wan Xiang Zhi Wang",
+        "english": "Absolute Resonance",
+        "native": "万相之王"
+      },
+      "websites": {
+        "official": "www.iqiyi.com/v_1lds0j9idyk.html?vfrm=pcw_album_auto&rfr=https://animeschedule.net/",
+        "mal": "myanimelist.net/anime/61563/Wan_Xiang_Zhi_Wang",
+        "aniList": "anilist.co/anime/206272/Wan-Xiang-Zhi-Wang/",
+        "animePlanet": "www.anime-planet.com/anime/wan-xiang-zhi-wang"
+      },
+      "description": "",
+      "stats": {
+        "trackedCount": 3
+      }
+    }
+  ]
+}

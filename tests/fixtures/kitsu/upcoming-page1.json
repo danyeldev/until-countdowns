@@ -1,0 +1,521 @@
+{
+  "data": [
+    {
+      "id": "49971",
+      "type": "anime",
+      "links": {
+        "self": "https://kitsu.app/api/edge/anime/49971"
+      },
+      "attributes": {
+        "slug": "saishuu-gakushou-hibike-euphonium-kouhen",
+        "canonicalTitle": "Saishuu Gakushou Hibike! Euphonium - Kouhen",
+        "titles": {
+          "en": "Sound! Euphonium, The Final Movie Part 2",
+          "en_jp": "Saishuu Gakushou Hibike! Euphonium - Kouhen",
+          "ja_jp": "最終楽章 響け！ユーフォニアム後編"
+        },
+        "startDate": "2026-09-11",
+        "endDate": "2026-09-11",
+        "status": "upcoming",
+        "subtype": "movie",
+        "episodeCount": 1,
+        "userCount": 77,
+        "favoritesCount": 0,
+        "popularityRank": 16113,
+        "nsfw": false,
+        "tba": null
+      }
+    },
+    {
+      "id": "51000",
+      "type": "anime",
+      "links": {
+        "self": "https://kitsu.app/api/edge/anime/51000"
+      },
+      "attributes": {
+        "slug": "meitantei-precure-fushigi-na-niwa-to-futari-no-himitsu",
+        "canonicalTitle": "Meitantei Precure! Fushigi na Niwa to Futari no Himitsu",
+        "titles": {
+          "en_jp": "Meitantei Precure! Fushigi na Niwa to Futari no Himitsu",
+          "ja_jp": "名探偵プリキュア！不思議な庭と2人の秘密"
+        },
+        "startDate": "2026-09-18",
+        "endDate": "2026-09-18",
+        "status": "upcoming",
+        "subtype": "movie",
+        "episodeCount": 1,
+        "userCount": 0,
+        "favoritesCount": 0,
+        "popularityRank": 24030,
+        "nsfw": false,
+        "tba": null
+      }
+    },
+    {
+      "id": "50999",
+      "type": "anime",
+      "links": {
+        "self": "https://kitsu.app/api/edge/anime/50999"
+      },
+      "attributes": {
+        "slug": "meitantei-conan-30-gou-satsujin-jiken",
+        "canonicalTitle": "Meitantei Conan: 30-gou Satsujin Jiken",
+        "titles": {
+          "en": "Detective Conan: The Counterfeit Case of Ultra 30",
+          "en_jp": "Meitantei Conan: 30-gou Satsujin Jiken",
+          "ja_jp": "名探偵コナン 30号殺人事件"
+        },
+        "startDate": "2026-09-25",
+        "endDate": "2026-09-25",
+        "status": "upcoming",
+        "subtype": "movie",
+        "episodeCount": 1,
+        "userCount": 0,
+        "favoritesCount": 0,
+        "popularityRank": 24029,
+        "nsfw": false,
+        "tba": null
+      }
+    },
+    {
+      "id": "50656",
+      "type": "anime",
+      "links": {
+        "self": "https://kitsu.app/api/edge/anime/50656"
+      },
+      "attributes": {
+        "slug": "lego-one-piece",
+        "canonicalTitle": "LEGO ONE PIECE",
+        "titles": {
+          "en": "LEGO ONE PIECE"
+        },
+        "startDate": "2026-09-29",
+        "endDate": "2026-09-29",
+        "status": "upcoming",
+        "subtype": "ONA",
+        "episodeCount": 2,
+        "userCount": 18,
+        "favoritesCount": 0,
+        "popularityRank": 21725,
+        "nsfw": false,
+        "tba": null
+      }
+    },
+    {
+      "id": "50987",
+      "type": "anime",
+      "links": {
+        "self": "https://kitsu.app/api/edge/anime/50987"
+      },
+      "attributes": {
+        "slug": "fx-fighter-kurumi-chan",
+        "canonicalTitle": "FX Fighter Kurumi-chan",
+        "titles": {
+          "en_jp": "FX Fighter Kurumi-chan",
+          "ja_jp": "FX戦士くるみちゃん"
+        },
+        "startDate": "2026-10-01",
+        "endDate": null,
+        "status": "upcoming",
+        "subtype": "TV",
+        "episodeCount": null,
+        "userCount": 0,
+        "favoritesCount": 0,
+        "popularityRank": 24028,
+        "nsfw": false,
+        "tba": null
+      }
+    },
+    {
+      "id": "50983",
+      "type": "anime",
+      "links": {
+        "self": "https://kitsu.app/api/edge/anime/50983"
+      },
+      "attributes": {
+        "slug": "chocotto-yabacity",
+        "canonicalTitle": "Chocotto Yabacity",
+        "titles": {
+          "en_jp": "Chocotto Yabacity",
+          "ja_jp": "ちょこっとヤバシティ"
+        },
+        "startDate": "2026-10-01",
+        "endDate": null,
+        "status": "upcoming",
+        "subtype": "ONA",
+        "episodeCount": null,
+        "userCount": 0,
+        "favoritesCount": 0,
+        "popularityRank": 24016,
+        "nsfw": false,
+        "tba": null
+      }
+    },
+    {
+      "id": "50827",
+      "type": "anime",
+      "links": {
+        "self": "https://kitsu.app/api/edge/anime/50827"
+      },
+      "attributes": {
+        "slug": "koori-no-jouheki-2nd-season",
+        "canonicalTitle": "Koori no Jouheki 2nd Season",
+        "titles": {
+          "en": "The Ramparts of Ice Season 2",
+          "en_jp": "Koori no Jouheki 2nd Season",
+          "ja_jp": "氷の城壁 第2期"
+        },
+        "startDate": "2026-10-01",
+        "endDate": null,
+        "status": "upcoming",
+        "subtype": "TV",
+        "episodeCount": null,
+        "userCount": 136,
+        "favoritesCount": 0,
+        "popularityRank": 13598,
+        "nsfw": false,
+        "tba": null
+      }
+    },
+    {
+      "id": "50715",
+      "type": "anime",
+      "links": {
+        "self": "https://kitsu.app/api/edge/anime/50715"
+      },
+      "attributes": {
+        "slug": "kizu-darake-seijo-yori-houfuku-wo-komete-season2",
+        "canonicalTitle": "Kizu darake Seijo yori Houfuku wo Komete Season2",
+        "titles": {
+          "en_jp": "Kizu darake Seijo yori Houfuku wo Komete Season2",
+          "ja_jp": "傷だらけ聖女より報復をこめて Season2"
+        },
+        "startDate": "2026-10-02",
+        "endDate": null,
+        "status": "upcoming",
+        "subtype": "TV",
+        "episodeCount": null,
+        "userCount": 26,
+        "favoritesCount": 0,
+        "popularityRank": 20804,
+        "nsfw": false,
+        "tba": null
+      }
+    },
+    {
+      "id": "50743",
+      "type": "anime",
+      "links": {
+        "self": "https://kitsu.app/api/edge/anime/50743"
+      },
+      "attributes": {
+        "slug": "temppal-item-no-chikara",
+        "canonicalTitle": "Temppal: Item no Chikara",
+        "titles": {
+          "en_jp": "Temppal: Item no Chikara",
+          "ja_jp": "テムパル～アイテムの力～"
+        },
+        "startDate": "2026-10-02",
+        "endDate": null,
+        "status": "upcoming",
+        "subtype": "TV",
+        "episodeCount": null,
+        "userCount": 65,
+        "favoritesCount": 0,
+        "popularityRank": 17005,
+        "nsfw": false,
+        "tba": "fall 2026"
+      }
+    },
+    {
+      "id": "48960",
+      "type": "anime",
+      "links": {
+        "self": "https://kitsu.app/api/edge/anime/48960"
+      },
+      "attributes": {
+        "slug": "Tokyo-Revengers-Zokuhen",
+        "canonicalTitle": "Tokyo Revengers: Santen Sensou-hen",
+        "titles": {
+          "en": "Tokyo Revengers: The Three Deities",
+          "en_jp": "Tokyo Revengers: Santen Sensou-hen",
+          "ja_jp": "東京リベンジャーズ 三天戦争編"
+        },
+        "startDate": "2026-10-02",
+        "endDate": null,
+        "status": "upcoming",
+        "subtype": "TV",
+        "episodeCount": null,
+        "userCount": 630,
+        "favoritesCount": 1,
+        "popularityRank": 8059,
+        "nsfw": false,
+        "tba": null
+      }
+    },
+    {
+      "id": "50021",
+      "type": "anime",
+      "links": {
+        "self": "https://kitsu.app/api/edge/anime/50021"
+      },
+      "attributes": {
+        "slug": "Kusuriya-no-Hitorigoto-3rd-season",
+        "canonicalTitle": "Kusuriya no Hitorigoto 3rd Season",
+        "titles": {
+          "en": "The Apothecary Diaries Season 3",
+          "en_jp": "Kusuriya no Hitorigoto 3rd Season",
+          "ja_jp": "薬屋のひとりごと 第3期"
+        },
+        "startDate": "2026-10-02",
+        "endDate": null,
+        "status": "upcoming",
+        "subtype": "TV",
+        "episodeCount": null,
+        "userCount": 782,
+        "favoritesCount": 3,
+        "popularityRank": 7353,
+        "nsfw": false,
+        "tba": null
+      }
+    },
+    {
+      "id": "51001",
+      "type": "anime",
+      "links": {
+        "self": "https://kitsu.app/api/edge/anime/51001"
+      },
+      "attributes": {
+        "slug": "nezumi-kun-no-chokki-tv-2nd-season",
+        "canonicalTitle": "Nezumi-kun no Chokki (TV) 2nd Season",
+        "titles": {
+          "en": "Little Mouse's Red Vest 2",
+          "en_jp": "Nezumi-kun no Chokki (TV) 2nd Season",
+          "ja_jp": "ねずみくんのチョッキ (TV) 第2期"
+        },
+        "startDate": "2026-10-03",
+        "endDate": null,
+        "status": "upcoming",
+        "subtype": "TV",
+        "episodeCount": null,
+        "userCount": 0,
+        "favoritesCount": 0,
+        "popularityRank": 24031,
+        "nsfw": false,
+        "tba": null
+      }
+    },
+    {
+      "id": "50992",
+      "type": "anime",
+      "links": {
+        "self": "https://kitsu.app/api/edge/anime/50992"
+      },
+      "attributes": {
+        "slug": "keroro-gunsou-tv",
+        "canonicalTitle": "Keroro Gunsou☆",
+        "titles": {
+          "en": "Sgt. Frog☆",
+          "en_jp": "Keroro Gunsou☆",
+          "ja_jp": "ケロロ軍曹☆"
+        },
+        "startDate": "2026-10-03",
+        "endDate": null,
+        "status": "upcoming",
+        "subtype": "TV",
+        "episodeCount": null,
+        "userCount": 0,
+        "favoritesCount": 0,
+        "popularityRank": 24022,
+        "nsfw": false,
+        "tba": null
+      }
+    },
+    {
+      "id": "47985",
+      "type": "anime",
+      "links": {
+        "self": "https://kitsu.app/api/edge/anime/47985"
+      },
+      "attributes": {
+        "slug": "magical-explorer-eroge-no-yuujin-chara-ni-tensei-shitakedo-game-chishiki-tsukatte-jiyuu-ni-ikiru",
+        "canonicalTitle": "Magical★Explorer: Eroge no Yuujin Chara ni Tensei Shitakedo, Game Chishiki Tsukatte Jiyuu ni Ikiru",
+        "titles": {
+          "en_jp": "Magical★Explorer: Eroge no Yuujin Chara ni Tensei Shitakedo, Game Chishiki Tsukatte Jiyuu ni Ikiru",
+          "ja_jp": "マジカル★エクスプローラー　エロゲの友人キャラに転生したけど、ゲーム知識使って自由に生きる"
+        },
+        "startDate": "2026-10-03",
+        "endDate": null,
+        "status": "upcoming",
+        "subtype": "TV",
+        "episodeCount": null,
+        "userCount": 85,
+        "favoritesCount": 0,
+        "popularityRank": 15610,
+        "nsfw": false,
+        "tba": null
+      }
+    },
+    {
+      "id": "50626",
+      "type": "anime",
+      "links": {
+        "self": "https://kitsu.app/api/edge/anime/50626"
+      },
+      "attributes": {
+        "slug": "Ranma-12-2024-3",
+        "canonicalTitle": "Ranma 1/2 (2024) 3",
+        "titles": {
+          "en": "Ranma1/2 (2024) Season 3",
+          "en_jp": "Ranma 1/2 (2024) 3",
+          "ja_jp": "らんま1/2 第3期"
+        },
+        "startDate": "2026-10-03",
+        "endDate": null,
+        "status": "upcoming",
+        "subtype": "TV",
+        "episodeCount": null,
+        "userCount": 114,
+        "favoritesCount": 0,
+        "popularityRank": 14338,
+        "nsfw": false,
+        "tba": null
+      }
+    },
+    {
+      "id": "50024",
+      "type": "anime",
+      "links": {
+        "self": "https://kitsu.app/api/edge/anime/50024"
+      },
+      "attributes": {
+        "slug": "Black-Clover-Season-2",
+        "canonicalTitle": "Black Clover 2nd Season",
+        "titles": {
+          "en": "Black Clover Season 2",
+          "en_jp": "Black Clover 2nd Season",
+          "ja_jp": "ブラッククローバー 第2期"
+        },
+        "startDate": "2026-10-03",
+        "endDate": null,
+        "status": "upcoming",
+        "subtype": "TV",
+        "episodeCount": null,
+        "userCount": 568,
+        "favoritesCount": 2,
+        "popularityRank": 8440,
+        "nsfw": false,
+        "tba": null
+      }
+    },
+    {
+      "id": "50996",
+      "type": "anime",
+      "links": {
+        "self": "https://kitsu.app/api/edge/anime/50996"
+      },
+      "attributes": {
+        "slug": "mahou-no-shimai-luluttolilly-part-2",
+        "canonicalTitle": "Mahou no Shimai LuluttoLilly Part 2",
+        "titles": {
+          "en_jp": "Mahou no Shimai LuluttoLilly Part 2",
+          "ja_jp": "魔法の姉妹ルルットリリィ 第2クール"
+        },
+        "startDate": "2026-10-04",
+        "endDate": null,
+        "status": "upcoming",
+        "subtype": "TV",
+        "episodeCount": null,
+        "userCount": 0,
+        "favoritesCount": 0,
+        "popularityRank": 24023,
+        "nsfw": false,
+        "tba": null
+      }
+    },
+    {
+      "id": "50993",
+      "type": "anime",
+      "links": {
+        "self": "https://kitsu.app/api/edge/anime/50993"
+      },
+      "attributes": {
+        "slug": "kashita-maryoku-wa-revo-barai-de-kyousei-choushuu",
+        "canonicalTitle": "Kashita Maryoku wa [Revo Barai] de Kyousei Choushuu",
+        "titles": {
+          "en_jp": "Kashita Maryoku wa [Revo Barai] de Kyousei Choushuu",
+          "ja_jp": "貸した魔力は【リボ払い】で強制徴収"
+        },
+        "startDate": "2026-10-04",
+        "endDate": null,
+        "status": "upcoming",
+        "subtype": "TV",
+        "episodeCount": null,
+        "userCount": 1,
+        "favoritesCount": 0,
+        "popularityRank": 24009,
+        "nsfw": false,
+        "tba": null
+      }
+    },
+    {
+      "id": "50640",
+      "type": "anime",
+      "links": {
+        "self": "https://kitsu.app/api/edge/anime/50640"
+      },
+      "attributes": {
+        "slug": "sensha-isu-tank-chair",
+        "canonicalTitle": "Sensha Isu: TANK CHAIR",
+        "titles": {
+          "en_jp": "Sensha Isu: TANK CHAIR",
+          "ja_jp": "戦車椅子-TANK CHAIR-"
+        },
+        "startDate": "2026-10-04",
+        "endDate": null,
+        "status": "upcoming",
+        "subtype": "TV",
+        "episodeCount": null,
+        "userCount": 36,
+        "favoritesCount": 0,
+        "popularityRank": 19711,
+        "nsfw": false,
+        "tba": null
+      }
+    },
+    {
+      "id": "50740",
+      "type": "anime",
+      "links": {
+        "self": "https://kitsu.app/api/edge/anime/50740"
+      },
+      "attributes": {
+        "slug": "hitozukiai-ga-nigate-na-miboujin-no-yukionna-san-to-noroi-no-yubiwa",
+        "canonicalTitle": "Hitozukiai ga Nigate na Miboujin no Yukionna-san to Noroi no Yubiwa",
+        "titles": {
+          "en": "The Shy Snow Woman and the Cursed Ring",
+          "en_jp": "Hitozukiai ga Nigate na Miboujin no Yukionna-san to Noroi no Yubiwa",
+          "ja_jp": "人付き合いが苦手な未亡人の雪女さんと呪いの指輪"
+        },
+        "startDate": "2026-10-04",
+        "endDate": null,
+        "status": "upcoming",
+        "subtype": "TV",
+        "episodeCount": null,
+        "userCount": 30,
+        "favoritesCount": 0,
+        "popularityRank": 20460,
+        "nsfw": false,
+        "tba": null
+      }
+    }
+  ],
+  "meta": {
+    "count": 63
+  },
+  "links": {
+    "first": "https://kitsu.app/api/edge/anime?fields%5Banime%5D=slug%2CcanonicalTitle%2Ctitles%2CstartDate%2CendDate%2Cstatus%2Csubtype%2CepisodeCount%2CuserCount%2CfavoritesCount%2CpopularityRank%2Cnsfw%2Ctba&filter%5Bstatus%5D=upcoming&page%5Blimit%5D=20&page%5Boffset%5D=0&sort=startDate%2Cid",
+    "next": "https://kitsu.app/api/edge/anime?fields%5Banime%5D=slug%2CcanonicalTitle%2Ctitles%2CstartDate%2CendDate%2Cstatus%2Csubtype%2CepisodeCount%2CuserCount%2CfavoritesCount%2CpopularityRank%2Cnsfw%2Ctba&filter%5Bstatus%5D=upcoming&page%5Blimit%5D=20&page%5Boffset%5D=20&sort=startDate%2Cid",
+    "last": "https://kitsu.app/api/edge/anime?fields%5Banime%5D=slug%2CcanonicalTitle%2Ctitles%2CstartDate%2CendDate%2Cstatus%2Csubtype%2CepisodeCount%2CuserCount%2CfavoritesCount%2CpopularityRank%2Cnsfw%2Ctba&filter%5Bstatus%5D=upcoming&page%5Blimit%5D=20&page%5Boffset%5D=43&sort=startDate%2Cid"
+  }
+}

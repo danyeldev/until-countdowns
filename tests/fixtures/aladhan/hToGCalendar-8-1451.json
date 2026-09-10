@@ -1,0 +1,141 @@
+{
+ "code": 200,
+ "status": "OK",
+ "data": [
+  {
+   "hijri": {
+    "date": "01-08-1451",
+    "format": "DD-MM-YYYY",
+    "day": "1",
+    "weekday": {
+     "en": "Al Juma'a"
+    },
+    "month": {
+     "number": 8,
+     "en": "Shaʿbān",
+     "days": 29
+    },
+    "year": "1451",
+    "holidays": [],
+    "adjustedHolidays": [],
+    "method": "HJCoSA"
+   },
+   "gregorian": {
+    "date": "07-12-2029",
+    "format": "DD-MM-YYYY",
+    "day": "07",
+    "weekday": {
+     "en": "Friday"
+    },
+    "month": {
+     "number": 12,
+     "en": "December"
+    },
+    "year": "2029",
+    "lunarSighting": false
+   }
+  },
+  {
+   "hijri": {
+    "date": "02-08-1451",
+    "format": "DD-MM-YYYY",
+    "day": "2",
+    "weekday": {
+     "en": "Al Sabt"
+    },
+    "month": {
+     "number": 8,
+     "en": "Shaʿbān",
+     "days": 29
+    },
+    "year": "1451",
+    "holidays": [],
+    "adjustedHolidays": [],
+    "method": "HJCoSA"
+   },
+   "gregorian": {
+    "date": "08-12-2029",
+    "format": "DD-MM-YYYY",
+    "day": "08",
+    "weekday": {
+     "en": "Saturday"
+    },
+    "month": {
+     "number": 12,
+     "en": "December"
+    },
+    "year": "2029",
+    "lunarSighting": false
+   }
+  },
+  {
+   "hijri": {
+    "date": "15-08-1451",
+    "format": "DD-MM-YYYY",
+    "day": "15",
+    "weekday": {
+     "en": "Al Juma'a"
+    },
+    "month": {
+     "number": 8,
+     "en": "Shaʿbān",
+     "days": 29
+    },
+    "year": "1451",
+    "holidays": [
+     "Lailat-ul-Bara'at",
+     "Urs of Sayyidina Abu Yazid al-Bistami (ق)"
+    ],
+    "adjustedHolidays": [],
+    "method": "HJCoSA"
+   },
+   "gregorian": {
+    "date": "21-12-2029",
+    "format": "DD-MM-YYYY",
+    "day": "21",
+    "weekday": {
+     "en": "Friday"
+    },
+    "month": {
+     "number": 12,
+     "en": "December"
+    },
+    "year": "2029",
+    "lunarSighting": false
+   }
+  },
+  {
+   "hijri": {
+    "date": "29-08-1451",
+    "format": "DD-MM-YYYY",
+    "day": "29",
+    "weekday": {
+     "en": "Al Juma'a"
+    },
+    "month": {
+     "number": 8,
+     "en": "Shaʿbān",
+     "days": 29
+    },
+    "year": "1451",
+    "holidays": [],
+    "adjustedHolidays": [],
+    "method": "HJCoSA"
+   },
+   "gregorian": {
+    "date": "04-01-2030",
+    "format": "DD-MM-YYYY",
+    "day": "04",
+    "weekday": {
+     "en": "Friday"
+    },
+    "month": {
+     "number": 1,
+     "en": "January"
+    },
+    "year": "2030",
+    "lunarSighting": false
+   }
+  }
+ ]
+}

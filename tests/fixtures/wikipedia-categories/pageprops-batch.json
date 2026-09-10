@@ -1,0 +1,129 @@
+{
+ "batchcomplete": true,
+ "query": {
+  "pages": [
+   {
+    "pageid": 12695048,
+    "ns": 0,
+    "title": "2028 Summer Olympics",
+    "pageprops": {
+     "wikibase_item": "Q1451505"
+    },
+    "original": {
+     "source": "https://upload.wikimedia.org/wikipedia/commons/e/e8/2028_Summer_Olympics_Logo.svg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=original",
+     "width": 154,
+     "height": 246
+    },
+    "pageimage": "2028_Summer_Olympics_Logo.svg"
+   },
+   {
+    "pageid": 51790406,
+    "ns": 0,
+    "title": "2026 Asian Games",
+    "pageprops": {
+     "wikibase_item": "Q27016751"
+    },
+    "original": {
+     "source": "https://upload.wikimedia.org/wikipedia/en/4/4d/2026_Asian_Games_logo.svg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=original",
+     "width": 193,
+     "height": 256
+    },
+    "pageimage": "2026_Asian_Games_logo.svg"
+   },
+   {
+    "pageid": 55906814,
+    "ns": 0,
+    "title": "2032 Summer Olympics",
+    "pageprops": {
+     "wikibase_item": "Q31039462"
+    }
+   },
+   {
+    "pageid": 57615977,
+    "ns": 0,
+    "title": "2027 Rugby World Cup",
+    "pageprops": {
+     "wikibase_item": "Q55602686"
+    }
+   },
+   {
+    "pageid": 57658858,
+    "ns": 0,
+    "title": "2030 Winter Olympics",
+    "pageprops": {
+     "wikibase_item": "Q29389034"
+    },
+    "original": {
+     "source": "https://upload.wikimedia.org/wikipedia/commons/b/bc/2030_Winter_Olympics_logo_%28English%29.svg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=original",
+     "width": 305,
+     "height": 367
+    },
+    "pageimage": "2030_Winter_Olympics_logo_(English).svg"
+   },
+   {
+    "pageid": 59735804,
+    "ns": 0,
+    "title": "2027 Pan American Games",
+    "pageprops": {
+     "wikibase_item": "Q29545388"
+    },
+    "original": {
+     "source": "https://upload.wikimedia.org/wikipedia/commons/9/9b/Lima_2027_games_logotype.svg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=original",
+     "width": 4981,
+     "height": 2643
+    },
+    "pageimage": "Lima_2027_games_logotype.svg"
+   },
+   {
+    "pageid": 63724811,
+    "ns": 0,
+    "title": "Bids for the 2036 Summer Olympics",
+    "pageprops": {
+     "wikibase_item": "Q123501726"
+    },
+    "original": {
+     "source": "https://upload.wikimedia.org/wikipedia/commons/5/5c/Olympic_rings_without_rims.svg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=original",
+     "width": 342,
+     "height": 158
+    },
+    "pageimage": "Olympic_rings_without_rims.svg"
+   },
+   {
+    "pageid": 64557687,
+    "ns": 0,
+    "title": "2026 Summer Youth Olympics",
+    "pageprops": {
+     "wikibase_item": "Q97622525"
+    },
+    "original": {
+     "source": "https://upload.wikimedia.org/wikipedia/commons/2/24/Dakar_2026_Summer_Youth_Olympic_Games.svg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=original",
+     "width": 270,
+     "height": 370
+    },
+    "pageimage": "Dakar_2026_Summer_Youth_Olympic_Games.svg"
+   },
+   {
+    "pageid": 73463336,
+    "ns": 0,
+    "title": "2026 Asian Para Games",
+    "pageprops": {
+     "wikibase_item": "Q61091458"
+    },
+    "original": {
+     "source": "https://upload.wikimedia.org/wikipedia/commons/6/65/2026_Asian_Para_Games_logo.svg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=original",
+     "width": 231,
+     "height": 300
+    },
+    "pageimage": "2026_Asian_Para_Games_logo.svg"
+   },
+   {
+    "pageid": 83046654,
+    "ns": 0,
+    "title": "2029 World Games",
+    "pageprops": {
+     "wikibase_item": "Q139569350"
+    }
+   }
+  ]
+ }
+}

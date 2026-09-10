@@ -1,0 +1,731 @@
+{
+  "created": "2026-09-09T12:00:00.000Z",
+  "count": 23,
+  "offset": 0,
+  "events": [
+    {
+      "id": "dce1fdaa-26b3-42d8-9ad1-1ede3e2ce3e7",
+      "type": "Festival",
+      "score": 100,
+      "name": "Brancaster Staithe Sea Shanty Festival",
+      "life-span": {
+        "begin": "2026-09-11",
+        "end": "2026-09-13"
+      },
+      "relations": [
+        {
+          "type": "held at",
+          "type-id": "e2c6f697-07dc-38b1-be0b-83d740165532",
+          "direction": "backward",
+          "place": {
+            "id": "22595a19-2796-4dc2-8b28-1963ca4a6b74",
+            "name": "Deepdale Camping & Rooms"
+          }
+        },
+        {
+          "type": "held at",
+          "type-id": "e2c6f697-07dc-38b1-be0b-83d740165532",
+          "direction": "backward",
+          "place": {
+            "id": "b73795bd-4520-4caa-a6e7-7b577c2f6e77",
+            "name": "The Jolly Sailors"
+          }
+        },
+        {
+          "type": "held at",
+          "type-id": "e2c6f697-07dc-38b1-be0b-83d740165532",
+          "direction": "backward",
+          "place": {
+            "id": "cfe1060c-b55e-4c22-af45-b31666af8466",
+            "name": "Burnham Deepdale"
+          }
+        }
+      ]
+    },
+    {
+      "id": "3456ee5c-4f99-4201-8874-fe3cb352de15",
+      "type": "Festival",
+      "score": 100,
+      "name": "Up in Smoke Festival 2026",
+      "life-span": {
+        "begin": "2026-10-02",
+        "end": "2026-10-04"
+      },
+      "relations": [
+        {
+          "type": "held at",
+          "type-id": "e2c6f697-07dc-38b1-be0b-83d740165532",
+          "direction": "backward",
+          "place": {
+            "id": "2bada9ac-d579-4c7b-86d2-b028bdd665da",
+            "name": "Z7"
+          }
+        }
+      ]
+    },
+    {
+      "id": "9ec29cfd-f8e7-4b75-a2e1-47e8221d2835",
+      "type": "Festival",
+      "score": 100,
+      "name": "Supervue Festival 2017, Day 1",
+      "life-span": {
+        "begin": "2027-07-28",
+        "end": "2027-07-28"
+      },
+      "time": "14:00:00",
+      "relations": [
+        {
+          "type": "held at",
+          "type-id": "e2c6f697-07dc-38b1-be0b-83d740165532",
+          "direction": "backward",
+          "place": {
+            "id": "a0c435b4-aa0d-403f-a0b4-97ab8f5dd035",
+            "name": "Terril du Piron"
+          }
+        }
+      ]
+    },
+    {
+      "id": "982f5f45-ab9d-43d8-91d7-04cb134f6012",
+      "type": "Festival",
+      "score": 100,
+      "name": "In the Key of Doom",
+      "life-span": {
+        "begin": "2026-10-02",
+        "end": "2026-10-03"
+      },
+      "relations": [
+        {
+          "type": "main performer",
+          "type-id": "936c7c95-3156-3889-a062-8a0cd57f8946",
+          "direction": "backward",
+          "artist": {
+            "id": "d8996f71-b0e5-4023-bbda-2bf0024b53c2",
+            "name": "Greenleaf",
+            "sort-name": "Greenleaf",
+            "disambiguation": "Swedish stoner rock band"
+          }
+        },
+        {
+          "type": "main performer",
+          "type-id": "936c7c95-3156-3889-a062-8a0cd57f8946",
+          "direction": "backward",
+          "artist": {
+            "id": "d723750d-db44-4667-ab57-52a54469310f",
+            "name": "Bongripper",
+            "sort-name": "Bongripper",
+            "disambiguation": "American stoner/sludge/doom metal band"
+          }
+        },
+        {
+          "type": "support act",
+          "type-id": "492a850e-97eb-306a-a85e-4b6d98527796",
+          "direction": "backward",
+          "artist": {
+            "id": "93fdf355-3df5-49a9-a63c-a9bce05ac5af",
+            "name": "Seismic",
+            "sort-name": "Seismic Doom",
+            "disambiguation": "Philadelphia Doom Band"
+          }
+        },
+        {
+          "type": "support act",
+          "type-id": "492a850e-97eb-306a-a85e-4b6d98527796",
+          "direction": "backward",
+          "artist": {
+            "id": "67c4f314-3683-471e-8cf1-8302d5200767",
+            "name": "Leather Lung",
+            "sort-name": "Leather Lung"
+          }
+        },
+        {
+          "type": "held at",
+          "type-id": "e2c6f697-07dc-38b1-be0b-83d740165532",
+          "direction": "backward",
+          "place": {
+            "id": "2ca23a2f-1488-4265-a812-ce12293e0e5c",
+            "name": "The Meadows"
+          }
+        }
+      ]
+    },
+    {
+      "id": "7e99bfc4-bef6-48ec-b633-66c8388faab9",
+      "type": "Festival",
+      "score": 100,
+      "name": "Rock in Rio 11, Day 5",
+      "life-span": {
+        "begin": "2026-09-11",
+        "end": "2026-09-11"
+      },
+      "relations": []
+    },
+    {
+      "id": "d821f1d0-0e24-4e91-b75f-390bf2efb375",
+      "type": "Festival",
+      "score": 100,
+      "name": "Rock in Rio 11, Day 6",
+      "life-span": {
+        "begin": "2026-09-12",
+        "end": "2026-09-12"
+      },
+      "relations": []
+    },
+    {
+      "id": "eaf95485-8f68-40e2-85ba-f74aa6a0d92a",
+      "type": "Festival",
+      "score": 100,
+      "name": "Rock in Rio 11, Day 7",
+      "life-span": {
+        "begin": "2026-09-13",
+        "end": "2026-09-13"
+      },
+      "relations": []
+    },
+    {
+      "id": "84c11a77-6d98-4f19-a592-48ae94ff0bd6",
+      "type": "Festival",
+      "score": 100,
+      "name": "Rock in Rio 11, Day 7: Highway Stage",
+      "life-span": {
+        "begin": "2026-09-13",
+        "end": "2026-09-13"
+      },
+      "relations": [
+        {
+          "type": "main performer",
+          "type-id": "936c7c95-3156-3889-a062-8a0cd57f8946",
+          "direction": "backward",
+          "artist": {
+            "id": "aefe50e1-235d-4630-b169-6a2632217d19",
+            "name": "Drenna",
+            "sort-name": "Drenna"
+          }
+        },
+        {
+          "type": "support act",
+          "type-id": "492a850e-97eb-306a-a85e-4b6d98527796",
+          "direction": "backward",
+          "artist": {
+            "id": "93e0be57-b6c8-4ae3-9951-18b4a7e5c33f",
+            "name": "Plutão Já Foi Planeta",
+            "sort-name": "Plutão Já Foi Planeta"
+          }
+        },
+        {
+          "type": "held at",
+          "type-id": "e2c6f697-07dc-38b1-be0b-83d740165532",
+          "direction": "backward",
+          "place": {
+            "id": "90ed5038-05be-41de-8264-505a051b1650",
+            "name": "Highway Stage"
+          }
+        }
+      ]
+    },
+    {
+      "id": "528b42ec-8d85-4e2a-ba55-1cafcb4406bc",
+      "type": "Festival",
+      "score": 100,
+      "name": "Rock in Rio 11, Day 6: Highway Stage",
+      "life-span": {
+        "begin": "2026-09-12",
+        "end": "2026-09-12"
+      },
+      "relations": [
+        {
+          "type": "main performer",
+          "type-id": "936c7c95-3156-3889-a062-8a0cd57f8946",
+          "direction": "backward",
+          "artist": {
+            "id": "93e0be57-b6c8-4ae3-9951-18b4a7e5c33f",
+            "name": "Plutão Já Foi Planeta",
+            "sort-name": "Plutão Já Foi Planeta"
+          }
+        },
+        {
+          "type": "held at",
+          "type-id": "e2c6f697-07dc-38b1-be0b-83d740165532",
+          "direction": "backward",
+          "place": {
+            "id": "90ed5038-05be-41de-8264-505a051b1650",
+            "name": "Highway Stage"
+          }
+        }
+      ]
+    },
+    {
+      "id": "8f394156-6dbb-49e7-8d1b-d59533597aa2",
+      "type": "Festival",
+      "score": 100,
+      "name": "Rock in Rio 11, Day 5: Highway Stage",
+      "life-span": {
+        "begin": "2026-09-11",
+        "end": "2026-09-11"
+      },
+      "relations": [
+        {
+          "type": "held at",
+          "type-id": "e2c6f697-07dc-38b1-be0b-83d740165532",
+          "direction": "backward",
+          "place": {
+            "id": "90ed5038-05be-41de-8264-505a051b1650",
+            "name": "Highway Stage"
+          }
+        }
+      ]
+    },
+    {
+      "id": "bb3f79a3-35ea-434f-a5fa-6f121405a8fe",
+      "type": "Festival",
+      "score": 100,
+      "name": "Nova Rock 2027",
+      "life-span": {
+        "begin": "2027-06-10",
+        "end": "2027-06-12"
+      },
+      "relations": [
+        {
+          "type": "main performer",
+          "type-id": "936c7c95-3156-3889-a062-8a0cd57f8946",
+          "direction": "backward",
+          "artist": {
+            "id": "1c5b9bd6-76e8-4fe7-a6df-3bc0b5a452cc",
+            "name": "Motionless in White",
+            "sort-name": "Motionless in White"
+          }
+        },
+        {
+          "type": "main performer",
+          "type-id": "936c7c95-3156-3889-a062-8a0cd57f8946",
+          "direction": "backward",
+          "artist": {
+            "id": "15f7af3e-6908-4998-9bf1-6a6ebd7bd84a",
+            "name": "The Butcher Sisters",
+            "sort-name": "Butcher Sisters, The"
+          }
+        },
+        {
+          "type": "main performer",
+          "type-id": "936c7c95-3156-3889-a062-8a0cd57f8946",
+          "direction": "backward",
+          "artist": {
+            "id": "f2fb0ff0-5679-42ec-a55c-15109ce6e320",
+            "name": "Die Ärzte",
+            "sort-name": "Ärzte, Die"
+          }
+        },
+        {
+          "type": "held at",
+          "type-id": "e2c6f697-07dc-38b1-be0b-83d740165532",
+          "direction": "backward",
+          "place": {
+            "id": "99b9d0d7-d670-42e0-8319-cb330bde8a98",
+            "name": "Pannonia Fields"
+          }
+        }
+      ]
+    },
+    {
+      "id": "03d56cae-8668-4ca1-a43d-ef918bc5d7a1",
+      "type": "Festival",
+      "score": 100,
+      "name": "Nova Rock 2027, Day 1",
+      "life-span": {
+        "begin": "2027-06-10",
+        "end": "2027-06-10"
+      },
+      "relations": []
+    },
+    {
+      "id": "fc93fb9d-14c0-4b43-91d4-832f40500180",
+      "type": "Festival",
+      "score": 100,
+      "name": "Nova Rock 2027, Day 2",
+      "life-span": {
+        "begin": "2027-06-11",
+        "end": "2027-06-11"
+      },
+      "relations": []
+    },
+    {
+      "id": "c09fd23b-3a58-44e4-9435-0cf42fdb3009",
+      "type": "Festival",
+      "score": 100,
+      "name": "Nova Rock 2027, Day 3",
+      "life-span": {
+        "begin": "2027-06-12",
+        "end": "2027-06-12"
+      },
+      "relations": []
+    },
+    {
+      "id": "86b9a90e-049f-4d07-b152-e670779851bd",
+      "type": "Festival",
+      "score": 100,
+      "name": "Tyrant Fest 2026, Day 2",
+      "life-span": {
+        "begin": "2026-10-25",
+        "end": "2026-10-25"
+      },
+      "relations": [
+        {
+          "type": "main performer",
+          "type-id": "936c7c95-3156-3889-a062-8a0cd57f8946",
+          "direction": "backward",
+          "artist": {
+            "id": "d8c80314-a4f6-4de1-b793-940a500f73e3",
+            "name": "Hippotraktor",
+            "sort-name": "Hippotraktor",
+            "disambiguation": "Belgian progressive metal band"
+          }
+        },
+        {
+          "type": "main performer",
+          "type-id": "936c7c95-3156-3889-a062-8a0cd57f8946",
+          "direction": "backward",
+          "artist": {
+            "id": "266a5f1d-e25d-4491-897f-7402c2aa28dc",
+            "name": "Abbath",
+            "sort-name": "Abbath",
+            "disambiguation": "Norwegian black metal band"
+          }
+        },
+        {
+          "type": "main performer",
+          "type-id": "936c7c95-3156-3889-a062-8a0cd57f8946",
+          "direction": "backward",
+          "artist": {
+            "id": "1efff932-5b23-4c92-9d0b-0105886bb0fb",
+            "name": "Unreqvited",
+            "sort-name": "Unreqvited",
+            "disambiguation": "Canadian post‐black metal/shoegaze/ambient"
+          }
+        },
+        {
+          "type": "main performer",
+          "type-id": "936c7c95-3156-3889-a062-8a0cd57f8946",
+          "direction": "backward",
+          "artist": {
+            "id": "4d591f86-cb45-4cc1-b04b-88d11bea2744",
+            "name": "Lifelover",
+            "sort-name": "Lifelover"
+          }
+        },
+        {
+          "type": "held at",
+          "type-id": "e2c6f697-07dc-38b1-be0b-83d740165532",
+          "direction": "backward",
+          "place": {
+            "id": "3512aa98-948a-4d54-b7a2-d3a2c44bc895",
+            "name": "L’Aéronef"
+          }
+        }
+      ]
+    },
+    {
+      "id": "1c5a1650-22ca-43ab-a56b-a0b0c6891c37",
+      "type": "Festival",
+      "score": 100,
+      "name": "Tyrant Fest 2026, Day 1",
+      "life-span": {
+        "begin": "2026-10-24",
+        "end": "2026-10-24"
+      },
+      "relations": [
+        {
+          "type": "main performer",
+          "type-id": "936c7c95-3156-3889-a062-8a0cd57f8946",
+          "direction": "backward",
+          "artist": {
+            "id": "d2ad8774-9173-4970-8427-06b04df201c1",
+            "name": "Venom",
+            "sort-name": "Venom",
+            "disambiguation": "British metal band"
+          }
+        },
+        {
+          "type": "main performer",
+          "type-id": "936c7c95-3156-3889-a062-8a0cd57f8946",
+          "direction": "backward",
+          "artist": {
+            "id": "afbf1174-5a04-4881-95d0-4dc38f69ca3c",
+            "name": "Stygian Bough",
+            "sort-name": "Stygian Bough"
+          }
+        },
+        {
+          "type": "main performer",
+          "type-id": "936c7c95-3156-3889-a062-8a0cd57f8946",
+          "direction": "backward",
+          "artist": {
+            "id": "3e19828c-5223-4441-a3a7-0f24b5d1843d",
+            "name": "Nornes",
+            "sort-name": "Nornes"
+          }
+        },
+        {
+          "type": "main performer",
+          "type-id": "936c7c95-3156-3889-a062-8a0cd57f8946",
+          "direction": "backward",
+          "artist": {
+            "id": "782e8fa6-3ac9-4a5a-a40b-08b106807e9c",
+            "name": "Maudits",
+            "sort-name": "Maudits"
+          }
+        },
+        {
+          "type": "held at",
+          "type-id": "e2c6f697-07dc-38b1-be0b-83d740165532",
+          "direction": "backward",
+          "place": {
+            "id": "3512aa98-948a-4d54-b7a2-d3a2c44bc895",
+            "name": "L’Aéronef"
+          }
+        }
+      ]
+    },
+    {
+      "id": "9679991a-8eed-4c54-8010-17b27d4ec983",
+      "type": "Festival",
+      "score": 100,
+      "name": "Tyrant Fest 2026",
+      "life-span": {
+        "begin": "2026-10-24",
+        "end": "2026-10-25"
+      },
+      "relations": [
+        {
+          "type": "held at",
+          "type-id": "e2c6f697-07dc-38b1-be0b-83d740165532",
+          "direction": "backward",
+          "place": {
+            "id": "3512aa98-948a-4d54-b7a2-d3a2c44bc895",
+            "name": "L’Aéronef"
+          }
+        }
+      ]
+    },
+    {
+      "id": "bbf52fae-0c92-430b-b8b1-52bb74dad1cf",
+      "type": "Festival",
+      "score": 100,
+      "name": "LOYG! Festival",
+      "life-span": {
+        "begin": "2026-09-12",
+        "end": "2026-09-12"
+      },
+      "relations": [
+        {
+          "type": "held in",
+          "type-id": "542f8484-8bc7-3ce5-a022-747850b2b928",
+          "direction": "backward",
+          "area": {
+            "id": "154ef74f-bcd3-4472-bfee-dd1dec672864",
+            "name": "Bochum"
+          }
+        },
+        {
+          "type": "held at",
+          "type-id": "e2c6f697-07dc-38b1-be0b-83d740165532",
+          "direction": "backward",
+          "place": {
+            "id": "6593ecff-670e-4338-9ccb-bc44cd36561a",
+            "name": "Bochumer Eventcenter (BEC)"
+          }
+        }
+      ]
+    },
+    {
+      "id": "39aa7c23-a621-4a07-86b0-7c12d692ac97",
+      "type": "Festival",
+      "score": 100,
+      "name": "Rockharz Open Air 2027",
+      "life-span": {
+        "begin": "2027-07-07",
+        "end": "2027-07-10"
+      },
+      "relations": [
+        {
+          "type": "main performer",
+          "type-id": "936c7c95-3156-3889-a062-8a0cd57f8946",
+          "direction": "backward",
+          "artist": {
+            "id": "250ace3f-af5a-4d1c-b161-79ccd0a78d8a",
+            "name": "TURBOBIER",
+            "sort-name": "TURBOBIER"
+          }
+        },
+        {
+          "type": "main performer",
+          "type-id": "936c7c95-3156-3889-a062-8a0cd57f8946",
+          "direction": "backward",
+          "artist": {
+            "id": "619ce797-ddb3-4411-9e42-30eafe2ca5ec",
+            "name": "Tankard",
+            "sort-name": "Tankard"
+          }
+        },
+        {
+          "type": "main performer",
+          "type-id": "936c7c95-3156-3889-a062-8a0cd57f8946",
+          "direction": "backward",
+          "artist": {
+            "id": "8c58feff-24f4-4d32-8559-228b013bc980",
+            "name": "Storm Seeker",
+            "sort-name": "Storm Seeker",
+            "disambiguation": "German pirate folk metal band"
+          }
+        },
+        {
+          "type": "main performer",
+          "type-id": "936c7c95-3156-3889-a062-8a0cd57f8946",
+          "direction": "backward",
+          "artist": {
+            "id": "3e3cb5c6-d3cd-499e-b475-b55b46279b9c",
+            "name": "Skald",
+            "sort-name": "Skald",
+            "disambiguation": "Swedish Folk Metal"
+          }
+        },
+        {
+          "type": "held at",
+          "type-id": "e2c6f697-07dc-38b1-be0b-83d740165532",
+          "direction": "backward",
+          "place": {
+            "id": "ae184b49-342c-44ca-9881-a18b23e71a62",
+            "name": "Rockharz Open Air Festival Grounds"
+          }
+        }
+      ]
+    },
+    {
+      "id": "2ee0f0fb-9103-4128-ac28-5ef5f7e71499",
+      "type": "Festival",
+      "score": 100,
+      "name": "Gilmore Piano Festival 2026",
+      "life-span": {
+        "begin": "2026",
+        "end": "2026"
+      },
+      "relations": []
+    },
+    {
+      "id": "495b809d-53ed-4a0c-b18b-f0b1878b02d2",
+      "type": "Festival",
+      "score": 100,
+      "name": "Audiofeed Music Festival 2026",
+      "life-span": {
+        "begin": "2026",
+        "end": "2026"
+      },
+      "relations": [
+        {
+          "type": "main performer",
+          "type-id": "936c7c95-3156-3889-a062-8a0cd57f8946",
+          "direction": "backward",
+          "artist": {
+            "id": "9cc9213b-1bfd-49e8-a60b-79b0ac995ded",
+            "name": "The Daytime Rivalry",
+            "sort-name": "Daytime Rivalry, The"
+          }
+        }
+      ]
+    },
+    {
+      "id": "8a978599-0bbc-49e1-8040-7b103d756022",
+      "type": "Festival",
+      "score": 100,
+      "name": "FORCE Festival 2026",
+      "life-span": {
+        "begin": "2026-10-24",
+        "end": "2026-10-24"
+      },
+      "relations": []
+    },
+    {
+      "id": "262b0e10-1199-4823-80c3-784dbda52b3f",
+      "type": "Festival",
+      "score": 100,
+      "name": "Flyover Fest 2026 Day 1",
+      "life-span": {
+        "begin": "2026-11-07",
+        "end": "2026-11-07"
+      },
+      "relations": [
+        {
+          "type": "main performer",
+          "type-id": "936c7c95-3156-3889-a062-8a0cd57f8946",
+          "direction": "backward",
+          "artist": {
+            "id": "81042f2e-2f8f-49fd-9afc-d2b07da3f3af",
+            "name": "Skinhead",
+            "sort-name": "Skinhead",
+            "disambiguation": "American hardcore punk band"
+          }
+        },
+        {
+          "type": "main performer",
+          "type-id": "936c7c95-3156-3889-a062-8a0cd57f8946",
+          "direction": "backward",
+          "artist": {
+            "id": "d8568c99-6232-45d3-8e7c-38b9dfd0f66c",
+            "name": "Human Garbage",
+            "sort-name": "Human Garbage",
+            "disambiguation": "San Fernando Valley"
+          }
+        },
+        {
+          "type": "main performer",
+          "type-id": "936c7c95-3156-3889-a062-8a0cd57f8946",
+          "direction": "backward",
+          "artist": {
+            "id": "e519e012-e1a3-4592-b3f6-5a16227ab654",
+            "name": "Have Heart",
+            "sort-name": "Have Heart"
+          }
+        },
+        {
+          "type": "main performer",
+          "type-id": "936c7c95-3156-3889-a062-8a0cd57f8946",
+          "direction": "backward",
+          "artist": {
+            "id": "32d2897c-4c91-46db-8161-f51d3f4f0d93",
+            "name": "Drug Church",
+            "sort-name": "Drug Church"
+          }
+        },
+        {
+          "type": "support act",
+          "type-id": "492a850e-97eb-306a-a85e-4b6d98527796",
+          "direction": "backward",
+          "artist": {
+            "id": "392d1779-ae62-4a58-84df-f9d17d934eee",
+            "name": "World I Hate",
+            "sort-name": "World I Hate"
+          }
+        },
+        {
+          "type": "support act",
+          "type-id": "492a850e-97eb-306a-a85e-4b6d98527796",
+          "direction": "backward",
+          "artist": {
+            "id": "9c487727-1393-4537-ba1c-9aaad0838e29",
+            "name": "Squelching",
+            "sort-name": "Squelching",
+            "disambiguation": "Deathcore band from Tulsa, OK"
+          }
+        },
+        {
+          "type": "held at",
+          "type-id": "e2c6f697-07dc-38b1-be0b-83d740165532",
+          "direction": "backward",
+          "place": {
+            "id": "76d571a4-e41a-4717-8028-a8e6107adf88",
+            "name": "OKC Farmer's Market"
+          }
+        }
+      ]
+    }
+  ]
+}

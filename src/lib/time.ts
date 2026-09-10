@@ -1,3 +1,5 @@
+import type { DatePrecision } from "./types";
+
 export type Remaining = {
   totalMs: number;
   past: boolean;
@@ -101,11 +103,21 @@ export function googleDates(date: string, endDate: string | undefined, allDay: b
   return `${icsDate(new Date(startMs).toISOString(), false)}/${icsDate(new Date(endMs).toISOString(), false)}`;
 }
 
-function shiftDay(isoDate: string, days: number): string {
+/** `YYYY-MM-DD` plus/minus whole days (UTC arithmetic on the date part only). */
+export function shiftDay(isoDate: string, days: number): string {
   const d = new Date(`${isoDate.slice(0, 10)}T00:00:00Z`);
   if (Number.isNaN(d.getTime())) return isoDate.slice(0, 10) || "1970-01-01";
   d.setUTCDate(d.getUTCDate() + days);
   return d.toISOString().slice(0, 10);
+}
+
+/** Local calendar date (`YYYY-MM-DD`) of an epoch-ms instant, in the runtime's timezone. Client-side use. */
+export function localDateString(ms: number): string {
+  const d = new Date(ms);
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${y}-${m}-${day}`;
 }
 
 export function humanRemaining(r: Remaining): string {
@@ -121,4 +133,59 @@ export function humanRemaining(r: Remaining): string {
   if (r.days < 60) return `in ${Math.round(r.days / 7)} weeks`;
   if (r.days < 400) return `in ${Math.round(r.days / 30)} months`;
   return `in ${Math.round(r.days / 365)} years`;
+}
+
+/** "today", "tomorrow", "in 3 days", "in 2 weeks", "5 days ago" — from a SQL-computed whole-day delta. */
+export function humanDays(days?: number | null): string {
+  if (days === null || days === undefined || !Number.isFinite(days)) return "";
+  const d = Math.trunc(days);
+  if (d === 0) return "today";
+  if (d === 1) return "tomorrow";
+  if (d === -1) return "yesterday";
+  const abs = Math.abs(d);
+  let n: number;
+  let unit: string;
+  if (abs < 14) {
+    n = abs;
+    unit = "day";
+  } else if (abs < 60) {
+    n = Math.round(abs / 7);
+    unit = "week";
+  } else if (abs < 400) {
+    n = Math.round(abs / 30);
+    unit = "month";
+  } else {
+    n = Math.round(abs / 365);
+    unit = "year";
+  }
+  const label = `${n} ${unit}${n === 1 ? "" : "s"}`;
+  return d < 0 ? `${label} ago` : `in ${label}`;
+}
+
+const MONTHS = [
+  "January", "February", "March", "April", "May", "June",
+  "July", "August", "September", "October", "November", "December",
+];
+
+/** Whether a precision is coarser than a calendar day (no ticking clock should be shown). */
+export function isCoarsePrecision(precision?: DatePrecision | null): boolean {
+  return precision === "month" || precision === "quarter" || precision === "year" || precision === "decade";
+}
+
+/** "expected June 2027" (month), "expected Q3 2027" (quarter), "expected 2027" (year / decade). */
+export function formatApproximate(date: string, precision?: DatePrecision | null): string {
+  if (!isValidDate(date)) return "date to be announced";
+  const year = Number(date.slice(0, 4));
+  const month = Number(date.slice(5, 7)) || 1;
+  switch (precision) {
+    case "month":
+      return `expected ${MONTHS[Math.min(11, Math.max(0, month - 1))]} ${year}`;
+    case "quarter":
+      return `expected Q${Math.min(4, Math.max(1, Math.ceil(month / 3)))} ${year}`;
+    case "year":
+    case "decade":
+      return `expected ${year}`;
+    default:
+      return formatWhen(date);
+  }
 }

@@ -1,0 +1,468 @@
+{
+  "page": 1,
+  "totalAmount": 88,
+  "anime": [
+    {
+      "id": "CvsP",
+      "title": "Tensei shitara Ken deshita 2",
+      "route": "tensei-shitara-ken-deshita-2",
+      "premier": "2026-09-30T00:00:00Z",
+      "subPremier": "0001-01-01T00:00:00Z",
+      "dubPremier": "0001-01-01T00:00:00Z",
+      "year": 2026,
+      "season": {
+        "title": "Fall 2026",
+        "year": "2026",
+        "season": "Fall",
+        "route": "fall-2026"
+      },
+      "delayedFrom": "0001-01-01T00:00:00Z",
+      "delayedUntil": "0001-01-01T00:00:00Z",
+      "genres": [
+        {
+          "name": "Action",
+          "route": "action"
+        },
+        {
+          "name": "Adventure",
+          "route": "adventure"
+        },
+        {
+          "name": "Fantasy",
+          "route": "fantasy"
+        },
+        {
+          "name": "Isekai",
+          "route": "isekai"
+        },
+        {
+          "name": "Magic",
+          "route": "magic"
+        }
+      ],
+      "studios": [
+        {
+          "name": "C2C",
+          "route": "c2c"
+        }
+      ],
+      "sources": [
+        {
+          "name": "Light Novel",
+          "route": "light-novel"
+        }
+      ],
+      "mediaTypes": [
+        {
+          "name": "TV",
+          "route": "tv"
+        }
+      ],
+      "status": "Upcoming",
+      "updatedAt": "2026-09-09T16:02:15.158Z",
+      "imageVersionRoute": "anime/jpg/default/tensei-shitara-ken-deshita-2-511166102c8acc358c56754bd39fa34e.jpg",
+      "names": {
+        "romaji": "Tensei Shitara Ken Deshita 2",
+        "english": "Reincarnated as a Sword 2",
+        "native": "転生したら剣でした2",
+        "abbreviation": "TenKen 2",
+        "synonyms": [
+          "Reincarnated as a Sword II",
+          "Tensei Shitara Ken Deshita Season 2",
+          "Reincarnated as a Sword Season 2",
+          "I Became the Sword by Transmigrating 2"
+        ]
+      },
+      "websites": {
+        "official": "tenken-anime.com/",
+        "mal": "myanimelist.net/anime/53913/Tensei_shitara_Ken_deshita_2",
+        "aniList": "anilist.co/anime/159042/Tensei-Shitara-Ken-Deshita-2nd-Season/",
+        "kitsu": "kitsu.app/anime/tensei-shitara-ken-deshita-2nd-season",
+        "animePlanet": "www.anime-planet.com/anime/reincarnated-as-a-sword-2nd-season",
+        "anidb": "anidb.net/anime/17789"
+      },
+      "description": "",
+      "stats": {
+        "trackedCount": 1391
+      }
+    },
+    {
+      "id": "BXez",
+      "title": "Kusuriya no Hitorigoto 3rd Season",
+      "route": "kusuriya-no-hitorigoto-zoku-hen",
+      "premier": "2026-10-02T00:00:00Z",
+      "subPremier": "0001-01-01T00:00:00Z",
+      "dubPremier": "0001-01-01T00:00:00Z",
+      "year": 2026,
+      "season": {
+        "title": "Fall 2026",
+        "year": "2026",
+        "season": "Fall",
+        "route": "fall-2026"
+      },
+      "delayedFrom": "0001-01-01T00:00:00Z",
+      "delayedUntil": "0001-01-01T00:00:00Z",
+      "genres": [
+        {
+          "name": "Drama",
+          "route": "drama"
+        },
+        {
+          "name": "Historical",
+          "route": "historical"
+        },
+        {
+          "name": "Mystery",
+          "route": "mystery"
+        }
+      ],
+      "studios": [
+        {
+          "name": "OLM",
+          "route": "olm"
+        }
+      ],
+      "sources": [
+        {
+          "name": "Light Novel",
+          "route": "light-novel"
+        }
+      ],
+      "mediaTypes": [
+        {
+          "name": "TV",
+          "route": "tv"
+        }
+      ],
+      "status": "Upcoming",
+      "updatedAt": "2026-09-09T16:02:13.282Z",
+      "imageVersionRoute": "anime/jpg/default/kusuriya-no-hitorigoto-zoku-hen-caf2bb3a7f2134aeda0fedbfe3ac7cd4.jpg",
+      "names": {
+        "romaji": "Kusuriya no Hitorigoto 3rd Season",
+        "english": "The Apothecary Diaries 3rd Season",
+        "native": "薬屋のひとりごと 第3期",
+        "synonyms": [
+          "The Apothecary Diaries Season 3"
+        ]
+      },
+      "websites": {
+        "official": "kusuriyanohitorigoto.jp/",
+        "mal": "myanimelist.net/anime/61987/Kusuriya_no_Hitorigoto_Zoku-hen",
+        "aniList": "anilist.co/anime/195516/Kusuriya-no-Hitorigoto-Zokuhen/",
+        "kitsu": "kitsu.app/anime/Kusuriya-no-Hitorigoto-Zokuhen",
+        "animePlanet": "www.anime-planet.com/anime/the-apothecary-diaries-new",
+        "anidb": "anidb.net/anime/19444"
+      },
+      "description": "",
+      "stats": {
+        "trackedCount": 854
+      }
+    },
+    {
+      "id": "uoGC",
+      "title": "Kikansha no Mahou wa Tokubetsu desu Season 2",
+      "route": "kikansha-no-mahou-wa-tokubetsu-desu-season-2",
+      "premier": "0001-01-01T00:00:00Z",
+      "subPremier": "0001-01-01T00:00:00Z",
+      "dubPremier": "0001-01-01T00:00:00Z",
+      "year": 2026,
+      "season": {
+        "title": "Fall 2026",
+        "year": "2026",
+        "season": "Fall",
+        "route": "fall-2026"
+      },
+      "delayedFrom": "0001-01-01T00:00:00Z",
+      "delayedUntil": "0001-01-01T00:00:00Z",
+      "genres": [
+        {
+          "name": "Action",
+          "route": "action"
+        },
+        {
+          "name": "Adventure",
+          "route": "adventure"
+        },
+        {
+          "name": "Fantasy",
+          "route": "fantasy"
+        },
+        {
+          "name": "School",
+          "route": "school"
+        }
+      ],
+      "studios": [
+        {
+          "name": "Arvo Animation",
+          "route": "arvo-animation"
+        }
+      ],
+      "sources": [
+        {
+          "name": "Web Manga",
+          "route": "web-manga"
+        }
+      ],
+      "mediaTypes": [
+        {
+          "name": "TV",
+          "route": "tv"
+        }
+      ],
+      "status": "Upcoming",
+      "updatedAt": "2026-09-09T16:02:17.399Z",
+      "imageVersionRoute": "anime/jpg/default/kikansha-no-mahou-wa-tokubetsu-desu-season-2-9df72b6d2036ec1b530b772008c0fcee.jpg",
+      "names": {
+        "romaji": "Kikansha no Mahou wa Tokubetsu desu 2nd Season",
+        "english": "A Returner's Magic Should Be Special 2nd Season",
+        "native": "帰還者の魔法は特別です2期",
+        "synonyms": [
+          "A Returner's Magic Should Be Special Season 2",
+          " Gwihwanja-ui Mabeop-eun Teukbyeol-haeya Hamnida 2nd Season"
+        ]
+      },
+      "websites": {
+        "official": "returners-magic.com/",
+        "mal": "myanimelist.net/anime/57612/Kikansha_no_Mahou_wa_Tokubetsu_desu_2nd_Season",
+        "aniList": "anilist.co/anime/172192/Kikansha-no-Mahou-wa-Tokubetsu-desu-2nd-Season/",
+        "kitsu": "kitsu.app/anime/kikansha-no-mahou-wa-tokubetsu-desu-2nd-season",
+        "animePlanet": "www.anime-planet.com/anime/a-returners-magic-should-be-special-season-2",
+        "anidb": "anidb.net/anime/18345"
+      },
+      "description": "",
+      "stats": {
+        "trackedCount": 820
+      }
+    },
+    {
+      "id": "9n6q",
+      "title": "Kusuriya no Hitorigoto Movie: Bouhi no Hihou",
+      "route": "kusuriya-no-hitorigoto-movie",
+      "premier": "2026-12-11T00:00:00Z",
+      "subPremier": "0001-01-01T00:00:00Z",
+      "dubPremier": "0001-01-01T00:00:00Z",
+      "year": 2026,
+      "season": {
+        "title": "Fall 2026",
+        "year": "2026",
+        "season": "Fall",
+        "route": "fall-2026"
+      },
+      "delayedFrom": "0001-01-01T00:00:00Z",
+      "delayedUntil": "0001-01-01T00:00:00Z",
+      "genres": [
+        {
+          "name": "Drama",
+          "route": "drama"
+        },
+        {
+          "name": "Historical",
+          "route": "historical"
+        },
+        {
+          "name": "Mystery",
+          "route": "mystery"
+        }
+      ],
+      "studios": [
+        {
+          "name": "TOHO animation STUDIO",
+          "route": "toho-animation-studio"
+        }
+      ],
+      "sources": [
+        {
+          "name": "Light Novel",
+          "route": "light-novel"
+        }
+      ],
+      "mediaTypes": [
+        {
+          "name": "Movie",
+          "route": "movie"
+        }
+      ],
+      "episodes": 1,
+      "status": "Upcoming",
+      "updatedAt": "2026-09-09T16:02:10.582Z",
+      "imageVersionRoute": "anime/jpg/default/kusuriya-no-hitorigoto-movie-063cd7d40e0a032a8413614a4a738f59.jpg",
+      "names": {
+        "romaji": "Kusuriya no Hitorigoto Movie: Bouhi no Hihou",
+        "english": "The Apothecary Diaries Movie",
+        "native": "劇場版 薬屋のひとりごと",
+        "synonyms": [
+          "Gekijouban Kusuriya no Hitorigoto"
+        ]
+      },
+      "websites": {
+        "official": "kusuriyanohitorigoto.jp/",
+        "mal": "myanimelist.net/anime/62844/Kusuriya_no_Hitorigoto_Movie",
+        "aniList": "anilist.co/anime/200929/Kusuriya-no-Hitorigoto-Movie/",
+        "animePlanet": "www.anime-planet.com/anime/the-apothecary-diaries-movie",
+        "anidb": "anidb.net/anime/19670"
+      },
+      "description": "",
+      "stats": {
+        "trackedCount": 393
+      }
+    },
+    {
+      "id": "i245",
+      "title": "Cyberpunk: Edgerunners II",
+      "route": "cyberpunk-edgerunners-ii",
+      "premier": "2026-10-20T00:00:00Z",
+      "subPremier": "0001-01-01T00:00:00Z",
+      "dubPremier": "0001-01-01T00:00:00Z",
+      "year": 2026,
+      "season": {
+        "title": "Fall 2026",
+        "year": "2026",
+        "season": "Fall",
+        "route": "fall-2026"
+      },
+      "delayedFrom": "0001-01-01T00:00:00Z",
+      "delayedUntil": "0001-01-01T00:00:00Z",
+      "genres": [
+        {
+          "name": "Action",
+          "route": "action"
+        },
+        {
+          "name": "Drama",
+          "route": "drama"
+        },
+        {
+          "name": "Sci-Fi",
+          "route": "sci-fi"
+        }
+      ],
+      "studios": [
+        {
+          "name": "Trigger",
+          "route": "trigger"
+        }
+      ],
+      "sources": [
+        {
+          "name": "Video Game",
+          "route": "video-game"
+        }
+      ],
+      "mediaTypes": [
+        {
+          "name": "ONA",
+          "route": "ona"
+        }
+      ],
+      "episodes": 10,
+      "status": "Upcoming",
+      "updatedAt": "2026-09-09T16:02:13.248Z",
+      "imageVersionRoute": "anime/jpg/default/cyberpunk-edgerunners-ii-504a74dc964037af1aee9d7b34720dbf.jpg",
+      "names": {
+        "native": "サイバーパンク エッジランナーズ II",
+        "synonyms": [
+          "Cyberpunk: Edgerunners 2"
+        ]
+      },
+      "websites": {
+        "official": "www.cyberpunk.net/ja/edgerunners",
+        "mal": "myanimelist.net/anime/61990/Cyberpunk__Edgerunners_II",
+        "aniList": "anilist.co/anime/195539/Cyberpunk-Edgerunners-II/",
+        "kitsu": "kitsu.app/anime/Cyberpunk-Edgerunners-II",
+        "animePlanet": "www.anime-planet.com/anime/cyberpunk-new",
+        "anidb": "anidb.net/anime/19445"
+      },
+      "description": "",
+      "stats": {
+        "trackedCount": 343
+      }
+    },
+    {
+      "id": "Qa3q",
+      "title": "Mahoutsukai no Yoru",
+      "route": "mahoutsukai-no-yoru",
+      "premier": "2026-11-20T00:00:00Z",
+      "subPremier": "0001-01-01T00:00:00Z",
+      "dubPremier": "0001-01-01T00:00:00Z",
+      "year": 2026,
+      "season": {
+        "title": "Fall 2026",
+        "year": "2026",
+        "season": "Fall",
+        "route": "fall-2026"
+      },
+      "delayedFrom": "0001-01-01T00:00:00Z",
+      "delayedUntil": "0001-01-01T00:00:00Z",
+      "genres": [
+        {
+          "name": "Action",
+          "route": "action"
+        },
+        {
+          "name": "Drama",
+          "route": "drama"
+        },
+        {
+          "name": "Fantasy",
+          "route": "fantasy"
+        },
+        {
+          "name": "Magic",
+          "route": "magic"
+        },
+        {
+          "name": "Mystery",
+          "route": "mystery"
+        },
+        {
+          "name": "Supernatural",
+          "route": "supernatural"
+        }
+      ],
+      "studios": [
+        {
+          "name": "ufotable",
+          "route": "ufotable"
+        }
+      ],
+      "sources": [
+        {
+          "name": "Visual Novel",
+          "route": "visual-novel"
+        }
+      ],
+      "mediaTypes": [
+        {
+          "name": "Movie",
+          "route": "movie"
+        }
+      ],
+      "episodes": 1,
+      "status": "Upcoming",
+      "updatedAt": "2026-09-09T16:02:08.631Z",
+      "imageVersionRoute": "anime/jpg/default/mahoutsukai-no-yoru-5132fabbda9271b48451d84485f91401.jpg",
+      "names": {
+        "romaji": "Mahoutsukai no Yoru",
+        "english": "Witch on the Holy Night",
+        "native": "魔法使いの夜",
+        "abbreviation": "MahoYo",
+        "synonyms": [
+          "A Magician's Night"
+        ]
+      },
+      "websites": {
+        "official": "mahoyo-movie.com/",
+        "mal": "myanimelist.net/anime/50668/Mahoutsukai_no_Yoru",
+        "aniList": "anilist.co/anime/143103/Mahoutsukai-no-Yoru/",
+        "kitsu": "kitsu.io/anime/mahoutsukai-no-yoru",
+        "animePlanet": "www.anime-planet.com/anime/mahoutsukai-no-yoru",
+        "anidb": "anidb.net/anime/17080"
+      },
+      "description": "",
+      "stats": {
+        "trackedCount": 319
+      }
+    }
+  ]
+}

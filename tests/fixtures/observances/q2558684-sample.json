@@ -1,0 +1,1045 @@
+{
+ "head": {
+  "vars": [
+   "item",
+   "itemLabel",
+   "sl",
+   "day",
+   "dayLabel",
+   "rank",
+   "stIso",
+   "itemIso",
+   "img",
+   "enwiki"
+  ]
+ },
+ "results": {
+  "bindings": [
+   {
+    "item": {
+     "type": "uri",
+     "value": "http://www.wikidata.org/entity/Q5815639"
+    },
+    "day": {
+     "type": "uri",
+     "value": "http://www.wikidata.org/entity/Q2391"
+    },
+    "dayLabel": {
+     "xml:lang": "en",
+     "type": "literal",
+     "value": "March 3"
+    },
+    "rank": {
+     "type": "uri",
+     "value": "http://wikiba.se/ontology#NormalRank"
+    },
+    "sl": {
+     "datatype": "http://www.w3.org/2001/XMLSchema#integer",
+     "type": "literal",
+     "value": "18"
+    },
+    "enwiki": {
+     "type": "uri",
+     "value": "https://en.wikipedia.org/wiki/World_Hearing_Day"
+    },
+    "itemLabel": {
+     "xml:lang": "en",
+     "type": "literal",
+     "value": "World Hearing Day"
+    },
+    "img": {
+     "type": "uri",
+     "value": "http://commons.wikimedia.org/wiki/Special:FilePath/World%20Hearing%20Day%202022%20Pop%20Up%20Banner%20announcement%20-%20WHO.pdf"
+    }
+   },
+   {
+    "item": {
+     "type": "uri",
+     "value": "http://www.wikidata.org/entity/Q5815639"
+    },
+    "day": {
+     "type": "uri",
+     "value": "http://www.wikidata.org/entity/Q2391"
+    },
+    "dayLabel": {
+     "xml:lang": "en",
+     "type": "literal",
+     "value": "March 3"
+    },
+    "rank": {
+     "type": "uri",
+     "value": "http://wikiba.se/ontology#NormalRank"
+    },
+    "sl": {
+     "datatype": "http://www.w3.org/2001/XMLSchema#integer",
+     "type": "literal",
+     "value": "18"
+    },
+    "enwiki": {
+     "type": "uri",
+     "value": "https://en.wikipedia.org/wiki/World_Hearing_Day"
+    },
+    "itemLabel": {
+     "xml:lang": "en",
+     "type": "literal",
+     "value": "World Hearing Day"
+    },
+    "img": {
+     "type": "uri",
+     "value": "http://commons.wikimedia.org/wiki/Special:FilePath/WHO-world-hearing-day-2023%20with%20text.png"
+    }
+   },
+   {
+    "item": {
+     "type": "uri",
+     "value": "http://www.wikidata.org/entity/Q5815639"
+    },
+    "day": {
+     "type": "uri",
+     "value": "http://www.wikidata.org/entity/Q2391"
+    },
+    "dayLabel": {
+     "xml:lang": "en",
+     "type": "literal",
+     "value": "March 3"
+    },
+    "rank": {
+     "type": "uri",
+     "value": "http://wikiba.se/ontology#NormalRank"
+    },
+    "sl": {
+     "datatype": "http://www.w3.org/2001/XMLSchema#integer",
+     "type": "literal",
+     "value": "18"
+    },
+    "enwiki": {
+     "type": "uri",
+     "value": "https://en.wikipedia.org/wiki/World_Hearing_Day"
+    },
+    "itemLabel": {
+     "xml:lang": "en",
+     "type": "literal",
+     "value": "World Hearing Day"
+    },
+    "img": {
+     "type": "uri",
+     "value": "http://commons.wikimedia.org/wiki/Special:FilePath/Whd-poster-final-a1.png"
+    }
+   },
+   {
+    "item": {
+     "type": "uri",
+     "value": "http://www.wikidata.org/entity/Q10265910"
+    },
+    "day": {
+     "type": "uri",
+     "value": "http://www.wikidata.org/entity/Q2816"
+    },
+    "dayLabel": {
+     "xml:lang": "en",
+     "type": "literal",
+     "value": "August 29"
+    },
+    "itemLabel": {
+     "xml:lang": "en",
+     "type": "literal",
+     "value": "National Lesbian Day of Visibility"
+    },
+    "rank": {
+     "type": "uri",
+     "value": "http://wikiba.se/ontology#NormalRank"
+    },
+    "sl": {
+     "datatype": "http://www.w3.org/2001/XMLSchema#integer",
+     "type": "literal",
+     "value": "9"
+    },
+    "enwiki": {
+     "type": "uri",
+     "value": "https://en.wikipedia.org/wiki/Lesbian_Visibility_Day"
+    },
+    "img": {
+     "type": "uri",
+     "value": "http://commons.wikimedia.org/wiki/Special:FilePath/Identification%20visuelle%20de%20la%20Journ%C3%A9e%20de%20Visibilit%C3%A9%20Lesbienne%20%28JVL%29%2C%206-7%20juin%202020.jpg"
+    },
+    "stIso": {
+     "type": "literal",
+     "value": "BR"
+    }
+   },
+   {
+    "item": {
+     "type": "uri",
+     "value": "http://www.wikidata.org/entity/Q10265910"
+    },
+    "day": {
+     "type": "uri",
+     "value": "http://www.wikidata.org/entity/Q2829"
+    },
+    "dayLabel": {
+     "xml:lang": "en",
+     "type": "literal",
+     "value": "August 19"
+    },
+    "itemLabel": {
+     "xml:lang": "en",
+     "type": "literal",
+     "value": "National Lesbian Day of Visibility"
+    },
+    "rank": {
+     "type": "uri",
+     "value": "http://wikiba.se/ontology#NormalRank"
+    },
+    "sl": {
+     "datatype": "http://www.w3.org/2001/XMLSchema#integer",
+     "type": "literal",
+     "value": "9"
+    },
+    "enwiki": {
+     "type": "uri",
+     "value": "https://en.wikipedia.org/wiki/Lesbian_Visibility_Day"
+    },
+    "img": {
+     "type": "uri",
+     "value": "http://commons.wikimedia.org/wiki/Special:FilePath/Identification%20visuelle%20de%20la%20Journ%C3%A9e%20de%20Visibilit%C3%A9%20Lesbienne%20%28JVL%29%2C%206-7%20juin%202020.jpg"
+    },
+    "stIso": {
+     "type": "literal",
+     "value": "BR"
+    }
+   },
+   {
+    "item": {
+     "type": "uri",
+     "value": "http://www.wikidata.org/entity/Q10265910"
+    },
+    "day": {
+     "type": "uri",
+     "value": "http://www.wikidata.org/entity/Q2532"
+    },
+    "dayLabel": {
+     "xml:lang": "en",
+     "type": "literal",
+     "value": "April 26"
+    },
+    "itemLabel": {
+     "xml:lang": "en",
+     "type": "literal",
+     "value": "National Lesbian Day of Visibility"
+    },
+    "rank": {
+     "type": "uri",
+     "value": "http://wikiba.se/ontology#NormalRank"
+    },
+    "sl": {
+     "datatype": "http://www.w3.org/2001/XMLSchema#integer",
+     "type": "literal",
+     "value": "9"
+    },
+    "enwiki": {
+     "type": "uri",
+     "value": "https://en.wikipedia.org/wiki/Lesbian_Visibility_Day"
+    },
+    "img": {
+     "type": "uri",
+     "value": "http://commons.wikimedia.org/wiki/Special:FilePath/Identification%20visuelle%20de%20la%20Journ%C3%A9e%20de%20Visibilit%C3%A9%20Lesbienne%20%28JVL%29%2C%206-7%20juin%202020.jpg"
+    },
+    "stIso": {
+     "type": "literal",
+     "value": "CA"
+    }
+   },
+   {
+    "item": {
+     "type": "uri",
+     "value": "http://www.wikidata.org/entity/Q10265910"
+    },
+    "day": {
+     "type": "uri",
+     "value": "http://www.wikidata.org/entity/Q2532"
+    },
+    "dayLabel": {
+     "xml:lang": "en",
+     "type": "literal",
+     "value": "April 26"
+    },
+    "itemLabel": {
+     "xml:lang": "en",
+     "type": "literal",
+     "value": "National Lesbian Day of Visibility"
+    },
+    "rank": {
+     "type": "uri",
+     "value": "http://wikiba.se/ontology#NormalRank"
+    },
+    "sl": {
+     "datatype": "http://www.w3.org/2001/XMLSchema#integer",
+     "type": "literal",
+     "value": "9"
+    },
+    "enwiki": {
+     "type": "uri",
+     "value": "https://en.wikipedia.org/wiki/Lesbian_Visibility_Day"
+    },
+    "img": {
+     "type": "uri",
+     "value": "http://commons.wikimedia.org/wiki/Special:FilePath/Identification%20visuelle%20de%20la%20Journ%C3%A9e%20de%20Visibilit%C3%A9%20Lesbienne%20%28JVL%29%2C%206-7%20juin%202020.jpg"
+    },
+    "stIso": {
+     "type": "literal",
+     "value": "ES"
+    }
+   },
+   {
+    "item": {
+     "type": "uri",
+     "value": "http://www.wikidata.org/entity/Q10265910"
+    },
+    "day": {
+     "type": "uri",
+     "value": "http://www.wikidata.org/entity/Q2532"
+    },
+    "dayLabel": {
+     "xml:lang": "en",
+     "type": "literal",
+     "value": "April 26"
+    },
+    "itemLabel": {
+     "xml:lang": "en",
+     "type": "literal",
+     "value": "National Lesbian Day of Visibility"
+    },
+    "rank": {
+     "type": "uri",
+     "value": "http://wikiba.se/ontology#NormalRank"
+    },
+    "sl": {
+     "datatype": "http://www.w3.org/2001/XMLSchema#integer",
+     "type": "literal",
+     "value": "9"
+    },
+    "enwiki": {
+     "type": "uri",
+     "value": "https://en.wikipedia.org/wiki/Lesbian_Visibility_Day"
+    },
+    "img": {
+     "type": "uri",
+     "value": "http://commons.wikimedia.org/wiki/Special:FilePath/Identification%20visuelle%20de%20la%20Journ%C3%A9e%20de%20Visibilit%C3%A9%20Lesbienne%20%28JVL%29%2C%206-7%20juin%202020.jpg"
+    },
+    "stIso": {
+     "type": "literal",
+     "value": "CH"
+    }
+   },
+   {
+    "item": {
+     "type": "uri",
+     "value": "http://www.wikidata.org/entity/Q10265910"
+    },
+    "day": {
+     "type": "uri",
+     "value": "http://www.wikidata.org/entity/Q2532"
+    },
+    "dayLabel": {
+     "xml:lang": "en",
+     "type": "literal",
+     "value": "April 26"
+    },
+    "itemLabel": {
+     "xml:lang": "en",
+     "type": "literal",
+     "value": "National Lesbian Day of Visibility"
+    },
+    "rank": {
+     "type": "uri",
+     "value": "http://wikiba.se/ontology#NormalRank"
+    },
+    "sl": {
+     "datatype": "http://www.w3.org/2001/XMLSchema#integer",
+     "type": "literal",
+     "value": "9"
+    },
+    "enwiki": {
+     "type": "uri",
+     "value": "https://en.wikipedia.org/wiki/Lesbian_Visibility_Day"
+    },
+    "img": {
+     "type": "uri",
+     "value": "http://commons.wikimedia.org/wiki/Special:FilePath/Identification%20visuelle%20de%20la%20Journ%C3%A9e%20de%20Visibilit%C3%A9%20Lesbienne%20%28JVL%29%2C%206-7%20juin%202020.jpg"
+    },
+    "stIso": {
+     "type": "literal",
+     "value": "FR"
+    }
+   },
+   {
+    "item": {
+     "type": "uri",
+     "value": "http://www.wikidata.org/entity/Q10265910"
+    },
+    "day": {
+     "type": "uri",
+     "value": "http://www.wikidata.org/entity/Q2532"
+    },
+    "dayLabel": {
+     "xml:lang": "en",
+     "type": "literal",
+     "value": "April 26"
+    },
+    "itemLabel": {
+     "xml:lang": "en",
+     "type": "literal",
+     "value": "National Lesbian Day of Visibility"
+    },
+    "rank": {
+     "type": "uri",
+     "value": "http://wikiba.se/ontology#NormalRank"
+    },
+    "sl": {
+     "datatype": "http://www.w3.org/2001/XMLSchema#integer",
+     "type": "literal",
+     "value": "9"
+    },
+    "enwiki": {
+     "type": "uri",
+     "value": "https://en.wikipedia.org/wiki/Lesbian_Visibility_Day"
+    },
+    "img": {
+     "type": "uri",
+     "value": "http://commons.wikimedia.org/wiki/Special:FilePath/Identification%20visuelle%20de%20la%20Journ%C3%A9e%20de%20Visibilit%C3%A9%20Lesbienne%20%28JVL%29%2C%206-7%20juin%202020.jpg"
+    },
+    "stIso": {
+     "type": "literal",
+     "value": "GB"
+    }
+   },
+   {
+    "item": {
+     "type": "uri",
+     "value": "http://www.wikidata.org/entity/Q10265910"
+    },
+    "day": {
+     "type": "uri",
+     "value": "http://www.wikidata.org/entity/Q2532"
+    },
+    "dayLabel": {
+     "xml:lang": "en",
+     "type": "literal",
+     "value": "April 26"
+    },
+    "itemLabel": {
+     "xml:lang": "en",
+     "type": "literal",
+     "value": "National Lesbian Day of Visibility"
+    },
+    "rank": {
+     "type": "uri",
+     "value": "http://wikiba.se/ontology#NormalRank"
+    },
+    "sl": {
+     "datatype": "http://www.w3.org/2001/XMLSchema#integer",
+     "type": "literal",
+     "value": "9"
+    },
+    "enwiki": {
+     "type": "uri",
+     "value": "https://en.wikipedia.org/wiki/Lesbian_Visibility_Day"
+    },
+    "img": {
+     "type": "uri",
+     "value": "http://commons.wikimedia.org/wiki/Special:FilePath/Identification%20visuelle%20de%20la%20Journ%C3%A9e%20de%20Visibilit%C3%A9%20Lesbienne%20%28JVL%29%2C%206-7%20juin%202020.jpg"
+    },
+    "stIso": {
+     "type": "literal",
+     "value": "PE"
+    }
+   },
+   {
+    "item": {
+     "type": "uri",
+     "value": "http://www.wikidata.org/entity/Q10265910"
+    },
+    "day": {
+     "type": "uri",
+     "value": "http://www.wikidata.org/entity/Q2532"
+    },
+    "dayLabel": {
+     "xml:lang": "en",
+     "type": "literal",
+     "value": "April 26"
+    },
+    "itemLabel": {
+     "xml:lang": "en",
+     "type": "literal",
+     "value": "National Lesbian Day of Visibility"
+    },
+    "rank": {
+     "type": "uri",
+     "value": "http://wikiba.se/ontology#NormalRank"
+    },
+    "sl": {
+     "datatype": "http://www.w3.org/2001/XMLSchema#integer",
+     "type": "literal",
+     "value": "9"
+    },
+    "enwiki": {
+     "type": "uri",
+     "value": "https://en.wikipedia.org/wiki/Lesbian_Visibility_Day"
+    },
+    "img": {
+     "type": "uri",
+     "value": "http://commons.wikimedia.org/wiki/Special:FilePath/Identification%20visuelle%20de%20la%20Journ%C3%A9e%20de%20Visibilit%C3%A9%20Lesbienne%20%28JVL%29%2C%206-7%20juin%202020.jpg"
+    },
+    "stIso": {
+     "type": "literal",
+     "value": "VE"
+    }
+   },
+   {
+    "item": {
+     "type": "uri",
+     "value": "http://www.wikidata.org/entity/Q10265910"
+    },
+    "day": {
+     "type": "uri",
+     "value": "http://www.wikidata.org/entity/Q2532"
+    },
+    "dayLabel": {
+     "xml:lang": "en",
+     "type": "literal",
+     "value": "April 26"
+    },
+    "itemLabel": {
+     "xml:lang": "en",
+     "type": "literal",
+     "value": "National Lesbian Day of Visibility"
+    },
+    "rank": {
+     "type": "uri",
+     "value": "http://wikiba.se/ontology#NormalRank"
+    },
+    "sl": {
+     "datatype": "http://www.w3.org/2001/XMLSchema#integer",
+     "type": "literal",
+     "value": "9"
+    },
+    "enwiki": {
+     "type": "uri",
+     "value": "https://en.wikipedia.org/wiki/Lesbian_Visibility_Day"
+    },
+    "img": {
+     "type": "uri",
+     "value": "http://commons.wikimedia.org/wiki/Special:FilePath/Identification%20visuelle%20de%20la%20Journ%C3%A9e%20de%20Visibilit%C3%A9%20Lesbienne%20%28JVL%29%2C%206-7%20juin%202020.jpg"
+    },
+    "stIso": {
+     "type": "literal",
+     "value": "EC"
+    }
+   },
+   {
+    "item": {
+     "type": "uri",
+     "value": "http://www.wikidata.org/entity/Q10265910"
+    },
+    "day": {
+     "type": "uri",
+     "value": "http://www.wikidata.org/entity/Q2532"
+    },
+    "dayLabel": {
+     "xml:lang": "en",
+     "type": "literal",
+     "value": "April 26"
+    },
+    "itemLabel": {
+     "xml:lang": "en",
+     "type": "literal",
+     "value": "National Lesbian Day of Visibility"
+    },
+    "rank": {
+     "type": "uri",
+     "value": "http://wikiba.se/ontology#NormalRank"
+    },
+    "sl": {
+     "datatype": "http://www.w3.org/2001/XMLSchema#integer",
+     "type": "literal",
+     "value": "9"
+    },
+    "enwiki": {
+     "type": "uri",
+     "value": "https://en.wikipedia.org/wiki/Lesbian_Visibility_Day"
+    },
+    "img": {
+     "type": "uri",
+     "value": "http://commons.wikimedia.org/wiki/Special:FilePath/Identification%20visuelle%20de%20la%20Journ%C3%A9e%20de%20Visibilit%C3%A9%20Lesbienne%20%28JVL%29%2C%206-7%20juin%202020.jpg"
+    },
+    "stIso": {
+     "type": "literal",
+     "value": "CO"
+    }
+   },
+   {
+    "item": {
+     "type": "uri",
+     "value": "http://www.wikidata.org/entity/Q10265910"
+    },
+    "day": {
+     "type": "uri",
+     "value": "http://www.wikidata.org/entity/Q2924"
+    },
+    "dayLabel": {
+     "xml:lang": "en",
+     "type": "literal",
+     "value": "October 8"
+    },
+    "itemLabel": {
+     "xml:lang": "en",
+     "type": "literal",
+     "value": "National Lesbian Day of Visibility"
+    },
+    "rank": {
+     "type": "uri",
+     "value": "http://wikiba.se/ontology#NormalRank"
+    },
+    "sl": {
+     "datatype": "http://www.w3.org/2001/XMLSchema#integer",
+     "type": "literal",
+     "value": "9"
+    },
+    "enwiki": {
+     "type": "uri",
+     "value": "https://en.wikipedia.org/wiki/Lesbian_Visibility_Day"
+    },
+    "img": {
+     "type": "uri",
+     "value": "http://commons.wikimedia.org/wiki/Special:FilePath/Identification%20visuelle%20de%20la%20Journ%C3%A9e%20de%20Visibilit%C3%A9%20Lesbienne%20%28JVL%29%2C%206-7%20juin%202020.jpg"
+    },
+    "stIso": {
+     "type": "literal",
+     "value": "AU"
+    }
+   },
+   {
+    "item": {
+     "type": "uri",
+     "value": "http://www.wikidata.org/entity/Q10265910"
+    },
+    "day": {
+     "type": "uri",
+     "value": "http://www.wikidata.org/entity/Q2924"
+    },
+    "dayLabel": {
+     "xml:lang": "en",
+     "type": "literal",
+     "value": "October 8"
+    },
+    "itemLabel": {
+     "xml:lang": "en",
+     "type": "literal",
+     "value": "National Lesbian Day of Visibility"
+    },
+    "rank": {
+     "type": "uri",
+     "value": "http://wikiba.se/ontology#NormalRank"
+    },
+    "sl": {
+     "datatype": "http://www.w3.org/2001/XMLSchema#integer",
+     "type": "literal",
+     "value": "9"
+    },
+    "enwiki": {
+     "type": "uri",
+     "value": "https://en.wikipedia.org/wiki/Lesbian_Visibility_Day"
+    },
+    "img": {
+     "type": "uri",
+     "value": "http://commons.wikimedia.org/wiki/Special:FilePath/Identification%20visuelle%20de%20la%20Journ%C3%A9e%20de%20Visibilit%C3%A9%20Lesbienne%20%28JVL%29%2C%206-7%20juin%202020.jpg"
+    },
+    "stIso": {
+     "type": "literal",
+     "value": "NZ"
+    }
+   },
+   {
+    "item": {
+     "type": "uri",
+     "value": "http://www.wikidata.org/entity/Q240491"
+    },
+    "day": {
+     "type": "uri",
+     "value": "http://www.wikidata.org/entity/Q2433"
+    },
+    "dayLabel": {
+     "xml:lang": "en",
+     "type": "literal",
+     "value": "March 21"
+    },
+    "rank": {
+     "type": "uri",
+     "value": "http://wikiba.se/ontology#NormalRank"
+    },
+    "sl": {
+     "datatype": "http://www.w3.org/2001/XMLSchema#integer",
+     "type": "literal",
+     "value": "39"
+    },
+    "enwiki": {
+     "type": "uri",
+     "value": "https://en.wikipedia.org/wiki/World_Down_Syndrome_Day"
+    },
+    "itemLabel": {
+     "xml:lang": "en",
+     "type": "literal",
+     "value": "World Down Syndrome Day"
+    },
+    "img": {
+     "type": "uri",
+     "value": "http://commons.wikimedia.org/wiki/Special:FilePath/Down%20Syndrome%20Ribbon.png"
+    }
+   },
+   {
+    "item": {
+     "type": "uri",
+     "value": "http://www.wikidata.org/entity/Q101026979"
+    },
+    "day": {
+     "type": "uri",
+     "value": "http://www.wikidata.org/entity/Q21428224"
+    },
+    "dayLabel": {
+     "xml:lang": "en",
+     "type": "literal",
+     "value": "first Thursday in November"
+    },
+    "itemLabel": {
+     "xml:lang": "en",
+     "type": "literal",
+     "value": "International day against violence and bullying at school including cyberbullying"
+    },
+    "rank": {
+     "type": "uri",
+     "value": "http://wikiba.se/ontology#NormalRank"
+    },
+    "sl": {
+     "datatype": "http://www.w3.org/2001/XMLSchema#integer",
+     "type": "literal",
+     "value": "3"
+    },
+    "enwiki": {
+     "type": "uri",
+     "value": "https://en.wikipedia.org/wiki/International_Day_against_Violence_and_Bullying_at_School,_including_Cyberbullying"
+    },
+    "img": {
+     "type": "uri",
+     "value": "http://commons.wikimedia.org/wiki/Special:FilePath/Chapita%2022.png"
+    }
+   },
+   {
+    "item": {
+     "type": "uri",
+     "value": "http://www.wikidata.org/entity/Q102347972"
+    },
+    "day": {
+     "type": "uri",
+     "value": "http://www.wikidata.org/entity/Q3019"
+    },
+    "dayLabel": {
+     "xml:lang": "en",
+     "type": "literal",
+     "value": "November 26"
+    },
+    "itemLabel": {
+     "xml:lang": "en",
+     "type": "literal",
+     "value": "Day of the arrival of the Romani people in Catalonia"
+    },
+    "rank": {
+     "type": "uri",
+     "value": "http://wikiba.se/ontology#NormalRank"
+    },
+    "sl": {
+     "datatype": "http://www.w3.org/2001/XMLSchema#integer",
+     "type": "literal",
+     "value": "1"
+    },
+    "img": {
+     "type": "uri",
+     "value": "http://commons.wikimedia.org/wiki/Special:FilePath/Flag%20of%20the%20Romani%20people.svg"
+    },
+    "itemIso": {
+     "type": "literal",
+     "value": "ES"
+    }
+   },
+   {
+    "item": {
+     "type": "uri",
+     "value": "http://www.wikidata.org/entity/Q123574163"
+    },
+    "day": {
+     "type": "uri",
+     "value": "http://www.wikidata.org/entity/Q2278"
+    },
+    "dayLabel": {
+     "xml:lang": "en",
+     "type": "literal",
+     "value": "January 24"
+    },
+    "rank": {
+     "type": "uri",
+     "value": "http://wikiba.se/ontology#NormalRank"
+    },
+    "sl": {
+     "datatype": "http://www.w3.org/2001/XMLSchema#integer",
+     "type": "literal",
+     "value": "2"
+    }
+   },
+   {
+    "item": {
+     "type": "uri",
+     "value": "http://www.wikidata.org/entity/Q125484261"
+    },
+    "day": {
+     "type": "uri",
+     "value": "http://www.wikidata.org/entity/Q125484634"
+    },
+    "itemLabel": {
+     "xml:lang": "en",
+     "type": "literal",
+     "value": "Vesak Day"
+    },
+    "rank": {
+     "type": "uri",
+     "value": "http://wikiba.se/ontology#NormalRank"
+    },
+    "sl": {
+     "datatype": "http://www.w3.org/2001/XMLSchema#integer",
+     "type": "literal",
+     "value": "1"
+    },
+    "img": {
+     "type": "uri",
+     "value": "http://commons.wikimedia.org/wiki/Special:FilePath/Indonesia%20Buddhists%20Vesak%20Day.jpg"
+    }
+   },
+   {
+    "item": {
+     "type": "uri",
+     "value": "http://www.wikidata.org/entity/Q30325108"
+    },
+    "day": {
+     "type": "uri",
+     "value": "http://www.wikidata.org/entity/Q64008413"
+    },
+    "dayLabel": {
+     "xml:lang": "en",
+     "type": "literal",
+     "value": "variable date"
+    },
+    "rank": {
+     "type": "uri",
+     "value": "http://wikiba.se/ontology#NormalRank"
+    },
+    "sl": {
+     "datatype": "http://www.w3.org/2001/XMLSchema#integer",
+     "type": "literal",
+     "value": "2"
+    },
+    "enwiki": {
+     "type": "uri",
+     "value": "https://en.wikipedia.org/wiki/International_Day_of_Vesak"
+    },
+    "itemLabel": {
+     "xml:lang": "en",
+     "type": "literal",
+     "value": "International Day of Vesak"
+    }
+   },
+   {
+    "item": {
+     "type": "uri",
+     "value": "http://www.wikidata.org/entity/Q30325108"
+    },
+    "day": {
+     "type": "uri",
+     "value": "http://www.wikidata.org/entity/Q2553"
+    },
+    "dayLabel": {
+     "xml:lang": "en",
+     "type": "literal",
+     "value": "May 7"
+    },
+    "rank": {
+     "type": "uri",
+     "value": "http://wikiba.se/ontology#NormalRank"
+    },
+    "sl": {
+     "datatype": "http://www.w3.org/2001/XMLSchema#integer",
+     "type": "literal",
+     "value": "2"
+    },
+    "enwiki": {
+     "type": "uri",
+     "value": "https://en.wikipedia.org/wiki/International_Day_of_Vesak"
+    },
+    "itemLabel": {
+     "xml:lang": "en",
+     "type": "literal",
+     "value": "International Day of Vesak"
+    }
+   },
+   {
+    "item": {
+     "type": "uri",
+     "value": "http://www.wikidata.org/entity/Q167888"
+    },
+    "day": {
+     "type": "uri",
+     "value": "http://www.wikidata.org/entity/Q2535"
+    },
+    "dayLabel": {
+     "xml:lang": "en",
+     "type": "literal",
+     "value": "April 29"
+    },
+    "itemLabel": {
+     "xml:lang": "en",
+     "type": "literal",
+     "value": "World Animal Day"
+    },
+    "rank": {
+     "type": "uri",
+     "value": "http://wikiba.se/ontology#NormalRank"
+    },
+    "sl": {
+     "datatype": "http://www.w3.org/2001/XMLSchema#integer",
+     "type": "literal",
+     "value": "50"
+    },
+    "enwiki": {
+     "type": "uri",
+     "value": "https://en.wikipedia.org/wiki/World_Animal_Day"
+    },
+    "img": {
+     "type": "uri",
+     "value": "http://commons.wikimedia.org/wiki/Special:FilePath/Wereld%20Dierendag%201964%20%2C%20voederen%20van%20de%20dieren%2C%20Bestanddeelnr%20916-9734.jpg"
+    },
+    "stIso": {
+     "type": "literal",
+     "value": "AR"
+    }
+   },
+   {
+    "item": {
+     "type": "uri",
+     "value": "http://www.wikidata.org/entity/Q167888"
+    },
+    "day": {
+     "type": "uri",
+     "value": "http://www.wikidata.org/entity/Q2929"
+    },
+    "dayLabel": {
+     "xml:lang": "en",
+     "type": "literal",
+     "value": "October 4"
+    },
+    "itemLabel": {
+     "xml:lang": "en",
+     "type": "literal",
+     "value": "World Animal Day"
+    },
+    "rank": {
+     "type": "uri",
+     "value": "http://wikiba.se/ontology#PreferredRank"
+    },
+    "sl": {
+     "datatype": "http://www.w3.org/2001/XMLSchema#integer",
+     "type": "literal",
+     "value": "50"
+    },
+    "enwiki": {
+     "type": "uri",
+     "value": "https://en.wikipedia.org/wiki/World_Animal_Day"
+    },
+    "img": {
+     "type": "uri",
+     "value": "http://commons.wikimedia.org/wiki/Special:FilePath/Wereld%20Dierendag%201964%20%2C%20voederen%20van%20de%20dieren%2C%20Bestanddeelnr%20916-9734.jpg"
+    }
+   },
+   {
+    "item": {
+     "type": "uri",
+     "value": "http://www.wikidata.org/entity/Q4898140"
+    },
+    "day": {
+     "type": "uri",
+     "value": "http://www.wikidata.org/entity/Q67185949"
+    },
+    "dayLabel": {
+     "xml:lang": "en",
+     "type": "literal",
+     "value": "last day of February"
+    },
+    "rank": {
+     "type": "uri",
+     "value": "http://wikiba.se/ontology#NormalRank"
+    },
+    "sl": {
+     "datatype": "http://www.w3.org/2001/XMLSchema#integer",
+     "type": "literal",
+     "value": "29"
+    },
+    "enwiki": {
+     "type": "uri",
+     "value": "https://en.wikipedia.org/wiki/Rare_Disease_Day"
+    },
+    "itemLabel": {
+     "xml:lang": "en",
+     "type": "literal",
+     "value": "Rare Disease Day"
+    },
+    "img": {
+     "type": "uri",
+     "value": "http://commons.wikimedia.org/wiki/Special:FilePath/Julia%20Vitarello%20at%20Rare%20Disease%20Day%20at%20NIH%202020.jpg"
+    }
+   },
+   {
+    "item": {
+     "type": "uri",
+     "value": "http://www.wikidata.org/entity/Q1065466"
+    },
+    "day": {
+     "type": "uri",
+     "value": "http://www.wikidata.org/entity/Q51156389"
+    },
+    "dayLabel": {
+     "xml:lang": "en",
+     "type": "literal",
+     "value": "third Friday in September"
+    },
+    "itemLabel": {
+     "xml:lang": "en",
+     "type": "literal",
+     "value": "World Maths Day"
+    },
+    "rank": {
+     "type": "uri",
+     "value": "http://wikiba.se/ontology#NormalRank"
+    },
+    "sl": {
+     "datatype": "http://www.w3.org/2001/XMLSchema#integer",
+     "type": "literal",
+     "value": "6"
+    },
+    "enwiki": {
+     "type": "uri",
+     "value": "https://en.wikipedia.org/wiki/World_Maths_Day"
+    },
+    "img": {
+     "type": "uri",
+     "value": "http://commons.wikimedia.org/wiki/Special:FilePath/Mathematics.png"
+    }
+   }
+  ]
+ }
+}

@@ -1,0 +1,88 @@
+{
+  "disambiguation": "",
+  "time": "",
+  "cancelled": false,
+  "setlist": "",
+  "type": "Festival",
+  "name": "LOYG! Festival",
+  "id": "bbf52fae-0c92-430b-b8b1-52bb74dad1cf",
+  "life-span": {
+    "begin": "2026-09-12",
+    "end": "2026-09-12",
+    "ended": true
+  },
+  "relations": [
+    {
+      "ended": false,
+      "end": null,
+      "attribute-ids": {},
+      "type-id": "542f8484-8bc7-3ce5-a022-747850b2b928",
+      "begin": null,
+      "direction": "backward",
+      "area": {
+        "sort-name": "Bochum",
+        "type": "City",
+        "name": "Bochum",
+        "type-id": "6fd8f29a-3d0a-32fc-980d-ea697b69da78",
+        "disambiguation": "",
+        "id": "154ef74f-bcd3-4472-bfee-dd1dec672864"
+      },
+      "type": "held in",
+      "target-credit": "",
+      "attribute-values": {},
+      "target-type": "area",
+      "attributes": [],
+      "source-credit": ""
+    },
+    {
+      "source-credit": "",
+      "place": {
+        "name": "Bochumer Eventcenter (BEC)",
+        "address": "Rombacher Hütte 6-8, 44795 Bochum",
+        "type": "Venue",
+        "area": {
+          "name": "Bochum",
+          "type-id": "6fd8f29a-3d0a-32fc-980d-ea697b69da78",
+          "sort-name": "Bochum",
+          "type": "City",
+          "disambiguation": "",
+          "id": "154ef74f-bcd3-4472-bfee-dd1dec672864"
+        },
+        "disambiguation": "",
+        "coordinates": null,
+        "type-id": "cd92781a-a73f-30e8-a430-55d7521338db",
+        "id": "6593ecff-670e-4338-9ccb-bc44cd36561a"
+      },
+      "target-type": "place",
+      "attributes": [],
+      "target-credit": "",
+      "attribute-values": {},
+      "type": "held at",
+      "direction": "forward",
+      "type-id": "e2c6f697-07dc-38b1-be0b-83d740165532",
+      "begin": null,
+      "attribute-ids": {},
+      "end": null,
+      "ended": false
+    },
+    {
+      "attributes": [],
+      "target-type": "url",
+      "source-credit": "",
+      "url": {
+        "resource": "https://loyg.ticket.io/mNNafOoh/?lang=de",
+        "id": "82221868-cdd8-4eb8-b9f9-9c3874551fc5"
+      },
+      "end": null,
+      "ended": false,
+      "begin": null,
+      "type-id": "bf0f91b9-d97e-4a7b-9114-f1db1e0b61de",
+      "attribute-ids": {},
+      "direction": "forward",
+      "attribute-values": {},
+      "target-credit": "",
+      "type": "ticketing"
+    }
+  ],
+  "type-id": "b6ded574-b592-3f0e-b56e-5b5f06aa0678"
+}

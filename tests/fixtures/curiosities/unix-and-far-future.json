@@ -1,0 +1,419 @@
+[
+  {
+    "slug": "unix-time-reaches-1-800-000-000-2027-01-15",
+    "title": "Unix time reaches 1,800,000,000",
+    "description": "At 08:00:00 UTC on 15 January 2027 the Unix clock, the count of seconds since 00:00:00 UTC on 1 January 1970, ticks over to 1,800,000,000. Programmers mark these round-number seconds as unofficial holidays of the epoch.",
+    "summary": null,
+    "date": "2027-01-15T08:00:00.000Z",
+    "end_date": null,
+    "all_day": false,
+    "timezone": "UTC",
+    "category": "curiosities",
+    "tags": [
+      "unix-time",
+      "tech",
+      "computed"
+    ],
+    "regions": [
+      "GLOBAL"
+    ],
+    "source": "curiosities",
+    "source_url": "https://en.wikipedia.org/wiki/Unix_time",
+    "source_key": "curiosities:unix:1800000000",
+    "external_ids": {},
+    "status": "scheduled",
+    "date_precision": "instant",
+    "confidence": 1,
+    "featured": false,
+    "popularity": 50,
+    "series_slug": null,
+    "location": null,
+    "jsonld_eligible": false,
+    "image_candidate_url": null,
+    "image_candidate_meta": null,
+    "raw": {
+      "kind": "unix",
+      "seconds": 1800000000
+    }
+  },
+  {
+    "slug": "unix-time-reaches-1-900-000-000-2030-03-17",
+    "title": "Unix time reaches 1,900,000,000",
+    "description": "At 17:46:40 UTC on 17 March 2030 the Unix clock, the count of seconds since 00:00:00 UTC on 1 January 1970, ticks over to 1,900,000,000. Programmers mark these round-number seconds as unofficial holidays of the epoch.",
+    "summary": null,
+    "date": "2030-03-17T17:46:40.000Z",
+    "end_date": null,
+    "all_day": false,
+    "timezone": "UTC",
+    "category": "curiosities",
+    "tags": [
+      "unix-time",
+      "tech",
+      "computed"
+    ],
+    "regions": [
+      "GLOBAL"
+    ],
+    "source": "curiosities",
+    "source_url": "https://en.wikipedia.org/wiki/Unix_time",
+    "source_key": "curiosities:unix:1900000000",
+    "external_ids": {},
+    "status": "scheduled",
+    "date_precision": "instant",
+    "confidence": 1,
+    "featured": false,
+    "popularity": 50,
+    "series_slug": null,
+    "location": null,
+    "jsonld_eligible": false,
+    "image_candidate_url": null,
+    "image_candidate_meta": null,
+    "raw": {
+      "kind": "unix",
+      "seconds": 1900000000
+    }
+  },
+  {
+    "slug": "unix-time-reaches-2-000-000-000-2033-05-18",
+    "title": "Unix time reaches 2,000,000,000",
+    "description": "At 03:33:20 UTC on 18 May 2033 the Unix clock, the count of seconds since 00:00:00 UTC on 1 January 1970, ticks over to 2,000,000,000. Programmers mark these round-number seconds as unofficial holidays of the epoch.",
+    "summary": null,
+    "date": "2033-05-18T03:33:20.000Z",
+    "end_date": null,
+    "all_day": false,
+    "timezone": "UTC",
+    "category": "curiosities",
+    "tags": [
+      "unix-time",
+      "tech",
+      "computed"
+    ],
+    "regions": [
+      "GLOBAL"
+    ],
+    "source": "curiosities",
+    "source_url": "https://en.wikipedia.org/wiki/Unix_time",
+    "source_key": "curiosities:unix:2000000000",
+    "external_ids": {},
+    "status": "scheduled",
+    "date_precision": "instant",
+    "confidence": 1,
+    "featured": true,
+    "popularity": 70,
+    "series_slug": null,
+    "location": null,
+    "jsonld_eligible": false,
+    "image_candidate_url": null,
+    "image_candidate_meta": null,
+    "raw": {
+      "kind": "unix",
+      "seconds": 2000000000
+    }
+  },
+  {
+    "slug": "unix-time-reaches-2-100-000-000-2036-07-18",
+    "title": "Unix time reaches 2,100,000,000",
+    "description": "At 13:20:00 UTC on 18 July 2036 the Unix clock, the count of seconds since 00:00:00 UTC on 1 January 1970, ticks over to 2,100,000,000. Programmers mark these round-number seconds as unofficial holidays of the epoch.",
+    "summary": null,
+    "date": "2036-07-18T13:20:00.000Z",
+    "end_date": null,
+    "all_day": false,
+    "timezone": "UTC",
+    "category": "curiosities",
+    "tags": [
+      "unix-time",
+      "tech",
+      "computed"
+    ],
+    "regions": [
+      "GLOBAL"
+    ],
+    "source": "curiosities",
+    "source_url": "https://en.wikipedia.org/wiki/Unix_time",
+    "source_key": "curiosities:unix:2100000000",
+    "external_ids": {},
+    "status": "scheduled",
+    "date_precision": "instant",
+    "confidence": 1,
+    "featured": false,
+    "popularity": 50,
+    "series_slug": null,
+    "location": null,
+    "jsonld_eligible": false,
+    "image_candidate_url": null,
+    "image_candidate_meta": null,
+    "raw": {
+      "kind": "unix",
+      "seconds": 2100000000
+    }
+  },
+  {
+    "slug": "year-2038-problem-32-bit-unix-time-overflows-2038-01-19",
+    "title": "Year 2038 problem: 32-bit Unix time overflows",
+    "description": "At 03:14:07 UTC on 19 January 2038 the count of seconds since 1 January 1970 passes 2,147,483,647, the largest value a signed 32-bit integer can hold. Software that still stores time in 32 bits wraps around to December 1901 at that instant unless it has been patched.",
+    "summary": null,
+    "date": "2038-01-19T03:14:07.000Z",
+    "end_date": null,
+    "all_day": false,
+    "timezone": "UTC",
+    "category": "curiosities",
+    "tags": [
+      "unix-time",
+      "tech",
+      "computed",
+      "y2038"
+    ],
+    "regions": [
+      "GLOBAL"
+    ],
+    "source": "curiosities",
+    "source_url": "https://en.wikipedia.org/wiki/Year_2038_problem",
+    "source_key": "curiosities:unix:2147483647",
+    "external_ids": {},
+    "status": "scheduled",
+    "date_precision": "instant",
+    "confidence": 1,
+    "featured": true,
+    "popularity": 80,
+    "series_slug": null,
+    "location": null,
+    "jsonld_eligible": false,
+    "image_candidate_url": null,
+    "image_candidate_meta": null,
+    "raw": {
+      "kind": "unix",
+      "seconds": 2147483647
+    }
+  },
+  {
+    "slug": "unix-time-reaches-2-200-000-000-2039-09-18",
+    "title": "Unix time reaches 2,200,000,000",
+    "description": "At 23:06:40 UTC on 18 September 2039 the Unix clock, the count of seconds since 00:00:00 UTC on 1 January 1970, ticks over to 2,200,000,000. Programmers mark these round-number seconds as unofficial holidays of the epoch.",
+    "summary": null,
+    "date": "2039-09-18T23:06:40.000Z",
+    "end_date": null,
+    "all_day": false,
+    "timezone": "UTC",
+    "category": "curiosities",
+    "tags": [
+      "unix-time",
+      "tech",
+      "computed"
+    ],
+    "regions": [
+      "GLOBAL"
+    ],
+    "source": "curiosities",
+    "source_url": "https://en.wikipedia.org/wiki/Unix_time",
+    "source_key": "curiosities:unix:2200000000",
+    "external_ids": {},
+    "status": "scheduled",
+    "date_precision": "instant",
+    "confidence": 1,
+    "featured": false,
+    "popularity": 50,
+    "series_slug": null,
+    "location": null,
+    "jsonld_eligible": false,
+    "image_candidate_url": null,
+    "image_candidate_meta": null,
+    "raw": {
+      "kind": "unix",
+      "seconds": 2200000000
+    }
+  },
+  {
+    "slug": "crypt-of-civilization-opens-8113-05-28",
+    "title": "Crypt of Civilization opens",
+    "description": "The Crypt of Civilization, a sealed chamber beneath Oglethorpe University in Atlanta, was welded shut on 28 May 1940 with instructions that it stay closed until 28 May 8113. That date sits as far in the future as the first recorded Egyptian calendar sat in the past when the crypt was planned.",
+    "summary": null,
+    "date": "8113-05-28",
+    "end_date": null,
+    "all_day": true,
+    "timezone": null,
+    "category": "curiosities",
+    "tags": [
+      "time-capsule",
+      "history",
+      "far-future",
+      "curated"
+    ],
+    "regions": [
+      "US",
+      "GLOBAL"
+    ],
+    "source": "curiosities",
+    "source_url": "https://en.wikipedia.org/wiki/Crypt_of_Civilization",
+    "source_key": "curiosities:curated:crypt-of-civilization",
+    "external_ids": {},
+    "status": "scheduled",
+    "date_precision": "day",
+    "confidence": 0.9,
+    "featured": false,
+    "popularity": 60,
+    "series_slug": null,
+    "location": null,
+    "jsonld_eligible": false,
+    "image_candidate_url": null,
+    "image_candidate_meta": null,
+    "raw": {
+      "kind": "curated",
+      "id": "crypt-of-civilization"
+    }
+  },
+  {
+    "slug": "westinghouse-time-capsules-opening-6939-01-01",
+    "title": "Westinghouse Time Capsules opening",
+    "description": "Two Westinghouse time capsules were buried 50 feet below Flushing Meadows in New York at the 1939 and 1964 World's Fairs. Both are meant to be opened in the year 6939, five thousand years after the first was sealed.",
+    "summary": null,
+    "date": "6939-01-01",
+    "end_date": null,
+    "all_day": true,
+    "timezone": null,
+    "category": "curiosities",
+    "tags": [
+      "time-capsule",
+      "history",
+      "worlds-fair",
+      "far-future",
+      "curated"
+    ],
+    "regions": [
+      "US",
+      "GLOBAL"
+    ],
+    "source": "curiosities",
+    "source_url": "https://en.wikipedia.org/wiki/Westinghouse_Time_Capsules",
+    "source_key": "curiosities:curated:westinghouse-time-capsules",
+    "external_ids": {},
+    "status": "tentative",
+    "date_precision": "year",
+    "confidence": 0.9,
+    "featured": false,
+    "popularity": 40,
+    "series_slug": null,
+    "location": null,
+    "jsonld_eligible": false,
+    "image_candidate_url": null,
+    "image_candidate_meta": null,
+    "raw": {
+      "kind": "curated",
+      "id": "westinghouse-time-capsules"
+    }
+  },
+  {
+    "slug": "leap-seconds-abolished-2035-01-01",
+    "title": "Leap seconds abolished",
+    "description": "In November 2022 the General Conference on Weights and Measures resolved that leap seconds will stop being added to UTC by 2035 at the latest, letting civil time drift slowly from Earth's rotation. The exact year of the last leap second has not been fixed, so this is a deadline rather than a scheduled instant.",
+    "summary": null,
+    "date": "2035-01-01",
+    "end_date": null,
+    "all_day": true,
+    "timezone": null,
+    "category": "curiosities",
+    "tags": [
+      "leap-second",
+      "time",
+      "utc",
+      "metrology",
+      "curated"
+    ],
+    "regions": [
+      "GLOBAL"
+    ],
+    "source": "curiosities",
+    "source_url": "https://en.wikipedia.org/wiki/Leap_second",
+    "source_key": "curiosities:curated:leap-seconds-abolished",
+    "external_ids": {},
+    "status": "tentative",
+    "date_precision": "year",
+    "confidence": 0.9,
+    "featured": false,
+    "popularity": 40,
+    "series_slug": null,
+    "location": null,
+    "jsonld_eligible": false,
+    "image_candidate_url": null,
+    "image_candidate_meta": null,
+    "raw": {
+      "kind": "curated",
+      "id": "leap-seconds-abolished"
+    }
+  },
+  {
+    "slug": "voyager-1-reaches-one-light-day-from-earth-2026-11-01",
+    "title": "Voyager 1 reaches one light-day from Earth",
+    "description": "Voyager 1, launched in 1977, is expected to pass about 173.8 astronomical units from Earth in November 2026, the distance light travels in a day. From then on a radio command takes more than 24 hours to reach the probe, and its reply takes as long to come back.",
+    "summary": null,
+    "date": "2026-11-01",
+    "end_date": null,
+    "all_day": true,
+    "timezone": null,
+    "category": "curiosities",
+    "tags": [
+      "voyager",
+      "space",
+      "deep-space",
+      "curated"
+    ],
+    "regions": [
+      "GLOBAL"
+    ],
+    "source": "curiosities",
+    "source_url": "https://en.wikipedia.org/wiki/Voyager_1",
+    "source_key": "curiosities:curated:voyager-1-light-day",
+    "external_ids": {},
+    "status": "tentative",
+    "date_precision": "month",
+    "confidence": 0.9,
+    "featured": false,
+    "popularity": 45,
+    "series_slug": null,
+    "location": null,
+    "jsonld_eligible": false,
+    "image_candidate_url": null,
+    "image_candidate_meta": null,
+    "raw": {
+      "kind": "curated",
+      "id": "voyager-1-light-day"
+    }
+  },
+  {
+    "slug": "voyager-probes-expected-to-fall-silent-2036-01-01",
+    "title": "Voyager probes expected to fall silent",
+    "description": "Voyager 1 and Voyager 2 run on plutonium generators that lose about four watts a year, and NASA expects them to stop powering any instrument around the mid-2030s. By roughly 2036 both probes should also be beyond the range of the Deep Space Network, ending 60 years of contact.",
+    "summary": null,
+    "date": "2036-01-01",
+    "end_date": null,
+    "all_day": true,
+    "timezone": null,
+    "category": "curiosities",
+    "tags": [
+      "voyager",
+      "space",
+      "deep-space",
+      "curated"
+    ],
+    "regions": [
+      "GLOBAL"
+    ],
+    "source": "curiosities",
+    "source_url": "https://en.wikipedia.org/wiki/Voyager_program",
+    "source_key": "curiosities:curated:voyager-dsn-range",
+    "external_ids": {},
+    "status": "tentative",
+    "date_precision": "year",
+    "confidence": 0.9,
+    "featured": false,
+    "popularity": 30,
+    "series_slug": null,
+    "location": null,
+    "jsonld_eligible": false,
+    "image_candidate_url": null,
+    "image_candidate_meta": null,
+    "raw": {
+      "kind": "curated",
+      "id": "voyager-dsn-range"
+    }
+  }
+]

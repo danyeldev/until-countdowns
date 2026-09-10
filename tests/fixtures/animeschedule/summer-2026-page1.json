@@ -1,0 +1,256 @@
+{
+  "page": 1,
+  "totalAmount": 110,
+  "anime": [
+    {
+      "id": "6Tzq",
+      "title": "Mushoku Tensei III: Isekai Ittara Honki Dasu",
+      "route": "mushoku-tensei-iii-isekai-ittara-honki-dasu",
+      "premier": "2026-07-04T00:00:00Z",
+      "subPremier": "0001-01-01T00:00:00Z",
+      "dubPremier": "2026-07-19T00:00:00Z",
+      "year": 2026,
+      "season": {
+        "title": "Summer 2026",
+        "year": "2026",
+        "season": "Summer",
+        "route": "summer-2026"
+      },
+      "delayedFrom": "0001-01-01T00:00:00Z",
+      "delayedUntil": "0001-01-01T00:00:00Z",
+      "genres": [
+        {
+          "name": "Action",
+          "route": "action"
+        },
+        {
+          "name": "Adventure",
+          "route": "adventure"
+        },
+        {
+          "name": "Drama",
+          "route": "drama"
+        },
+        {
+          "name": "Fantasy",
+          "route": "fantasy"
+        },
+        {
+          "name": "Isekai",
+          "route": "isekai"
+        },
+        {
+          "name": "Magic",
+          "route": "magic"
+        }
+      ],
+      "studios": [
+        {
+          "name": "Studio Bind",
+          "route": "studio-bind"
+        }
+      ],
+      "sources": [
+        {
+          "name": "Light Novel",
+          "route": "light-novel"
+        }
+      ],
+      "mediaTypes": [
+        {
+          "name": "TV",
+          "route": "tv"
+        }
+      ],
+      "episodes": 14,
+      "status": "Ongoing",
+      "updatedAt": "2026-09-09T19:00:15.593Z",
+      "imageVersionRoute": "anime/jpg/default/mushoku-tensei-iii-isekai-ittara-honki-dasu-f7856130558d1b4db896472f25abaeec.jpg",
+      "names": {
+        "romaji": "Mushoku Tensei III: Isekai Ittara Honki Dasu",
+        "english": "Mushoku Tensei: Jobless Reincarnation 3",
+        "native": "無職転生 ～異世界行ったら本気だす～ 第3期",
+        "synonyms": [
+          "Mushoku Tensei 3",
+          "Jobless Reincarnation: I Will Seriously Try If I Go To Another World 3",
+          "Mushoku Tensei: Isekai Ittara Honki Dasu Season 3",
+          "Mushoku Tensei: Jobless Reincarnation Season 3"
+        ]
+      },
+      "websites": {
+        "official": "mushokutensei.jp/",
+        "mal": "myanimelist.net/anime/59193/Mushoku_Tensei_III__Isekai_Ittara_Honki_Dasu",
+        "aniList": "anilist.co/anime/178789/Mushoku-Tensei-Isekai-Ittara-Honki-Dasu-3rd-Season/",
+        "kitsu": "kitsu.io/anime/Mushoku-Tensei-Isekai-Ittara-Honki-Dasu-3rd-Season",
+        "animePlanet": "www.anime-planet.com/anime/mushoku-tensei-jobless-reincarnation-3rd-season",
+        "anidb": "anidb.net/anime/18727"
+      },
+      "description": "",
+      "stats": {
+        "trackedCount": 2449
+      }
+    },
+    {
+      "id": "9vIs",
+      "title": "Youjo Senki II",
+      "route": "youjo-senki-ii",
+      "premier": "2026-07-08T00:00:00Z",
+      "subPremier": "0001-01-01T00:00:00Z",
+      "dubPremier": "2026-09-09T00:00:00Z",
+      "year": 2026,
+      "season": {
+        "title": "Summer 2026",
+        "year": "2026",
+        "season": "Summer",
+        "route": "summer-2026"
+      },
+      "delayedFrom": "0001-01-01T00:00:00Z",
+      "delayedUntil": "0001-01-01T00:00:00Z",
+      "genres": [
+        {
+          "name": "Action",
+          "route": "action"
+        },
+        {
+          "name": "Isekai",
+          "route": "isekai"
+        },
+        {
+          "name": "Magic",
+          "route": "magic"
+        },
+        {
+          "name": "Military",
+          "route": "military"
+        }
+      ],
+      "studios": [
+        {
+          "name": "NUT",
+          "route": "nut"
+        }
+      ],
+      "sources": [
+        {
+          "name": "Light Novel",
+          "route": "light-novel"
+        }
+      ],
+      "mediaTypes": [
+        {
+          "name": "TV",
+          "route": "tv"
+        }
+      ],
+      "episodes": 12,
+      "status": "Ongoing",
+      "updatedAt": "2026-09-09T19:05:00.067Z",
+      "imageVersionRoute": "anime/jpg/default/youjo-senki-ii-ffc33a55b698b8dee3cd7798a37a8004.jpg",
+      "names": {
+        "romaji": "Youjo Senki II",
+        "english": "Saga of Tanya the Evil II",
+        "native": "幼女戦記 II",
+        "synonyms": [
+          "Saga of Tanya the Evil 2nd Season",
+          "Youjo Senki 2nd Season"
+        ]
+      },
+      "websites": {
+        "official": "youjo-senki.jp/",
+        "mal": "myanimelist.net/anime/49233/Youjo_Senki_II",
+        "aniList": "anilist.co/anime/135865/Youjo-Senki-II/",
+        "kitsu": "kitsu.io/anime/youjo-senki-ii",
+        "animePlanet": "www.anime-planet.com/anime/saga-of-tanya-the-evil-ii",
+        "anidb": "anidb.net/anime/16392"
+      },
+      "description": "",
+      "stats": {
+        "trackedCount": 1962
+      }
+    },
+    {
+      "id": "bfzU",
+      "title": "Katainaka no Ossan, Kensei ni Naru 2nd Season",
+      "route": "katainaka-no-ossan-kensei-ni-naru-2nd-season",
+      "premier": "2026-07-08T00:00:00Z",
+      "subPremier": "0001-01-01T00:00:00Z",
+      "dubPremier": "2026-07-08T00:00:00Z",
+      "year": 2026,
+      "season": {
+        "title": "Summer 2026",
+        "year": "2026",
+        "season": "Summer",
+        "route": "summer-2026"
+      },
+      "delayedFrom": "0001-01-01T00:00:00Z",
+      "delayedUntil": "0001-01-01T00:00:00Z",
+      "genres": [
+        {
+          "name": "Action",
+          "route": "action"
+        },
+        {
+          "name": "Adventure",
+          "route": "adventure"
+        },
+        {
+          "name": "Comedy",
+          "route": "comedy"
+        },
+        {
+          "name": "Fantasy",
+          "route": "fantasy"
+        }
+      ],
+      "studios": [
+        {
+          "name": "Hayabusa Film",
+          "route": "hayabusa-film"
+        },
+        {
+          "name": "Passione",
+          "route": "passione"
+        }
+      ],
+      "sources": [
+        {
+          "name": "Light Novel",
+          "route": "light-novel"
+        }
+      ],
+      "mediaTypes": [
+        {
+          "name": "TV",
+          "route": "tv"
+        }
+      ],
+      "episodes": 12,
+      "status": "Ongoing",
+      "updatedAt": "2026-09-09T19:05:04.44Z",
+      "imageVersionRoute": "anime/jpg/default/katainaka-no-ossan-kensei-ni-naru-2nd-season-6b8863d2c46925d2d05773d6915c9df3.jpg",
+      "names": {
+        "romaji": "Katainaka no Ossan, Kensei ni Naru 2nd Season",
+        "english": "From Old Country Bumpkin to Master Swordsman 2nd Season",
+        "native": "片田舎のおっさん、剣聖になる 第二期",
+        "synonyms": [
+          "From Old Country Bumpkin to Master Swordsman II",
+          "Katainaka no Ossan, Kensei ni Naru II",
+          "Katainaka no Ossan, Kensei ni Naru Season 2",
+          "From Old Country Bumpkin to Master Swordsman Season 2"
+        ]
+      },
+      "websites": {
+        "official": "ossan-kensei.com/",
+        "mal": "myanimelist.net/anime/61897/Katainaka_no_Ossan_Kensei_ni_Naru_2nd_Season",
+        "aniList": "anilist.co/anime/194829/Katainaka-no-Ossan-Kensei-ni-Naru-2nd-Season/",
+        "kitsu": "kitsu.app/anime/katainaka-no-ossan-kensei-ni-naru-2nd-season",
+        "animePlanet": "www.anime-planet.com/anime/from-old-country-bumpkin-to-master-swordsman-season-2",
+        "anidb": "anidb.net/anime/19400"
+      },
+      "description": "",
+      "stats": {
+        "trackedCount": 1402
+      }
+    }
+  ]
+}

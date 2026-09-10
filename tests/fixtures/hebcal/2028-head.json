@@ -1,0 +1,168 @@
+{
+  "title": "Hebcal Diaspora 2028",
+  "date": "2026-09-09T00:00:00.000Z",
+  "version": "6.9.2-4.1.1",
+  "location": {
+    "geo": "none"
+  },
+  "range": {
+    "start": "2028-01-01",
+    "end": "2028-12-28"
+  },
+  "items": [
+    {
+      "title": "Chanukah: 8th Day",
+      "date": "2028-01-01",
+      "hdate": "2 Tevet 5788",
+      "category": "holiday",
+      "subcat": "major",
+      "hebrew": "חנוכה: יום ח׳",
+      "link": "https://hebcal.com/h/chanukah-2027?us=js&um=api",
+      "memo": "Hanukkah, the Jewish festival of rededication. Also known as the Festival of Lights, the eight-day festival is observed by lighting the candles of a hanukkiah (menorah)"
+    },
+    {
+      "title": "Asara B’Tevet",
+      "date": "2028-01-09",
+      "hdate": "10 Tevet 5788",
+      "category": "holiday",
+      "subcat": "fast",
+      "title_orig": "Asara B'Tevet",
+      "hebrew": "עשרה בטבת",
+      "link": "https://hebcal.com/h/asara-btevet-20280109?us=js&um=api",
+      "memo": "Fast commemorating the siege of Jerusalem"
+    },
+    {
+      "title": "Erev Rosh Hashana",
+      "date": "2028-09-20",
+      "hdate": "29 Elul 5788",
+      "category": "holiday",
+      "subcat": "major",
+      "hebrew": "ערב ראש השנה",
+      "link": "https://hebcal.com/h/rosh-hashana-2028?us=js&um=api",
+      "memo": "The Jewish New Year. Also spelled Rosh Hashanah"
+    },
+    {
+      "title": "Rosh Hashana 5789",
+      "date": "2028-09-21",
+      "hdate": "1 Tishrei 5789",
+      "category": "holiday",
+      "subcat": "major",
+      "yomtov": true,
+      "hebrew": "ראש השנה 5789",
+      "link": "https://hebcal.com/h/rosh-hashana-2028?us=js&um=api",
+      "memo": "The Jewish New Year. Also spelled Rosh Hashanah"
+    },
+    {
+      "title": "Rosh Hashana II",
+      "date": "2028-09-22",
+      "hdate": "2 Tishrei 5789",
+      "category": "holiday",
+      "subcat": "major",
+      "yomtov": true,
+      "hebrew": "ראש השנה ב׳",
+      "link": "https://hebcal.com/h/rosh-hashana-2028?us=js&um=api",
+      "memo": "The Jewish New Year. Also spelled Rosh Hashanah"
+    },
+    {
+      "title": "Chanukah: 1 Candle",
+      "date": "2028-12-12",
+      "hdate": "24 Kislev 5789",
+      "category": "holiday",
+      "subcat": "major",
+      "hebrew": "חנוכה: א׳ נר",
+      "link": "https://hebcal.com/h/chanukah-2028?us=js&um=api",
+      "memo": "Hanukkah, the Jewish festival of rededication. Also known as the Festival of Lights, the eight-day festival is observed by lighting the candles of a hanukkiah (menorah)"
+    },
+    {
+      "title": "Chanukah: 2 Candles",
+      "date": "2028-12-13",
+      "hdate": "25 Kislev 5789",
+      "category": "holiday",
+      "subcat": "major",
+      "hebrew": "חנוכה: ב׳ נרות",
+      "link": "https://hebcal.com/h/chanukah-2028?us=js&um=api",
+      "memo": "Hanukkah, the Jewish festival of rededication. Also known as the Festival of Lights, the eight-day festival is observed by lighting the candles of a hanukkiah (menorah)"
+    },
+    {
+      "title": "Chanukah: 3 Candles",
+      "date": "2028-12-14",
+      "hdate": "26 Kislev 5789",
+      "category": "holiday",
+      "subcat": "major",
+      "hebrew": "חנוכה: ג׳ נרות",
+      "link": "https://hebcal.com/h/chanukah-2028?us=js&um=api",
+      "memo": "Hanukkah, the Jewish festival of rededication. Also known as the Festival of Lights, the eight-day festival is observed by lighting the candles of a hanukkiah (menorah)"
+    },
+    {
+      "title": "Chanukah: 4 Candles",
+      "date": "2028-12-15",
+      "hdate": "27 Kislev 5789",
+      "category": "holiday",
+      "subcat": "major",
+      "hebrew": "חנוכה: ד׳ נרות",
+      "link": "https://hebcal.com/h/chanukah-2028?us=js&um=api",
+      "memo": "Hanukkah, the Jewish festival of rededication. Also known as the Festival of Lights, the eight-day festival is observed by lighting the candles of a hanukkiah (menorah)"
+    },
+    {
+      "title": "Chanukah: 5 Candles",
+      "date": "2028-12-16",
+      "hdate": "28 Kislev 5789",
+      "category": "holiday",
+      "subcat": "major",
+      "hebrew": "חנוכה: ה׳ נרות",
+      "link": "https://hebcal.com/h/chanukah-2028?us=js&um=api",
+      "memo": "Hanukkah, the Jewish festival of rededication. Also known as the Festival of Lights, the eight-day festival is observed by lighting the candles of a hanukkiah (menorah)"
+    },
+    {
+      "title": "Chanukah: 6 Candles",
+      "date": "2028-12-17",
+      "hdate": "29 Kislev 5789",
+      "category": "holiday",
+      "subcat": "major",
+      "hebrew": "חנוכה: ו׳ נרות",
+      "link": "https://hebcal.com/h/chanukah-2028?us=js&um=api",
+      "memo": "Hanukkah, the Jewish festival of rededication. Also known as the Festival of Lights, the eight-day festival is observed by lighting the candles of a hanukkiah (menorah)"
+    },
+    {
+      "title": "Chanukah: 7 Candles",
+      "date": "2028-12-18",
+      "hdate": "30 Kislev 5789",
+      "category": "holiday",
+      "subcat": "major",
+      "hebrew": "חנוכה: ז׳ נרות",
+      "link": "https://hebcal.com/h/chanukah-2028?us=js&um=api",
+      "memo": "Hanukkah, the Jewish festival of rededication. Also known as the Festival of Lights, the eight-day festival is observed by lighting the candles of a hanukkiah (menorah)"
+    },
+    {
+      "title": "Chanukah: 8 Candles",
+      "date": "2028-12-19",
+      "hdate": "1 Tevet 5789",
+      "category": "holiday",
+      "subcat": "major",
+      "hebrew": "חנוכה: ח׳ נרות",
+      "link": "https://hebcal.com/h/chanukah-2028?us=js&um=api",
+      "memo": "Hanukkah, the Jewish festival of rededication. Also known as the Festival of Lights, the eight-day festival is observed by lighting the candles of a hanukkiah (menorah)"
+    },
+    {
+      "title": "Chanukah: 8th Day",
+      "date": "2028-12-20",
+      "hdate": "2 Tevet 5789",
+      "category": "holiday",
+      "subcat": "major",
+      "hebrew": "חנוכה: יום ח׳",
+      "link": "https://hebcal.com/h/chanukah-2028?us=js&um=api",
+      "memo": "Hanukkah, the Jewish festival of rededication. Also known as the Festival of Lights, the eight-day festival is observed by lighting the candles of a hanukkiah (menorah)"
+    },
+    {
+      "title": "Asara B’Tevet",
+      "date": "2028-12-28",
+      "hdate": "10 Tevet 5789",
+      "category": "holiday",
+      "subcat": "fast",
+      "title_orig": "Asara B'Tevet",
+      "hebrew": "עשרה בטבת",
+      "link": "https://hebcal.com/h/asara-btevet-20281228?us=js&um=api",
+      "memo": "Fast commemorating the siege of Jerusalem"
+    }
+  ]
+}

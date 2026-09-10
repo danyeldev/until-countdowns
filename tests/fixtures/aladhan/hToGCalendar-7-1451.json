@@ -1,0 +1,142 @@
+{
+ "code": 200,
+ "status": "OK",
+ "data": [
+  {
+   "hijri": {
+    "date": "01-07-1451",
+    "format": "DD-MM-YYYY",
+    "day": "1",
+    "weekday": {
+     "en": "Al Arba'a"
+    },
+    "month": {
+     "number": 7,
+     "en": "Rajab",
+     "days": 30
+    },
+    "year": "1451",
+    "holidays": [
+     "Beginning of the holy months"
+    ],
+    "adjustedHolidays": [],
+    "method": "HJCoSA"
+   },
+   "gregorian": {
+    "date": "07-11-2029",
+    "format": "DD-MM-YYYY",
+    "day": "07",
+    "weekday": {
+     "en": "Wednesday"
+    },
+    "month": {
+     "number": 11,
+     "en": "November"
+    },
+    "year": "2029",
+    "lunarSighting": false
+   }
+  },
+  {
+   "hijri": {
+    "date": "02-07-1451",
+    "format": "DD-MM-YYYY",
+    "day": "2",
+    "weekday": {
+     "en": "Al Khamees"
+    },
+    "month": {
+     "number": 7,
+     "en": "Rajab",
+     "days": 30
+    },
+    "year": "1451",
+    "holidays": [],
+    "adjustedHolidays": [],
+    "method": "HJCoSA"
+   },
+   "gregorian": {
+    "date": "08-11-2029",
+    "format": "DD-MM-YYYY",
+    "day": "08",
+    "weekday": {
+     "en": "Thursday"
+    },
+    "month": {
+     "number": 11,
+     "en": "November"
+    },
+    "year": "2029",
+    "lunarSighting": false
+   }
+  },
+  {
+   "hijri": {
+    "date": "27-07-1451",
+    "format": "DD-MM-YYYY",
+    "day": "27",
+    "weekday": {
+     "en": "Al Athnayn"
+    },
+    "month": {
+     "number": 7,
+     "en": "Rajab",
+     "days": 30
+    },
+    "year": "1451",
+    "holidays": [
+     "Lailat-ul-Miraj"
+    ],
+    "adjustedHolidays": [],
+    "method": "HJCoSA"
+   },
+   "gregorian": {
+    "date": "03-12-2029",
+    "format": "DD-MM-YYYY",
+    "day": "03",
+    "weekday": {
+     "en": "Monday"
+    },
+    "month": {
+     "number": 12,
+     "en": "December"
+    },
+    "year": "2029",
+    "lunarSighting": false
+   }
+  },
+  {
+   "hijri": {
+    "date": "30-07-1451",
+    "format": "DD-MM-YYYY",
+    "day": "30",
+    "weekday": {
+     "en": "Al Khamees"
+    },
+    "month": {
+     "number": 7,
+     "en": "Rajab",
+     "days": 30
+    },
+    "year": "1451",
+    "holidays": [],
+    "adjustedHolidays": [],
+    "method": "HJCoSA"
+   },
+   "gregorian": {
+    "date": "06-12-2029",
+    "format": "DD-MM-YYYY",
+    "day": "06",
+    "weekday": {
+     "en": "Thursday"
+    },
+    "month": {
+     "number": 12,
+     "en": "December"
+    },
+    "year": "2029",
+    "lunarSighting": false
+   }
+  }
+ ]
+}

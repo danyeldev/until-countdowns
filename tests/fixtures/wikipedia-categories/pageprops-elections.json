@@ -1,0 +1,53 @@
+{
+ "batchcomplete": true,
+ "query": {
+  "redirects": [
+   {
+    "from": "Next Swiss federal election",
+    "to": "2023 Swiss federal election"
+   }
+  ],
+  "pages": [
+   {
+    "pageid": 67145390,
+    "ns": 0,
+    "title": "2023 Swiss federal election",
+    "pageprops": {
+     "wikibase_item": "Q71712422"
+    }
+   },
+   {
+    "pageid": 72162761,
+    "ns": 0,
+    "title": "2027 French presidential election",
+    "pageprops": {
+     "wikibase_item": "Q111594692"
+    }
+   },
+   {
+    "pageid": 80166823,
+    "ns": 0,
+    "title": "2027 Nigerian general election",
+    "pageprops": {
+     "wikibase_item": "Q135012921"
+    }
+   },
+   {
+    "pageid": 80693345,
+    "ns": 0,
+    "title": "2027 Somaliland parliamentary election",
+    "pageprops": {
+     "wikibase_item": "Q135938695"
+    }
+   },
+   {
+    "pageid": 82710794,
+    "ns": 0,
+    "title": "2027 Micronesian general election",
+    "pageprops": {
+     "wikibase_item": "Q138711043"
+    }
+   }
+  ]
+ }
+}

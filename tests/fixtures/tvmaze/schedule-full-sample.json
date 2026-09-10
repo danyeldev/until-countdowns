@@ -1,0 +1,589 @@
+[
+  {
+    "id": 3717627,
+    "url": "https://www.tvmaze.com/episodes/3717627/all-creatures-great-and-small-7x01-back-to-school",
+    "name": "Back to School",
+    "season": 7,
+    "number": 1,
+    "type": "regular",
+    "airdate": "2026-09-17",
+    "airtime": "21:00",
+    "airstamp": "2026-09-17T20:00:00+00:00",
+    "runtime": 60,
+    "image": {
+      "medium": "https://static.tvmaze.com/uploads/images/medium_landscape/639/1599072.jpg",
+      "original": "https://static.tvmaze.com/uploads/images/original_untouched/639/1599072.jpg"
+    },
+    "summary": null,
+    "_embedded": {
+      "show": {
+        "id": 42836,
+        "url": "https://www.tvmaze.com/shows/42836/all-creatures-great-and-small",
+        "name": "All Creatures Great and Small",
+        "type": "Scripted",
+        "language": "English",
+        "genres": [
+          "Drama"
+        ],
+        "status": "Running",
+        "premiered": "2020-09-01",
+        "schedule": {
+          "time": "21:00",
+          "days": [
+            "Thursday"
+          ]
+        },
+        "weight": 99,
+        "network": {
+          "id": 135,
+          "name": "5",
+          "country": {
+            "name": "United Kingdom",
+            "code": "GB",
+            "timezone": "Europe/London"
+          }
+        },
+        "webChannel": null,
+        "externals": {
+          "tvrage": null,
+          "thetvdb": 378982,
+          "imdb": "tt10590066"
+        },
+        "image": {
+          "medium": "https://static.tvmaze.com/uploads/images/medium_portrait/593/1483974.jpg",
+          "original": "https://static.tvmaze.com/uploads/images/original_untouched/593/1483974.jpg"
+        },
+        "summary": null
+      }
+    }
+  },
+  {
+    "id": 3693908,
+    "url": "https://www.tvmaze.com/episodes/3693908/war-1x01-episode-1",
+    "name": "Episode 1",
+    "season": 1,
+    "number": 1,
+    "type": "regular",
+    "airdate": "2026-10-01",
+    "airtime": "",
+    "airstamp": "2026-10-01T16:00:00+00:00",
+    "runtime": null,
+    "image": null,
+    "summary": null,
+    "_embedded": {
+      "show": {
+        "id": 86587,
+        "url": "https://www.tvmaze.com/shows/86587/war",
+        "name": "War",
+        "type": "Scripted",
+        "language": "English",
+        "genres": [
+          "Thriller",
+          "Legal"
+        ],
+        "status": "In Development",
+        "premiered": "2026-10-01",
+        "schedule": {
+          "time": "",
+          "days": []
+        },
+        "weight": 98,
+        "network": {
+          "id": 8,
+          "name": "HBO",
+          "country": {
+            "name": "United States",
+            "code": "US",
+            "timezone": "America/New_York"
+          }
+        },
+        "webChannel": null,
+        "externals": {
+          "tvrage": null,
+          "thetvdb": 467092,
+          "imdb": "tt37972251"
+        },
+        "image": {
+          "medium": "https://static.tvmaze.com/uploads/images/medium_portrait/636/1590143.jpg",
+          "original": "https://static.tvmaze.com/uploads/images/original_untouched/636/1590143.jpg"
+        },
+        "summary": null
+      }
+    }
+  },
+  {
+    "id": 3599814,
+    "url": "https://www.tvmaze.com/episodes/3599814/city-of-blood-1x01-folge-1",
+    "name": "Folge 1",
+    "season": 1,
+    "number": 1,
+    "type": "regular",
+    "airdate": "2026-09-16",
+    "airtime": "",
+    "airstamp": "2026-09-16T12:00:00+00:00",
+    "runtime": null,
+    "image": null,
+    "summary": null,
+    "_embedded": {
+      "show": {
+        "id": 91059,
+        "url": "https://www.tvmaze.com/shows/91059/city-of-blood",
+        "name": "City of Blood",
+        "type": "Scripted",
+        "language": "German",
+        "genres": [
+          "Horror",
+          "Thriller",
+          "Supernatural"
+        ],
+        "status": "In Development",
+        "premiered": "2026-09-16",
+        "schedule": {
+          "time": "",
+          "days": []
+        },
+        "weight": 97,
+        "network": null,
+        "webChannel": {
+          "id": 287,
+          "name": "Disney+",
+          "country": null
+        },
+        "externals": {
+          "tvrage": null,
+          "thetvdb": 480908,
+          "imdb": "tt32642114"
+        },
+        "image": {
+          "medium": "https://static.tvmaze.com/uploads/images/medium_portrait/636/1591946.jpg",
+          "original": "https://static.tvmaze.com/uploads/images/original_untouched/636/1591946.jpg"
+        },
+        "summary": null
+      }
+    }
+  },
+  {
+    "id": 3726131,
+    "url": "https://www.tvmaze.com/episodes/3726131/as-a-reincarnated-aristocrat-ill-use-my-appraisal-skill-to-rise-in-the-new-world-3x01-episode-1",
+    "name": "Episode 1",
+    "season": 3,
+    "number": 1,
+    "type": "regular",
+    "airdate": "2026-09-28",
+    "airtime": "23:30",
+    "airstamp": "2026-09-28T14:30:00+00:00",
+    "runtime": 30,
+    "image": null,
+    "summary": null,
+    "_embedded": {
+      "show": {
+        "id": 70864,
+        "url": "https://www.tvmaze.com/shows/70864/as-a-reincarnated-aristocrat-ill-use-my-appraisal-skill-to-rise-in-the-new-world",
+        "name": "As a Reincarnated Aristocrat I'll Use My Appraisal Skill to Rise in the New World",
+        "type": "Animation",
+        "language": "Japanese",
+        "genres": [
+          "Adventure",
+          "Anime",
+          "Fantasy"
+        ],
+        "status": "Running",
+        "premiered": "2024-04-07",
+        "schedule": {
+          "time": "23:30",
+          "days": [
+            "Sunday"
+          ]
+        },
+        "weight": 96,
+        "network": {
+          "id": 1234,
+          "name": "CBC",
+          "country": {
+            "name": "Japan",
+            "code": "JP",
+            "timezone": "Asia/Tokyo"
+          }
+        },
+        "webChannel": null,
+        "externals": {
+          "tvrage": null,
+          "thetvdb": 434704,
+          "imdb": "tt31975847"
+        },
+        "image": {
+          "medium": "https://static.tvmaze.com/uploads/images/medium_portrait/512/1281754.jpg",
+          "original": "https://static.tvmaze.com/uploads/images/original_untouched/512/1281754.jpg"
+        },
+        "summary": null
+      }
+    }
+  },
+  {
+    "id": 3717920,
+    "url": "https://www.tvmaze.com/episodes/3717920/the-view-30x01-season-30-premiere",
+    "name": "Season 30 Premiere",
+    "season": 30,
+    "number": 1,
+    "type": "regular",
+    "airdate": "2026-09-08",
+    "airtime": "11:00",
+    "airstamp": "2026-09-08T15:00:00+00:00",
+    "runtime": 60,
+    "image": null,
+    "summary": null,
+    "_embedded": {
+      "show": {
+        "id": 6048,
+        "url": "https://www.tvmaze.com/shows/6048/the-view",
+        "name": "The View",
+        "type": "Talk Show",
+        "language": "English",
+        "genres": [],
+        "status": "Running",
+        "premiered": "1997-08-11",
+        "schedule": {
+          "time": "11:00",
+          "days": [
+            "Monday",
+            "Tuesday",
+            "Wednesday",
+            "Thursday",
+            "Friday"
+          ]
+        },
+        "weight": 95,
+        "network": {
+          "id": 3,
+          "name": "ABC",
+          "country": {
+            "name": "United States",
+            "code": "US",
+            "timezone": "America/New_York"
+          }
+        },
+        "webChannel": null,
+        "externals": {
+          "tvrage": null,
+          "thetvdb": 72104,
+          "imdb": "tt0123366"
+        },
+        "image": {
+          "medium": "https://static.tvmaze.com/uploads/images/medium_portrait/587/1467740.jpg",
+          "original": "https://static.tvmaze.com/uploads/images/original_untouched/587/1467740.jpg"
+        },
+        "summary": null
+      }
+    }
+  },
+  {
+    "id": 3694402,
+    "url": "https://www.tvmaze.com/episodes/3694402/rett-skal-vaere-rett-1x01-helter-og-skurker",
+    "name": "Helter og skurker",
+    "season": 1,
+    "number": 1,
+    "type": "regular",
+    "airdate": "2026-09-16",
+    "airtime": "",
+    "airstamp": "2026-09-16T12:00:00+00:00",
+    "runtime": null,
+    "image": null,
+    "summary": null,
+    "_embedded": {
+      "show": {
+        "id": 93434,
+        "url": "https://www.tvmaze.com/shows/93434/rett-skal-vaere-rett",
+        "name": "Rett skal være rett",
+        "type": "Scripted",
+        "language": "Norwegian",
+        "genres": [],
+        "status": "Running",
+        "premiered": "2026-09-16",
+        "schedule": {
+          "time": "",
+          "days": []
+        },
+        "weight": 69,
+        "network": null,
+        "webChannel": {
+          "id": 329,
+          "name": "HBO Max",
+          "country": null
+        },
+        "externals": {
+          "tvrage": null,
+          "thetvdb": null,
+          "imdb": null
+        },
+        "image": null,
+        "summary": null
+      }
+    }
+  },
+  {
+    "id": 3444239,
+    "url": "https://www.tvmaze.com/episodes/3444239/the-emmy-awards-2026-09-14-78th-primetime-emmy-awards",
+    "name": "78th Primetime Emmy Awards",
+    "season": 2026,
+    "number": 1,
+    "type": "regular",
+    "airdate": "2026-09-14",
+    "airtime": "20:00",
+    "airstamp": "2026-09-15T00:00:00+00:00",
+    "runtime": 180,
+    "image": null,
+    "summary": null,
+    "_embedded": {
+      "show": {
+        "id": 6755,
+        "url": "https://www.tvmaze.com/shows/6755/the-emmy-awards",
+        "name": "The Emmy Awards",
+        "type": "Award Show",
+        "language": "English",
+        "genres": [],
+        "status": "Running",
+        "premiered": "1949-01-25",
+        "schedule": {
+          "time": "20:00",
+          "days": [
+            "Sunday"
+          ]
+        },
+        "weight": 97,
+        "network": {
+          "id": 1,
+          "name": "NBC",
+          "country": {
+            "name": "United States",
+            "code": "US",
+            "timezone": "America/New_York"
+          }
+        },
+        "webChannel": null,
+        "externals": {
+          "tvrage": null,
+          "thetvdb": 115021,
+          "imdb": null
+        },
+        "image": {
+          "medium": "https://static.tvmaze.com/uploads/images/medium_portrait/639/1598429.jpg",
+          "original": "https://static.tvmaze.com/uploads/images/original_untouched/639/1598429.jpg"
+        },
+        "summary": null
+      }
+    }
+  },
+  {
+    "id": 3717241,
+    "url": "https://www.tvmaze.com/episodes/3717241/high-country-2x01-episode-1",
+    "name": "Episode 1",
+    "season": 2,
+    "number": 1,
+    "type": "regular",
+    "airdate": "2026-09-14",
+    "airtime": "",
+    "airstamp": "2026-09-14T02:00:00+00:00",
+    "runtime": null,
+    "image": null,
+    "summary": null,
+    "_embedded": {
+      "show": {
+        "id": 72241,
+        "url": "https://www.tvmaze.com/shows/72241/high-country",
+        "name": "High Country",
+        "type": "Scripted",
+        "language": "English",
+        "genres": [
+          "Thriller",
+          "Mystery"
+        ],
+        "status": "Running",
+        "premiered": "2024-03-19",
+        "schedule": {
+          "time": "",
+          "days": [
+            "Tuesday"
+          ]
+        },
+        "weight": 98,
+        "network": null,
+        "webChannel": {
+          "id": 522,
+          "name": "Binge",
+          "country": {
+            "name": "Australia",
+            "code": "AU",
+            "timezone": "Australia/Sydney"
+          }
+        },
+        "externals": {
+          "tvrage": null,
+          "thetvdb": 440025,
+          "imdb": "tt27458866"
+        },
+        "image": {
+          "medium": "https://static.tvmaze.com/uploads/images/medium_portrait/509/1273198.jpg",
+          "original": "https://static.tvmaze.com/uploads/images/original_untouched/509/1273198.jpg"
+        },
+        "summary": null
+      }
+    }
+  },
+  {
+    "id": 3696904,
+    "url": "https://www.tvmaze.com/episodes/3696904/dang-1x01-pilot",
+    "name": "Pilot",
+    "season": 1,
+    "number": 1,
+    "type": "regular",
+    "airdate": "2026-09-08",
+    "airtime": "",
+    "airstamp": "2026-09-08T12:00:00+00:00",
+    "runtime": 27,
+    "image": null,
+    "summary": null,
+    "_embedded": {
+      "show": {
+        "id": 90434,
+        "url": "https://www.tvmaze.com/shows/90434/dang",
+        "name": "DANG!",
+        "type": "Animation",
+        "language": "English",
+        "genres": [
+          "Comedy"
+        ],
+        "status": "To Be Determined",
+        "premiered": "2026-09-08",
+        "schedule": {
+          "time": "",
+          "days": []
+        },
+        "weight": 94,
+        "network": null,
+        "webChannel": {
+          "id": 1,
+          "name": "Netflix",
+          "country": null
+        },
+        "externals": {
+          "tvrage": null,
+          "thetvdb": 474270,
+          "imdb": "tt40003445"
+        },
+        "image": {
+          "medium": "https://static.tvmaze.com/uploads/images/medium_portrait/639/1597999.jpg",
+          "original": "https://static.tvmaze.com/uploads/images/original_untouched/639/1597999.jpg"
+        },
+        "summary": null
+      }
+    }
+  },
+  {
+    "id": 3747248,
+    "url": "https://www.tvmaze.com/episodes/3747248/dang-1x02-derek-equinox-bathroom",
+    "name": "Derek Equinox Bathroom",
+    "season": 1,
+    "number": 2,
+    "type": "regular",
+    "airdate": "2026-09-08",
+    "airtime": "",
+    "airstamp": "2026-09-08T12:00:00+00:00",
+    "runtime": 26,
+    "image": null,
+    "summary": null,
+    "_embedded": {
+      "show": {
+        "id": 90434,
+        "url": "https://www.tvmaze.com/shows/90434/dang",
+        "name": "DANG!",
+        "type": "Animation",
+        "language": "English",
+        "genres": [
+          "Comedy"
+        ],
+        "status": "To Be Determined",
+        "premiered": "2026-09-08",
+        "schedule": {
+          "time": "",
+          "days": []
+        },
+        "weight": 94,
+        "network": null,
+        "webChannel": {
+          "id": 1,
+          "name": "Netflix",
+          "country": null
+        },
+        "externals": {
+          "tvrage": null,
+          "thetvdb": 474270,
+          "imdb": "tt40003445"
+        },
+        "image": {
+          "medium": "https://static.tvmaze.com/uploads/images/medium_portrait/639/1597999.jpg",
+          "original": "https://static.tvmaze.com/uploads/images/original_untouched/639/1597999.jpg"
+        },
+        "summary": null
+      }
+    }
+  },
+  {
+    "id": 3729571,
+    "url": "https://www.tvmaze.com/episodes/3729571/dancing-with-the-stars-s35-special-dwts-after-party",
+    "name": "DWTS After Party",
+    "season": 35,
+    "number": null,
+    "type": "significant_special",
+    "airdate": "2026-09-16",
+    "airtime": "22:00",
+    "airstamp": "2026-09-17T02:00:00+00:00",
+    "runtime": 60,
+    "image": null,
+    "summary": null,
+    "_embedded": {
+      "show": {
+        "id": 71,
+        "url": "https://www.tvmaze.com/shows/71/dancing-with-the-stars",
+        "name": "Dancing with the Stars",
+        "type": "Reality",
+        "language": "English",
+        "genres": [
+          "Family"
+        ],
+        "status": "Running",
+        "premiered": "2005-06-01",
+        "schedule": {
+          "time": "20:00",
+          "days": [
+            "Tuesday"
+          ]
+        },
+        "weight": 99,
+        "network": {
+          "id": 3,
+          "name": "ABC",
+          "country": {
+            "name": "United States",
+            "code": "US",
+            "timezone": "America/New_York"
+          }
+        },
+        "webChannel": {
+          "id": 287,
+          "name": "Disney+",
+          "country": null
+        },
+        "externals": {
+          "tvrage": 3220,
+          "thetvdb": 79590,
+          "imdb": "tt0463398"
+        },
+        "image": {
+          "medium": "https://static.tvmaze.com/uploads/images/medium_portrait/639/1599190.jpg",
+          "original": "https://static.tvmaze.com/uploads/images/original_untouched/639/1599190.jpg"
+        },
+        "summary": null
+      }
+    }
+  }
+]
