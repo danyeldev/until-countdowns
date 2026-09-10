@@ -77,7 +77,28 @@ Locally, `unstable_cache` results also persist on disk between runs (`.next/cach
 
 ### Licence policy
 
-Only sources whose terms allow commercial use and persistent storage are ingested (Wikidata CC0, Wikipedia and date-holidays CC BY-SA with visible attribution, NASA / public computation). Every event page shows its source and when the date was last verified. Nager.Date, TMDB, IGDB, ESPN and similar restricted feeds are deliberately not used.
+Two different things used to be filed under one heading. They are not the same and no longer carry
+the same weight.
+
+**Copyright, which binds.** Prose and photographs are creative works. Wikipedia summaries are CC
+BY-SA 4.0 and every page carrying one says so and links the article; every image goes through the
+two-part gate in `src/lib/enrich/images/license.ts` before a byte is stored, and a ShareAlike file
+never becomes an OG card (see [Images](#images) and
+[ShareAlike](#sharealike-and-what-may-be-made-from-a-photo)). None of that is negotiable, and none
+of it is relaxed by anything below.
+
+**Terms of service, which is a business judgement.** *A schedule is not a creative work.* "UFC Fight
+Night is on 12 September at 18:00" is a fact, and facts are not copyrightable — a feed's terms may
+still forbid scraping it, but that is a contract question and a risk to weigh, not a legal bar. The
+project previously treated the two as one and ruled out Nager.Date, TMDB, IGDB, ESPN and similar
+outright. It no longer does: a schedule source is chosen on data quality, reliability and the risk
+its terms actually carry.
+
+The `Rejected alternatives` notes in each adapter's doc comment are kept as a record of what each
+feed's terms say, so the trade-off is made with the facts in front of you rather than re-litigated
+from memory. They are notes, not a prohibition.
+
+Every event page still shows its source and when the date was last verified.
 
 ## Ingestion
 
