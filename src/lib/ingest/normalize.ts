@@ -13,49 +13,188 @@ export const FAR_FUTURE_YEARS = 15;
 export const TITLE_MIN = 2;
 export const TITLE_MAX = 200;
 
+/**
+ * Per-tag and per-row tag caps, mirroring `IngestEventSchema.tags` in ./types.ts
+ * (`z.array(z.string().min(1).max(60)).max(40)`). They live here because `buildEvent` has to
+ * enforce them itself: slugify() caps a tag at 80 characters, 20 past what the schema accepts, and
+ * `prepareRows` (./upsert.ts) drops a row that fails validation *whole* — so one over-long facet
+ * costs the countdown, not the facet. How often a live adapter actually hands buildEvent a name
+ * that long was not measured (no network here): this is a guard against a shape the schema
+ * rejects, not a fix for a failure anyone watched. Keep in step with types.ts; the boundary test
+ * in tests/ingest/normalize.test.ts pins the two together.
+ */
+export const TAG_MAX = 60;
+export const TAGS_MAX = 40;
+
 export type TagRule = [RegExp, Category, string[]];
 
+/**
+ * Title → (category, tags); first match wins, so the order of the list is load-bearing.
+ *
+ * These regexes see a bare title and nothing else, from every adapter: a holiday name, a UFC
+ * card, an album, a tour, a venue. An unanchored token is therefore a bug and not a shortcut —
+ * `whit` matched "Robert Whittaker", `ces` matched "Armed Forces Day", `easter` matched
+ * "Eastern Conference Finals", `natal` matched "Natalicio de Benito Juárez". Two rules keep the
+ * tokens honest:
+ *   1. anchor on word boundaries, never on a bare substring;
+ *   2. where the bare word already names something else in the world — ocean, heroes, marathon,
+ *      queen, memorial, prophet — require the word that makes it an event: "World Oceans Day",
+ *      "Heroes' Day", "Boston Marathon", "King's Birthday", "Memorial Day", "Prophet's Birthday".
+ * The disambiguation belongs here rather than in a caller: "Pieces of a Man" is not a tech
+ * conference no matter which adapter ingests it.
+ *
+ * Measured twice against `date-holidays`, offline, by classifying every name with the rules
+ * before and after:
+ *   - the corpus the `holidays` adapter really sees (it asks for `languages: ["en"]`,
+ *     `types: ["public"]`) is 761 distinct names over 206 countries × 2026-2028. Nine move: seven
+ *     stop being tech conferences and become remembrance holidays instead (six spellings of Armed
+ *     Forces Day plus "Defence Forces Day", all caught by a bare `ces` and none of them matching
+ *     anything at all until the remembrance rule grew an armed-forces branch), "Kings Day" gains
+ *     the royal tag it always deserved, and "Anniversary of the Revolution of the King and the
+ *     People" loses `royal`, which is the one true positive knowingly given up — it names no
+ *     occasion word, and the occasion word that would catch it, `anniversary`, is exactly what a
+ *     tour title carries. Its category is unchanged; the adapter's fallback is already `holidays`.
+ *   - the whole name table in data/holidays.json (3,466 strings across every locale, most of which
+ *     the adapter never asks for) moves 26, adding the fifteen "Natalicio de <national hero>"
+ *     names a bare `natal` filed as Christmas, "Frances Xavier Cabrini Day" from the conference
+ *     rule, "Día no laborable con fines turísticos" from labor, and one further gain
+ *     ("Valentinstag").
+ *
+ * WHAT IS NOT MEASURED. The comments below name real artists, records and venues to say what each
+ * token collides with — "Frank Ocean", "Meteora", "Olympiastadion", "Marathon Music Works". Those
+ * attributions come from memory: there was no network here, so nothing says the band is spelled
+ * that way, or is a band at all. What IS checked is the only thing the rule depends on — that the
+ * string does or does not match the regex, run before and after. Read a name as an illustration of
+ * a shape, not as a fact about music.
+ */
 export const TAG_RULES: TagRule[] = [
-  [/christmas|navidad|weihnachten|no[eë]l|bo[zż]e|natal|xmas/i, "holidays", ["christmas", "religious"]],
+  // \b on noël/boże/natal: without it "Noelle", "Bozeman" and the fifteen
+  // "Natalicio de <national hero>" names in date-holidays' data came back tagged christmas — as
+  // would "Natalie", "prenatal" and any other word ending in -natal. The inflections are spelled
+  // out because they are the forms the data actually ships: Polish Christmas appears there only in
+  // the genitive ("Wigilia Bożego Narodzenia" — bare "Boże" never occurs) and Italian Christmas
+  // only as "Natale di Gesù", so anchoring on "boże"/"natal" alone silently dropped all five.
+  [/christmas|navidad|weihnachten|\bno[eë]l\b|\bbo[zż]e(?:go)?\b|\bnatal[ei]?\b|xmas/i, "holidays", ["christmas", "religious"]],
   [/boxing day/i, "holidays", ["christmas"]],
-  [/new year|a[nñ]o nuevo|nouvel an|neujahr|ano novo|hogmanay/i, "holidays", ["new-year"]],
-  [/easter|pascua|ostern|p[aá]scoa|p[âa]ques|pasqua/i, "holidays", ["easter", "religious"]],
+  // The \b on the Romance forms is a substring guard, not a style choice: "ano novo" sits inside
+  // "piano novo", "nouvel an" inside "nouvel angle".
+  [/\bnew years?\b|\ba[nñ]o nuevo\b|\bnouvel an\b|neujahr|\bano novo\b|hogmanay/i, "holidays", ["new-year"]],
+  // `easter` unanchored is "Eastern": every Eastern Conference final, Eastern Market and Middle
+  // Eastern anything was a Christian holiday. `pascua`/`pasqua` were the surnames Pascual and
+  // Pasquale. Italian "Pasquetta" never matched `pasqua` and still doesn't — that gap is old.
+  [/\beaster\b|\bpascuas?\b|\bostern\b|\bp[aá]scoa\b|\bp[âa]ques\b|\bpasqua\b/i, "holidays", ["easter", "religious"]],
   [
     // `whit` was unanchored and matched any word containing it — Robert Whittaker and Dana White
     // are UFC fixtures, so a fight card came back tagged religious and categorised as a holiday.
     // The feast is Whitsun / Whit Sunday / Whit Monday and nothing else.
-    /good friday|holy (thursday|saturday)|ascension|pentecost|whitsun\w*|whit (sunday|monday)|maundy|corpus christi|assumption|immaculate|epiphany|three kings|all saints|all souls/i,
+    //
+    // ascension / assumption / epiphany are the same class of bug one level up: they are ordinary
+    // English words and album, tour and TV titles ("The Ascension", "Epiphany Tour", "The
+    // Immaculate Collection"). They are matched only with the feast's own qualifier, or as the
+    // entire title — which is how the holiday sources spell them ("Epiphany", "Orthodox
+    // Epiphany"). A record named exactly "Epiphany" or "Ascension" is still indistinguishable
+    // from the feast on the title alone, and still lands here. The trailing parenthetical is not
+    // decoration: date-holidays appends "(substitute day)" / "(substitutes)" to a name at runtime,
+    // so "Assumption (substitute day)" reaches classify() and an unforgiving `$` loses it. Italian
+    // "Ascensione" is spelled out for the same reason as the Christmas inflections — it is a name
+    // in the data, and the anchored English spelling does not cover it.
+    /good friday|holy (thursday|saturday)|ascension day|ascension thursday|feast of the ascension|de l'ascension|dell'ascensione|pentecost|whitsun\w*|whit (sunday|monday)|maundy|corpus christi|assumption day|feast of the assumption|assumption of (?:mary|our lady|the (?:blessed )?virgin)|immaculate conception|epiphany day|epiphany eve|epiphany (?:sunday|monday)|feast of the epiphany|epiphany of the lord|^(?:orthodox |catholic |coptic |holy )?(?:epiphany|ascensione?|assumption)(?: \((?:substitute[^)]*|observed)\))?$|three kings|all saints['’]?\s*(?:day|eve)|feast of all saints|all souls['’]?\s*day/i,
     "holidays",
     ["religious", "christian"],
   ],
-  [/ramadan|\beid\b|islamic|mawlid|muharram|prophet/i, "holidays", ["religious", "islamic"]], // \beid\b: the seed's bare "eid" also matched "Perseid"
+  // prophet's (with the apostrophe) or the name: bare `prophet` made Prophets of Rage an Islamic
+  // holiday. \beid\b: the seed's bare "eid" also matched "Perseid".
+  [/ramadan|\beid\b|islamic|mawlid|muharram|prophet['’]s\b|prophet muhammad|muhammad prophet/i, "holidays", ["religious", "islamic"]],
   [/hanukkah|passover|yom kippur|rosh hash|purim|sukkot|shavuot/i, "holidays", ["religious", "jewish"]],
-  // \bholi\b: a bare "holi" also matched the substring in "Holiday" (IE "June Holiday", UK bank holidays).
-  [/diwali|\bholi\b|dussehra|navaratri|vesak|buddha|vesakha/i, "holidays", ["religious"]],
+  // \bholi\b: a bare "holi" also matched the substring in "Holiday" (IE "June Holiday", UK bank
+  // holidays). `buddha` needs the occasion for the same reason: on its own it titles as many
+  // records and bars as it does birthdays.
   [
-    /independence|national day|republic day|liberation|revolution day|constitution|unification|foundation day|statehood/i,
+    /diwali|\bholi\b|dussehra|navaratri|vesak|vesakha|buddha['’]s\b|of (?:the )?buddha\b|buddha (?:purnima|jayanti|day)/i,
+    "holidays",
+    ["religious"],
+  ],
+  // `liberation` and `constitution` alone are a Christina Aguilera album and a DC concert hall
+  // (DAR Constitution Hall); both now need the day. All eleven Liberation and seven Constitution
+  // names in date-holidays' data/holidays.json still match — counted, not assumed.
+  [
+    /independence|national day|republic day|liberation day|day of liberation|liberation (?:from|of)\b|revolution day|constitution(?:al)? day|day of the constitution|unification|foundation day|statehood/i,
     "holidays",
     ["national"],
   ],
-  [/labou?r|workers|may day/i, "holidays", ["labor"]],
+  // `labou?r` was a substring: Collaboration, Laboratory and Elaborate were all Labour Day. The
+  // (?:er)?s? keeps "Arrival of Indentured Labourers", which the bare token used to catch.
+  [/\blabou?r(?:er)?s?\b|\bworkers['’]?\b|\bmay day\b/i, "holidays", ["labor"]],
   [/thanksgiving/i, "holidays", ["thanksgiving"]],
   [/halloween|d[ií]a de (los )?muertos|day of the dead/i, "culture", ["halloween"]],
-  [/memorial|armistice|veterans|remembrance|anzac|victory day|heroes/i, "holidays", ["remembrance"]],
-  [/\b(king|queen|sultan|emperor|birthday of|royal)\b/i, "holidays", ["royal"]],
-  [/valentine/i, "culture", ["romance"]],
+  // memorial/veterans/heroes without the occasion are venues and records: Memorial Stadium,
+  // Veterans Memorial Coliseum, Bowie's "Heroes". Both spellings of the apostrophe appear in the
+  // holiday data ("Heroes' Day" and "Heroes’ Day"), as does the bare "Heroes Day". The "heroes
+  // and" branch exists for one name, "Heroes’ and Forefathers Day", and has to keep looking for
+  // the day: without that lookahead it makes the Beach Boys' "Heroes and Villains" a remembrance
+  // holiday, which is the bug this rule is here to stop.
+  //
+  // The armed-forces branch is here because anchoring `ces` in the tech rule below left the six
+  // "forces" names in date-holidays' data (counted: Armed Forces Day ×3 spellings, Azerbaijan
+  // Armed Forces Day, Defence Forces Day, Victory of Armed Forces Day) matching nothing at all —
+  // a wrong tag traded for none. They belong here. The `day` lookahead keeps the branch off a
+  // bare "Armed Forces"; `forces armées` is spelled separately because the one French name,
+  // "Journée de la Révolution et des Forces Armées", says its occasion in French.
+  [
+    /memorial day|day of memorial|veterans['’]?\s+day|of the veterans\b|armistice|remembrance|anzac|victory day|heroes['’]?\s+day\b|heroes['’]?\s+and\b(?=[^]*\bday\b)|national heroes\b|\b(?:armed|defen[cs]e)\s+forces\b(?=[^]*\bday\b)|forces arm[ée]es/i,
+    "holidays",
+    ["remembrance"],
+  ],
+  // A royal holiday is a royal noun *and* the occasion, in either order — "King's Birthday",
+  // "Birthday of Queen Sonja", "Hari Keputeraan Sultan Kedah". The bare nouns were catching the
+  // band Queen, King Gizzard, Royal Blood, the Royal Albert Hall, King's Theatre Glasgow and
+  // WWE's Royal Rumble. `day` is a broad second half — a royal noun beside a numbered tour date
+  // ("Queen Live at Wembley, Day 2") still matches — but every narrower occasion list dropped real
+  // holidays. `birthday of` stays a rule of its own: it predates this and still carries
+  // the birth-anniversary holidays that name no title ("Birthday of Simón Bolívar").
+  [
+    /\bbirthday of\b|^(?=.*\b(?:kings?|queens?|sultans?|emperors?|royal)\b)(?=.*\b(?:birthdays?|day|feast|coronation|jubilee|funeral|enthronement|installation|keputeraan|pertabalan|hari hol|mourning|accession|ceremony)\b)/i,
+    "holidays",
+    ["royal"],
+  ],
+  // The holiday is Valentine's / Saint Valentine / Valentinstag. Bare "Valentine" is My Bloody
+  // Valentine.
+  [/valentine['’]?s\b|saint valentine|valentinstag|san valent[ií]n/i, "culture", ["romance"]],
   [/women'?s day/i, "culture", ["social"]],
-  [/earth day|environment|ocean/i, "nature", ["earth"]],
+  // "ocean" alone is Frank Ocean, Ocean Avenue and Oceans Ate Alaska; the observance is World
+  // Oceans Day / Ocean Day / Day of the Ocean, so the day has to be in the title.
+  [/\bearth day\b|\b(?:oceans?|environment(?:al)?)\b(?=[^]*\bday\b)|day of the (?:ocean|environment)/i, "nature", ["earth"]],
   // Sports before the family rule: "Youth Olympics" is a sporting event, not a family day. Tokens
   // are deliberately narrow ("Final Fantasy", "Justice League", "Video Games Day" must not match).
+  // `olympi` used to swallow every Olympia-named venue there is — Olympiastadion, Olympiahalle,
+  // L'Olympia, the Olympia Theatre — so the Games are matched as Olympics/Olympiad/Olympic Games.
+  // `marathon` needs the race's qualifier in front of it ("Boston Marathon", "Marathon de Paris"),
+  // which "Marathon Music Works" and "The Marathon Continues" lack. Not airtight: a possessive in
+  // front of the venue ("Nashville's Marathon Music Works") still reads as a qualifier.
+  // `conference (semi)?finals` is here to catch what anchoring `easter` set loose: those rounds
+  // used to be filed as a Christian feast, and with `easter` fixed they would have fallen past
+  // every sports token into the tech rule's `conference` instead of landing in sport.
   [
-    /olympi|world cup|super bowl|grand slam|grand prix|championship|tournament|marathon|wimbledon|tour de france|asian games|african games|commonwealth games|pan american games|university games|(?:champions|europa|conference|premier) league|\b(?:cup|league) final\b|grand final|\b(?:australian|french|british|us|u\.s\.) open\b|\b(?:stanley|ryder|davis|fed|america's) cup\b/i,
+    /\b(?:olympics|paralympics)\b|\b(?:olympic|paralympic)\s+(?:winter\s+|summer\s+)?games\b|\bolympiads?\b|world cup|super bowl|grand slam|grand prix|championship|tournament|\b(?!the\b)\w+ marathon\b|\bmarathon (?:de|des|di|du|of)\b|wimbledon|tour de france|asian games|african games|commonwealth games|pan american games|university games|(?:champions|europa|conference|premier) league|\bconference (?:semi)?finals?\b|\b(?:cup|league) final\b|grand final|\b(?:australian|french|british|us|u\.s\.) open\b|\b(?:stanley|ryder|davis|fed|america's) cup\b/i,
     "sports",
     ["sports"],
   ],
-  [/children|youth|family/i, "culture", ["family"]],
-  [/eclipse|equinox|solstice|meteor|comet|transit of/i, "astronomy", ["sky"]],
-  [/election|inauguration|referendum/i, "politics", ["elections"]],
-  [/ces\b|wwdc|google i\/o|re:invent|conference/i, "tech", ["conference"]],
+  // The observance is Children's Day / Youth Day / Family Day. The bare nouns were filing Sonic
+  // Youth, Youth Lagoon, Children of Bodom and Sly & the Family Stone under family culture.
+  [
+    /children['’]?s? (?:day|rights)|day of (?:the )?child\b|youth['’]?s? day|youth and sports|\bfamily day\b|day of (?:the )?famil/i,
+    "culture",
+    ["family"],
+  ],
+  // \bmeteor\b, or Linkin Park's "Meteora" is a meteor shower.
+  [/\beclipse\b|\bequinox\b|\bsolstice\b|\bmeteors?\b|\bcomet\b|transit of/i, "astronomy", ["sky"]],
+  // \belection\b: unanchored it matched "Selection" — which titles compilations ("Natural
+  // Selection", "Best Selection 2000") and, as "Selection Sunday", a sporting event.
+  [/\belections?\b|inauguration|referendum/i, "politics", ["elections"]],
+  // \bces\b is the trade show. As a bare substring it matched every plural in the language —
+  // Voices, Faces, Pieces of a Man, Places, Traces, Forces — including seven of the names the
+  // holidays adapter emits, six of them some country's Armed Forces Day.
+  [/\bces\b|wwdc|google i\/o|re:invent|conference/i, "tech", ["conference"]],
 ];
 
 export const FEATURED_NAMES =
@@ -298,6 +437,14 @@ export function clamp(n: number, lo: number, hi: number): number {
   return Math.min(hi, Math.max(lo, n));
 }
 
+/**
+ * A tag no longer than the schema allows. The trailing `-` a mid-word cut leaves is dropped, so
+ * the tag stays a well-formed slug and two names that differ only past the cut still collapse.
+ */
+export function clampTag(tag: string): string {
+  return tag.length <= TAG_MAX ? tag : tag.slice(0, TAG_MAX).replace(/-+$/, "");
+}
+
 export type BuildEventInput = {
   title: string;
   date: string;
@@ -351,7 +498,8 @@ export function buildEvent(input: BuildEventInput): IngestEvent {
   const status: IngestStatus = input.status ?? (isCoarse(precision) ? "tentative" : "scheduled");
   const rawEnd = input.endDate ? (allDay ? input.endDate.slice(0, 10) : input.endDate) : null;
   const endDate = rawEnd && rawEnd.slice(0, 10) >= day ? rawEnd : null;
-  const tags = [...new Set((input.tags ?? []).map((t) => slugify(t)).filter(Boolean))];
+  // Clamp before the Set: two names that truncate to the same tag are the same tag.
+  const tags = [...new Set((input.tags ?? []).map((t) => clampTag(slugify(t))).filter(Boolean))].slice(0, TAGS_MAX);
   const regions = [...new Set((input.regions ?? []).filter(Boolean))];
   const confidence =
     input.confidence !== undefined

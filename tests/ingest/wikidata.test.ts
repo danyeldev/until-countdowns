@@ -2,6 +2,7 @@ import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import type { IngestContext } from "@/lib/ingest/types";
 import { IngestEventSchema } from "@/lib/ingest/types";
+import { P31_CATEGORY } from "@/lib/ingest/sources/wanted/resolve";
 import {
   adapter,
   bindingToEvent,
@@ -38,6 +39,8 @@ const NOW = new Date("2026-09-09T12:00:00Z");
 const GAME = WIKIDATA_CLASSES.find((c) => c.qid === "Q7889")!;
 const OCCURRENCE = WIKIDATA_CLASSES.find((c) => c.qid === "Q1190554")!;
 const ELECTION = WIKIDATA_CLASSES.find((c) => c.qid === "Q40231")!;
+const TOUR = WIKIDATA_CLASSES.find((c) => c.qid === "Q1573906")!;
+const CONCERT = WIKIDATA_CLASSES.find((c) => c.qid === "Q182832")!;
 
 function binding(over: Record<string, string | undefined>) {
   const b: Record<string, { type: string; value: string } | undefined> = {
@@ -121,6 +124,138 @@ describe("wikidata binding → event", () => {
     expect(buildWikidataQuery(VARIANTS[0], 2026)).not.toContain("FILTER NOT EXISTS");
     const film = VARIANTS.find((v) => v.cls.qid === "Q11424")!;
     expect(buildWikidataQuery(film, 2026)).toContain("wdt:P577 ?date");
+  });
+});
+
+/**
+ * Music classes. Both QIDs are the ones `wanted/resolve.ts` already maps to `music`; the tour is
+ * `range` (P580 + P582) and the concert is one night (P585 only). No fixture: WDQS was not
+ * reachable when these were written, so the bindings are hand-built in the documented shape.
+ */
+describe("wikidata music classes", () => {
+  it("concert tour: music, P582 end date kept, popularity on the enrichment gate", () => {
+    const ev = bindingToEvent(
+      binding({
+        itemLabel: "Music of the Spheres World Tour",
+        article: "https://en.wikipedia.org/wiki/Music_of_the_Spheres_World_Tour",
+        date: "2027-05-14T00:00:00Z",
+        end: "2027-11-20T00:00:00Z",
+      }),
+      TOUR,
+      NOW,
+    )!;
+    expect(ev.category).toBe("music");
+    expect(ev.slug).toBe("music-of-the-spheres-world-tour-2027-05-14");
+    expect(ev.source_key).toBe("wikidata:Q123");
+    expect(ev.date).toBe("2027-05-14");
+    expect(ev.end_date).toBe("2027-11-20");
+    expect(ev.date_precision).toBe("day");
+    expect(ev.status).toBe("scheduled");
+    expect(ev.confidence).toBe(0.7);
+    // 45 is exactly `finalize_catalog`'s `popularity >= 45` branch: every kept row queues a
+    // wikipedia_summary and an image job (supabase/migrations/0009_indexable_summary.sql).
+    expect(ev.popularity).toBe(45);
+    expect(ev.tags).toContain("wikidata");
+    expect(ev.external_ids).toEqual({ enwiki: "Music of the Spheres World Tour", qid: "Q123" });
+    expect(IngestEventSchema.safeParse(ev).success).toBe(true);
+  });
+  it("concert tour: an end date that is not after the start is dropped, not stored as a zero-length range", () => {
+    const same = bindingToEvent(
+      binding({ itemLabel: "Farewell Tour", article: "https://en.wikipedia.org/wiki/Farewell_Tour", date: "2027-05-14T00:00:00Z", end: "2027-05-14T00:00:00Z" }),
+      TOUR,
+      NOW,
+    )!;
+    expect(same.end_date).toBeNull();
+    const noEnd = bindingToEvent(binding({ itemLabel: "Farewell Tour", article: "https://en.wikipedia.org/wiki/Farewell_Tour" }), TOUR, NOW)!;
+    expect(noEnd.end_date).toBeNull();
+    expect(noEnd.category).toBe("music");
+  });
+  it("concert: music, one night (no end date), enwiki gate still required", () => {
+    const b = {
+      itemLabel: "Live Aid 2 Wembley",
+      article: "https://en.wikipedia.org/wiki/Live_Aid_2_Wembley",
+      date: "2027-07-13T00:00:00Z",
+    };
+    const ev = bindingToEvent(binding(b), CONCERT, NOW)!;
+    expect(ev.category).toBe("music");
+    expect(ev.slug).toBe("live-aid-2-wembley-2027-07-13");
+    expect(ev.end_date).toBeNull();
+    expect(ev.popularity).toBe(45);
+    expect(ev.confidence).toBe(0.7);
+    expect(IngestEventSchema.safeParse(ev).success).toBe(true);
+    // the notability gate this class is bought for: no Wikipedia article, no row
+    expect(bindingToEvent(binding({ ...b, article: undefined }), CONCERT, NOW)).toBeNull();
+    // historical one-offs are excluded by the query window, and the past filter catches any that slip through
+    expect(bindingToEvent(binding({ ...b, date: "1985-07-13T00:00:00Z" }), CONCERT, NOW)).toBeNull();
+  });
+  it("music is not generic: a TAG_RULES hit adds tags but never moves the category", () => {
+    expect(categoryFor("The Christmas Tour", TOUR).category).toBe("music");
+    expect(categoryFor("The Christmas Tour", TOUR).tags).toEqual(["christmas", "religious"]);
+    expect(categoryFor("Benefit concert for the World Cup", CONCERT).category).toBe("music");
+  });
+  it("variants: the tour is queried twice (P585 without P580, then P580 + P582), the concert once", () => {
+    const tourVariants = VARIANTS.filter((v) => v.cls.qid === "Q1573906");
+    expect(tourVariants.map((v) => [v.prop, v.withEnd])).toEqual([
+      ["P585", false],
+      ["P580", true],
+    ]);
+    const [point, range] = tourVariants.map((v) => buildWikidataQuery(v, 2026));
+    expect(point).toContain("wdt:P585 ?date");
+    expect(point).toContain("FILTER NOT EXISTS { ?item wdt:P580 [] }");
+    expect(point).not.toContain("?end");
+    expect(range).toContain("wdt:P580 ?date");
+    expect(range).toContain("OPTIONAL { ?item wdt:P582 ?end . }");
+    for (const q of [point, range]) expect(q).toContain("?item wdt:P31 wd:Q1573906 .");
+
+    const concertVariants = VARIANTS.filter((v) => v.cls.qid === "Q182832");
+    expect(concertVariants.map((v) => [v.prop, v.withEnd])).toEqual([["P585", false]]);
+    const concert = buildWikidataQuery(concertVariants[0], 2026);
+    expect(concert).toContain("?item wdt:P31 wd:Q182832 .");
+    expect(concert).not.toContain("?end");
+    expect(concert).not.toContain("FILTER NOT EXISTS");
+    expect(concert).toContain("schema:isPartOf <https://en.wikipedia.org/>");
+  });
+  it("through the adapter: the P580 tour variant maps a page of bindings to music rows", async () => {
+    const i = VARIANTS.findIndex((v) => v.cls.qid === "Q1573906" && v.withEnd);
+    const queries: string[] = [];
+    const page = [
+      binding({
+        itemLabel: "Music of the Spheres World Tour",
+        article: "https://en.wikipedia.org/wiki/Music_of_the_Spheres_World_Tour",
+        date: "2027-05-14T00:00:00Z",
+        end: "2027-11-20T00:00:00Z",
+      }),
+    ];
+    const ctx: IngestContext = {
+      http: {
+        fetchJson: async <T,>(url: string) => {
+          queries.push(decodeURIComponent(url.split("?query=")[1] ?? ""));
+          return { results: { bindings: page } } as T;
+        },
+        fetchText: async () => "",
+      },
+      log: { info() {}, warn() {}, error() {} },
+      now: NOW,
+      budget: { remainingMs: () => 60_000 },
+      dryRun: true,
+    };
+    const plan = await adapter.plan({ i, page: 0 }, ctx);
+    expect(plan.units[0].key).toBe("wikidata:Q1573906:P580:0");
+    expect(plan.units[0].label).toBe("Q1573906 concert tour [P580] page 1");
+    const rows = await adapter.run(plan.units[0], ctx);
+    expect(queries[0]).toContain("?item wdt:P31 wd:Q1573906 .");
+    expect(rows).toHaveLength(1);
+    expect(rows[0].category).toBe("music");
+    expect(rows[0].end_date).toBe("2027-11-20");
+    expect(rows[0].popularity).toBe(45);
+    expect(rows[0].confidence).toBe(0.7);
+    expect(IngestEventSchema.safeParse(rows[0]).success).toBe(true);
+  });
+  it("both music classes agree with the on-demand `wanted` path and are appended last", () => {
+    expect(P31_CATEGORY.Q1573906).toBe("music");
+    expect(P31_CATEGORY.Q182832).toBe("music");
+    // appended, never inserted: a stored `{ i, page }` cursor indexes into VARIANTS
+    expect(WIKIDATA_CLASSES.slice(-2).map((c) => c.qid)).toEqual(["Q1573906", "Q182832"]);
   });
 });
 
