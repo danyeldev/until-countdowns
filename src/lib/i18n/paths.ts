@@ -37,8 +37,9 @@ export type Section = (typeof SECTIONS)[number];
  *
  * A locale that omits a section keeps the English word. Latin-script locales translate everything;
  * `ru` translates in transliteration (which is what Russian sites do, and what a Russian reader can
- * type); `ja`, `ko`, `hi` and `ar` keep the English sections, since a romanization of those scripts
- * is a keyword to nobody and native script in a path only buys percent-encoding.
+ * type); `ja`, `ko` and `ar` keep the English sections, since a romanisation of those scripts is a
+ * keyword to nobody and native script in a path only buys percent-encoding. `hi` is in between and
+ * is explained where it sits.
  */
 export const SECTION_NAMES: Record<Locale, Partial<Record<Section, string>>> = {
   en: {},
@@ -62,7 +63,8 @@ export const SECTION_NAMES: Record<Locale, Partial<Record<Section, string>>> = {
     create: "criar",
     "days-until": "quantos-dias-faltam",
     event: "evento",
-    tag: "etiqueta",
+    // "Etiqueta" is a sticker; Brazilian Portuguese says "tag" for this.
+    tag: "tag",
   },
   fr: {
     about: "a-propos",
@@ -76,14 +78,16 @@ export const SECTION_NAMES: Record<Locale, Partial<Record<Section, string>>> = {
     tag: "etiquette",
   },
   de: {
-    about: "ueber",
+    // A bare "ueber" is a preposition with nothing after it; German sites say /ueber-uns/.
+    about: "ueber-uns",
     attributions: "quellen",
     calendar: "kalender",
     category: "kategorie",
     country: "land",
     create: "erstellen",
     "days-until": "wie-viele-tage-bis",
-    event: "ereignis",
+    // "Ereignis" is a happening; a scheduled dated row is a Termin, which is also what people type.
+    event: "termin",
     // "Tag" is German for "day", which would read as a date section; a tag is a Schlagwort.
     tag: "schlagwort",
   },
@@ -140,7 +144,7 @@ export const SECTION_NAMES: Record<Locale, Partial<Record<Section, string>>> = {
     create: "sozdat",
     "days-until": "skolko-dney-do",
     event: "sobytie",
-    tag: "tema",
+    tag: "metka",
   },
   id: {
     about: "tentang",
@@ -155,7 +159,16 @@ export const SECTION_NAMES: Record<Locale, Partial<Record<Section, string>>> = {
   },
   ja: {},
   ko: {},
-  hi: {},
+  hi: {
+    /**
+     * The exception to the rule below. Roman-script Hindi is a mainstream written register —
+     * "diwali kitne din baaki hai" is typed in Latin letters at high volume — so this segment is a
+     * keyword rather than a transliteration. The other eight stay English because category,
+     * calendar, event and tag are themselves loanwords in spoken Hindi: the English spelling
+     * already *is* the word, while a romanisation off the Devanagari is a keyword to nobody.
+     */
+    "days-until": "kitne-din-baaki",
+  },
   ar: {},
 };
 

@@ -38,11 +38,15 @@ const CASES = [
   { path: "/de/kategorie", expect: 200, why: "another locale's spelling" },
   { path: "/tr/hakkinda", expect: 200, why: "another locale's spelling" },
   { path: "/ja/about", expect: 200, contains: ['<html lang="ja"'], why: "a locale that keeps the English section" },
+  { path: "/de/ueber-uns", expect: 200, why: "a two-word section name" },
+  { path: "/hi/kitne-din-baaki", expect: 200, why: "one renamed section in a locale that keeps the other eight" },
+  { path: "/hi/category", expect: 200, why: "…and the eight it keeps still resolve" },
   { path: "/ar/about", expect: 200, contains: ['<html lang="ar"', 'dir="rtl"'], why: "RTL" },
 
   // …and the English spelling under a locale never becomes a second URL for it.
   { path: "/es/about", expect: 308, to: "/es/acerca-de", why: "English spelling folds onto the locale's own" },
   { path: "/es/days-until", expect: 308, to: "/es/cuantos-dias-faltan", why: "the money section, folded" },
+  { path: "/hi/days-until", expect: 308, to: "/hi/kitne-din-baaki", why: "…folded in a mostly-English locale too" },
 
   // The pre-i18n query redirects, in every spelling.
   { path: "/?category=sports", expect: 308, to: "/category/sports", why: "the old category filter" },
