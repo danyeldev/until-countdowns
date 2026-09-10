@@ -4,6 +4,7 @@ import { notFound, permanentRedirect } from "next/navigation";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { CalendarButtons } from "@/components/CalendarButtons";
 import { Countdown } from "@/components/Countdown";
+import { EmbedStudio } from "@/components/EmbedStudio";
 import { EventCard } from "@/components/EventCard";
 import { EventImage } from "@/components/EventImage";
 import { EventTable } from "@/components/EventTable";
@@ -33,7 +34,9 @@ import {
   eventDescription,
   eventTitle,
   formatLongDate,
+  oembedDiscoveryUrl,
   ogDatedPath,
+  siteUrl,
   todayUtc,
   truncate,
 } from "@/lib/seo";
@@ -82,7 +85,10 @@ export async function generateMetadata({ params }: PageProps<"/event/[slug]">): 
   });
   metadata.alternates = {
     ...metadata.alternates,
-    types: { "text/calendar": absoluteUrl(`/api/ics/${event.slug}`) },
+    types: {
+      "text/calendar": absoluteUrl(`/api/ics/${event.slug}`),
+      "application/json+oembed": oembedDiscoveryUrl(`/event/${event.slug}`),
+    },
   };
   return metadata;
 }
@@ -171,7 +177,10 @@ export default async function EventPage({ params }: PageProps<"/event/[slug]">) 
     isUser || !event.summary ? null : summaryCitation(event.slug),
   ]);
   const otherYears = siblings.filter((o) => o.slug !== event.slug).slice(0, OTHER_YEARS);
-  const sharePath = `/event/${event.slug}`;
+  // A shared personal countdown is reached at the payload URL it arrived on — the `mine-…` slug
+  // the payload decodes to only resolves in the browser that created it, so it is not shareable.
+  const shared = slug.startsWith("share-");
+  const sharePath = shared ? `/event/${slug}` : `/event/${event.slug}`;
   const coarse = isCoarsePrecision(event.datePrecision);
   const shownRegions = event.regions.filter((r) => r !== "GLOBAL");
   const previousDate = event.dateHistory?.at(-1)?.date;
@@ -260,6 +269,10 @@ export default async function EventPage({ params }: PageProps<"/event/[slug]">) 
         <SaveButton id={event.id} />
         <ShareButton title={event.title} path={sharePath} />
       </div>
+
+      {coarse ? null : (
+        <EmbedStudio slug={shared ? slug : event.slug} title={event.title} origin={siteUrl()} />
+      )}
 
       {event.seriesSlug ? (
         <p className="mt-8 text-sm text-paper-dim">

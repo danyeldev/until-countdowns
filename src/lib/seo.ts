@@ -218,6 +218,15 @@ export function ogDatedPath(kind: "event" | "series", slug: string, today: strin
   return `/og/${kind}/${encodeURIComponent(slug)}/${today}.png`;
 }
 
+/**
+ * Absolute oEmbed discovery endpoint for a page, advertised as an `alternates.types` link.
+ * A consumer handed the plain countdown URL (WordPress, Ghost, Notion) can then find the
+ * `<iframe>` on its own, so "embed this" costs the visitor one paste and no explanation.
+ */
+export function oembedDiscoveryUrl(canonical: string): string {
+  return absoluteUrl(`/api/oembed?url=${encodeURIComponent(absoluteUrl(canonical))}`);
+}
+
 // ---------------------------------------------------------------------------
 // Metadata builder
 // ---------------------------------------------------------------------------

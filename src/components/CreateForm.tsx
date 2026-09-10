@@ -4,8 +4,10 @@ import Link from "next/link";
 import { useMemo, useState } from "react";
 import { CalendarButtons } from "@/components/CalendarButtons";
 import { Countdown } from "@/components/Countdown";
+import { EmbedStudio } from "@/components/EmbedStudio";
 import { CATEGORIES, type Category } from "@/lib/types";
 import { CATEGORY_LABELS } from "@/lib/labels";
+import { siteUrl } from "@/lib/seo";
 import { isValidDate } from "@/lib/time";
 import { encodeSharePayload, upsertMine, userEventFromDraft } from "@/lib/user-events";
 
@@ -21,7 +23,11 @@ export function CreateForm() {
     [title, date, description, category],
   );
 
-  const sharePath = `/event/share-${encodeSharePayload(event)}`;
+  const shareSlug = `share-${encodeSharePayload(event)}`;
+  const sharePath = `/event/${shareSlug}`;
+  // A payload without a title decodes to nothing (`decodeSharePayload` needs both), so an empty
+  // Title field would otherwise hand out a share link and an embed that 404 for good.
+  const shareable = Boolean(event.title.trim()) && isValidDate(event.date);
 
   function onSave() {
     upsertMine(event);
@@ -90,12 +96,14 @@ export function CreateForm() {
           >
             Save on this device
           </button>
-          <Link
-            href={sharePath}
-            className="rounded-full border border-line px-5 py-2.5 text-sm text-paper hover:border-amber/50"
-          >
-            Open shareable page
-          </Link>
+          {shareable && (
+            <Link
+              href={sharePath}
+              className="rounded-full border border-line px-5 py-2.5 text-sm text-paper hover:border-amber/50"
+            >
+              Open shareable page
+            </Link>
+          )}
         </div>
         {savedSlug && (
           <p className="text-sm text-moss">
@@ -128,6 +136,12 @@ export function CreateForm() {
           </div>
         )}
       </aside>
+
+      {shareable && (
+        <div className="lg:col-span-2">
+          <EmbedStudio slug={shareSlug} title={event.title} origin={siteUrl()} />
+        </div>
+      )}
     </div>
   );
 }
