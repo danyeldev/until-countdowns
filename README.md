@@ -233,7 +233,9 @@ dependency-free document, so it is rendered as one self-contained HTML string by
 third-party request. It answers with `Content-Security-Policy: frame-ancestors *` (the one route on
 the site meant to be framed anywhere), `X-Robots-Tag: noindex` and
 `Cache-Control: s-maxage=3600` — the markup depends only on the slug and the query string, because
-the clock itself is computed in the viewer's browser.
+the clock itself is computed in the viewer's browser. `/embed/` joins `/event/share-` in the
+`robots.txt` disallow list: a widget is linked from every page that hosts it, and `noindex` alone
+does not save crawl budget.
 
 The slug resolves in three ways, so every kind of countdown can travel:
 

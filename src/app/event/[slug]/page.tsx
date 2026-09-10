@@ -87,7 +87,11 @@ export async function generateMetadata({ params }: PageProps<"/event/[slug]">): 
     ...metadata.alternates,
     types: {
       "text/calendar": absoluteUrl(`/api/ics/${event.slug}`),
-      "application/json+oembed": oembedDiscoveryUrl(`/event/${event.slug}`),
+      // Advertised only where there is a clock to embed: a coarse date has none, and a consumer
+      // that follows the link into a 404 shows the reader an embed error rather than a plain link.
+      ...(isCoarsePrecision(event.datePrecision)
+        ? {}
+        : { "application/json+oembed": oembedDiscoveryUrl(`/event/${event.slug}`) }),
     },
   };
   return metadata;

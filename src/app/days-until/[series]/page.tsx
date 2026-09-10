@@ -58,10 +58,14 @@ export async function generateMetadata({ params }: { params: Promise<{ series: s
     // A series with no future occurrence is a thin page: reachable, out of the index and the sitemap.
     noindex: !series.nextDate,
   });
-  metadata.alternates = {
-    ...metadata.alternates,
-    types: { "application/json+oembed": oembedDiscoveryUrl(`/days-until/${series.slug}`) },
-  };
+  // Same gate as the embed itself: a dormant series, or one whose next occurrence is only pinned to
+  // a month, has nothing to hand an oEmbed consumer, so it does not claim it can.
+  if (series.nextDate && !isCoarsePrecision(series.nextPrecision)) {
+    metadata.alternates = {
+      ...metadata.alternates,
+      types: { "application/json+oembed": oembedDiscoveryUrl(`/days-until/${series.slug}`) },
+    };
+  }
   return metadata;
 }
 

@@ -135,8 +135,18 @@ export function presetTheme(preset: EmbedPreset): EmbedTheme {
 }
 
 export const DEFAULT_EMBED_THEME: EmbedTheme = presetTheme("dark");
-/** What the "Add to your stream" tab starts from: transparent, unframed, bottom-left of the canvas. */
-export const STREAM_EMBED_THEME: EmbedTheme = { ...presetTheme("clear"), position: "bottom-left", padding: 48 };
+/**
+ * What the "Add to your stream" tab starts from: transparent, unframed, bottom-left of the canvas.
+ * The scale is up because the canvas is: 100 % is a 34px digit, which is 3 % of a 1080p scene and
+ * unreadable on a viewer's phone. 220 % puts it at roughly 7 % of the height, where a corner
+ * overlay reads at a glance.
+ */
+export const STREAM_EMBED_THEME: EmbedTheme = {
+  ...presetTheme("clear"),
+  position: "bottom-left",
+  padding: 48,
+  scale: 220,
+};
 
 // ---------------------------------------------------------------------------
 // Parsing

@@ -12,7 +12,7 @@
  * what a person is looking at is exactly what they are about to paste.
  */
 
-import { useEffect, useId, useState, useSyncExternalStore } from "react";
+import { useEffect, useId, useRef, useState, useSyncExternalStore } from "react";
 import type { CSSProperties } from "react";
 import {
   DEFAULT_EMBED_THEME,
@@ -27,6 +27,7 @@ import {
   EMBED_UNITS,
   PADDING_MAX,
   PRESET_LABELS,
+  PRESET_PALETTES,
   RADIUS_MAX,
   SCALE_MAX,
   SCALE_MIN,
@@ -37,13 +38,13 @@ import {
   embedUrl,
   parseBackground,
   parseColor,
-  presetTheme,
 } from "@/lib/embed/theme";
 import type {
   EmbedFont,
   EmbedFrame,
   EmbedLayout,
   EmbedPosition,
+  EmbedPreset,
   EmbedSeparator,
   EmbedTheme,
   EmbedUnits,
@@ -273,7 +274,9 @@ function ColorField({
           inputMode="text"
           spellCheck={false}
           placeholder="#rrggbb"
-          value={draft ?? value}
+          // Typing "clear" into Background disables this field mid-word; showing the draft after
+          // that would leave the box contradicting the colour it is meant to be reporting.
+          value={disabled ? value : (draft ?? value)}
           disabled={disabled}
           onChange={(e) => {
             setDraft(e.target.value);
@@ -302,6 +305,9 @@ export function EmbedStudio({ slug, title, origin }: { slug: string; title: stri
 
   const host = useHost(origin);
 
+  const canvasRef = useRef<HTMLDivElement | null>(null);
+  const [canvasScale, setCanvasScale] = useState(0.3);
+
   const stream = tab === "stream";
   const theme = stream ? streamTheme : embedTheme;
   const setTheme = stream ? setStreamTheme : setEmbedTheme;
@@ -314,6 +320,18 @@ export function EmbedStudio({ slug, title, origin }: { slug: string; title: stri
   function setBackground(next: string) {
     if (next !== "transparent") setSolidBg(next);
     patch({ bg: next });
+  }
+
+  /**
+   * A preset is a palette, not a reset. Someone reaching for different colours has usually already
+   * placed the overlay and sized it, and there is no undo here — so only the look a preset actually
+   * names moves, and the remembered solid background follows it so un-ticking Transparent cannot
+   * land on the dark default under light type.
+   */
+  function applyPreset(preset: EmbedPreset) {
+    const palette = PRESET_PALETTES[preset];
+    if (palette.bg !== "transparent") setSolidBg(palette.bg);
+    setTheme((current) => ({ ...current, ...palette, preset }));
   }
 
   function trigger(next: Tab) {
@@ -336,6 +354,19 @@ export function EmbedStudio({ slug, title, origin }: { slug: string; title: stri
     setTimeout(() => setCopied(null), 1600);
   }
 
+  // The overlay is authored in px against the stream canvas, so the preview iframe is that canvas
+  // at full size and scaled down to fit. Sizing the iframe to the panel instead would render the
+  // same 34px digits three times too large against the frame, and Size and Edge inset would lie.
+  useEffect(() => {
+    const frame = canvasRef.current;
+    if (!frame) return;
+    const observer = new ResizeObserver(([entry]) => {
+      setCanvasScale(entry.contentRect.width / STREAM_CANVAS.width);
+    });
+    observer.observe(frame);
+    return () => observer.disconnect();
+  }, [open, stream]);
+
   // Relative on purpose: it resolves against whatever origin this page is served from, so the
   // preview works on localhost, on a preview deploy and in production without knowing which.
   const preview = useSettled(embedPath(slug, theme), 200);
@@ -351,7 +382,9 @@ export function EmbedStudio({ slug, title, origin }: { slug: string; title: stri
           type="button"
           onClick={() => trigger("embed")}
           aria-expanded={open && !stream}
-          aria-controls={panelId}
+          // Only while this tab's panel exists: a controls relationship pointing at nothing sends a
+          // screen reader's jump-to-controlled-element into a dead end.
+          aria-controls={open && !stream ? panelId : undefined}
           className={`${BUTTON} ${open && !stream ? "border-amber/60 text-amber" : ""}`}
         >
           Embed on your site
@@ -360,7 +393,7 @@ export function EmbedStudio({ slug, title, origin }: { slug: string; title: stri
           type="button"
           onClick={() => trigger("stream")}
           aria-expanded={open && stream}
-          aria-controls={panelId}
+          aria-controls={open && stream ? panelId : undefined}
           className={`${BUTTON} ${open && stream ? "border-amber/60 text-amber" : ""}`}
         >
           Add to your stream
@@ -377,7 +410,7 @@ export function EmbedStudio({ slug, title, origin }: { slug: string; title: stri
               value={theme.preset}
               options={EMBED_PRESETS}
               labels={PRESET_LABELS}
-              onChange={(preset) => setTheme(presetTheme(preset))}
+              onChange={applyPreset}
             />
 
             <div className="grid gap-4 sm:grid-cols-2">
@@ -527,17 +560,27 @@ export function EmbedStudio({ slug, title, origin }: { slug: string; title: stri
             {stream ? (
               <>
                 <div
+                  ref={canvasRef}
                   className="relative aspect-video w-full overflow-hidden rounded-2xl border border-line"
                   style={CHECKERBOARD}
                 >
-                  {/* Keyed on the src so a change swaps the element out — navigating a live iframe
-                      would otherwise push entries into this page's own history. */}
-                  <iframe
-                    key={preview}
-                    src={preview}
-                    title="Stream overlay preview"
-                    className="absolute inset-0 h-full w-full border-0"
-                  />
+                  <div
+                    className="absolute left-0 top-0 origin-top-left"
+                    style={{
+                      width: STREAM_CANVAS.width,
+                      height: STREAM_CANVAS.height,
+                      transform: `scale(${canvasScale})`,
+                    }}
+                  >
+                    {/* Keyed on the src so a change swaps the element out — navigating a live iframe
+                        would otherwise push entries into this page's own history. */}
+                    <iframe
+                      key={preview}
+                      src={preview}
+                      title="Stream overlay preview"
+                      className="h-full w-full border-0"
+                    />
+                  </div>
                 </div>
                 <p className="text-xs text-muted">
                   The {STREAM_CANVAS.width} × {STREAM_CANVAS.height} canvas, scaled down — the chequerboard is what OBS
@@ -602,8 +645,9 @@ export function EmbedStudio({ slug, title, origin }: { slug: string; title: stri
                   </button>
                 </div>
                 <p className="text-xs text-muted">
-                  It drops in at full width and {EMBED_BOX.height}px tall. WordPress, Ghost and Notion take the
-                  countdown&rsquo;s own link instead — paste that and they find this embed themselves.
+                  It drops in at full width and {EMBED_BOX.height}px tall. WordPress, Ghost and Notion also accept
+                  the countdown&rsquo;s own link and find the embed themselves — but that unfurls the standard card,
+                  so paste the code above to keep what you have built here.
                 </p>
               </>
             )}
