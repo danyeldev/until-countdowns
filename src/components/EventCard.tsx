@@ -47,6 +47,9 @@ export async function EventCard({ event, live = true }: { event: CountdownEvent;
             size="card"
             initialDays={event.daysUntil}
             precision={event.datePrecision}
+            locale={L.locale}
+            labels={L.m.embed.countdown}
+            approximate={coarse ? formatApproximate(L, event.date, event.datePrecision) : undefined}
           />
         </div>
       ) : (

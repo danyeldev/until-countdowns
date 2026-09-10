@@ -1,12 +1,21 @@
 "use client";
 
-import { formatApproximate, isCoarsePrecision, localDateString, remainingUntil } from "@/lib/time";
+import type { Locale } from "@/lib/i18n/config";
+import { plural, type PluralForms } from "@/lib/i18n/messages/types";
+import { isCoarsePrecision, localDateString, remainingUntil } from "@/lib/time";
 import type { DatePrecision } from "@/lib/types";
 import { useNow } from "@/lib/use-now";
 
 const PLACEHOLDER = "--";
 /** Width reserved for the days cell when no server figure is known (personal countdowns): fits up to 999. */
 const UNKNOWN_DAYS_CHARS = 3;
+
+/** The clock's own words, handed over by the server parent as `L.m.embed.countdown`. */
+type Labels = {
+  units: { days: PluralForms; hours: string; minutes: string; seconds: string };
+  today: string;
+  past: string;
+};
 
 function Unit({
   value,
@@ -58,6 +67,9 @@ export function Countdown({
   size = "card",
   initialDays,
   precision,
+  locale,
+  labels,
+  approximate,
 }: {
   date: string;
   allDay?: boolean;
@@ -65,6 +77,15 @@ export function Countdown({
   /** Whole days until the event as computed by SQL at render time; shown until the client clock is live. */
   initialDays?: number | null;
   precision?: DatePrecision | null;
+  /** Only for the plural rules below; every string this renders arrives ready-made. */
+  locale: Locale;
+  labels: Labels;
+  /**
+   * The "expected June 2027" line, from the parent's `formatApproximate(L, date, precision)`.
+   * Required whenever `precision` can be coarse: there is no clock to run for a date that is only
+   * known to the month, and the sentence needs a catalogue this side of the boundary cannot reach.
+   */
+  approximate?: string;
 }) {
   const now = useNow();
   const huge = size === "hero";
@@ -72,7 +93,7 @@ export function Countdown({
   if (isCoarsePrecision(precision)) {
     return (
       <p className={`font-serif italic text-amber ${huge ? "text-3xl sm:text-4xl" : "text-lg"}`}>
-        {formatApproximate(date, precision)}
+        {approximate}
       </p>
     );
   }
@@ -87,7 +108,7 @@ export function Countdown({
   if (today) {
     return (
       <p className={`font-serif italic text-amber ${huge ? "text-4xl sm:text-5xl" : "text-xl"}`} data-live={live ? "true" : "false"}>
-        Today.
+        {labels.today}
       </p>
     );
   }
@@ -97,7 +118,7 @@ export function Countdown({
   if (past) {
     return (
       <p className={`font-serif italic text-muted ${huge ? "text-2xl" : "text-sm"}`}>
-        This one already happened.
+        {labels.past}
       </p>
     );
   }
@@ -110,19 +131,27 @@ export function Countdown({
   const seconds = live ? pad(live.seconds) : PLACEHOLDER;
   const sep = <span className={`pb-4 text-muted ${huge ? "text-4xl" : "text-lg"}`}>:</span>;
 
+  // The day word is chosen here rather than handed down ready-made: the figure changes on every
+  // tick and only the browser knows the live one. `PluralForms` is plain data, so it crosses the
+  // boundary as a prop like any other message; the abbreviations below do not inflect.
   return (
     <div
       className={`flex items-end justify-between gap-3 ${huge ? "max-w-3xl" : ""}`}
       aria-live="off"
       data-live={live ? "true" : "false"}
     >
-      <Unit value={daysText} label={days === 1 ? "day" : "days"} huge={huge} minChars={daysChars} />
+      <Unit
+        value={daysText}
+        label={plural(locale, labels.units.days, days ?? 0)}
+        huge={huge}
+        minChars={daysChars}
+      />
       {sep}
-      <Unit value={hours} label="hrs" huge={huge} />
+      <Unit value={hours} label={labels.units.hours} huge={huge} />
       {sep}
-      <Unit value={minutes} label="min" huge={huge} />
+      <Unit value={minutes} label={labels.units.minutes} huge={huge} />
       {sep}
-      <Unit value={seconds} label="sec" huge={huge} />
+      <Unit value={seconds} label={labels.units.seconds} huge={huge} />
     </div>
   );
 }

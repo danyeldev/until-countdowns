@@ -27,12 +27,14 @@ export type Redirect = Rewrite & {
   missing?: { type: "query"; key: string }[];
 };
 
-/** `/x` and `/x/:rest*` both, because a trailing catch-all does not reliably match the bare path. */
-function pair(source: string, destination: string): Rewrite[] {
-  return [
-    { source, destination },
-    { source: `${source}/:rest*`, destination: `${destination}/:rest*` },
-  ];
+/**
+ * One rule per section, not two: `/about/:rest*` matches the bare `/about` as well as everything
+ * under it, because the catch-all's leading slash is part of its optional group. That is worth
+ * knowing rather than guessing — writing both forms would double a table that is already 220 rules,
+ * and `scripts/check-i18n-routes.mjs` is what proved the short form against a real server.
+ */
+function rule(source: string, destination: string): Rewrite {
+  return { source: `${source}/:rest*`, destination: `${destination}/:rest*` };
 }
 
 /**
@@ -45,13 +47,13 @@ function pair(source: string, destination: string): Rewrite[] {
 export function localeRewrites(): Rewrite[] {
   const out: Rewrite[] = [{ source: "/", destination: `/${DEFAULT_LOCALE}` }];
   for (const section of SECTIONS) {
-    out.push(...pair(`/${section}`, `/${DEFAULT_LOCALE}/${section}`));
+    out.push(rule(`/${section}`, `/${DEFAULT_LOCALE}/${section}`));
   }
   for (const locale of PREFIXED_LOCALES) {
     for (const section of SECTIONS) {
       const name = sectionName(locale, section);
       if (name === section) continue; // the locale keeps the English word; the file route matches already
-      out.push(...pair(`/${locale}/${name}`, `/${locale}/${section}`));
+      out.push(rule(`/${locale}/${name}`, `/${locale}/${section}`));
     }
   }
   return out;
@@ -71,9 +73,7 @@ export function localeRedirects(): Redirect[] {
     for (const section of SECTIONS) {
       const name = sectionName(locale, section);
       if (name === section) continue;
-      for (const r of pair(`/${locale}/${section}`, `/${locale}/${name}`)) {
-        out.push({ ...r, permanent: true });
-      }
+      out.push({ ...rule(`/${locale}/${section}`, `/${locale}/${name}`), permanent: true });
     }
   }
   return out;

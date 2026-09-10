@@ -211,6 +211,8 @@ export default async function EventPage({ params }: PageProps<"/[locale]/event/[
         actions={L.m.common.actions}
         labels={L.m.common.labels}
         categories={L.m.categories.labels}
+        countdownLabels={L.m.embed.countdown}
+        studioLabels={L.m.embed.studio}
       />
     );
   }
@@ -330,6 +332,9 @@ export default async function EventPage({ params }: PageProps<"/[locale]/event/[
           size="hero"
           initialDays={event.daysUntil}
           precision={event.datePrecision}
+          locale={L.locale}
+          labels={L.m.embed.countdown}
+          approximate={formatApproximate(L, event.date, event.datePrecision)}
         />
       </div>
 
@@ -339,7 +344,7 @@ export default async function EventPage({ params }: PageProps<"/[locale]/event/[
         <ShareButton title={title} path={sharePath} labels={L.m.common.actions} />
       </div>
 
-      {coarse ? null : <EmbedStudio slug={shared ? slug : event.slug} title={title} origin={siteUrl()} />}
+      {coarse ? null : <EmbedStudio slug={shared ? slug : event.slug} title={title} origin={siteUrl()} labels={L.m.embed.studio} actions={L.m.common.actions} />}
 
       {event.seriesSlug ? (
         <p className="mt-8 text-sm text-paper-dim">

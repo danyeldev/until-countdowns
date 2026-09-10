@@ -14,10 +14,12 @@
  */
 const BASE = (process.env.BASE || "http://localhost:3000").replace(/\/$/, "");
 
-/** @type {{ path: string, expect: number, to?: string, contains?: string[], why: string }[]} */
+/** @type {{ path: string, expect: number | number[], to?: string, contains?: string[], why: string }[]} */
 const CASES = [
   // English is unprefixed, and still is after the rewrite.
-  { path: "/", expect: 200, contains: ['<html lang="en"', 'hreflang="es"', 'rel="canonical"'], why: "home stays at /" },
+  // React serialises the attribute as `hrefLang`; HTML attribute names are case-insensitive, so the
+  // needle is matched that way rather than "fixed" in the markup.
+  { path: "/", expect: 200, contains: ['<html lang="en"', 'hrefLang="es"', 'rel="canonical"'], why: "home stays at /" },
   { path: "/about", expect: 200, contains: ['<html lang="en"'], why: "English section, rewritten to /en/about" },
   { path: "/create", expect: 200, why: "English section with no sub-path" },
   { path: "/category", expect: 200, why: "hub index" },
@@ -51,7 +53,9 @@ const CASES = [
   { path: "/robots.txt", expect: 200, contains: ["/es/evento/mine-", "Sitemap:"], why: "robots is not a section" },
   { path: "/sitemap-index.xml", expect: 200, contains: ["<sitemapindex"], why: "sitemap index is not a section" },
   { path: "/og/default", expect: 200, why: "OG cards are not a section" },
-  { path: "/api/health", expect: 200, why: "the API is not a section" },
+  // 503 when the database is unreachable, which is the point of a health check — what matters here
+  // is that the request reached the route rather than being rewritten into the locale tree.
+  { path: "/api/health", expect: [200, 503], why: "the API is not a section" },
   { path: "/file.svg", expect: 200, why: "public/ is not a section" },
 
   // Unknown paths are 404s, not locales.
@@ -75,7 +79,8 @@ for (const testCase of CASES) {
   }
 
   const problems = [];
-  if (res.status !== testCase.expect) problems.push(`status ${res.status}, wanted ${testCase.expect}`);
+  const wanted = Array.isArray(testCase.expect) ? testCase.expect : [testCase.expect];
+  if (!wanted.includes(res.status)) problems.push(`status ${res.status}, wanted ${wanted.join(" or ")}`);
   if (testCase.to) {
     const location = res.headers.get("location") || "";
     const path = location.startsWith("http") ? new URL(location).pathname + new URL(location).search : location;

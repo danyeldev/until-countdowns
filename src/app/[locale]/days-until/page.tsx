@@ -3,23 +3,26 @@ import Link from "next/link";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { JsonLd } from "@/components/JsonLd";
 import { allSeries } from "@/lib/catalog";
+import { i18n, localePage } from "@/lib/i18n/server";
 import { collectionPage } from "@/lib/jsonld";
-import { CATEGORY_LABELS } from "@/lib/labels";
-import { buildMetadata, formatShortDate } from "@/lib/seo";
-import { humanDays } from "@/lib/time";
+import { buildMetadata, displayTitle } from "@/lib/seo";
 import { CATEGORIES, type Category, type Series } from "@/lib/types";
 
 export const revalidate = 3600;
 
-export const metadata: Metadata = buildMetadata({
-  title: "Days until — every recurring countdown",
-  description:
-    "Christmas, Ramadan, the Super Bowl, the Perseids: every recurring date in the catalog with the next occurrence on top and a table of the years to come.",
-  canonical: "/days-until",
-  ogPath: "/og/default",
-});
+export async function generateMetadata(): Promise<Metadata> {
+  const L = await i18n();
+  return buildMetadata({
+    locale: L.locale,
+    title: L.m.series.index.title,
+    description: L.m.series.index.description,
+    canonical: "/days-until",
+    ogPath: "/og/default",
+  });
+}
 
 export default async function SeriesIndexPage() {
+  const L = await localePage();
   const list = await allSeries();
   const byCategory = new Map<Category, Series[]>();
   for (const s of list) {
@@ -31,32 +34,38 @@ export default async function SeriesIndexPage() {
 
   return (
     <div>
-      <Breadcrumbs items={[{ name: "Home", path: "/" }, { name: "Days until", path: "/days-until" }]} />
-      <p className="mt-6 text-[11px] uppercase tracking-[0.24em] text-amber">Recurring</p>
-      <h1 className="mt-3 font-serif text-4xl text-paper sm:text-5xl">How many days until…</h1>
-      <p className="mt-4 max-w-2xl text-paper-dim">
-        {list.length.toLocaleString("en-US")} dates that come back every year. Each page keeps the next occurrence
-        on top and lists the years to come.
-      </p>
+      <Breadcrumbs
+        items={[
+          { name: L.m.common.breadcrumb.home, path: "/" },
+          { name: L.m.common.nav.daysUntil, path: "/days-until" },
+        ]}
+      />
+      <p className="mt-6 text-[11px] uppercase tracking-[0.24em] text-amber">{L.m.common.labels.recurring}</p>
+      <h1 className="mt-3 font-serif text-4xl text-paper sm:text-5xl">{L.m.series.index.heading}</h1>
+      <p className="mt-4 max-w-2xl text-paper-dim">{L.tn(L.m.series.index.intro, list.length)}</p>
 
       {groups.length === 0 ? (
-        <p className="mt-10 text-sm text-muted">The catalog is being filled — check back soon.</p>
+        <p className="mt-10 text-sm text-muted">{L.m.series.index.empty}</p>
       ) : (
         groups.map((category) => (
           <section key={category} className="mt-12">
             <h2 className="font-serif text-2xl text-paper">
-              <Link href={`/category/${category}`} className="hover:text-amber">
-                {CATEGORY_LABELS[category]}
+              <Link href={L.href(`/category/${category}`)} className="hover:text-amber">
+                {L.m.categories.labels[category]}
               </Link>
             </h2>
             <ul className="mt-4 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
               {(byCategory.get(category) ?? []).map((s) => (
                 <li key={s.slug} className="ticket flex items-baseline justify-between gap-3 rounded-xl px-4 py-3">
-                  <Link href={`/days-until/${s.slug}`} className="text-paper hover:text-amber">
-                    {s.title}
+                  <Link href={L.href(`/days-until/${s.slug}`)} className="text-paper hover:text-amber">
+                    {displayTitle(L, s)}
                   </Link>
                   <span className="tabular whitespace-nowrap font-mono text-xs text-muted">
-                    {s.nextDate ? (typeof s.daysUntil === "number" ? humanDays(s.daysUntil) : formatShortDate(s.nextDate)) : ""}
+                    {s.nextDate
+                      ? typeof s.daysUntil === "number"
+                        ? L.fmt.humanDays(s.daysUntil)
+                        : L.fmt.shortDate(s.nextDate)
+                      : ""}
                   </span>
                 </li>
               ))}
@@ -67,10 +76,11 @@ export default async function SeriesIndexPage() {
 
       <JsonLd
         data={collectionPage(
-          "Days until — every recurring countdown",
-          "Recurring dates with the next occurrence and a multi-year table.",
+          L,
+          L.m.series.index.title,
+          L.m.series.index.jsonLdDescription,
           "/days-until",
-          list.slice(0, 100).map((s) => ({ name: s.title, path: `/days-until/${s.slug}` })),
+          list.slice(0, 100).map((s) => ({ name: displayTitle(L, s), path: `/days-until/${s.slug}` })),
         )}
       />
     </div>

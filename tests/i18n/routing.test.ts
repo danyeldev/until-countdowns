@@ -29,8 +29,9 @@ describe("localeRewrites", () => {
 
   it("routes the bare English URL of every section to /en", () => {
     expect(sources.has("/")).toBe(true);
+    // One rule per section: `/about/:rest*` matches the bare `/about` too (proved against a real
+    // server by `scripts/check-i18n-routes.mjs`), so the second form would only pad the table.
     for (const section of SECTIONS) {
-      expect(sources.has(`/${section}`), section).toBe(true);
       expect(sources.has(`/${section}/:rest*`), section).toBe(true);
     }
   });
@@ -40,9 +41,9 @@ describe("localeRewrites", () => {
       for (const section of SECTIONS) {
         const name = sectionName(locale, section);
         if (name === section) continue;
-        const rule = rewrites.find((r) => r.source === `/${locale}/${name}`);
+        const rule = rewrites.find((r) => r.source === `/${locale}/${name}/:rest*`);
         expect(rule, `${locale}/${name}`).toBeDefined();
-        expect(rule?.destination).toBe(`/${locale}/${section}`);
+        expect(rule?.destination).toBe(`/${locale}/${section}/:rest*`);
       }
     }
   });
@@ -68,8 +69,8 @@ describe("localeRedirects", () => {
 
   it("folds the English spelling of a section onto the locale's own", () => {
     expect(redirects).toContainEqual({
-      source: "/es/days-until",
-      destination: "/es/cuantos-dias-faltan",
+      source: "/es/days-until/:rest*",
+      destination: "/es/cuantos-dias-faltan/:rest*",
       permanent: true,
     });
   });

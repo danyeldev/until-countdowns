@@ -26,7 +26,6 @@ import {
   EMBED_SEPARATORS,
   EMBED_UNITS,
   PADDING_MAX,
-  PRESET_LABELS,
   PRESET_PALETTES,
   RADIUS_MAX,
   SCALE_MAX,
@@ -49,6 +48,7 @@ import type {
   EmbedTheme,
   EmbedUnits,
 } from "@/lib/embed/theme";
+import { fill } from "@/lib/i18n/messages/types";
 
 const CAPTION = "text-xs uppercase tracking-[0.16em] text-muted";
 const FIELD = "mt-2 w-full rounded-xl border border-line bg-ink-2 px-4 py-3 text-paper outline-none focus:border-amber/60";
@@ -59,35 +59,57 @@ const CHIP = "rounded-full border px-3 py-1.5 text-xs";
 const CHIP_ON = "border-amber/60 bg-amber/10 text-amber";
 const CHIP_OFF = "border-line text-paper-dim hover:border-amber/40 hover:text-amber";
 
-const FONT_LABELS: Record<EmbedFont, string> = { serif: "Serif", sans: "Sans", mono: "Mono" };
-const LAYOUT_LABELS: Record<EmbedLayout, string> = {
-  row: "Row",
-  stack: "Stacked",
-  compact: "Compact",
-  big: "One big number",
-};
-const SEPARATOR_LABELS: Record<EmbedSeparator, string> = {
-  colon: "Colon",
-  dot: "Dot",
-  space: "Space",
-  none: "None",
-};
-const FRAME_LABELS: Record<EmbedFrame, string> = { card: "Card", outline: "Outline", none: "None" };
-const UNIT_LABELS: Record<EmbedUnits, string> = {
-  dhms: "Days · hours · minutes · seconds",
-  dhm: "Days · hours · minutes",
-  dh: "Days · hours",
-  d: "Days",
-  hms: "Hours · minutes · seconds",
-  hm: "Hours · minutes",
-  ms: "Minutes · seconds",
+/**
+ * Every word the studio shows, taken whole from `L.m.embed.studio` by the server parent.
+ *
+ * Only the studio is translated. What it builds — the document at `/embed/<slug>` — stays English
+ * in every locale: it is dropped into somebody else’s page, it is `noindex`, and it has no locale
+ * of its own to inherit, so nothing in here describes the widget’s own copy.
+ */
+type StudioLabels = {
+  heading: string;
+  controls: {
+    preset: string;
+    digits: string;
+    type: string;
+    background: string;
+    transparent: string;
+    font: string;
+    size: string;
+    layout: string;
+    units: string;
+    separator: string;
+    frame: string;
+    radius: string;
+    inset: string;
+    position: string;
+    done: string;
+    reset: string;
+    colourPicker: string;
+  };
+  toggles: {
+    unitLabels: string;
+    title: string;
+    date: string;
+    note: string;
+    wordmark: string;
+    glow: string;
+    trim: string;
+  };
+  presets: Record<EmbedPreset, string>;
+  fonts: Record<EmbedFont, string>;
+  layouts: Record<EmbedLayout, string>;
+  separators: Record<EmbedSeparator, string>;
+  frames: Record<EmbedFrame, string>;
+  units: Record<EmbedUnits, string>;
+  positions: Record<EmbedPosition, string>;
+  copy: { code: string; url: string };
+  embed: { previewTitle: string; paste: string; codeLabel: string; note: string };
+  stream: { previewTitle: string; canvasNote: string; urlLabel: string; source: string; steps: string[] };
 };
 
-/** "top-left" → "Top left". The picker is a grid, so the words only ever reach a screen reader. */
-function positionLabel(position: EmbedPosition): string {
-  const words = position.replace("-", " ");
-  return words.charAt(0).toUpperCase() + words.slice(1);
-}
+/** The two trigger words and the copy confirmation, from `L.m.common.actions`. */
+type Actions = { embed: string; stream: string; copied: string };
 
 /** Each cell parks its dot where the clock will sit, so the picker is a map rather than a legend. */
 const POSITION_ALIGN: Record<EmbedPosition, string> = {
@@ -238,12 +260,15 @@ function Toggle({
  */
 function ColorField({
   label,
+  picker,
   value,
   disabled,
   parse,
   onChange,
 }: {
   label: string;
+  /** `"{label} — colour picker"`, filled here so each call site passes only the field's own name. */
+  picker: string;
   value: string;
   disabled?: boolean;
   parse: (raw: string) => string | null;
@@ -261,7 +286,7 @@ function ColorField({
       <div className="mt-2 flex items-center gap-2">
         <input
           type="color"
-          aria-label={`${label} — colour picker`}
+          aria-label={fill(picker, { label })}
           value={swatch}
           disabled={disabled}
           onChange={(e) => {
@@ -295,7 +320,19 @@ function ColorField({
 
 type Tab = "embed" | "stream";
 
-export function EmbedStudio({ slug, title, origin }: { slug: string; title: string; origin: string }) {
+export function EmbedStudio({
+  slug,
+  title,
+  origin,
+  labels,
+  actions,
+}: {
+  slug: string;
+  title: string;
+  origin: string;
+  labels: StudioLabels;
+  actions: Actions;
+}) {
   const panelId = useId();
   const [open, setOpen] = useState(false);
   const [tab, setTab] = useState<Tab>("embed");
@@ -371,6 +408,8 @@ export function EmbedStudio({ slug, title, origin }: { slug: string; title: stri
 
   // Relative on purpose: it resolves against whatever origin this page is served from, so the
   // preview works on localhost, on a preview deploy and in production without knowing which.
+  // It carries no locale prefix either — `/embed/<slug>` is one English document in every
+  // language (see `StudioLabels` above), so it never goes through `localePath()`.
   const preview = useSettled(embedPath(slug, theme), 200);
   const url = embedUrl(host, slug, theme);
   const snippet = embedIframeSnippet(url, title);
@@ -382,7 +421,7 @@ export function EmbedStudio({ slug, title, origin }: { slug: string; title: stri
           that it sits above its own row, so the two options stay a pair instead of one landing
           hard right and the other alone underneath it. */}
       <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
-        <h2 className="text-[11px] uppercase tracking-[0.22em] text-amber sm:mr-auto">Take it with you</h2>
+        <h2 className="text-[11px] uppercase tracking-[0.22em] text-amber sm:mr-auto">{labels.heading}</h2>
         <div className="flex flex-wrap gap-2 sm:gap-3">
           <button
             type="button"
@@ -393,7 +432,7 @@ export function EmbedStudio({ slug, title, origin }: { slug: string; title: stri
             aria-controls={open && !stream ? panelId : undefined}
             className={`${TRIGGER} ${open && !stream ? "border-amber/60 text-amber" : ""}`}
           >
-            Embed on your site
+            {actions.embed}
           </button>
           <button
             type="button"
@@ -402,7 +441,7 @@ export function EmbedStudio({ slug, title, origin }: { slug: string; title: stri
             aria-controls={open && stream ? panelId : undefined}
             className={`${TRIGGER} ${open && stream ? "border-amber/60 text-amber" : ""}`}
           >
-            Add to your stream
+            {actions.stream}
           </button>
         </div>
       </div>
@@ -413,21 +452,34 @@ export function EmbedStudio({ slug, title, origin }: { slug: string; title: stri
               one long unbreakable string that would otherwise push the panel past a phone screen. */}
           <div className="min-w-0 space-y-6">
             <Choice
-              label="Preset"
+              label={labels.controls.preset}
               value={theme.preset}
               options={EMBED_PRESETS}
-              labels={PRESET_LABELS}
+              labels={labels.presets}
               onChange={applyPreset}
             />
 
             <div className="grid gap-4 sm:grid-cols-2">
-              <ColorField label="Digits" value={theme.accent} parse={parseColor} onChange={(v) => patch({ accent: v })} />
-              <ColorField label="Type" value={theme.text} parse={parseColor} onChange={(v) => patch({ text: v })} />
+              <ColorField
+                label={labels.controls.digits}
+                picker={labels.controls.colourPicker}
+                value={theme.accent}
+                parse={parseColor}
+                onChange={(v) => patch({ accent: v })}
+              />
+              <ColorField
+                label={labels.controls.type}
+                picker={labels.controls.colourPicker}
+                value={theme.text}
+                parse={parseColor}
+                onChange={(v) => patch({ text: v })}
+              />
             </div>
 
             <div>
               <ColorField
-                label="Background"
+                label={labels.controls.background}
+                picker={labels.controls.colourPicker}
                 value={transparent ? solidBg : theme.bg}
                 disabled={transparent}
                 parse={parseBackground}
@@ -435,17 +487,23 @@ export function EmbedStudio({ slug, title, origin }: { slug: string; title: stri
               />
               <div className="mt-2">
                 <Toggle
-                  label="Transparent — lets the scene or the page through"
+                  label={labels.controls.transparent}
                   checked={transparent}
                   onChange={(on) => setBackground(on ? "transparent" : solidBg)}
                 />
               </div>
             </div>
 
-            <Choice label="Font" value={theme.font} options={EMBED_FONTS} labels={FONT_LABELS} onChange={(font) => patch({ font })} />
+            <Choice
+              label={labels.controls.font}
+              value={theme.font}
+              options={EMBED_FONTS}
+              labels={labels.fonts}
+              onChange={(font) => patch({ font })}
+            />
 
             <Slider
-              label="Size"
+              label={labels.controls.size}
               value={theme.scale}
               min={SCALE_MIN}
               max={SCALE_MAX}
@@ -455,15 +513,15 @@ export function EmbedStudio({ slug, title, origin }: { slug: string; title: stri
             />
 
             <Choice
-              label="Layout"
+              label={labels.controls.layout}
               value={theme.layout}
               options={EMBED_LAYOUTS}
-              labels={LAYOUT_LABELS}
+              labels={labels.layouts}
               onChange={(layout) => patch({ layout })}
             />
 
             <label className="block">
-              <span className={CAPTION}>Units</span>
+              <span className={CAPTION}>{labels.controls.units}</span>
               <select
                 value={theme.units}
                 onChange={(e) => patch({ units: e.target.value as EmbedUnits })}
@@ -471,31 +529,31 @@ export function EmbedStudio({ slug, title, origin }: { slug: string; title: stri
               >
                 {EMBED_UNITS.map((unit) => (
                   <option key={unit} value={unit}>
-                    {UNIT_LABELS[unit]}
+                    {labels.units[unit]}
                   </option>
                 ))}
               </select>
             </label>
 
             <Choice
-              label="Separator"
+              label={labels.controls.separator}
               value={theme.separator}
               options={EMBED_SEPARATORS}
-              labels={SEPARATOR_LABELS}
+              labels={labels.separators}
               onChange={(separator) => patch({ separator })}
             />
 
             <Choice
-              label="Frame"
+              label={labels.controls.frame}
               value={theme.frame}
               options={EMBED_FRAMES}
-              labels={FRAME_LABELS}
+              labels={labels.frames}
               onChange={(frame) => patch({ frame })}
             />
 
             <div className="grid gap-4 sm:grid-cols-2">
               <Slider
-                label="Corner radius"
+                label={labels.controls.radius}
                 value={theme.radius}
                 min={0}
                 max={RADIUS_MAX}
@@ -503,7 +561,7 @@ export function EmbedStudio({ slug, title, origin }: { slug: string; title: stri
                 onChange={(radius) => patch({ radius })}
               />
               <Slider
-                label="Edge inset"
+                label={labels.controls.inset}
                 value={theme.padding}
                 min={0}
                 max={PADDING_MAX}
@@ -512,15 +570,15 @@ export function EmbedStudio({ slug, title, origin }: { slug: string; title: stri
               />
             </div>
 
-            <div role="group" aria-label="Position">
-              <span className={CAPTION}>Position</span>
+            <div role="group" aria-label={labels.controls.position}>
+              <span className={CAPTION}>{labels.controls.position}</span>
               <div className="mt-2 grid w-max grid-cols-3 gap-1.5">
                 {EMBED_POSITIONS.map((position) => (
                   <button
                     key={position}
                     type="button"
-                    title={positionLabel(position)}
-                    aria-label={positionLabel(position)}
+                    title={labels.positions[position]}
+                    aria-label={labels.positions[position]}
                     aria-pressed={position === theme.position}
                     onClick={() => patch({ position })}
                     className={`flex h-10 w-10 rounded-lg border p-1.5 ${POSITION_ALIGN[position]} ${
@@ -536,20 +594,26 @@ export function EmbedStudio({ slug, title, origin }: { slug: string; title: stri
             </div>
 
             <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
-              <Toggle label="Unit labels" checked={theme.labels} onChange={(labels) => patch({ labels })} />
-              <Toggle label="Title" checked={theme.title} onChange={(v) => patch({ title: v })} />
-              <Toggle label="Date" checked={theme.date} onChange={(date) => patch({ date })} />
-              <Toggle label="Note" checked={theme.note} onChange={(note) => patch({ note })} />
-              <Toggle label="Wordmark" checked={theme.brand} onChange={(brand) => patch({ brand })} />
-              <Toggle label="Glow" checked={theme.glow} onChange={(glow) => patch({ glow })} />
-              <Toggle label="Trim leading zeros" checked={theme.trim} onChange={(trim) => patch({ trim })} />
+              <Toggle
+                label={labels.toggles.unitLabels}
+                checked={theme.labels}
+                onChange={(on) => patch({ labels: on })}
+              />
+              <Toggle label={labels.toggles.title} checked={theme.title} onChange={(v) => patch({ title: v })} />
+              <Toggle label={labels.toggles.date} checked={theme.date} onChange={(date) => patch({ date })} />
+              <Toggle label={labels.toggles.note} checked={theme.note} onChange={(note) => patch({ note })} />
+              <Toggle label={labels.toggles.wordmark} checked={theme.brand} onChange={(brand) => patch({ brand })} />
+              <Toggle label={labels.toggles.glow} checked={theme.glow} onChange={(glow) => patch({ glow })} />
+              <Toggle label={labels.toggles.trim} checked={theme.trim} onChange={(trim) => patch({ trim })} />
             </div>
 
             <label className="block">
-              <span className={CAPTION}>Finished message</span>
+              <span className={CAPTION}>{labels.controls.done}</span>
               <input
                 type="text"
                 maxLength={DONE_MAX}
+                // The widget's own default, quoted verbatim: the document stays English whatever
+                // language the studio is read in, so translating the sample would misreport it.
                 placeholder="It's here."
                 value={theme.done}
                 onChange={(e) => patch({ done: e.target.value })}
@@ -558,7 +622,7 @@ export function EmbedStudio({ slug, title, origin }: { slug: string; title: stri
             </label>
 
             <button type="button" onClick={() => setTheme(startingTheme)} className={BUTTON}>
-              Reset
+              {labels.controls.reset}
             </button>
           </div>
 
@@ -584,39 +648,35 @@ export function EmbedStudio({ slug, title, origin }: { slug: string; title: stri
                     <iframe
                       key={preview}
                       src={preview}
-                      title="Stream overlay preview"
+                      title={labels.stream.previewTitle}
                       className="h-full w-full border-0"
                     />
                   </div>
                 </div>
                 <p className="text-xs text-muted">
-                  The {STREAM_CANVAS.width} × {STREAM_CANVAS.height} canvas, scaled down — the chequerboard is what OBS
-                  keys out.
+                  {fill(labels.stream.canvasNote, { width: STREAM_CANVAS.width, height: STREAM_CANVAS.height })}
                 </p>
 
                 <div>
-                  <span className={CAPTION}>Browser source URL</span>
+                  <span className={CAPTION}>{labels.stream.urlLabel}</span>
                   <pre className="mt-2 whitespace-pre-wrap break-all rounded-xl border border-line bg-ink-2 p-4 font-mono text-xs text-paper-dim">
                     {url}
                   </pre>
                 </div>
                 <div className="flex flex-wrap items-center gap-3">
                   <button type="button" onClick={() => copy("url", url)} className={BUTTON}>
-                    {copied === "url" ? "Copied" : "Copy URL"}
+                    {copied === "url" ? actions.copied : labels.copy.url}
                   </button>
                   <span className="text-xs text-muted">
-                    Browser source · {STREAM_CANVAS.width} × {STREAM_CANVAS.height}
+                    {fill(labels.stream.source, { width: STREAM_CANVAS.width, height: STREAM_CANVAS.height })}
                   </span>
                 </div>
                 <ol className="list-decimal space-y-1 pl-5 text-xs text-muted">
-                  <li>In OBS or Streamlabs, add a Browser source.</li>
-                  <li>Paste the URL above.</li>
-                  <li>
-                    Set the size to {STREAM_CANVAS.width} × {STREAM_CANVAS.height} — the canvas the position is measured
-                    against.
-                  </li>
-                  <li>Leave the background transparent; the overlay brings its own.</li>
-                  <li>Tick &ldquo;Refresh browser when scene becomes active&rdquo; so the clock starts fresh.</li>
+                  {labels.stream.steps.map((step, i) => (
+                    <li key={i}>
+                      {fill(step, { width: STREAM_CANVAS.width, height: STREAM_CANVAS.height })}
+                    </li>
+                  ))}
                 </ol>
               </>
             ) : (
@@ -626,36 +686,32 @@ export function EmbedStudio({ slug, title, origin }: { slug: string; title: stri
                   <iframe
                     key={preview}
                     src={preview}
-                    title="Embed preview"
+                    title={labels.embed.previewTitle}
                     className="block w-full border-0"
                     style={{ height: EMBED_BOX.height }}
                   />
                 </div>
 
                 <div>
-                  <span className={CAPTION}>Paste this into your page</span>
+                  <span className={CAPTION}>{labels.embed.paste}</span>
                   <textarea
                     readOnly
                     rows={3}
                     value={snippet}
                     onFocus={(e) => e.currentTarget.select()}
-                    aria-label="Embed code"
+                    aria-label={labels.embed.codeLabel}
                     className="mt-2 w-full rounded-xl border border-line bg-ink-2 px-4 py-3 font-mono text-xs text-paper-dim outline-none focus:border-amber/60"
                   />
                 </div>
                 <div className="flex flex-wrap gap-3">
                   <button type="button" onClick={() => copy("code", snippet)} className={BUTTON}>
-                    {copied === "code" ? "Copied" : "Copy code"}
+                    {copied === "code" ? actions.copied : labels.copy.code}
                   </button>
                   <button type="button" onClick={() => copy("url", url)} className={BUTTON}>
-                    {copied === "url" ? "Copied" : "Copy URL"}
+                    {copied === "url" ? actions.copied : labels.copy.url}
                   </button>
                 </div>
-                <p className="text-xs text-muted">
-                  It drops in at full width and {EMBED_BOX.height}px tall. WordPress, Ghost and Notion also accept
-                  the countdown&rsquo;s own link and find the embed themselves — but that unfurls the standard card,
-                  so paste the code above to keep what you have built here.
-                </p>
+                <p className="text-xs text-muted">{fill(labels.embed.note, { height: EMBED_BOX.height })}</p>
               </>
             )}
           </div>

@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import type { ComponentProps } from "react";
 import { bind } from "@/lib/i18n/bind";
 import type { Locale } from "@/lib/i18n/config";
 import type { Category, CountdownEvent } from "@/lib/types";
@@ -30,13 +31,22 @@ export function MineEvent({
   actions,
   labels,
   categories,
+  countdownLabels,
+  studioLabels,
 }: {
   slug: string;
   locale: Locale;
   m: Messages;
-  actions: { google: string; outlook: string; downloadIcs: string; share: string; shareCopied: string; save: string; saved: string };
+  /** `L.m.common.actions` whole: every button on this page draws its word from it. */
+  actions: ComponentProps<typeof CalendarButtons>["labels"] &
+    ComponentProps<typeof ShareButton>["labels"] &
+    ComponentProps<typeof SaveButton>["labels"] &
+    ComponentProps<typeof EmbedStudio>["actions"];
   labels: { dateToBeAnnounced: string };
   categories: Record<Category, string>;
+  /** The clock and the studio own their own words; typed from the components so they cannot drift. */
+  countdownLabels: ComponentProps<typeof Countdown>["labels"];
+  studioLabels: ComponentProps<typeof EmbedStudio>["labels"];
 }) {
   const L = bind(locale);
   const mine = useMine();
@@ -68,7 +78,7 @@ export function MineEvent({
       <p className="mt-4 max-w-2xl text-lg text-paper-dim">{event.description}</p>
       <p className="mt-3 font-mono text-sm text-muted">{when}</p>
       <div className="ticket mt-10 rounded-3xl px-6 py-10 sm:px-10">
-        <Countdown date={event.date} allDay={event.allDay} size="hero" />
+        <Countdown date={event.date} allDay={event.allDay} size="hero" locale={locale} labels={countdownLabels} />
       </div>
       <div className="mt-8 flex flex-wrap items-center gap-2">
         <CalendarButtons event={event} url={absoluteUrl(sharePath)} labels={actions} />
@@ -77,7 +87,7 @@ export function MineEvent({
       </div>
       {/* The embed points at the payload URL, never at this `mine-…` slug: the widget has to work
           on someone else's site, where this browser's localStorage does not exist. */}
-      <EmbedStudio slug={shareSlug} title={event.title} origin={siteUrl()} />
+      <EmbedStudio slug={shareSlug} title={event.title} origin={siteUrl()} labels={studioLabels} actions={actions} />
     </article>
   );
 }

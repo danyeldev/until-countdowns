@@ -18,7 +18,7 @@ import {
 } from "@/lib/catalog";
 import { searchQueryFor } from "@/lib/i18n/content";
 import { regionLabel } from "@/lib/i18n/regions";
-import { i18n, localePage } from "@/lib/i18n/server";
+import { localePage } from "@/lib/i18n/server";
 import { organization, webSite } from "@/lib/jsonld";
 import { COUNTRY_NAMES } from "@/lib/regions";
 import { buildMetadata, displayTitle, nextMonth, pad2, todayUtc, yearMonthOf } from "@/lib/seo";
@@ -56,7 +56,7 @@ function parseQuery(sp: Record<string, string | string[] | undefined>): HomeQuer
 
 /** The home page already reads `searchParams`, so metadata reading them makes nothing more dynamic. */
 export async function generateMetadata({ searchParams }: PageProps<"/[locale]">): Promise<Metadata> {
-  const L = await i18n();
+  const L = await localePage();
   const { filtered } = parseQuery(await searchParams);
   const metadata = buildMetadata({
     locale: L.locale,

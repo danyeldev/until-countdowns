@@ -1,4 +1,4 @@
-import { CATEGORY_LABELS } from "@/lib/labels";
+import { i18n } from "@/lib/i18n/server";
 import type { Category } from "@/lib/types";
 
 /**
@@ -9,6 +9,9 @@ import type { Category } from "@/lib/types";
  * the server and in the browser, with no network request and no layout shift. The palette is
  * anchored to the category so a sports card never reads as an astronomy card, and the hue drift
  * inside that anchor keeps a grid of twelve cards from looking like wallpaper.
+ *
+ * The one word it prints is the category, so it reads the locale itself (as `StatusBadge` does)
+ * rather than making every grid that draws a card pass a label down.
  */
 
 const ASPECT = "16 / 9";
@@ -63,7 +66,8 @@ export type FallbackCardProps = {
   className?: string;
 };
 
-export function FallbackCard({ slug, title, category, variant = "card", className }: FallbackCardProps) {
+export async function FallbackCard({ slug, title, category, variant = "card", className }: FallbackCardProps) {
+  const L = await i18n();
   const h = hash(slug);
   const base = CATEGORY_HUE[category] ?? 40;
   const hue = base + ((h % 28) - 14);
@@ -111,7 +115,7 @@ export function FallbackCard({ slug, title, category, variant = "card", classNam
         <p
           className={`font-mono uppercase text-paper-dim ${hero ? "text-[11px] tracking-[0.28em]" : "text-[9px] tracking-[0.22em]"}`}
         >
-          {CATEGORY_LABELS[category]}
+          {L.m.categories.labels[category]}
         </p>
         <p
           className={`mt-1 font-serif leading-tight text-paper ${hero ? "line-clamp-3 text-3xl sm:text-4xl" : "line-clamp-2 text-base"}`}

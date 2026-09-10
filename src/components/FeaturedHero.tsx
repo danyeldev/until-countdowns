@@ -53,6 +53,9 @@ export function FeaturedHero({ L, event }: { L: Localized; event: CountdownEvent
           size="hero"
           initialDays={event.daysUntil}
           precision={event.datePrecision}
+          locale={L.locale}
+          labels={L.m.embed.countdown}
+          approximate={when}
         />
       </div>
       <Link
