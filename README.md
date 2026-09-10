@@ -371,7 +371,8 @@ there is no `global-not-found.tsx`.
 | Titles, descriptions, headings, UI | `src/lib/i18n/messages/<locale>.ts` — hand-written, one file per locale, typed against `Messages = typeof EN` so a missing key fails `npm run typecheck` |
 | Dates, numbers, relative times, country names, lists | `Intl` (`src/lib/i18n/format.ts`). 250 country names in fifteen languages from ICU, nothing to maintain |
 | Event and series names | `src/data/i18n/entities/<locale>.ts` — **curated**, ~200 entities keyed by `slugify(title)` |
-| The catalog's own prose (`description`, Wikipedia `summary`, series FAQ) | not translated — it is English source text and stays English |
+| The catalog's own prose (`description`, Wikipedia `summary`) | not translated — it is English source text, and removing it would leave a thinner page rather than a better one |
+| The curated series FAQ | **hidden outside English.** It is a block of English questions and answers whose job is to be read in the page's language; left in, it is bulk mixed-language content on a page whose ranking is the point, and the dates table above it already answers the same questions |
 | OG cards, `.ics` / Google / Outlook payloads, the embed widget | English by design |
 
 Entity names are curated rather than generated because most of the catalog has no other name:
