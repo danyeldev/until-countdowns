@@ -1,0 +1,23 @@
+<!doctype html>
+<!--
+  HAND-AUTHORED fixture — NOT recorded from espn.com.
+
+  This container has no outbound network, so no ESPN page was ever fetched and nothing below has
+  been checked against the real one: the `window['__espnfitt__']` assignment, the depth the schedule
+  sits at inside the state tree and the event field names are all guesses (see the docblock in
+  src/lib/ingest/sources/espn.ts). Ids, matchups and venues are fictional and deliberately match
+  tests/fixtures/espn/scoreboard.json and schedule-jsonld.html so the readings can be compared.
+  Replace this file with a recorded page on the first real run.
+
+  The "analytics" value is deliberate: it puts braces and escaped quotes INSIDE a JSON string
+  literal, which is exactly what the brace-counting matcher has to survive.
+-->
+<html lang="en">
+  <head>
+    <title>UFC Schedule - ESPN</title>
+  </head>
+  <body>
+    <div id="fittPageContainer"><section class="Schedule">Loading…</section></div>
+    <script>window['__espnfitt__'] = {"app":{"id":"espn-en-index"},"page":{"key":"mma-schedule","content":{"scheduleData":{"leagueSchedule":{"league":"ufc","analytics":{"query":"{\"league\":\"ufc\",\"page\":\"schedule\"}"},"sections":[{"label":"September 2026","tables":[{"caption":"Saturday, September 12","events":[{"id":"401612345","uid":"s:3300~l:26~e:401612345","date":"2026-09-12T22:00Z","name":"UFC Fight Night: Silva vs. Delgado","shortName":"Silva vs. Delgado","status":{"type":{"id":"1","name":"STATUS_SCHEDULED","state":"pre","completed":false}},"competitions":[{"id":"401612345","date":"2026-09-12T22:00Z","timeValid":true,"venue":{"id":"7404","fullName":"UFC APEX","address":{"city":"Las Vegas","state":"NV","country":"USA"}}}]}]}]},{"label":"October 2026","tables":[{"caption":"Friday, October 2","events":[{"id":"401612349","uid":"s:3300~l:26~e:401612349","date":"2026-10-03T02:00Z","name":"UFC 349: Ferreira vs. Whitlock","shortName":"Ferreira vs. Whitlock","status":{"type":{"id":"1","name":"STATUS_SCHEDULED","state":"pre","completed":false}},"competitions":[{"id":"401612349","date":"2026-10-03T02:00Z","timeValid":true,"venue":{"id":"3671","fullName":"T-Mobile Arena","address":{"city":"Las Vegas","state":"NV","country":"USA"}}}]}]}]},{"label":"December 2026","tables":[{"caption":"Saturday, December 5","events":[{"id":"401612351","uid":"s:3300~l:26~e:401612351","date":"2026-12-05T00:00Z","name":"UFC 351: Ivanova vs. Bright","shortName":"Ivanova vs. Bright","status":{"type":{"id":"1","name":"STATUS_SCHEDULED","state":"pre","completed":false}},"competitions":[{"id":"401612351","date":"2026-12-05T00:00Z","venue":{"id":"3928","fullName":"Madison Square Garden","address":{"city":"New York","state":"NY","country":"USA"}}}]}]}]}]}}},"meta":{"canonical":"https://www.espn.com/mma/schedule/_/league/ufc"}}};</script>
+  </body>
+</html>

@@ -1,0 +1,55 @@
+<!doctype html>
+<!--
+  HAND-AUTHORED fixture — NOT recorded from espn.com. The least verified file in this directory:
+  the class names, the column order and the "Sat, Sep 12" date wording are invented to look like an
+  ESPN schedule table, and none of it has been compared with the real markup (see the docblock in
+  src/lib/ingest/sources/espn.ts). Ids and matchups match schedule-state.html so the layers can be
+  compared. The header row, the promo row and the row with no event name are here to be SKIPPED.
+  Note what is deliberately absent: no time is published in a form this layer will read, and the
+  location column is not parsed — a day and a name are all layer 3 claims to know. The dates are
+  also the LOCAL ones a schedule table would print, so UFC 349 is "Fri, Oct 2" here and
+  2026-10-03T02:00Z in schedule-state.html: the same card, a different day, which is one more
+  reason this layer is the last one tried.
+-->
+<html lang="en">
+  <head>
+    <title>UFC Schedule - ESPN</title>
+  </head>
+  <body>
+    <div class="Table__Title">2026 UFC Schedule</div>
+    <table class="Table">
+      <thead>
+        <tr class="Table__TR Table__even">
+          <th class="Table__TH">DATE</th>
+          <th class="Table__TH">EVENT</th>
+          <th class="Table__TH">LOCATION</th>
+        </tr>
+      </thead>
+      <tbody class="Table__TBODY">
+        <tr class="Table__TR Table__TR--sm Table__even">
+          <td class="Table__TD">Sat, Sep 12</td>
+          <td class="Table__TD"><a class="AnchorLink" href="/mma/fightcenter/_/id/401612345">UFC Fight Night: Silva vs. Delgado</a></td>
+          <td class="Table__TD">UFC APEX, Las Vegas</td>
+        </tr>
+        <tr class="Table__TR Table__TR--sm Table__even">
+          <td class="Table__TD">Fri, Oct 2</td>
+          <td class="Table__TD"><a class="AnchorLink" href="/mma/fightcenter/_/id/401612349">UFC 349: Ferreira vs. Whitlock</a></td>
+          <td class="Table__TD">T-Mobile Arena, Las Vegas</td>
+        </tr>
+        <tr class="Table__TR Table__TR--sm Table__even">
+          <td class="Table__TD">Sat, Dec 5</td>
+          <td class="Table__TD"><a class="AnchorLink" href="/mma/schedule/_/date/20261205">UFC 351: Ivanova vs. Bright</a></td>
+          <td class="Table__TD">Madison Square Garden, New York</td>
+        </tr>
+        <tr class="Table__TR Table__TR--sm">
+          <td class="Table__TD">Sat, Nov 14</td>
+          <td class="Table__TD">&mdash;</td>
+          <td class="Table__TD">TBD</td>
+        </tr>
+        <tr class="Table__TR Promo">
+          <td class="Table__TD" colspan="3">Every event streams live on ESPN+. Sign up now.</td>
+        </tr>
+      </tbody>
+    </table>
+  </body>
+</html>

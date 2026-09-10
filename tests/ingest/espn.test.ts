@@ -1,51 +1,72 @@
 /*
- * The fixture `tests/fixtures/espn/scoreboard.json` is HAND-AUTHORED from the documented ESPN MMA
- * scoreboard shape. It was NOT recorded from a live response: the machine this adapter was written
- * on has no outbound network access, so no call to site.api.espn.com was ever made and nothing in
- * the fixture has been verified against the real endpoint. Ids, card numbers, matchups and venues
- * are invented. The first real run of this source MUST replace the fixture with a recorded
- * response (`curl "$ESPN_BASE?dates=YYYYMMDD-YYYYMMDD" > tests/fixtures/espn/scoreboard.json`) and
- * these expectations re-checked against it — most of all the nesting of `events`, the exact
- * `status.type.name` strings and whether `date` really omits seconds.
+ * Every fixture in `tests/fixtures/espn/` is HAND-AUTHORED and NONE of them was recorded: the
+ * machine this adapter was written on has no outbound network, so no call to ESPN was ever made.
+ * `scoreboard.json` follows the documented shape of the JSON API this source used to read, and
+ * still exercises `extractEvents` / `scoreboardToEvents` — the mapping layer is unchanged and the
+ * shapes it accepts are worth keeping under test. The four `schedule-*.html` files are a bigger
+ * guess again: there is no published description of ESPN's markup, so the `__espnfitt__`
+ * assignment, the ld+json block and the schedule table are invented to look plausible and are not
+ * evidence of anything. Ids, card numbers, matchups and venues are fictional throughout.
  *
- * Because the shape is a guess, the tests below deliberately spend as much effort on TOLERANCE
- * (alternative nestings, missing fields, unknown statuses) as on the happy path: the failure this
- * adapter must never have is silently producing zero rows.
+ * The first real run MUST replace these with a recorded page (`curl -sS
+ * https://www.espn.com/mma/schedule/_/league/ufc`) and re-check the expectations below — most of
+ * all which strategy the run reports, the nesting of `events` inside the page state, and whether
+ * the schedule table looks anything like `schedule-markup.html`.
  *
- * These tests exercise the mapper only — nothing here touches the network (see football-data.test.ts).
+ * Because the shapes are guesses, these tests spend as much effort on TOLERANCE and on the
+ * FALLBACK ORDER as on the happy path: the failure this adapter must never have is silently
+ * producing zero rows.
+ *
+ * These tests exercise the scraper and the mapper only — nothing here touches the network (see
+ * football-data.test.ts).
  */
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import {
+  absoluteEspnUrl,
   adapter,
+  balancedJson,
   cardNumber,
   describeEvent,
-  ESPN_BASE,
   espnEventToRow,
+  eventsFromAppState,
+  eventsFromJsonLd,
+  eventsFromMarkup,
   extractEvents,
   fightcenterUrl,
   firstCompetition,
+  hashId,
+  idFromHref,
+  isEventNode,
   isFightNight,
   iso2,
+  jsonLdNodes,
+  jsonLdToEspnEvent,
   locationOf,
   looksLikeEvent,
+  markerReport,
+  markupDate,
+  markupRowToEvent,
   MIN_DESCRIPTION,
   parseCursor,
   planUnits,
   popularityFor,
   rawDateOf,
+  SCHEDULE_UNIT_KEY,
   scoreboardToEvents,
-  scoreboardUrl,
+  scrapeSchedule,
+  SOURCE_URL,
   sourceUrlOf,
+  stateBlobs,
   statusOf,
   titleOf,
   toEventDate,
-  WINDOW_COUNT,
-  windowsFor,
   type EspnEvent,
   type EspnScoreboard,
+  type StrategyImpl,
 } from "@/lib/ingest/sources/espn";
-import { IngestEventSchema, type IngestContext } from "@/lib/ingest/types";
+import { decodeEntities } from "@/lib/ingest/normalize";
+import { IngestEventSchema, type IngestContext, type IngestEvent } from "@/lib/ingest/types";
 
 const NOW = new Date("2026-09-10T12:00:00Z");
 const SCOREBOARD = JSON.parse(readFileSync(new URL("../fixtures/espn/scoreboard.json", import.meta.url), "utf8")) as EspnScoreboard;
@@ -54,17 +75,37 @@ const byId = (id: string): EspnEvent => events().find((e) => String(e.id) === id
 const rows = (now = NOW) => scoreboardToEvents(structuredClone(SCOREBOARD), now);
 const rowFor = (id: string) => rows().find((r) => r.source_key === `espn:mma:${id}`)!;
 
-function ctxFor(responses: Record<string, unknown>, calls: string[] = [], now = NOW): IngestContext {
+const page = (name: string): string => readFileSync(new URL(`../fixtures/espn/${name}`, import.meta.url), "utf8");
+const STATE_PAGE = page("schedule-state.html");
+const JSONLD_PAGE = page("schedule-jsonld.html");
+const MARKUP_PAGE = page("schedule-markup.html");
+const CHALLENGE_PAGE = page("schedule-challenge.html");
+
+/** The three cards every schedule fixture describes, in page order. */
+const FIXTURE_IDS = ["401612345", "401612349", "401612351"];
+
+type Logged = { info: string[]; warn: string[] };
+function recorder(): { log: IngestContext["log"]; lines: Logged } {
+  const lines: Logged = { info: [], warn: [] };
+  return {
+    lines,
+    log: { info: (m: string) => void lines.info.push(m), warn: (m: string) => void lines.warn.push(m), error() {} },
+  };
+}
+
+/** `raw` differs by construction between strategies (it echoes the fields each one carried). */
+const stripRaw = (r: IngestEvent): Record<string, unknown> => ({ ...r, raw: null });
+
+function ctxFor(html: string, calls: string[] = [], now = NOW, log: IngestContext["log"] = { info() {}, warn() {}, error() {} }): IngestContext {
   return {
     http: {
-      fetchJson: async <T,>(url: string) => {
+      fetchJson: async <T,>() => ({}) as T,
+      fetchText: async (url: string) => {
         calls.push(url);
-        if (!(url in responses)) throw new Error(`no fixture for ${url}`);
-        return responses[url] as T;
+        return html;
       },
-      fetchText: async () => "",
     },
-    log: { info() {}, warn() {}, error() {} },
+    log,
     now,
     budget: { remainingMs: () => 60_000 },
     dryRun: true,
@@ -90,6 +131,20 @@ describe("espn: date normalisation", () => {
     expect(toEventDate("2026-09-12Tnonsense")).toEqual({ date: "2026-09-12", instant: false });
     // One minute past midnight is a real time and is kept.
     expect(toEventDate("2026-09-12T00:01Z")).toEqual({ date: "2026-09-12T00:01:00Z", instant: true });
+  });
+  it("a time that names no zone is a day, because it means a different instant on every machine", () => {
+    // `Date.parse` reads a zoneless stamp in the RUNNER's local zone: the cron box and a laptop
+    // would file the same card at different instants, sometimes on different days. ESPN's JSON
+    // never sent this shape; schema.org `startDate` and a `<time datetime>` attribute both allow
+    // it, so the scraper reaches it and it must not become a confident wrong hour.
+    expect(toEventDate("2026-09-12T19:00:00")).toEqual({ date: "2026-09-12", instant: false });
+    expect(toEventDate("2026-09-12T19:00")).toEqual({ date: "2026-09-12", instant: false });
+    expect(toEventDate("2026-09-12T19:00:00.500")).toEqual({ date: "2026-09-12", instant: false });
+    // An explicit offset is unambiguous and is converted, not discarded.
+    expect(toEventDate("2026-09-12T19:00:00+02:00")).toEqual({ date: "2026-09-12T17:00:00Z", instant: true });
+    // And the whole point of the guard: the row is the same wherever the test runs.
+    const flag = toEventDate("2026-09-12T19:00:00");
+    expect(flag?.instant).toBe(false);
   });
   it("ESPN's own timeValid flag outranks the midnight heuristic in both directions", () => {
     // A perfectly good-looking stamp that ESPN says is not a real slot.
@@ -358,48 +413,436 @@ describe("espn: what is dropped", () => {
   });
 });
 
-describe("espn: plan and run", () => {
-  it("windows are consecutive, non-overlapping and start today", () => {
-    const windows = windowsFor(NOW);
-    expect(windows).toHaveLength(WINDOW_COUNT);
-    expect(windows).toEqual([
-      { start: "20260910", end: "20261208" },
-      { start: "20261209", end: "20270308" },
-      { start: "20270309", end: "20270606" },
-      { start: "20270607", end: "20270904" },
+describe("espn: strategy 1 — the embedded app state", () => {
+  it("balance-matches the object, counting braces and ignoring the ones inside strings", () => {
+    const src = String.raw`window['__espnfitt__'] = {"name":"a } b","nested":{"k":"\"}\""},"n":1};</script>`;
+    const open = src.indexOf("{");
+    const json = balancedJson(src, open)!;
+    // A greedy /\{[\s\S]*\}/ would have run to the end of the file; this stops at the real close.
+    expect(json.endsWith('"n":1}')).toBe(true);
+    expect(JSON.parse(json)).toEqual({ name: "a } b", nested: { k: '"}"' }, n: 1 });
+  });
+  it("an unterminated object yields null rather than a truncated parse", () => {
+    expect(balancedJson('{"a":{"b":1}', 0)).toBeNull();
+    // A brace that only closes inside a string literal never closes at all.
+    expect(balancedJson('{"a":"}"', 0)).toBeNull();
+    expect(balancedJson("not an object", 0)).toBeNull();
+    expect(balancedJson('x = {"a":1}', 0)).toBeNull();
+    // A trailing backslash inside the string: the escape must not swallow the closing quote and
+    // leave the rest of the page inside a string literal.
+    expect(balancedJson(String.raw`{"a":"c:\\"}` + " tail", 0)).toBe(String.raw`{"a":"c:\\"}`);
+  });
+  it("a blob that is an array is matched too, and mismatched nesting is refused", () => {
+    // Nothing says a page state must be an object; a bracket-blind matcher would stop at the first
+    // `}` inside one and hand JSON.parse a fragment.
+    expect(balancedJson('[{"a":1},{"b":2}] rest of the bundle', 0)).toBe('[{"a":1},{"b":2}]');
+    expect(balancedJson('{"a":[1,2],"b":{"c":[3]}} tail', 0)).toBe('{"a":[1,2],"b":{"c":[3]}}');
+    expect(balancedJson("[1,2", 0)).toBeNull();
+    // Balanced by count, not by kind: not JSON, and never worth handing on.
+    expect(balancedJson('{"a":1]', 0)).toBeNull();
+    expect(balancedJson('[{"a":1]}', 0)).toBeNull();
+    const arrayState = '<script>window["__espnfitt__"] = [{"id":"5","name":"UFC 5: Roe vs. Doe","date":"2026-11-12T22:00Z"}];</script>';
+    expect(eventsFromAppState(arrayState).map((e) => e.id)).toEqual(["5"]);
+  });
+  it("finds the blob in the fixture and hands the events to the existing walk", () => {
+    const blobs = stateBlobs(STATE_PAGE);
+    expect(blobs).toHaveLength(1);
+    const state = JSON.parse(blobs[0]) as Record<string, unknown>;
+    // The fixture hides a `}` and escaped quotes inside a string; the matcher kept the blob whole.
+    expect(JSON.stringify(state)).toContain('{\\"league\\":\\"ufc\\"');
+    expect(eventsFromAppState(STATE_PAGE).map((e) => String(e.id))).toEqual(FIXTURE_IDS);
+    // The schedule sits eight levels down — deeper than the API envelope ever nested it.
+    expect(extractEvents(state)).toHaveLength(3);
+  });
+  it("accepts the assignment forms a rename could plausibly take", () => {
+    const one = '{"events":[{"id":"1","name":"UFC 1: Gracie vs. Gordeau","date":"2026-11-12T22:00Z"}]}';
+    for (const assignment of [
+      `<script>window['__espnfitt__'] = ${one};</script>`,
+      `<script>window["__espnfitt__"]=${one};</script>`,
+      `<script>window.__espnfitt__ = ${one};</script>`,
+      `<script>window['__espnDataFitt__'] = ${one};</script>`,
+      `<script id="__NEXT_DATA__" type="application/json">${one}</script>`,
+    ]) {
+      expect(eventsFromAppState(assignment).map((e) => e.name)).toEqual(["UFC 1: Gracie vs. Gordeau"]);
+    }
+  });
+  it("a blob that will not parse, or holds no events, is passed over for the next candidate", () => {
+    const broken = '<script>window["__espnfitt__"] = {"page":{"broken":,}};</script>';
+    const empty = '<script>window["__adsFitt__"] = {"ads":{"slots":[]}};</script>';
+    const good = '<script>window["__espnfitt__"] = {"events":[{"id":"7","name":"UFC 7","date":"2026-11-12T22:00Z"}]};</script>';
+    expect(eventsFromAppState(broken)).toEqual([]);
+    expect(eventsFromAppState(broken + good).map((e) => e.id)).toEqual(["7"]);
+    expect(eventsFromAppState(empty + good).map((e) => e.id)).toEqual(["7"]);
+    expect(eventsFromAppState("")).toEqual([]);
+  });
+});
+
+describe("espn: strategy 2 — JSON-LD", () => {
+  it("maps schema.org events onto the shape the mapping layer already reads", () => {
+    const found = eventsFromJsonLd(JSONLD_PAGE);
+    expect(found.map((e) => String(e.id))).toEqual(FIXTURE_IDS);
+    const [first] = found;
+    expect(first.name).toBe("UFC Fight Night: Silva vs. Delgado");
+    // `startDate` is handed to toEventDate untouched — bare day or full instant, it decides.
+    expect(first.date).toBe("2026-09-12T22:00Z");
+    expect(firstCompetition(first)?.venue).toEqual({
+      fullName: "UFC APEX",
+      address: { city: "Las Vegas", state: "NV", country: "USA" },
+    });
+    expect(sourceUrlOf(first, "401612345")).toBe("https://www.espn.com/mma/fightcenter/_/id/401612345");
+    // addressCountry as a Country node rather than a string.
+    expect(locationOf(found[1])).toEqual({ name: "T-Mobile Arena", city: "Las Vegas", country: "US" });
+  });
+  it("one malformed ld+json block does not cost the events in another", () => {
+    // The fixture carries a deliberately truncated second block.
+    expect(JSONLD_PAGE.match(/application\/ld\+json/g)).toHaveLength(2);
+    expect(eventsFromJsonLd(JSONLD_PAGE)).toHaveLength(3);
+  });
+  it("accepts a bare object, an array, an @graph and an ItemList", () => {
+    const ev = { "@type": "SportsEvent", name: "UFC 400: Doe vs. Roe", startDate: "2026-10-31", url: "/mma/fightcenter/_/id/555" };
+    const wrap = (body: unknown) => `<script type="application/ld+json">${JSON.stringify(body)}</script>`;
+    for (const body of [ev, [ev], { "@graph": [ev] }, { "@type": "ItemList", itemListElement: [{ "@type": "ListItem", item: ev }] }]) {
+      const [found] = eventsFromJsonLd(wrap(body));
+      expect(found?.id).toBe("555");
+      expect(found?.date).toBe("2026-10-31");
+      // A relative url is absolutised, so `source_url` stays a URL the schema will accept.
+      expect(sourceUrlOf(found, "555")).toBe("https://www.espn.com/mma/fightcenter/_/id/555");
+      // A bare schema.org day survives toEventDate as a day and reaches a valid row.
+      const result = espnEventToRow(found, NOW);
+      expect("event" in result && result.event.date).toBe("2026-10-31");
+      expect("event" in result && result.event.all_day).toBe(true);
+      expect("event" in result && IngestEventSchema.safeParse(result.event).success).toBe(true);
+    }
+  });
+  it("ignores nodes that are not events and blocks that are not ld+json", () => {
+    expect(jsonLdNodes(JSONLD_PAGE).length).toBeGreaterThan(3); // the WebSite node is read, then dropped
+    expect(isEventNode({ "@type": "SportsEvent" })).toBe(true);
+    expect(isEventNode({ "@type": ["Thing", "Event"] })).toBe(true);
+    expect(isEventNode({ "@type": "WebSite" })).toBe(false);
+    expect(isEventNode({ name: "no type" })).toBe(false);
+    expect(jsonLdToEspnEvent({ "@type": "SportsEvent", name: "UFC 400" })).toBeNull(); // no startDate
+    expect(jsonLdToEspnEvent({ "@type": "SportsEvent", startDate: "2026-10-31" })).toBeNull(); // no name
+    expect(eventsFromJsonLd('<script type="application/json">{"@type":"SportsEvent"}</script>')).toEqual([]);
+    expect(eventsFromJsonLd(STATE_PAGE)).toEqual([]);
+  });
+  it("carries schema.org status and a location given as a bare string", () => {
+    const node = {
+      "@type": "Event",
+      name: "UFC Fight Night: Cancelled vs. Card",
+      startDate: "2026-10-31T22:00Z",
+      eventStatus: "https://schema.org/EventCancelled",
+      location: "T-Mobile Arena",
+    };
+    const ev = jsonLdToEspnEvent(node)!;
+    expect(statusOf(ev)).toBe("cancelled");
+    expect(locationOf(ev)).toEqual({ name: "T-Mobile Arena" });
+    expect(statusOf(jsonLdToEspnEvent({ ...node, eventStatus: "https://schema.org/EventPostponed" })!)).toBe("postponed");
+    expect(statusOf(jsonLdToEspnEvent({ ...node, eventStatus: "https://schema.org/EventScheduled" })!)).toBe("scheduled");
+    // No id in the url: a hash of name+day, stable and recognisable as derived.
+    const hashed = jsonLdToEspnEvent({ ...node, url: "https://www.espn.com/mma/" })!;
+    expect(hashed.id).toBe(hashId("UFC Fight Night: Cancelled vs. Card", "2026-10-31"));
+    expect(String(hashed.id)).toMatch(/^h[0-9a-f]{8}$/);
+    expect(idFromHref("/mma/fightcenter/_/id/401612345")).toBe("401612345");
+    expect(idFromHref("/mma/schedule/_/date/20261205")).toBeNull();
+    expect(absoluteEspnUrl("mma/schedule")).toBe("https://www.espn.com/mma/schedule");
+  });
+  it("reads the url in the other two shapes JSON-LD writes it, so the row keeps ESPN's own id", () => {
+    const base = { "@type": "SportsEvent", name: "UFC 400: Doe vs. Roe", startDate: "2026-10-31T22:00Z" };
+    // A node reference and a one-element array are both ordinary schema.org; falling back to a
+    // hash here would key the row differently from the layer above it for no reason.
+    expect(jsonLdToEspnEvent({ ...base, url: { "@id": "/mma/fightcenter/_/id/777" } })?.id).toBe("777");
+    expect(jsonLdToEspnEvent({ ...base, url: ["/mma/fightcenter/_/id/777"] })?.id).toBe("777");
+    expect(jsonLdToEspnEvent({ ...base, url: 7 as unknown as string })?.id).toBe(hashId(base.name, "2026-10-31"));
+  });
+  it("a scheme-relative href becomes a real URL, not the origin glued to another origin", () => {
+    expect(absoluteEspnUrl("//www.espn.com/mma/fightcenter/_/id/7")).toBe("https://www.espn.com/mma/fightcenter/_/id/7");
+    const ev = jsonLdToEspnEvent({
+      "@type": "SportsEvent",
+      name: "UFC 400: Doe vs. Roe",
+      startDate: "2026-10-31T22:00Z",
+      url: "//www.espn.com/mma/fightcenter/_/id/777",
+    })!;
+    expect(sourceUrlOf(ev, "777")).toBe("https://www.espn.com/mma/fightcenter/_/id/777");
+    const result = espnEventToRow(ev, NOW);
+    expect("event" in result && IngestEventSchema.safeParse(result.event).success).toBe(true);
+  });
+  it("a schema.org startDate with no zone comes out all-day rather than in the runner's zone", () => {
+    const ev = jsonLdToEspnEvent({
+      "@type": "SportsEvent",
+      name: "UFC 400: Doe vs. Roe",
+      // Perfectly legal schema.org, and a stamp ESPN's JSON never produced.
+      startDate: "2026-10-31T19:00:00",
+      url: "/mma/fightcenter/_/id/777",
+    })!;
+    // The mapper is handed the string as written; toEventDate is the one place that decides.
+    expect(ev.date).toBe("2026-10-31T19:00:00");
+    const result = espnEventToRow(ev, NOW);
+    expect("event" in result && result.event.date).toBe("2026-10-31");
+    expect("event" in result && result.event.all_day).toBe(true);
+    expect("event" in result && result.event.timezone).toBeNull();
+  });
+});
+
+describe("espn: strategy 3 — the schedule table", () => {
+  it("reads a day, a name and an id out of the table and skips everything else", () => {
+    const found = eventsFromMarkup(MARKUP_PAGE, NOW);
+    expect(found.map((e) => e.name)).toEqual([
+      "UFC Fight Night: Silva vs. Delgado",
+      "UFC 349: Ferreira vs. Whitlock",
+      "UFC 351: Ivanova vs. Bright",
     ]);
-    expect(scoreboardUrl(windows[0])).toBe(`${ESPN_BASE}?dates=20260910-20261208`);
+    // Header row, the row with no event name and the promo row are all dropped.
+    expect(found).toHaveLength(3);
+    expect(found.map((e) => e.date)).toEqual(["2026-09-12", "2026-10-02", "2026-12-05"]);
+    expect(found[0].id).toBe("401612345");
+    // Linked without an id: the row keeps a stable identity of its own.
+    expect(found[2].id).toBe(hashId("UFC 351: Ivanova vs. Bright", "2026-12-05"));
   });
-  it("the cursor is a window start, and a stale one replans the whole pass", () => {
-    expect(parseCursor(null)).toEqual({ afterStart: null });
-    expect(parseCursor({ afterStart: "20260910" })).toEqual({ afterStart: "20260910" });
-    expect(parseCursor({ afterStart: "nonsense" })).toEqual({ afterStart: null });
-    expect(parseCursor(["20260910"])).toEqual({ afterStart: null });
-    expect(planUnits(NOW, null)).toHaveLength(WINDOW_COUNT);
-    expect(planUnits(NOW, "20260910").map((u) => u.window.start)).toEqual(["20261209", "20270309", "20270607"]);
-    // Yesterday's cursor: every window of today's pass is later, so the pass runs in full.
-    expect(planUnits(NOW, "20260909")).toHaveLength(WINDOW_COUNT);
-    expect(planUnits(NOW, "20270607")).toEqual([]);
-    const [first] = planUnits(NOW, null);
-    expect(first.key).toBe("espn:mma:20260910-20261208");
-    expect(first.after).toEqual({ afterStart: "20260910" });
+  it("its rows are all-day by design, and it claims no venue", () => {
+    const mapped = scoreboardToEvents(eventsFromMarkup(MARKUP_PAGE, NOW), NOW);
+    expect(mapped).toHaveLength(3);
+    for (const row of mapped) {
+      expect(row.all_day).toBe(true);
+      expect(row.date_precision).toBe("day");
+      expect(row.timezone).toBeNull();
+      expect(row.location).toBeNull();
+      expect(IngestEventSchema.safeParse(row).success).toBe(true);
+    }
+    expect(mapped[0].source_url).toBe("https://www.espn.com/mma/fightcenter/_/id/401612345");
+    // The table prints ESPN's local day, not the UTC one the state blob carries (2026-10-03T02:00Z):
+    // one more reason this layer is last.
+    expect(mapped[1].slug).toBe("ufc-349-ferreira-vs-whitlock-2026-10-02");
   });
-  it("plan() makes no request and run() maps one window", async () => {
+  it("dates: an ISO stamp is passed through, a printed date gets the year the page omits", () => {
+    expect(markupDate("Sat, Sep 12", NOW)).toBe("2026-09-12");
+    expect(markupDate("September 12", NOW)).toBe("2026-09-12");
+    expect(markupDate("Sept. 12", NOW)).toBe("2026-09-12");
+    expect(markupDate("Dec 5, 2027", NOW)).toBe("2027-12-05");
+    // Already well past: the schedule means next year's card, not last month's.
+    expect(markupDate("Jan 3", NOW)).toBe("2027-01-03");
+    // Just past: still this year, and the mapper drops it as past if it really is over.
+    expect(markupDate("Sep 5", NOW)).toBe("2026-09-05");
+    expect(markupDate("2026-09-12T22:00Z", NOW)).toBe("2026-09-12T22:00Z");
+    expect(markupDate("2026-09-12", NOW)).toBe("2026-09-12");
+    // Not dates: an unreal day, a card number, a bare word.
+    expect(markupDate("Feb 30", NOW)).toBeNull();
+    expect(markupDate("UFC 349", NOW)).toBeNull();
+    expect(markupDate("TBD", NOW)).toBeNull();
+    expect(markupDate("", NOW)).toBeNull();
+  });
+  it("a cell that leads with something number-shaped still gives up its date", () => {
+    // One cell holding both the card and the day is exactly the layout a responsive table
+    // collapses to. Stopping at the first `<word> <number>` would throw the date away.
+    expect(markupDate("UFC 349 · Sat, Oct 2", NOW)).toBe("2026-10-02");
+    expect(markupDate("Round 1 begins Sep 12", NOW)).toBe("2026-09-12");
+    expect(markupDate("UFC 349 vs UFC 350", NOW)).toBeNull();
+    expect(markupRowToEvent('<tr><td>UFC 349 · Sat, Oct 2</td><td><a href="/mma/fightcenter/_/id/9">UFC 349: Ferreira vs. Whitlock</a></td></tr>', NOW)?.date).toBe(
+      "2026-10-02",
+    );
+  });
+  it("a row needs a date and a name, and an unlinked row must at least read like a card", () => {
+    const row = (html: string) => markupRowToEvent(`<tr>${html}</tr>`, NOW);
+    expect(row("<td>Sat, Sep 12</td><td>UFC 349: Ferreira vs. Whitlock</td>")?.id).toBe(hashId("UFC 349: Ferreira vs. Whitlock", "2026-09-12"));
+    // A date attribute is preferred over the printed cell, and keeps its time.
+    expect(row('<td data-date="2026-09-12T22:00Z">Sat, Sep 12</td><td>UFC 349: Ferreira vs. Whitlock</td>')?.date).toBe("2026-09-12T22:00Z");
+    expect(row("<td>Sat, Sep 12</td><td>Season pass on sale</td>")).toBeNull();
+    expect(row("<td>TBD</td><td>UFC 349: Ferreira vs. Whitlock</td>")).toBeNull();
+    expect(row("<th>DATE</th><th>EVENT</th>")).toBeNull();
+    expect(markupRowToEvent("<tr></tr>", NOW)).toBeNull();
+    expect(eventsFromMarkup(CHALLENGE_PAGE, NOW)).toEqual([]);
+  });
+  it("only a fightcenter link is conclusive; any other /mma/ anchor still has to read like a card", () => {
+    const row = (html: string) => markupRowToEvent(`<tr>${html}</tr>`, NOW);
+    // A schedule page is full of /mma/ links that are navigation. Treating a linked row as a card
+    // on the strength of the link alone is how a rankings widget becomes a countdown.
+    expect(row('<td>Sat, Sep 12</td><td><a href="/mma/rankings">Divisional rankings update</a></td>')).toBeNull();
+    expect(row('<td>Sat, Sep 12</td><td><a href="/mma/story/_/id/44">Ranking the ten best finishes</a></td>')).toBeNull();
+    // A fightcenter link is evidence in itself, whatever the anchor happens to say.
+    expect(row('<td>Sat, Sep 12</td><td><a href="/mma/fightcenter/_/id/9">Silva vs. Delgado</a></td>')?.id).toBe("9");
+    // And a /mma/ link that does read like a card is still kept (the third fixture row).
+    expect(row('<td>Sat, Dec 5</td><td><a href="/mma/schedule/_/date/20261205">UFC 351: Ivanova vs. Bright</a></td>')?.name).toBe(
+      "UFC 351: Ivanova vs. Bright",
+    );
+  });
+  it("a row that cannot be decoded costs one row, not the whole table", () => {
+    // `decodeEntities` throws RangeError on a numeric entity outside Unicode, and `sanitizeTitle`
+    // calls it on every cell — so one of these anywhere on the page used to empty layer 3.
+    expect(() => decodeEntities("&#x110000;")).toThrow();
+    const bad = '<tr><td>Sat, Sep 12</td><td><a href="/mma/fightcenter/_/id/1">UFC 340&#x110000;: A vs. B</a></td></tr>';
+    const good = '<tr><td>Sat, Oct 3</td><td><a href="/mma/fightcenter/_/id/2">UFC 341: C vs. D</a></td></tr>';
+    expect(() => eventsFromMarkup(bad + good, NOW)).not.toThrow();
+    expect(eventsFromMarkup(bad + good, NOW).map((e) => e.id)).toEqual(["2"]);
+  });
+});
+
+describe("espn: which strategy fired", () => {
+  it("each page is read by the layer it is a fixture for, and the run says which", () => {
+    for (const [html, strategy] of [
+      [STATE_PAGE, "app-state"],
+      [JSONLD_PAGE, "json-ld"],
+      [MARKUP_PAGE, "markup"],
+    ] as const) {
+      const { log, lines } = recorder();
+      const scrape = scrapeSchedule(html, NOW, log, "espn");
+      expect(scrape.strategy).toBe(strategy);
+      expect(scrape.events).toHaveLength(3);
+      // The info line is the only record of what ESPN actually served: it is logged every run.
+      expect(lines.info).toHaveLength(1);
+      expect(lines.info[0]).toContain(`strategy=${strategy}`);
+      expect(lines.info[0]).toContain(`${html.length} bytes`);
+      expect(lines.warn).toEqual([]);
+    }
+  });
+  it("the first strategy that yields anything wins", () => {
+    expect(scrapeSchedule(STATE_PAGE + JSONLD_PAGE + MARKUP_PAGE, NOW).strategy).toBe("app-state");
+    expect(scrapeSchedule(JSONLD_PAGE + MARKUP_PAGE, NOW).strategy).toBe("json-ld");
+    expect(scrapeSchedule(MARKUP_PAGE, NOW).strategy).toBe("markup");
+    // A state blob that is present but useless is not allowed to shadow the layers below it.
+    const emptyState = '<script>window["__espnfitt__"] = {"page":{"content":{}}};</script>';
+    expect(scrapeSchedule(emptyState + MARKUP_PAGE, NOW).strategy).toBe("markup");
+  });
+  it("the app state and the JSON-LD describe the same three cards as the same three rows", () => {
+    const fromState = scoreboardToEvents(eventsFromAppState(STATE_PAGE), NOW);
+    const fromJsonLd = scoreboardToEvents(eventsFromJsonLd(JSONLD_PAGE), NOW);
+    expect(fromState).toHaveLength(3);
+    // Layer 2 builds the EspnEvent shape by hand: the check that matters is that what it builds
+    // clears the same schema the upsert will, field for field, not merely that it has rows.
+    for (const row of [...fromState, ...fromJsonLd]) expect(IngestEventSchema.safeParse(row).success).toBe(true);
+    expect(fromJsonLd.map(stripRaw)).toEqual(fromState.map(stripRaw));
+    // Including the hash the upsert uses to decide a row is unchanged.
+    expect(fromJsonLd.map((r) => r.content_hash)).toEqual(fromState.map((r) => r.content_hash));
+    // And the ordinary expectations of the mapping layer still hold on a scraped row.
+    expect(fromState[0].date).toBe("2026-09-12T22:00:00Z");
+    expect(fromState[0].location).toEqual({ name: "UFC APEX", city: "Las Vegas", country: "US" });
+    expect(fromState[2].date).toBe("2026-12-05"); // midnight placeholder → all-day, from both layers
+    expect(fromJsonLd[2].all_day).toBe(true);
+  });
+  it("a challenge page yields no rows and a warning that names the page and every marker", () => {
+    const { log, lines } = recorder();
+    const scrape = scrapeSchedule(CHALLENGE_PAGE, NOW, log, "espn");
+    expect(scrape).toEqual({ strategy: null, events: [] });
+    expect(scoreboardToEvents(scrape.events, NOW, log, "espn")).toEqual([]);
+    expect(lines.info).toEqual([]);
+    const warned = lines.warn.join("\n");
+    expect(warned).toContain("strategy=none");
+    expect(warned).toContain(`${CHALLENGE_PAGE.length} bytes`);
+    expect(warned).toContain("app-state=no ld+json=no fightcenter-href=no");
+    expect(warned).toContain("challenge page");
+    expect(markerReport(STATE_PAGE)).toBe("app-state=yes ld+json=no fightcenter-href=no");
+    expect(markerReport(JSONLD_PAGE)).toBe("app-state=no ld+json=yes fightcenter-href=yes");
+    expect(markerReport(MARKUP_PAGE)).toBe("app-state=no ld+json=no fightcenter-href=yes");
+  });
+  it("junk in, no throw out", () => {
+    expect(() => scrapeSchedule("", NOW)).not.toThrow();
+    expect(() => scrapeSchedule(null as unknown as string, NOW)).not.toThrow();
+    expect(scrapeSchedule("<html><body>nothing here</body></html>", NOW).events).toEqual([]);
+    expect(scrapeSchedule(null as unknown as string, NOW).strategy).toBeNull();
+  });
+  it("a strategy that throws is warned about and the next one is still tried", () => {
+    // The real readings are hard to make throw on demand, which is why the strategy list is a
+    // parameter: the guarantee under test is the fall-through itself, not any one regex.
+    const boom = (name: StrategyImpl["name"]): StrategyImpl => ({
+      name,
+      extract: () => {
+        throw new Error(`${name} hit a shape it could not read`);
+      },
+    });
+    const { log, lines } = recorder();
+    const found: StrategyImpl = { name: "markup", extract: () => [{ id: "9", name: "UFC 9: Roe vs. Doe", date: "2026-11-01" }] };
+    const scrape = scrapeSchedule(MARKUP_PAGE, NOW, log, "espn", [boom("app-state"), found]);
+    expect(scrape.strategy).toBe("markup");
+    expect(scrape.events).toHaveLength(1);
+    expect(lines.warn.join("\n")).toContain("strategy app-state threw");
+    expect(lines.warn.join("\n")).toContain("could not read");
+    expect(lines.info[0]).toContain("strategy=markup");
+  });
+  it("every strategy throwing is a diagnosable warning, never an exception out of the run", () => {
+    const { log, lines } = recorder();
+    const boom = (name: StrategyImpl["name"]): StrategyImpl => ({
+      name,
+      extract: () => {
+        throw new Error("nope");
+      },
+    });
+    const strategies = [boom("app-state"), boom("json-ld"), boom("markup")];
+    expect(() => scrapeSchedule(STATE_PAGE, NOW, log, "espn", strategies)).not.toThrow();
+    expect(scrapeSchedule(STATE_PAGE, NOW, log, "espn", strategies)).toEqual({ strategy: null, events: [] });
+    expect(lines.info).toEqual([]);
+    // Three per pass for the readings, one for the verdict — and the verdict still names the
+    // markers, so the log alone says whether the page was a challenge or a shape change.
+    expect(lines.warn).toHaveLength(8);
+    expect(lines.warn[3]).toContain("strategy=none");
+    expect(lines.warn[3]).toContain("app-state=yes");
+  });
+  it("checking the markers does not disturb the blob scan that comes after it", () => {
+    // `markerReport` and `stateBlobs` share module-level /g regexes, whose lastIndex survives a
+    // `.test()`. Dot notation is the case that exposes it: exactly one pattern matches it (the
+    // bracket patterns do not), so a marker check that leaves that pattern parked past the
+    // assignment makes the blob vanish from the scan that follows. The bracket fixture cannot
+    // show this — two patterns match it and either one alone finds the blob.
+    const dotted = '<script>window.__espnfitt__ = {"events":[{"id":"8","name":"UFC 8: Roe vs. Doe","date":"2026-11-12T22:00Z"}]};</script>';
+    expect(markerReport(dotted)).toBe("app-state=yes ld+json=no fightcenter-href=no");
+    expect(stateBlobs(dotted)).toHaveLength(1);
+    expect(eventsFromAppState(dotted).map((e) => e.id)).toEqual(["8"]);
+    expect(markerReport(STATE_PAGE)).toBe("app-state=yes ld+json=no fightcenter-href=no");
+    expect(eventsFromAppState(STATE_PAGE)).toHaveLength(3);
+  });
+  it("events that are all rejected are a warning, not a pass that looks ordinary", () => {
+    const { log, lines } = recorder();
+    // The page parsed, the cards are real, every one of them is over: zero rows either way, and
+    // an info line here would read exactly like a quiet week.
+    const stale: EspnEvent[] = [{ id: "1", name: "UFC 300: Old vs. Older", date: "2024-01-06T22:00Z" }];
+    expect(scoreboardToEvents(stale, NOW, log, "espn [markup]")).toEqual([]);
+    expect(lines.info).toEqual([]);
+    expect(lines.warn.join("\n")).toContain("1 events → 0 kept");
+    expect(lines.warn.join("\n")).toContain("skipped past=1");
+  });
+});
+
+describe("espn: plan and run", () => {
+  it("one page, one unit, and a cursor that only skips a unit already upserted", () => {
+    expect(planUnits(null)).toHaveLength(1);
+    const [unit] = planUnits(null);
+    expect(unit.key).toBe(SCHEDULE_UNIT_KEY);
+    expect(unit.url).toBe(SOURCE_URL);
+    expect(unit.after).toEqual({ afterKey: SCHEDULE_UNIT_KEY });
+    expect(planUnits(SCHEDULE_UNIT_KEY)).toEqual([]);
+    expect(planUnits("espn:mma:20260910-20261208")).toHaveLength(1); // a cursor from the old shape
+    expect(parseCursor(null)).toEqual({ afterKey: null });
+    expect(parseCursor({ afterKey: SCHEDULE_UNIT_KEY })).toEqual({ afterKey: SCHEDULE_UNIT_KEY });
+    expect(parseCursor({ afterStart: "20260910" })).toEqual({ afterKey: null });
+    expect(parseCursor(["x"])).toEqual({ afterKey: null });
+  });
+  it("plan() makes no request and run() fetches the page as text, once", async () => {
     const calls: string[] = [];
-    const ctx = ctxFor({ [`${ESPN_BASE}?dates=20260910-20261208`]: SCOREBOARD }, calls);
+    const { log, lines } = recorder();
+    const ctx = ctxFor(STATE_PAGE, calls, NOW, log);
     const plan = await adapter.plan(null, ctx);
     expect(plan.done).toBe(true);
-    expect(plan.units).toHaveLength(WINDOW_COUNT);
+    expect(plan.units).toHaveLength(1);
     expect(calls).toEqual([]);
     const out = await adapter.run(plan.units[0], ctx);
-    expect(calls).toEqual([`${ESPN_BASE}?dates=20260910-20261208`]);
-    expect(out.map((r) => r.source_key)).toEqual(rows().map((r) => r.source_key));
+    expect(calls).toEqual(["https://www.espn.com/mma/schedule/_/league/ufc"]);
+    expect(out.map((r) => r.source_key)).toEqual(FIXTURE_IDS.map((id) => `espn:mma:${id}`));
+    // Which layer produced the rows is on both log lines, not just the scraper's.
+    expect(lines.info[0]).toContain("strategy=app-state");
+    expect(lines.info[1]).toContain("[app-state]");
   });
-  it("run() survives the sports/leagues envelope with no change in output", async () => {
-    const nested = { sports: [{ id: "3300", leagues: [{ id: "26", events: events() }] }] };
-    const ctx = ctxFor({ [`${ESPN_BASE}?dates=20260910-20261208`]: nested });
-    const out = await adapter.run(planUnits(NOW, null)[0], ctx);
-    expect(out.map((r) => r.source_key)).toEqual(rows().map((r) => r.source_key));
+  it("run() reports a challenge page as zero rows and a warning, never as a quiet week", async () => {
+    const { log, lines } = recorder();
+    const out = await adapter.run(planUnits(null)[0], ctxFor(CHALLENGE_PAGE, [], NOW, log));
+    expect(out).toEqual([]);
+    expect(lines.warn.join("\n")).toContain("strategy=none");
+    expect(lines.warn.join("\n")).toContain("no events found"); // the mapping layer's own warning
+  });
+  it("run() falls all the way to the table when that is all the page has", async () => {
+    const out = await adapter.run(planUnits(null)[0], ctxFor(MARKUP_PAGE));
+    expect(out.map((r) => r.title)).toEqual([
+      "UFC Fight Night: Silva vs. Delgado",
+      "UFC 349: Ferreira vs. Whitlock",
+      "UFC 351: Ivanova vs. Bright",
+    ]);
+    expect(out.every((r) => r.all_day)).toBe(true);
   });
   it("adapter contract", () => {
     expect(adapter.id).toBe("espn");
@@ -408,5 +851,6 @@ describe("espn: plan and run", () => {
     expect(adapter.isConfigured()).toBe(true); // keyless
     expect(adapter.limits.concurrency).toBe(1);
     expect(adapter.limits.minIntervalMs).toBeGreaterThanOrEqual(1000);
+    expect(SOURCE_URL).toBe("https://www.espn.com/mma/schedule/_/league/ufc");
   });
 });

@@ -1,0 +1,60 @@
+<!doctype html>
+<!--
+  HAND-AUTHORED fixture — NOT recorded from espn.com. Nothing here was verified against the real
+  page: whether ESPN publishes ld+json on the MMA schedule at all, and in what shape, is a guess
+  (see the docblock in src/lib/ingest/sources/espn.ts). The schema.org vocabulary is real; the
+  events are the same fictional cards as schedule-state.html, so the two strategies must map them
+  to identical rows. The second block is malformed ON PURPOSE: one broken script must not cost the
+  events in the first. Replace with a recorded page on the first real run.
+-->
+<html lang="en">
+  <head>
+    <title>UFC Schedule - ESPN</title>
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@graph": [
+          { "@type": "WebSite", "name": "ESPN", "url": "https://www.espn.com" },
+          {
+            "@type": "SportsEvent",
+            "name": "UFC Fight Night: Silva vs. Delgado",
+            "startDate": "2026-09-12T22:00Z",
+            "url": "https://www.espn.com/mma/fightcenter/_/id/401612345",
+            "eventStatus": "https://schema.org/EventScheduled",
+            "location": {
+              "@type": "Place",
+              "name": "UFC APEX",
+              "address": { "@type": "PostalAddress", "addressLocality": "Las Vegas", "addressRegion": "NV", "addressCountry": "USA" }
+            }
+          },
+          {
+            "@type": ["SportsEvent", "Event"],
+            "name": "UFC 349: Ferreira vs. Whitlock",
+            "startDate": "2026-10-03T02:00Z",
+            "url": "https://www.espn.com/mma/fightcenter/_/id/401612349",
+            "location": {
+              "@type": "Place",
+              "name": "T-Mobile Arena",
+              "address": { "@type": "PostalAddress", "addressLocality": "Las Vegas", "addressRegion": "NV", "addressCountry": { "@type": "Country", "name": "USA" } }
+            }
+          },
+          {
+            "@type": "SportsEvent",
+            "name": "UFC 351: Ivanova vs. Bright",
+            "startDate": "2026-12-05T00:00Z",
+            "url": "https://www.espn.com/mma/fightcenter/_/id/401612351",
+            "location": {
+              "@type": "Place",
+              "name": "Madison Square Garden",
+              "address": { "@type": "PostalAddress", "addressLocality": "New York", "addressRegion": "NY", "addressCountry": "USA" }
+            }
+          }
+        ]
+      }
+    </script>
+    <script type="application/ld+json">{ "@type": "BreadcrumbList", "itemListElement": [</script>
+  </head>
+  <body>
+    <div id="fittPageContainer"><section class="Schedule">Loading…</section></div>
+  </body>
+</html>
