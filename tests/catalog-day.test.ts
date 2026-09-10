@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { catalogDay, formatCompactDate } from "@/lib/time";
-import { formatShortDate } from "@/lib/seo";
+import { shortDate } from "@/lib/i18n/format";
 
 /**
  * The day a row is filed under. Ingest uses it for the slug and the SQL trigger derives `starts_on`
@@ -43,11 +43,11 @@ describe("the listings agree with it", () => {
     // Both of these render on the server and in the browser, so they must not depend on either
     // clock: a premiere at 20:00 in New York reads as the 14th wherever it is read.
     expect(formatCompactDate("2026-09-15T00:00:00Z", "America/New_York")).toBe("Sep 14, 2026");
-    expect(formatShortDate("2026-09-15T00:00:00Z", "America/New_York")).toBe("Mon, 14 Sep 2026");
+    expect(shortDate("en", "2026-09-15T00:00:00Z", "America/New_York")).toBe("Mon, 14 Sep 2026");
   });
 
   it("still renders an all-day date in UTC", () => {
     expect(formatCompactDate("2026-09-12")).toBe("Sep 12, 2026");
-    expect(formatShortDate("2026-09-12")).toBe("Sat, 12 Sep 2026");
+    expect(shortDate("en", "2026-09-12")).toBe("Sat, 12 Sep 2026");
   });
 });

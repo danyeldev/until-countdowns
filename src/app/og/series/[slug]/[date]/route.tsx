@@ -2,7 +2,9 @@ import type { NextRequest } from "next/server";
 import { getSeries, resolveSeriesAlias } from "@/lib/catalog";
 import { CATEGORY_LABELS } from "@/lib/labels";
 import { badRequest, CACHE_DATED, CACHE_UNDATED, daysBetween, parseOgDate, renderOgCard } from "@/lib/og";
-import { expectedPeriod, formatLongDate } from "@/lib/seo";
+import { longDate } from "@/lib/i18n/format";
+import { EN } from "@/lib/i18n/localized";
+import { formatApproximate } from "@/lib/seo";
 import { isCoarsePrecision } from "@/lib/time";
 
 export const runtime = "nodejs";
@@ -31,9 +33,9 @@ export async function GET(_req: NextRequest, ctx: { params: Promise<{ slug: stri
     {
       eyebrow: `${CATEGORY_LABELS[series.category]} · every year`,
       title: series.title,
-      subtitle: next && !coarse ? `Next: ${formatLongDate(next)}` : next ? undefined : "Dates to be announced",
+      subtitle: next && !coarse ? `Next: ${longDate("en", next)}` : next ? undefined : "Dates to be announced",
       days: next && !coarse ? daysBetween(day, next, series.nextAllDay ?? true) : null,
-      expectedLabel: next && coarse ? `expected ${expectedPeriod(next, series.nextPrecision)}` : undefined,
+      expectedLabel: next && coarse ? formatApproximate(EN, next, series.nextPrecision) : undefined,
       seed: `series:${series.slug}`,
     },
     CACHE_DATED,

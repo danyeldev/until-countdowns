@@ -2,7 +2,11 @@
 
 import { useState } from "react";
 
-export function ShareButton({ title, path }: { title: string; path: string }) {
+/** Both states, taken from `L.m.common.actions` by the server parent. */
+type Labels = { share: string; shareCopied: string };
+
+/** `path` is already the reader's own URL for the page — the link they share must stay in their language. */
+export function ShareButton({ title, path, labels }: { title: string; path: string; labels: Labels }) {
   const [copied, setCopied] = useState(false);
 
   async function share() {
@@ -26,7 +30,7 @@ export function ShareButton({ title, path }: { title: string; path: string }) {
       onClick={share}
       className="rounded-full border border-line px-4 py-2 text-sm text-paper hover:border-amber/50 hover:text-amber"
     >
-      {copied ? "Link copied" : "Share"}
+      {copied ? labels.shareCopied : labels.share}
     </button>
   );
 }

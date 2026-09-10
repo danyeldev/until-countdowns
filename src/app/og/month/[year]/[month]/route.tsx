@@ -1,6 +1,7 @@
 import type { NextRequest } from "next/server";
 import { badRequest, CACHE_UNDATED, renderOgCard } from "@/lib/og";
-import { CALENDAR_MAX_YEAR, CALENDAR_MIN_YEAR, monthLabel } from "@/lib/seo";
+import { monthYear } from "@/lib/i18n/format";
+import { CALENDAR_MAX_YEAR, CALENDAR_MIN_YEAR } from "@/lib/seo";
 
 export const runtime = "nodejs";
 
@@ -13,7 +14,7 @@ export async function GET(_req: NextRequest, ctx: { params: Promise<{ year: stri
   return renderOgCard(
     {
       eyebrow: "Calendar",
-      title: monthLabel(year, month),
+      title: monthYear("en", year, month),
       subtitle: "What is coming up, day by day",
       seed: `month:${year}-${month}`,
     },

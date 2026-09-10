@@ -1,4 +1,5 @@
 import type { NextConfig } from "next";
+import { hubQueryRedirects, localeRedirects, localeRewrites } from "./src/lib/i18n/routing";
 
 /** Host of the Supabase project serving re-hosted event images (derived at config time). */
 function supabaseImageHost(): string {
@@ -44,22 +45,20 @@ const nextConfig: NextConfig = {
     // e.g. `/category/sports?category=sports`. The hubs are static (they never read
     // `searchParams`), the stray query is ignored and the page's canonical is the clean path;
     // stripping it would need a `proxy.ts`, which is deliberately not part of this app yet.
-    const page = "(?<n>[2-9]|[1-9][0-9]{1,3})";
-    return [
-      // The old category filter on the home page now has its own hub; free-text searches keep
-      // using the home page, so the rule only fires when there is no `q`.
-      {
-        source: "/",
-        has: [{ type: "query", key: "category", value: "(?<c>[a-z]+)" }],
-        missing: [{ type: "query", key: "q" }],
-        destination: "/category/:c",
-        permanent: true,
-      },
-      // Hub pagination moved from `?page=n` into the path (page 1 stays ISR).
-      { source: "/category/:c", has: [{ type: "query", key: "page", value: page }], destination: "/category/:c/page/:n", permanent: true },
-      { source: "/tag/:t", has: [{ type: "query", key: "page", value: page }], destination: "/tag/:t/page/:n", permanent: true },
-      // (`?page=1` is left alone: a redirect to the bare path would carry the query along and loop.)
-    ];
+    //
+    // `hubQueryRedirects()` is the pre-i18n set — the category filter that moved to its own hub,
+    // and hub pagination that moved from `?page=n` into the path (page 1 stays ISR) — repeated in
+    // every locale's spelling. (`?page=1` is left alone: a redirect to the bare path would carry
+    // the query along and loop.) It comes first because its rules are the narrower ones.
+    // `localeRedirects()` then folds `/en/…` back onto the bare path and the English spelling of a
+    // section back onto the locale's own, so no page has two live URLs.
+    return [...hubQueryRedirects(), ...localeRedirects()];
+  },
+  async rewrites() {
+    // `beforeFiles`, so `/about` reaches `/[locale]/about` without `about` ever being matched as a
+    // locale. Nothing outside the nine sections is listed, which leaves `/api`, `/og`, `/embed`,
+    // `/robots.txt`, `/sitemap-index.xml` and `public/` untouched.
+    return { beforeFiles: localeRewrites(), afterFiles: [], fallback: [] };
   },
 };
 

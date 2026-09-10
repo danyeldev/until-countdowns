@@ -1,62 +1,28 @@
+import { categories } from "./i18n/messages/en/categories";
 import type { Category } from "./types";
 
-export const CATEGORY_LABELS: Record<Category, string> = {
-  holidays: "Holidays",
-  national: "National days",
-  religion: "Religious",
-  awareness: "Awareness days",
-  fun: "Fun days",
-  culture: "Culture",
-  festivals: "Festivals",
-  sports: "Sports",
-  esports: "Esports",
-  games: "Games",
-  film: "Film",
-  tv: "TV",
-  anime: "Anime",
-  music: "Music",
-  entertainment: "Entertainment",
-  politics: "Politics",
-  tech: "Tech",
-  science: "Science",
-  space: "Space",
-  astronomy: "Astronomy",
-  nature: "Nature",
-  history: "History",
-  curiosities: "Curiosities",
-};
+/**
+ * English category labels and blurbs.
+ *
+ * They live in the English message catalogue now — one copy, translated fifteen ways — and are
+ * re-exported here for the surfaces that are English by design: the OG cards (Latin-only font
+ * subsets) and anything outside the localized app tree. A page renders `L.m.categories.labels`
+ * instead, so a Spanish reader gets "Días festivos".
+ *
+ * The import reaches into `messages/en/` rather than `messages/` on purpose: the registry is
+ * `server-only`, and these constants are used from Client Components too.
+ */
+export const CATEGORY_LABELS: Record<Category, string> = categories.labels;
 
-export const CATEGORY_BLURB: Record<Category, string> = {
-  holidays: "Public holidays and the rituals we keep.",
-  national: "Independence days, republic days, national festivities.",
-  religion: "Feasts, fasts, and holy days across faiths.",
-  awareness: "UN observances and international days.",
-  fun: "Pizza Day, Talk Like a Pirate Day, and other excuses.",
-  culture: "Festivals, feast days, and the civic calendar.",
-  festivals: "Carnivals, fairs, and gatherings.",
-  sports: "Finals, opening ceremonies, and the next World Cup.",
-  esports: "Worlds, Majors, and The International.",
-  games: "Release dates and showcases.",
-  film: "Premieres and awards nights.",
-  tv: "Season premieres and finales.",
-  anime: "Season starts and film releases.",
-  music: "Contests, tours, and anniversaries.",
-  entertainment: "Fandom dates and pop-culture holy days.",
-  politics: "Elections and the dates that steer countries.",
-  tech: "Conferences, end-of-life dates, and the clocks computers keep.",
-  science: "Dates for the curious.",
-  space: "Launches, landings, and the long way back to the Moon.",
-  astronomy: "Eclipses, showers, solstices — appointments with the sky.",
-  nature: "Earth, oceans, and the living year.",
-  history: "Anniversaries of things that already happened — still ticking.",
-  curiosities: "Unix milestones, palindrome dates, Friday the 13ths.",
-};
+export const CATEGORY_BLURB: Record<Category, string> = categories.blurbs;
 
 /**
  * Fallback display names for source ids. The database is the authority
  * (`sources.label`, surfaced as `events_public.source_label` and `catalogMeta().sourceLabels`);
  * this map only covers ids the app knows before a row exists, so a new adapter
  * shows its DB label without a code change.
+ *
+ * Not translated: they are proper names ("Wikidata", "TVMaze", "football-data.org").
  */
 export const SOURCE_LABELS: Record<string, string> = {
   curated: "Curated",

@@ -1,7 +1,8 @@
 import type { NextRequest } from "next/server";
 import { CATEGORY_LABELS } from "@/lib/labels";
 import { CACHE_UNDATED, daysBetween, renderOgCard } from "@/lib/og";
-import { formatLongDate, todayUtc } from "@/lib/seo";
+import { longDate } from "@/lib/i18n/format";
+import { todayUtc } from "@/lib/seo";
 import { decodeSharePayload } from "@/lib/user-events";
 
 export const runtime = "nodejs";
@@ -23,7 +24,7 @@ export async function GET(_req: NextRequest, ctx: { params: Promise<{ payload: s
     {
       eyebrow: `Shared · ${CATEGORY_LABELS[shared.category]}`,
       title: title.length > TITLE_MAX ? `${title.slice(0, TITLE_MAX - 1).trimEnd()}…` : title,
-      subtitle: formatLongDate(shared.date),
+      subtitle: longDate("en", shared.date),
       days: daysBetween(todayUtc(), shared.date, true),
       imageUrl: null,
       seed: `share:${shared.title}:${shared.date}`,

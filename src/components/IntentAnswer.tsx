@@ -1,3 +1,4 @@
+import { i18n } from "@/lib/i18n/server";
 import { expectedPeriod, formatLongDate } from "@/lib/seo";
 import { isCoarsePrecision } from "@/lib/time";
 import type { DatePrecision } from "@/lib/types";
@@ -6,8 +7,13 @@ import type { DatePrecision } from "@/lib/types";
  * The one server-rendered sentence that answers the query behind the page
  * ("how many days until X?") with the SQL-computed day count, so the answer is in the HTML
  * before any client clock runs. Digits are tabular so the sentence never reflows.
+ *
+ * Each case is a whole template from the catalogue rather than a sentence assembled from pieces:
+ * this is the string the result snippet is built from, and a clause that reads as a translation
+ * is a clause nobody searched for. `title` arrives already localized — the caller knows whether
+ * the entity has a curated name.
  */
-export function IntentAnswer({
+export async function IntentAnswer({
   title,
   date,
   days,
@@ -22,22 +28,24 @@ export function IntentAnswer({
   status?: string | null;
   className?: string;
 }) {
+  const L = await i18n();
+  const a = L.m.event.answer;
+  const when = formatLongDate(L, date);
   let text: string;
   if (isCoarsePrecision(precision)) {
-    text = `${title} is expected ${expectedPeriod(date, precision)}. The exact day has not been announced yet.`;
+    text = L.t(a.coarse, { title, period: expectedPeriod(L, date, precision) });
   } else if (status === "cancelled") {
-    text = `${title} was scheduled for ${formatLongDate(date)} and has been cancelled.`;
+    text = L.t(a.cancelled, { title, date: when });
   } else if (typeof days !== "number" || !Number.isFinite(days)) {
-    text = `${title} is on ${formatLongDate(date)}.`;
+    text = L.t(a.plain, { title, date: when });
   } else if (days === 0) {
-    text = `${title} is today, ${formatLongDate(date)}.`;
+    text = L.t(a.today, { title, date: when });
   } else if (days === 1) {
-    text = `There is 1 day until ${title}, tomorrow, ${formatLongDate(date)}.`;
+    text = L.tn(a.tomorrow, 1, { title, date: when });
   } else if (days < 0) {
-    const ago = Math.abs(days);
-    text = `${title} was ${ago.toLocaleString("en-US")} ${ago === 1 ? "day" : "days"} ago, on ${formatLongDate(date)}.`;
+    text = L.tn(a.past, Math.abs(days), { title, date: when });
   } else {
-    text = `There are ${days.toLocaleString("en-US")} days until ${title}, on ${formatLongDate(date)}.`;
+    text = L.tn(a.days, days, { title, date: when });
   }
   return <p className={`tabular text-base text-paper-dim sm:text-lg ${className}`}>{text}</p>;
 }

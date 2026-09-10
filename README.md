@@ -11,6 +11,7 @@ A catalog of future dates — public holidays from nearly every country, schedul
 - Add any date to Google Calendar, Outlook, or download an `.ics`
 - Create personal countdowns (stored in the browser, shareable via URL)
 - Put any countdown on your own site as an `<iframe>`, or on a stream as an OBS browser source — colours, font, size, units and position all live in the URL
+- Read all of it in fifteen languages (see [Languages](#languages))
 
 ## Catalog
 
@@ -291,7 +292,9 @@ curl -H "Authorization: Bearer $CRON_SECRET" '<host>/api/cron/enrich?kind=rechec
 
 ## SEO & pages
 
-URL taxonomy (all server-rendered, ISR `revalidate = 3600`, bounded `generateStaticParams`):
+URL taxonomy (all server-rendered, ISR `revalidate = 3600`, bounded `generateStaticParams`). Paths
+below are the English ones; every route also exists at `/<locale>/<translated-section>/…` — see
+[Languages](#languages) — and the two are one page with one `hreflang` cluster:
 
 | Route | Purpose | Indexable |
 | --- | --- | --- |
@@ -307,9 +310,128 @@ Mixed-case paths (`/country/Ae`, `/event/Foo-…`) are 404s, never redirects: an
 
 **Series guard.** The nightly linker attaches every published row whose slug base equals a series slug, so "Christmas Day" on 7 January (Orthodox), "New Year's Day" on 11 September (Ethiopia) or "Labour Day" in late October (New Zealand) end up linked to the worldwide series. Until the linker checks dates, `src/lib/catalog.ts` treats a linked row as canonical only when it matches the curated recurrence rule (when the series has one) and is curated/worldwide or observed by at least half as many countries as the most widely observed linked row. Series pages, the event page's "Other years", the home/category/index lists and `series.next*` all use that guarded list (`seriesOccurrencesSplit()` also returns the variants, shown apart as "Other dates linked to this series"). Sitemaps exclude series members explicitly (`series_slug is null`), independent of when finalize flips `indexable`.
 
-Metadata comes from `src/lib/seo.ts` (`buildMetadata()`; titles rotate by category and never carry the day count; descriptions do, from SQL `days_until`). JSON-LD builders live in `src/lib/jsonld.ts`: `BreadcrumbList` everywhere, `WebSite` + `Organization` on `/`, `EventSeries` on series pages (its `subEvent` list carries `Event` items only for `jsonld_eligible` occurrences), schema.org `Event` only for `jsonld_eligible` rows (no FAQPage, no SearchAction). Sitemaps: `generateSitemaps()` in `src/app/sitemap.ts` shards into `hubs`, `series` and `events-<year>` (`-h1/-h2` above 40k URLs), served at `/sitemap/<id>.xml`; `/sitemap-index.xml` is a hand-written index because Next emits none. `lastmod` is `updated_at`, no priority/changefreq.
+Metadata comes from `src/lib/seo.ts` (`buildMetadata()`; titles rotate by category and never carry the day count; descriptions do, from SQL `days_until`; the patterns themselves live in the message catalogues, one set per language). JSON-LD builders live in `src/lib/jsonld.ts`: `BreadcrumbList` everywhere, `WebSite` + `Organization` on `/`, `EventSeries` on series pages (its `subEvent` list carries `Event` items only for `jsonld_eligible` occurrences), schema.org `Event` only for `jsonld_eligible` rows (no FAQPage, no SearchAction). Sitemaps: `generateSitemaps()` in `src/app/sitemap.ts` shards into `hubs`, `series` and `events-<year>` (`-h1/-h2` above 40k URLs), served at `/sitemap/<id>.xml`; `/sitemap-index.xml` is a hand-written index because Next emits none. `lastmod` is `updated_at`, no priority/changefreq.
 
 Open Graph cards are route handlers under `src/app/og/*` (`src/lib/og.tsx`, `ImageResponse`, Fraunces + Geist Mono woff from `@fontsource/*`, traced with `outputFileTracingIncludes`). Event and series cards embed the metadata date in the URL (`/og/event/<slug>/<yyyy-mm-dd>.png`) so the day count is fixed per URL and social scrapers refetch daily; dated URLs are `s-maxage=86400, immutable`, undated hubs `s-maxage=3600`. Unknown slugs get the default card (200); a malformed date is a 400. A card only uses a photo when the licence allows adaptations (see [ShareAlike](#sharealike-and-what-may-be-made-from-a-photo)); everything else draws the seeded gradient. Cards stay under 600 KB (WhatsApp limit) — the PNG is quantised in steps and, if it still will not fit, the photo is dropped for the gradient rather than shipped over budget. `GOOGLE_SITE_VERIFICATION` (optional) is emitted from the root layout.
+
+## Languages
+
+The site is published in fifteen languages. Not as a courtesy — as the point.
+
+"How many days until Christmas" is not one query with fifteen spellings. It is fifteen different
+queries: *cuántos días faltan para navidad*, *wie viele Tage bis Weihnachten*, *ne kadar kaldı*,
+*كم باقي على*. An English page cannot rank for any of them however good its dates are, and the
+catalog is the same 40,000 rows either way. Translating the *wrapper* — the question in the title,
+the answer sentence, the date, the URL — is what turns one corpus into fifteen indexes.
+
+| | |
+| --- | --- |
+| Locales | `en` `es` `pt` `fr` `de` `it` `nl` `pl` `tr` `ru` `id` `ja` `ko` `hi` `ar` (`src/lib/i18n/config.ts`) |
+| Default | `en`, served **unprefixed** — every URL the site had before i18n is still the canonical English one |
+| Others | `/<locale>/…`, with the section translated: `/es/cuantos-dias-faltan/christmas`, `/de/wie-viele-tage-bis/christmas` |
+| Direction | `ar` is RTL (`<html dir>` from `LOCALE_META`); the rest LTR |
+
+### How the URLs work
+
+Every page lives under `src/app/[locale]/…` with the **English** section name (`/[locale]/days-until/[series]`).
+Two generated rule sets in `next.config.ts` (`src/lib/i18n/routing.ts`) connect that to what the world sees:
+
+- **English is unprefixed.** `beforeFiles` rewrites `/days-until/christmas` → `/en/days-until/christmas`
+  internally. The address bar, the canonical and every backlink keep the old path. Only the nine
+  sections are listed, so `/api`, `/og`, `/embed`, `/robots.txt`, `/sitemap-index.xml` and `public/`
+  are never touched.
+- **Sections are translated.** `/es/cuantos-dias-faltan/x` rewrites to `/es/days-until/x`.
+- **Neither spelling gets two URLs.** `/en/…` 308s to the bare path and `/es/days-until/…` 308s to
+  `/es/cuantos-dias-faltan/…`. Redirects run before `beforeFiles` rewrites and only ever match the
+  incoming URL, so the pair cannot loop.
+
+**Slugs stay English.** `/es/categoria/sports`, not `/es/categoria/deportes`. A category slug is a
+database key, a series slug is what `finalize_catalog()` links rows by, and a mistranslated slug is a
+404 on a page that was ranking. The keyword value of a slug is small; the risk is not.
+
+`ja`, `ko`, `hi` and `ar` keep the English section names: a romanisation of those scripts is a
+keyword to nobody, and native script in a path only buys percent-encoding. `ru` uses transliteration
+(`skolko-dney-do`), which is what Russian sites do.
+
+Because `[locale]` sits above the root layout it is a **root parameter**, so any Server Component
+reads it with `next/root-params` instead of being handed it: `const L = await localePage()` in a
+page, `await i18n()` in a shared component. Route Handlers cannot (`/og/*`, `/embed/*`, `/api/*`,
+`sitemap.ts`, `robots.ts`) and import `EN` from `src/lib/i18n/localized.ts` instead. Neither can
+`unstable_cache`, which is why `src/lib/catalog.ts` stays locale-free and translation happens on the
+way out.
+
+An unknown first segment (`/foobar`) reaches `[locale]` the same way `/es` does, so every page starts
+with `localePage()`, which 404s it; `[locale]/[...rest]` catches the deeper misses. That is also why
+there is no `global-not-found.tsx`.
+
+### What is translated, and what is not
+
+| Surface | Source |
+| --- | --- |
+| Titles, descriptions, headings, UI | `src/lib/i18n/messages/<locale>.ts` — hand-written, one file per locale, typed against `Messages = typeof EN` so a missing key fails `npm run typecheck` |
+| Dates, numbers, relative times, country names, lists | `Intl` (`src/lib/i18n/format.ts`). 250 country names in fifteen languages from ICU, nothing to maintain |
+| Event and series names | `src/data/i18n/entities/<locale>.ts` — **curated**, ~200 entities keyed by `slugify(title)` |
+| The catalog's own prose (`description`, Wikipedia `summary`, series FAQ) | not translated — it is English source text and stays English |
+| OG cards, `.ics` / Google / Outlook payloads, the embed widget | English by design |
+
+Entity names are curated rather than generated because most of the catalog has no other name:
+"Eclipse Temurin 26 end of life" is not a Spanish phrase and inventing one puts a page in the index
+for something nobody types. The couple of hundred entities that *do* have a name in every language —
+Navidad, Weihnachten, رمضان, 크리스마스 — carry nearly all the volume, and they are in
+`src/data/i18n/entities/keys.ts`. Everything else keeps its English name inside a fully translated
+sentence, which is what a Spanish speaker types for it anyway.
+
+The OG cards stay English because `@fontsource/*` ships Latin-only subsets here: Polish `ł`, Turkish
+`ğ` and every non-Latin script would render as tofu, and shipping five more font subsets to make a
+social preview image bilingual is not a trade worth making. The embed widget stays English because it
+lands on somebody else's page, is `noindex`, and has no locale of its own.
+
+### Indexing
+
+`buildMetadata()` emits the whole `hreflang` cluster plus `x-default` (English) on every translated
+page, and the `hubs` and `series` sitemap shards repeat it as `xhtml:link` alternates. Two rules keep
+the cluster honest — Google drops a cluster that points at a `noindex` page:
+
+- a `noindex` page (paginated hubs, thin categories, `share-`/`mine-` countdowns) declares **no**
+  alternates;
+- dated **event** pages are `noindex, follow` outside English *unless the entity has a curated name*,
+  and their cluster is narrowed to the locales where they are indexed (`translatedIn`). 40,000
+  occurrences times fifteen languages is 600,000 URLs of crawl budget the catalog cannot pay, and a
+  page that says "Navidad" is a real Spanish page while one that says "Eclipse Temurin 26 end of
+  life" is not.
+
+Series pages and hubs are indexed in every locale: they are evergreen, few, and fully translated.
+`robots.txt` repeats its `Disallow` rules in each locale's spelling, since a `Disallow` is a literal
+prefix match.
+
+**Nothing auto-redirects by `Accept-Language`.** A visitor who asks for `/days-until/christmas` gets
+it in English, and the footer's switcher — fifteen real `<a hreflang>` links, not a `<select>` —
+takes them elsewhere. Sniffing the header would send Googlebot (which crawls from the US, with no
+`Accept-Language`) to the English page for every URL it tried, which is the standard way to make an
+`hreflang` cluster invisible.
+
+**Search still matches English.** `search_events` indexes the catalog's own titles, so a query for
+"navidad" would find nothing. `searchQueryFor()` swaps a query that names a curated entity for its
+English title before the RPC sees it; anything else is passed through, because a fuzzy remapping
+would cost more than the miss it fixes. Translating the search index itself is a database change and
+is out of scope here.
+
+### Adding a locale
+
+1. Add the code to `LOCALES` and a row to `LOCALE_META` in `src/lib/i18n/config.ts`.
+2. Add its section names to `SECTION_NAMES` in `src/lib/i18n/paths.ts` (omit any it should keep in
+   English — the rewrites are generated from what is there).
+3. Write `src/lib/i18n/messages/<locale>.ts` against `Messages`, and register it in
+   `src/lib/i18n/messages/index.ts`.
+4. Write `src/data/i18n/entities/<locale>.ts` from `keys.ts` — only the entities that genuinely have
+   a name in that language.
+5. `npm run test` — `tests/i18n/` checks key parity, `{placeholder}` parity, plural categories the
+   language actually uses, that the catalogue is not a copy of English, and that every section has a
+   routing rule.
+
+Chinese is the obvious next one and is deliberately left out: Simplified and Traditional are
+different catalogues aimed at different search markets, and picking one for the whole language is a
+call the owner should make rather than a default.
 
 ## Sharing
 
@@ -413,4 +535,4 @@ Vercel (`framework: nextjs`, no custom build command). Set `NEXT_PUBLIC_SITE_URL
 
 ## Stack
 
-Next.js (App Router) · TypeScript · Tailwind v4 · Supabase Postgres
+Next.js (App Router, `next/root-params` i18n) · TypeScript · Tailwind v4 · Supabase Postgres · `Intl`

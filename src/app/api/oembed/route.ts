@@ -9,6 +9,7 @@
  */
 import { NextResponse, type NextRequest } from "next/server";
 import { resolveEmbedSubject } from "@/lib/embed/resolve";
+import { parsePath } from "@/lib/i18n/paths";
 import {
   DEFAULT_EMBED_THEME,
   EMBED_BOX,
@@ -40,7 +41,10 @@ function target(raw: string | null, origin: string): { slug: string; theme: Embe
     return null;
   }
   if (url.origin !== origin) return null;
-  const match = EMBEDDABLE.exec(url.pathname);
+  // A pasted URL can be in any of the fifteen spellings (`/es/cuantos-dias-faltan/navidad`);
+  // `parsePath()` folds it back to the app-internal one before the shape is matched.
+  const { path } = parsePath(url.pathname);
+  const match = EMBEDDABLE.exec(path);
   if (!match) return null;
   let slug: string;
   try {
@@ -49,7 +53,7 @@ function target(raw: string | null, origin: string): { slug: string; theme: Embe
     // A malformed percent-escape is not a slug we have.
     return null;
   }
-  const embed = url.pathname.startsWith("/embed/");
+  const embed = path.startsWith("/embed/");
   return { slug, theme: embed ? parseEmbedTheme(url.searchParams) : DEFAULT_EMBED_THEME };
 }
 

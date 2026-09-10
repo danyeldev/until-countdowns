@@ -3,7 +3,9 @@ import { getEvent, resolveSlugAlias } from "@/lib/catalog";
 import { ogBackgroundUrl, shortCredit } from "@/lib/images";
 import { CATEGORY_LABELS } from "@/lib/labels";
 import { badRequest, CACHE_DATED, CACHE_UNDATED, daysBetween, parseOgDate, renderOgCard } from "@/lib/og";
-import { expectedPeriod, formatLongDate } from "@/lib/seo";
+import { longDate } from "@/lib/i18n/format";
+import { EN } from "@/lib/i18n/localized";
+import { formatApproximate } from "@/lib/seo";
 import { isCoarsePrecision } from "@/lib/time";
 
 export const runtime = "nodejs";
@@ -39,9 +41,9 @@ export async function GET(_req: NextRequest, ctx: { params: Promise<{ slug: stri
     {
       eyebrow: CATEGORY_LABELS[event.category],
       title: event.title,
-      subtitle: coarse ? undefined : `${status}${formatLongDate(event.date)}`,
+      subtitle: coarse ? undefined : `${status}${longDate("en", event.date)}`,
       days: coarse ? null : daysBetween(day, event.date, event.allDay),
-      expectedLabel: coarse ? `expected ${expectedPeriod(event.date, event.datePrecision)}` : undefined,
+      expectedLabel: coarse ? formatApproximate(EN, event.date, event.datePrecision) : undefined,
       // The stored `og.jpg` derivative is already 1200x630: no cropping happens at render time.
       imageUrl: background,
       imageCredit: background && event.image ? shortCredit(event.image) : null,

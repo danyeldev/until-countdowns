@@ -1,3 +1,4 @@
+import { i18n } from "@/lib/i18n/server";
 import { providerLabel } from "@/lib/images";
 import type { EventImage } from "@/lib/types";
 
@@ -8,17 +9,22 @@ import type { EventImage } from "@/lib/types";
  * CC BY and CC BY-SA both require this; public-domain files do not, and a file with neither an
  * author nor a licence renders nothing rather than an empty caption. The provider is always named
  * so a reader can trace the file back even when the uploader is anonymous.
+ *
+ * The author, the licence code and the provider are names and stay as the file records them; only
+ * the words around them are translated.
  */
-export function ImageCredit({ image, className }: { image: EventImage; className?: string }) {
+export async function ImageCredit({ image, className }: { image: EventImage; className?: string }) {
   const { author, license, licenseUrl, originPage, provider } = image;
   if (!author && !license) return null;
+  const L = await i18n();
+  const c = L.m.event.image;
   const providerName = provider ? providerLabel(provider) : null;
 
   return (
     <figcaption className={`text-xs text-muted ${className ?? ""}`}>
       {author ? (
         <>
-          Photo:{" "}
+          {c.photoBy}{" "}
           {originPage ? (
             <a href={originPage} className="underline hover:text-paper" target="_blank" rel="noreferrer nofollow">
               {author}
@@ -29,10 +35,10 @@ export function ImageCredit({ image, className }: { image: EventImage; className
         </>
       ) : originPage ? (
         <a href={originPage} className="underline hover:text-paper" target="_blank" rel="noreferrer nofollow">
-          Photo
+          {c.photo}
         </a>
       ) : (
-        "Photo"
+        c.photo
       )}
       {license ? (
         <>
@@ -46,7 +52,7 @@ export function ImageCredit({ image, className }: { image: EventImage; className
           )}
         </>
       ) : null}
-      {providerName ? ` · via ${providerName}` : null}
+      {providerName ? ` · ${L.t(c.via, { provider: providerName })}` : null}
     </figcaption>
   );
 }

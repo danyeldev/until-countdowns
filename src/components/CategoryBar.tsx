@@ -1,14 +1,16 @@
 import Link from "next/link";
+import type { Localized } from "@/lib/i18n/bind";
 import type { Category } from "@/lib/types";
 import { CATEGORIES } from "@/lib/types";
-import { CATEGORY_LABELS } from "@/lib/labels";
 
 export function CategoryBar({
+  L,
   active,
   counts,
   q,
   sort,
 }: {
+  L: Localized;
   active?: string;
   counts: Partial<Record<Category, number>>;
   q?: string;
@@ -21,11 +23,11 @@ export function CategoryBar({
   // Without a free-text query the category filter is a hub page of its own (`/?category=x`
   // 308s there anyway); with a query it narrows the search on the home page.
   function href(category?: string) {
-    if (!q && category) return `/category/${category}`;
+    if (!q && category) return L.href(`/category/${category}`);
     const p = new URLSearchParams(base);
     if (category) p.set("category", category);
     const s = p.toString();
-    return s ? `/?${s}` : "/";
+    return L.href(s ? `/?${s}` : "/");
   }
 
   return (
@@ -38,7 +40,7 @@ export function CategoryBar({
             : "border border-line text-paper-dim hover:text-paper"
         }`}
       >
-        All
+        {L.m.home.filters.all}
       </Link>
       {CATEGORIES.filter((c) => (counts[c] ?? 0) > 0).map((c) => (
         <Link
@@ -48,8 +50,8 @@ export function CategoryBar({
             active === c ? "bg-paper text-ink" : "border border-line text-paper-dim hover:text-paper"
           }`}
         >
-          {CATEGORY_LABELS[c]}
-          <span className="ml-2 opacity-60">{counts[c]}</span>
+          {L.m.categories.labels[c]}
+          <span className="ml-2 opacity-60">{L.fmt.number(counts[c] ?? 0)}</span>
         </Link>
       ))}
     </div>

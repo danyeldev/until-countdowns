@@ -4,7 +4,9 @@
  * Event only for rows the finalize job marked `jsonld_eligible` (attendable events with a place).
  * No FAQPage and no SearchAction: neither earns a rich result any more.
  */
-import { absoluteUrl, eventDescription, SITE_NAME } from "./seo";
+import type { Localized } from "./i18n/bind";
+import { localeMeta } from "./i18n/config";
+import { absoluteUrl, displayTitle, eventDescription, localeUrl, SITE_NAME } from "./seo";
 import type { CountdownEvent, Series } from "./types";
 
 export type JsonLdObject = Record<string, unknown>;
@@ -13,7 +15,12 @@ const SCHEMA = "https://schema.org";
 
 export type Crumb = { name: string; path: string };
 
-export function breadcrumbList(items: Crumb[]): JsonLdObject {
+/**
+ * Every builder takes the page's locale: the URLs it emits have to be the locale's own (a Spanish
+ * page whose breadcrumbs point at English URLs is telling Google the two are the same document),
+ * and `inLanguage` is what makes the graph agree with the `hreflang` cluster.
+ */
+export function breadcrumbList(L: Localized, items: Crumb[]): JsonLdObject {
   return {
     "@context": SCHEMA,
     "@type": "BreadcrumbList",
@@ -21,19 +28,19 @@ export function breadcrumbList(items: Crumb[]): JsonLdObject {
       "@type": "ListItem",
       position: i + 1,
       name: item.name,
-      item: absoluteUrl(item.path),
+      item: localeUrl(L.locale, item.path),
     })),
   };
 }
 
-export function webSite(): JsonLdObject {
+export function webSite(L: Localized): JsonLdObject {
   return {
     "@context": SCHEMA,
     "@type": "WebSite",
     name: SITE_NAME,
-    url: absoluteUrl("/"),
-    inLanguage: "en",
-    description: "Live countdowns and dates for thousands of upcoming events, holidays and milestones.",
+    url: localeUrl(L.locale, "/"),
+    inLanguage: localeMeta(L.locale).lang,
+    description: L.m.seo.jsonLd.siteDescription,
   };
 }
 
@@ -42,6 +49,7 @@ export function organization(): JsonLdObject {
     "@context": SCHEMA,
     "@type": "Organization",
     name: SITE_NAME,
+    // Language-neutral: one organisation, described once, at the site's canonical root.
     url: absoluteUrl("/"),
     logo: absoluteUrl("/og/default"),
   };
@@ -49,14 +57,21 @@ export function organization(): JsonLdObject {
 
 export type CollectionItem = { name: string; path: string };
 
-export function collectionPage(name: string, description: string, path: string, items: CollectionItem[]): JsonLdObject {
+export function collectionPage(
+  L: Localized,
+  name: string,
+  description: string,
+  path: string,
+  items: CollectionItem[],
+): JsonLdObject {
   return {
     "@context": SCHEMA,
     "@type": "CollectionPage",
     name,
     description,
-    url: absoluteUrl(path),
-    isPartOf: { "@type": "WebSite", name: SITE_NAME, url: absoluteUrl("/") },
+    url: localeUrl(L.locale, path),
+    inLanguage: localeMeta(L.locale).lang,
+    isPartOf: { "@type": "WebSite", name: SITE_NAME, url: localeUrl(L.locale, "/") },
     mainEntity: {
       "@type": "ItemList",
       numberOfItems: items.length,
@@ -64,7 +79,7 @@ export function collectionPage(name: string, description: string, path: string, 
         "@type": "ListItem",
         position: i + 1,
         name: item.name,
-        url: absoluteUrl(item.path),
+        url: localeUrl(L.locale, item.path),
       })),
     },
   };
@@ -103,14 +118,15 @@ function placeOf(event: CountdownEvent): JsonLdObject | undefined {
 }
 
 /** schema.org Event, or null when the row is not eligible (holidays, eclipses, releases…). */
-export function eventJsonLd(event: CountdownEvent): JsonLdObject | null {
+export function eventJsonLd(L: Localized, event: CountdownEvent): JsonLdObject | null {
   if (!event.jsonldEligible) return null;
   const place = placeOf(event);
   if (!place) return null;
   const out: JsonLdObject = {
     "@context": SCHEMA,
     "@type": "Event",
-    name: event.title,
+    name: displayTitle(L, event),
+    inLanguage: localeMeta(L.locale).lang,
     startDate: schemaDate(event.date, event.allDay),
     eventStatus: eventStatusUrl(event),
     eventAttendanceMode: `${SCHEMA}/OfflineEventAttendanceMode`,
@@ -118,8 +134,8 @@ export function eventJsonLd(event: CountdownEvent): JsonLdObject | null {
     // redistribution with nowhere to carry the attribution the licence requires. The summary
     // stays on the event page, under its "Summary from Wikipedia (CC BY-SA 4.0)" credit.
     location: place,
-    description: event.description || eventDescription(event),
-    url: absoluteUrl(`/event/${event.slug}`),
+    description: event.description || eventDescription(L, event),
+    url: localeUrl(L.locale, `/event/${event.slug}`),
   };
   if (event.endDate) out.endDate = schemaDate(event.endDate, event.allDay);
   if (event.image?.url) out.image = [event.image.url];
@@ -136,13 +152,15 @@ export function eventJsonLd(event: CountdownEvent): JsonLdObject | null {
  * holiday series never emits location-less Events that Search Console flags. Every other series
  * keeps the EventSeries with `startDate`/`endDate`/`url` and no `subEvent`.
  */
-export function eventSeries(series: Series, occurrences: CountdownEvent[]): JsonLdObject {
+export function eventSeries(L: Localized, series: Series, occurrences: CountdownEvent[]): JsonLdObject {
+  const title = displayTitle(L, series);
   const out: JsonLdObject = {
     "@context": SCHEMA,
     "@type": "EventSeries",
-    name: series.title,
-    url: absoluteUrl(`/days-until/${series.slug}`),
-    description: series.summary || series.description || `Upcoming dates of ${series.title}.`,
+    name: title,
+    inLanguage: localeMeta(L.locale).lang,
+    url: localeUrl(L.locale, `/days-until/${series.slug}`),
+    description: series.summary || series.description || L.t(L.m.seo.jsonLd.seriesDescription, { title }),
   };
   if (series.nextDate) out.startDate = schemaDate(series.nextDate, series.nextAllDay ?? true);
   const last = occurrences.at(-1);
@@ -155,10 +173,10 @@ export function eventSeries(series: Series, occurrences: CountdownEvent[]): Json
       if (!place) return null;
       return {
         "@type": "Event",
-        name: o.title,
+        name: displayTitle(L, o),
         startDate: schemaDate(o.date, o.allDay),
         ...(o.endDate ? { endDate: schemaDate(o.endDate, o.allDay) } : {}),
-        url: absoluteUrl(`/event/${o.slug}`),
+        url: localeUrl(L.locale, `/event/${o.slug}`),
         eventStatus: eventStatusUrl(o),
         eventAttendanceMode: `${SCHEMA}/OfflineEventAttendanceMode`,
         location: place,

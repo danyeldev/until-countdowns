@@ -10,7 +10,8 @@
  * escaped, and every colour and number is re-validated here before it reaches a CSS declaration —
  * `parseEmbedTheme()` already closed that door, and this closes it again from the inside.
  */
-import { formatLongDate, truncate } from "@/lib/seo";
+import { longDate } from "@/lib/i18n/format";
+import { truncate } from "@/lib/seo";
 import { PADDING_MAX, RADIUS_MAX, SCALE_MAX, SCALE_MIN } from "./theme";
 import type { EmbedLayout, EmbedTheme } from "./theme";
 
@@ -348,7 +349,7 @@ export function buildEmbedDocument(subject: EmbedSubject, theme: EmbedTheme, opt
   inner.push(
     `<p class="done" id="done"${expired ? ' style="display:block"' : ""}>${escapeHtml(onTheDay ? here : past)}</p>`,
   );
-  if (theme.date) inner.push(`<p class="meta">${escapeHtml(formatLongDate(subject.date))}</p>`);
+  if (theme.date) inner.push(`<p class="meta">${escapeHtml(longDate("en", subject.date))}</p>`);
   if (theme.note && subject.description.trim()) {
     inner.push(`<p class="note">${escapeHtml(truncate(subject.description, NOTE_MAX))}</p>`);
   }

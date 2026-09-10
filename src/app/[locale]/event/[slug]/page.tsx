@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound, permanentRedirect } from "next/navigation";
+import { locale as localeParam } from "next/root-params";
+import { Fragment } from "react";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { CalendarButtons } from "@/components/CalendarButtons";
 import { Countdown } from "@/components/Countdown";
@@ -25,14 +27,21 @@ import {
   summaryCitation,
   topSlugs,
 } from "@/lib/catalog";
+import type { Localized } from "@/lib/i18n/bind";
+import { DEFAULT_LOCALE, LOCALES } from "@/lib/i18n/config";
+import { hasEntityName } from "@/lib/i18n/content";
+import { regionLabel } from "@/lib/i18n/regions";
+import { i18n, localePage } from "@/lib/i18n/server";
 import { eventJsonLd, type Crumb } from "@/lib/jsonld";
-import { CATEGORY_LABELS, sourceLabel } from "@/lib/labels";
-import { COUNTRY_NAMES, regionLabel } from "@/lib/regions";
+import { sourceLabel } from "@/lib/labels";
+import { COUNTRY_NAMES } from "@/lib/regions";
 import {
   absoluteUrl,
   buildMetadata,
+  displayTitle,
   eventDescription,
   eventTitle,
+  formatApproximate,
   formatLongDate,
   oembedDiscoveryUrl,
   ogDatedPath,
@@ -40,7 +49,7 @@ import {
   todayUtc,
   truncate,
 } from "@/lib/seo";
-import { formatApproximate, formatCompactDate, formatRange, isCoarsePrecision } from "@/lib/time";
+import { isCoarsePrecision } from "@/lib/time";
 import type { CountdownEvent } from "@/lib/types";
 import { decodeSharePayload } from "@/lib/user-events";
 
@@ -48,40 +57,61 @@ export const revalidate = 3600;
 
 const OTHER_YEARS = 6;
 
+/** How many of the most popular slugs are prerendered, in English and in everything else. */
+const PRERENDER = { en: 500, other: 50 };
+
 /**
  * Prerenders the most popular upcoming slugs. An empty array is fine under ISR
  * (every path then renders on first visit; `dynamicParams` stays true), so a build with an
  * empty or unreachable database prerenders nothing rather than a set of cached 404s.
+ *
+ * The list is shorter outside English because every entry here is built once per locale, and a
+ * dated occurrence page is only indexed in a language that has a name for the entity (see
+ * `generateMetadata`); the rest of the tail is better rendered on the first visit it ever gets.
  */
 export async function generateStaticParams() {
-  const slugs = await topSlugs(500);
+  const locale = await localeParam();
+  const slugs = await topSlugs(locale === DEFAULT_LOCALE ? PRERENDER.en : PRERENDER.other);
   return slugs.map((slug) => ({ slug }));
 }
 
-export async function generateMetadata({ params }: PageProps<"/event/[slug]">): Promise<Metadata> {
+export async function generateMetadata({ params }: PageProps<"/[locale]/event/[slug]">): Promise<Metadata> {
+  const L = await i18n();
   const { slug } = await params;
-  if (slug.startsWith("mine-")) return { title: "Your countdown", robots: { index: false, follow: false } };
+  if (slug.startsWith("mine-")) return { title: L.m.seo.event.mineTitle, robots: { index: false, follow: false } };
   if (slug.startsWith("share-")) {
     const payload = slug.slice("share-".length);
     const shared = decodeSharePayload(payload);
-    if (!shared) return { title: "Shared countdown", robots: { index: false, follow: false } };
+    if (!shared) return { title: L.m.seo.event.sharedTitle, robots: { index: false, follow: false } };
+    const date = formatLongDate(L, shared.date);
     return buildMetadata({
-      title: `${shared.title} — ${formatLongDate(shared.date)} countdown`,
-      description: `${shared.title} is on ${formatLongDate(shared.date)}. A countdown someone made on Until.`,
+      locale: L.locale,
+      title: L.t(L.m.seo.event.sharedMetaTitle, { title: shared.title, date }),
+      description: L.t(L.m.seo.event.sharedMetaDescription, { title: shared.title, date }),
       canonical: `/event/${slug}`,
       ogPath: `/og/share/${encodeURIComponent(payload)}`,
       noindex: true,
     });
   }
   const event = await getEvent(slug);
-  if (!event) return { title: "Countdown", robots: { index: false, follow: true } };
+  if (!event) return { title: L.m.seo.event.fallbackTitle, robots: { index: false, follow: true } };
+  /**
+   * The locales this occurrence is a real page in: English, plus every locale with a curated name
+   * for the entity. 40,000 occurrence pages times fifteen languages is a crawl budget the catalog
+   * cannot pay, and it should not want to — a page that says "Navidad" is a Spanish page, while one
+   * that says "Eclipse Temurin 26 end of life" is an English page served from a Spanish URL.
+   */
+  const cluster = LOCALES.filter((l) => l === DEFAULT_LOCALE || hasEntityName(l, event.title, event.slug));
   const metadata = buildMetadata({
-    title: eventTitle(event),
-    description: eventDescription(event),
+    locale: L.locale,
+    title: eventTitle(L, event),
+    description: eventDescription(L, event),
     canonical: `/event/${event.slug}`,
     ogPath: ogDatedPath("event", event.slug, todayUtc()),
-    // Series members point at the evergreen series page; incomplete rows stay out of the index.
-    noindex: event.indexable === false || Boolean(event.seriesSlug),
+    // Series members point at the evergreen series page; incomplete rows stay out of the index,
+    // and so does every locale outside the cluster.
+    noindex: event.indexable === false || Boolean(event.seriesSlug) || !cluster.includes(L.locale),
+    translatedIn: cluster,
   });
   metadata.alternates = {
     ...metadata.alternates,
@@ -91,18 +121,30 @@ export async function generateMetadata({ params }: PageProps<"/event/[slug]">): 
       // that follows the link into a 404 shows the reader an embed error rather than a plain link.
       ...(isCoarsePrecision(event.datePrecision)
         ? {}
-        : { "application/json+oembed": oembedDiscoveryUrl(`/event/${event.slug}`) }),
+        : { "application/json+oembed": oembedDiscoveryUrl(L.locale, `/event/${event.slug}`) }),
     },
   };
   return metadata;
 }
 
-function Provenance({ event }: { event: CountdownEvent }) {
+/**
+ * Fills a message whose placeholders are elements rather than words, so a sentence with a link
+ * inside it stays one translatable string — and the translator, not the JSX, decides where in the
+ * sentence the link falls.
+ */
+function fillNodes(template: string, parts: Record<string, React.ReactNode>): React.ReactNode[] {
+  return template.split(/(\{\w+\})/g).map((chunk, i) => {
+    const key = /^\{(\w+)\}$/.exec(chunk)?.[1];
+    return key && key in parts ? <Fragment key={i}>{parts[key]}</Fragment> : chunk;
+  });
+}
+
+function Provenance({ L, event }: { L: Localized; event: CountdownEvent }) {
   const label = event.sourceLabel || sourceLabel(event.source);
-  const verified = event.lastVerifiedAt ? formatCompactDate(event.lastVerifiedAt.slice(0, 10)) : null;
+  const verified = event.lastVerifiedAt ? L.fmt.compactDate(event.lastVerifiedAt.slice(0, 10)) : null;
   return (
     <p className="mt-8 text-xs text-muted">
-      Source:{" "}
+      {L.m.event.provenance.source}{" "}
       {event.sourceUrl ? (
         <a href={event.sourceUrl} className="underline hover:text-paper" target="_blank" rel="noreferrer">
           {label}
@@ -110,10 +152,10 @@ function Provenance({ event }: { event: CountdownEvent }) {
       ) : (
         label
       )}
-      {verified ? ` · last verified ${verified}` : ""}
+      {verified ? ` · ${L.t(L.m.event.provenance.lastVerified, { date: verified })}` : ""}
       {" · "}
-      <Link href="/attributions" className="underline hover:text-paper">
-        attributions
+      <Link href={L.href("/attributions")} className="underline hover:text-paper">
+        {L.m.common.footer.attributions}
       </Link>
     </p>
   );
@@ -123,24 +165,27 @@ function Provenance({ event }: { event: CountdownEvent }) {
  * Wikipedia prose is CC BY-SA 4.0: whenever the enrichment queue filled `summary` from an article
  * (`external_ids.summary_source === 'wikipedia'`), the page has to say so and link the article.
  */
-function WikipediaCredit({ article }: { article: string }) {
+function WikipediaCredit({ L, article }: { L: Localized; article: string }) {
   const href = `https://en.wikipedia.org/wiki/${encodeURIComponent(article.replace(/ /g, "_"))}`;
   return (
     <p className="mt-2 text-xs text-muted">
-      Summary from{" "}
-      <a href={href} className="underline hover:text-paper" target="_blank" rel="noreferrer">
-        Wikipedia
-      </a>{" "}
-      (
-      <a
-        href="https://creativecommons.org/licenses/by-sa/4.0/"
-        className="underline hover:text-paper"
-        target="_blank"
-        rel="noreferrer license"
-      >
-        CC BY-SA 4.0
-      </a>
-      )
+      {fillNodes(L.m.event.provenance.summary, {
+        source: (
+          <a href={href} className="underline hover:text-paper" target="_blank" rel="noreferrer">
+            Wikipedia
+          </a>
+        ),
+        license: (
+          <a
+            href="https://creativecommons.org/licenses/by-sa/4.0/"
+            className="underline hover:text-paper"
+            target="_blank"
+            rel="noreferrer license"
+          >
+            CC BY-SA 4.0
+          </a>
+        ),
+      })}
     </p>
   );
 }
@@ -153,11 +198,21 @@ function Chip({ href, children }: { href: string; children: React.ReactNode }) {
   );
 }
 
-export default async function EventPage({ params }: PageProps<"/event/[slug]">) {
+export default async function EventPage({ params }: PageProps<"/[locale]/event/[slug]">) {
+  const L = await localePage();
   const { slug } = await params;
 
   if (slug.startsWith("mine-")) {
-    return <MineEvent slug={slug} />;
+    return (
+      <MineEvent
+        slug={slug}
+        locale={L.locale}
+        m={L.m.event}
+        actions={L.m.common.actions}
+        labels={L.m.common.labels}
+        categories={L.m.categories.labels}
+      />
+    );
   }
 
   let event: CountdownEvent | undefined;
@@ -169,7 +224,7 @@ export default async function EventPage({ params }: PageProps<"/event/[slug]">) 
     event = await getEventStrict(slug);
     if (!event) {
       const current = await resolveSlugAliasStrict(slug);
-      if (current) permanentRedirect(`/event/${current}`);
+      if (current) permanentRedirect(L.href(`/event/${current}`));
     }
   }
   if (!event) notFound();
@@ -184,29 +239,45 @@ export default async function EventPage({ params }: PageProps<"/event/[slug]">) 
   // A shared personal countdown is reached at the payload URL it arrived on — the `mine-…` slug
   // the payload decodes to only resolves in the browser that created it, so it is not shareable.
   const shared = slug.startsWith("share-");
-  const sharePath = shared ? `/event/${slug}` : `/event/${event.slug}`;
+  // App-internal path of this page. The crumbs and the JSON-LD take it as it is and localize it
+  // themselves; anything a reader copies takes the locale's own URL.
+  const canonical = shared ? `/event/${slug}` : `/event/${event.slug}`;
+  const sharePath = L.href(canonical);
   const coarse = isCoarsePrecision(event.datePrecision);
   const shownRegions = event.regions.filter((r) => r !== "GLOBAL");
   const previousDate = event.dateHistory?.at(-1)?.date;
+  const title = displayTitle(L, event);
+  const seriesName = event.seriesTitle
+    ? displayTitle(L, { title: event.seriesTitle, slug: event.seriesSlug })
+    : null;
+  // A run of days is two compact dates; everything else — one day, or a whole month or quarter —
+  // is the one date the row has, said as precisely as the row allows.
+  const whenLine =
+    !coarse && event.endDate && event.endDate !== event.date
+      ? L.t(L.m.event.dateRange, {
+          start: L.fmt.compactDate(event.date),
+          end: L.fmt.compactDate(event.endDate),
+        })
+      : formatApproximate(L, event.date, event.datePrecision);
 
-  const crumbs: Crumb[] = [{ name: "Home", path: "/" }];
-  if (!isUser) crumbs.push({ name: CATEGORY_LABELS[event.category], path: `/category/${event.category}` });
-  if (event.seriesSlug && event.seriesTitle) crumbs.push({ name: event.seriesTitle, path: `/days-until/${event.seriesSlug}` });
-  crumbs.push({ name: truncate(event.title, 80), path: sharePath });
+  const crumbs: Crumb[] = [{ name: L.m.common.breadcrumb.home, path: "/" }];
+  if (!isUser) crumbs.push({ name: L.m.categories.labels[event.category], path: `/category/${event.category}` });
+  if (event.seriesSlug && seriesName) crumbs.push({ name: seriesName, path: `/days-until/${event.seriesSlug}` });
+  crumbs.push({ name: truncate(title, 80), path: canonical });
 
   return (
     <article>
       <Breadcrumbs items={crumbs} />
       <p className="mt-6 flex flex-wrap items-center gap-3 text-[11px] uppercase tracking-[0.24em] text-amber">
-        <Link href={`/category/${event.category}`} className="hover:text-paper">
-          {CATEGORY_LABELS[event.category]}
+        <Link href={L.href(`/category/${event.category}`)} className="hover:text-paper">
+          {L.m.categories.labels[event.category]}
         </Link>
         <StatusBadge status={event.status} />
       </p>
-      <h1 className="mt-3 font-serif text-4xl leading-tight text-paper sm:text-6xl">{event.title}</h1>
+      <h1 className="mt-3 font-serif text-4xl leading-tight text-paper sm:text-6xl">{title}</h1>
       <IntentAnswer
         className="mt-5 max-w-2xl"
-        title={event.title}
+        title={title}
         date={event.date}
         days={event.daysUntil}
         precision={event.datePrecision}
@@ -216,20 +287,14 @@ export default async function EventPage({ params }: PageProps<"/event/[slug]">) 
       {event.summary && event.summary !== event.description ? (
         <div className="mt-3 max-w-2xl">
           <p className="text-paper-dim">{event.summary}</p>
-          {citation ? <WikipediaCredit article={citation.enwiki} /> : null}
+          {citation ? <WikipediaCredit L={L} article={citation.enwiki} /> : null}
         </div>
       ) : null}
-      <p className="mt-3 font-mono text-sm text-muted">
-        {coarse ? formatApproximate(event.date, event.datePrecision) : formatRange(event.date, event.endDate)}
-      </p>
-      {coarse ? (
-        <p className="mt-2 max-w-2xl text-sm text-muted">
-          The exact day has not been announced yet. This page will start ticking once the source publishes one.
-        </p>
-      ) : null}
+      <p className="mt-3 font-mono text-sm text-muted">{whenLine}</p>
+      {coarse ? <p className="mt-2 max-w-2xl text-sm text-muted">{L.m.event.coarseNote}</p> : null}
       {previousDate ? (
         <p className="mt-2 max-w-2xl text-sm text-ember">
-          Date changed: previously {formatLongDate(previousDate)}.
+          {L.t(L.m.event.dateChanged, { date: formatLongDate(L, previousDate) })}
         </p>
       ) : null}
 
@@ -239,7 +304,7 @@ export default async function EventPage({ params }: PageProps<"/event/[slug]">) 
             <>
               <EventImage
                 image={event.image}
-                alt={event.title}
+                alt={title}
                 variant="hero"
                 priority
                 className="rounded-3xl border border-line"
@@ -249,7 +314,7 @@ export default async function EventPage({ params }: PageProps<"/event/[slug]">) 
           ) : (
             <FallbackCard
               slug={event.slug}
-              title={event.title}
+              title={title}
               category={event.category}
               variant="hero"
               className="rounded-3xl border border-line"
@@ -269,54 +334,60 @@ export default async function EventPage({ params }: PageProps<"/event/[slug]">) 
       </div>
 
       <div className="mt-8 flex flex-wrap items-center gap-2">
-        <CalendarButtons event={event} url={absoluteUrl(sharePath)} />
-        <SaveButton id={event.id} />
-        <ShareButton title={event.title} path={sharePath} />
+        <CalendarButtons event={event} url={absoluteUrl(sharePath)} labels={L.m.common.actions} />
+        <SaveButton id={event.id} labels={L.m.common.actions} />
+        <ShareButton title={title} path={sharePath} labels={L.m.common.actions} />
       </div>
 
-      {coarse ? null : (
-        <EmbedStudio slug={shared ? slug : event.slug} title={event.title} origin={siteUrl()} />
-      )}
+      {coarse ? null : <EmbedStudio slug={shared ? slug : event.slug} title={title} origin={siteUrl()} />}
 
       {event.seriesSlug ? (
         <p className="mt-8 text-sm text-paper-dim">
-          Part of the{" "}
-          <Link href={`/days-until/${event.seriesSlug}`} className="text-amber underline hover:text-paper">
-            {event.seriesTitle ?? event.seriesSlug} series
-          </Link>
-          {" — every year, with the next date always on top."}
+          {fillNodes(L.m.event.partOfSeries, {
+            series: (
+              <Link
+                href={L.href(`/days-until/${event.seriesSlug}`)}
+                className="text-amber underline hover:text-paper"
+              >
+                {seriesName ?? event.seriesSlug}
+              </Link>
+            ),
+          })}
         </p>
       ) : null}
 
       <dl className="mt-10 grid gap-6 border-t border-line pt-8 text-sm sm:grid-cols-2">
         <div>
-          <dt className="uppercase tracking-[0.16em] text-muted">Where</dt>
+          <dt className="uppercase tracking-[0.16em] text-muted">{L.m.event.fields.where}</dt>
           <dd className="mt-2 flex flex-wrap items-center gap-2 text-paper-dim">
             {shownRegions.length === 0 ? (
-              <span>Worldwide</span>
+              <span>{L.m.common.labels.worldwide}</span>
             ) : (
               shownRegions.slice(0, 24).map((code) =>
                 COUNTRY_NAMES[code] ? (
-                  <Chip key={code} href={`/country/${code.toLowerCase()}`}>
-                    {regionLabel(code)}
+                  <Chip key={code} href={L.href(`/country/${code.toLowerCase()}`)}>
+                    {regionLabel(L, code)}
                   </Chip>
                 ) : (
-                  <span key={code}>{regionLabel(code)}</span>
+                  <span key={code}>{regionLabel(L, code)}</span>
                 ),
               )
             )}
-            {shownRegions.length > 24 ? <span>+{shownRegions.length - 24}</span> : null}
+            {shownRegions.length > 24 ? <span>+{L.fmt.number(shownRegions.length - 24)}</span> : null}
             {event.location?.name ? <span>· {event.location.name}</span> : null}
           </dd>
         </div>
         <div>
-          <dt className="uppercase tracking-[0.16em] text-muted">Tags</dt>
+          <dt className="uppercase tracking-[0.16em] text-muted">{L.m.event.fields.tags}</dt>
           <dd className="mt-2 flex flex-wrap gap-2">
             {event.tags.length === 0 ? (
               <span className="text-paper-dim">—</span>
             ) : (
               event.tags.map((tag) => (
-                <Chip key={tag} href={isUser ? `/?q=${encodeURIComponent(tag)}` : `/tag/${encodeURIComponent(tag)}`}>
+                <Chip
+                  key={tag}
+                  href={L.href(isUser ? `/?q=${encodeURIComponent(tag)}` : `/tag/${encodeURIComponent(tag)}`)}
+                >
                   {tag}
                 </Chip>
               ))
@@ -325,16 +396,19 @@ export default async function EventPage({ params }: PageProps<"/event/[slug]">) 
         </div>
       </dl>
 
-      {!isUser ? <Provenance event={event} /> : null}
+      {!isUser ? <Provenance L={L} event={event} /> : null}
 
       {otherYears.length > 0 ? (
         <section className="mt-16">
-          <h2 className="font-serif text-2xl text-paper">Other years</h2>
+          <h2 className="font-serif text-2xl text-paper">{L.m.event.otherYears}</h2>
           <EventTable events={otherYears} showCategory={false} />
           {event.seriesSlug ? (
             <p className="mt-3 text-sm">
-              <Link href={`/days-until/${event.seriesSlug}`} className="text-amber underline hover:text-paper">
-                Every upcoming date
+              <Link
+                href={L.href(`/days-until/${event.seriesSlug}`)}
+                className="text-amber underline hover:text-paper"
+              >
+                {L.m.event.everyUpcomingDate}
               </Link>
             </p>
           ) : null}
@@ -343,7 +417,7 @@ export default async function EventPage({ params }: PageProps<"/event/[slug]">) 
 
       {related.length > 0 && (
         <section className="mt-16">
-          <h2 className="font-serif text-2xl text-paper">Also coming</h2>
+          <h2 className="font-serif text-2xl text-paper">{L.m.event.alsoComing}</h2>
           <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {related.map((item) => (
               <EventCard key={item.id} event={item} />
@@ -352,7 +426,7 @@ export default async function EventPage({ params }: PageProps<"/event/[slug]">) 
         </section>
       )}
 
-      <JsonLd data={eventJsonLd(event)} />
+      <JsonLd data={eventJsonLd(L, event)} />
     </article>
   );
 }

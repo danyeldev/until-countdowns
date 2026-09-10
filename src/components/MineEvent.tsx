@@ -1,7 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import type { CountdownEvent } from "@/lib/types";
+import { bind } from "@/lib/i18n/bind";
+import type { Locale } from "@/lib/i18n/config";
+import type { Category, CountdownEvent } from "@/lib/types";
 import { encodeSharePayload } from "@/lib/user-events";
 import { useMine } from "@/lib/use-local-store";
 import { CalendarButtons } from "./CalendarButtons";
@@ -9,45 +11,69 @@ import { Countdown } from "./Countdown";
 import { EmbedStudio } from "./EmbedStudio";
 import { SaveButton } from "./SaveButton";
 import { ShareButton } from "./ShareButton";
-import { CATEGORY_LABELS } from "@/lib/labels";
 import { absoluteUrl, siteUrl } from "@/lib/seo";
-import { formatRange } from "@/lib/time";
 
-export function MineEvent({ slug }: { slug: string }) {
+/**
+ * Everything the page renders is either the reader's own words or a message the server parent
+ * handed over: the countdown itself only exists in this browser, so the page cannot be rendered
+ * on the server and cannot reach the catalogue.
+ */
+type Messages = {
+  dateRange: string;
+  mine: { missingTitle: string; missingBody: string; makeNew: string };
+};
+
+export function MineEvent({
+  slug,
+  locale,
+  m,
+  actions,
+  labels,
+  categories,
+}: {
+  slug: string;
+  locale: Locale;
+  m: Messages;
+  actions: { google: string; outlook: string; downloadIcs: string; share: string; shareCopied: string; save: string; saved: string };
+  labels: { dateToBeAnnounced: string };
+  categories: Record<Category, string>;
+}) {
+  const L = bind(locale);
   const mine = useMine();
   const event: CountdownEvent | undefined = mine.find((e) => e.slug === slug);
 
   if (!event) {
     return (
       <div>
-        <h1 className="font-serif text-4xl text-paper">This countdown lives on another device</h1>
-        <p className="mt-4 max-w-xl text-paper-dim">
-          Personal countdowns are stored in the browser that created them. If someone shared a link with you, ask them
-          for the shareable URL from the create page.
-        </p>
-        <Link href="/create" className="mt-6 inline-block text-amber underline">
-          Make a new one
+        <h1 className="font-serif text-4xl text-paper">{m.mine.missingTitle}</h1>
+        <p className="mt-4 max-w-xl text-paper-dim">{m.mine.missingBody}</p>
+        <Link href={L.href("/create")} className="mt-6 inline-block text-amber underline">
+          {m.mine.makeNew}
         </Link>
       </div>
     );
   }
 
   const shareSlug = `share-${encodeSharePayload(event)}`;
-  const sharePath = `/event/${shareSlug}`;
+  const sharePath = L.href(`/event/${shareSlug}`);
+  const when =
+    event.endDate && event.endDate !== event.date
+      ? L.t(m.dateRange, { start: L.fmt.compactDate(event.date), end: L.fmt.compactDate(event.endDate) })
+      : L.fmt.whenDate(event.date, true, labels.dateToBeAnnounced);
 
   return (
     <article>
-      <p className="text-[11px] uppercase tracking-[0.24em] text-amber">{CATEGORY_LABELS[event.category]}</p>
+      <p className="text-[11px] uppercase tracking-[0.24em] text-amber">{categories[event.category]}</p>
       <h1 className="mt-3 font-serif text-4xl leading-tight text-paper sm:text-6xl">{event.title}</h1>
       <p className="mt-4 max-w-2xl text-lg text-paper-dim">{event.description}</p>
-      <p className="mt-3 font-mono text-sm text-muted">{formatRange(event.date, event.endDate)}</p>
+      <p className="mt-3 font-mono text-sm text-muted">{when}</p>
       <div className="ticket mt-10 rounded-3xl px-6 py-10 sm:px-10">
         <Countdown date={event.date} allDay={event.allDay} size="hero" />
       </div>
       <div className="mt-8 flex flex-wrap items-center gap-2">
-        <CalendarButtons event={event} url={absoluteUrl(sharePath)} />
-        <SaveButton id={event.id} />
-        <ShareButton title={event.title} path={sharePath} />
+        <CalendarButtons event={event} url={absoluteUrl(sharePath)} labels={actions} />
+        <SaveButton id={event.id} labels={actions} />
+        <ShareButton title={event.title} path={sharePath} labels={actions} />
       </div>
       {/* The embed points at the payload URL, never at this `mine-…` slug: the widget has to work
           on someone else's site, where this browser's localStorage does not exist. */}
