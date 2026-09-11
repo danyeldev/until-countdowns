@@ -1,7 +1,13 @@
 /**
  * Hindi entity names.
  *
- * Two rules decided most of this file. First, Hindi is a non-Latin script, so a *transliteration*
+ * A name here has to survive the **oblique case**: every template puts a postposition after
+ * `{title}` — "{title} में कितने दिन बाकी हैं?", "{title} का काउंटडाउन", "{title} की आने वाली
+ * तारीखें" — and Hindi inflects the noun before one. "नया साल" would render "नया साल में", which
+ * reads as machine output; "नववर्ष" ends in a consonant and is correct in every slot. Prefer a name
+ * that is oblique-invariant, or write it already oblique where that is the natural form.
+ *
+ * Two more rules decided most of this file. First, Hindi is a non-Latin script, so a *transliteration*
  * is a real name here in a way it is not in Spanish or German: "विंबलडन" and "ग्रैमी अवॉर्ड्स" are
  * what Hindi readers write and search, and leaving them in Latin inside a Devanagari sentence is
  * the wrong answer. Second, where India has its own name for a thing, that name wins over the
@@ -22,7 +28,7 @@ import type { EntityNames } from "./index";
 
 export const hi: EntityNames = {
   // Turn of the year, and the imported retail calendar Hindi media now covers in Devanagari.
-  "new-year-s-day": "नया साल",
+  "new-year-s-day": "नववर्ष",
   "new-year-s-eve": "नए साल की पूर्व संध्या",
   "chinese-new-year": "चीनी नववर्ष",
   "lunar-new-year": "चंद्र नववर्ष",

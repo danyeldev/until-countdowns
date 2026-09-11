@@ -187,10 +187,10 @@ export const pt: Messages = {
     event: {
       whenIs: "Quando é {title}? {when}",
       whenIsCoarse: "Quando é {title}? Previsão para {period}",
-      countdownColon: "{title}: contagem regressiva para {when}",
+      countdownColon: "{title}: contagem regressiva — {when}",
       countdownDash: "{title} — contagem regressiva até {when}",
       countdownDashCoarse: "{title} — {when}",
-      description: "{title}{status} é em {date}. {days} Contagem regressiva e link de calendário.",
+      description: "{title}{status}: {date}. {days} Contagem regressiva e link de calendário.",
       descriptionCoarse:
         "{title} tem previsão para {period}. O dia exato ainda não foi anunciado — a contagem começa assim que sair.",
       statusCancelled: " (cancelado)",
@@ -199,14 +199,14 @@ export const pt: Messages = {
       mineTitle: "Sua contagem regressiva",
       sharedTitle: "Contagem regressiva compartilhada",
       sharedMetaTitle: "{title} — contagem regressiva para {date}",
-      sharedMetaDescription: "{title} é em {date}. Uma contagem regressiva criada no Until.",
+      sharedMetaDescription: "{title}: {date}. Uma contagem regressiva criada no Until.",
     },
 
     series: {
       title: "Quantos dias faltam para {title}? — {when}",
       titleNoDate: "Quantos dias faltam para {title}?",
       heading: "Quantos dias faltam para {title}?",
-      description: "{title} é em {date}. {days} Contagem regressiva, datas de todos os anos e calendário.",
+      description: "{title}: {date}. {days} Contagem regressiva, datas de todos os anos e calendário.",
       descriptionCoarse:
         "{title} tem previsão para {period}. Datas de todos os anos, contagem regressiva ao vivo e calendário.",
       descriptionNoDate: "{title}: próximas datas, contagem regressiva para a mais próxima e links de calendário.",
@@ -329,7 +329,7 @@ export const pt: Messages = {
       } as PluralForms,
       cancelled: "A data de {title} era {date}, mas o evento foi cancelado.",
       coarse: "{title} tem previsão para {period}. O dia exato ainda não foi anunciado.",
-      plain: "{title} é em {date}.",
+      plain: "{title}: {date}.",
     },
 
     statusHappened: "Já aconteceu",

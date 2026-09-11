@@ -2,13 +2,12 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
 /**
- * The 404 route, and the reason there is no `global-not-found.tsx`.
+ * The 404 for a path under a real locale that nothing else claimed (`/es/nope/here`).
  *
- * With the root layout under `[locale]`, an unmatched URL (`/foo/bar`, `/es/nope/here`) has no
- * route to fall into, and Next's built-in 404 renders outside the app shell. This catch-all is the
- * lowest-priority match in the tree — static segments beat dynamic ones, dynamic beat catch-alls —
- * so it only ever sees paths nothing else claimed, and turns them into a `notFound()` that renders
- * `[locale]/not-found.tsx` with the header, the footer and a 404 status.
+ * Lowest-priority match in the tree — static segments beat dynamic ones, dynamic beat catch-alls —
+ * so it only ever sees what every other route declined. It answers 404; the markup arrives in the
+ * flight payload rather than the HTML, which is how Next serves a page-thrown `notFound()` when the
+ * root layout sits under a dynamic segment (see `src/lib/i18n/server.ts`).
  */
 export const metadata: Metadata = { robots: { index: false, follow: false } };
 

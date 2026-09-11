@@ -36,11 +36,15 @@ export async function i18n(): Promise<I18n> {
  * What every `page.tsx` under `[locale]` calls. Identical to `i18n()` except that an unknown first
  * segment is a 404 rather than English.
  *
- * It has to be here and not in the layout: `/foobar` matches `[locale]` the same way `/es` does
- * (the English sections are rewritten to `/en/…` before the filesystem is consulted, so a bare
- * unknown word can only be a locale), and a `notFound()` thrown by a layout has no `not-found.tsx`
- * boundary above it to render. Thrown from the page, it renders `[locale]/not-found.tsx` inside the
- * normal shell, with a 404 status.
+ * It is the second line of defence. The routing table already sends a bare unknown segment to a
+ * 404 (see `routing.ts`), but that rule only matches dot-free single segments, so `/foo.bar` still
+ * arrives here as a locale.
+ *
+ * What a 404 looks like in this app is worth knowing before you reach for it: with the root layout
+ * under a dynamic segment, Next serves the not-found route as a bare `__next_error__` document with
+ * the real markup in the flight payload, so the status line is right and the page paints after
+ * hydration. That is Next's behaviour for any page-thrown `notFound()` here, not something this
+ * change introduced — a bad event slug has always answered that way.
  */
 export async function localePage(): Promise<I18n> {
   const raw = await localeParam();

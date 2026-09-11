@@ -26,10 +26,10 @@ export async function EventTable({
     <div className="mt-4 overflow-x-auto">
       <table className="w-full text-sm">
         <thead>
-          <tr className="text-left text-[11px] uppercase tracking-[0.16em] text-muted">
-            <th className="py-2 pr-4 font-normal">{L.m.home.table.date}</th>
-            <th className="py-2 pr-4 font-normal">{L.m.home.table.event}</th>
-            <th className="py-2 pr-4 font-normal">{L.m.home.table.within}</th>
+          <tr className="text-start text-[11px] uppercase tracking-[0.16em] text-muted">
+            <th className="py-2 pe-4 font-normal">{L.m.home.table.date}</th>
+            <th className="py-2 pe-4 font-normal">{L.m.home.table.event}</th>
+            <th className="py-2 pe-4 font-normal">{L.m.home.table.within}</th>
             {showCategory ? <th className="py-2 font-normal">{L.m.home.table.category}</th> : null}
           </tr>
         </thead>
@@ -38,20 +38,20 @@ export async function EventTable({
             const coarse = isCoarsePrecision(event.datePrecision);
             return (
               <tr key={event.id} className="border-t border-line/60 align-top">
-                <td className="whitespace-nowrap py-2.5 pr-4 font-mono text-xs text-muted">
+                <td className="whitespace-nowrap py-2.5 pe-4 font-mono text-xs text-muted">
                   <time dateTime={event.date}>
                     {coarse
                       ? formatApproximate(L, event.date, event.datePrecision)
                       : L.fmt.shortDate(event.date, event.timezone)}
                   </time>
                 </td>
-                <td className="py-2.5 pr-4">
+                <td className="py-2.5 pe-4">
                   <Link href={L.href(`/event/${event.slug}`)} className="text-paper hover:text-amber">
                     {displayTitle(L, event)}
                   </Link>
-                  <StatusBadge status={event.status} className="ml-2" />
+                  <StatusBadge status={event.status} className="ms-2" />
                 </td>
-                <td className="tabular whitespace-nowrap py-2.5 pr-4 font-mono text-xs text-paper-dim">
+                <td className="tabular whitespace-nowrap py-2.5 pe-4 font-mono text-xs text-paper-dim">
                   {coarse ? "" : L.fmt.humanDays(event.daysUntil)}
                 </td>
                 {showCategory ? (

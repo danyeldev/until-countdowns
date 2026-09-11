@@ -49,10 +49,17 @@ function utcParts(date: string): Date {
 // Dates
 // ---------------------------------------------------------------------------
 
-/** "Friday, 25 December 2026" (en) · "viernes, 25 de diciembre de 2026" (es). */
-export function longDate(locale: Locale, date: string, fallback = ""): string {
+/**
+ * "Friday, 25 December 2026" (en) · "viernes, 25 de diciembre de 2026" (es).
+ *
+ * Rendered from the *catalog day* — the day in the event's own zone — for the same reason the slug
+ * and `starts_on` are: a 20:00 premiere in New York is on the 12th where it airs even though its
+ * instant is the 13th in UTC. Without the zone this said the 13th in the title and description
+ * while the table underneath said the 12th.
+ */
+export function longDate(locale: Locale, date: string, timezone?: string | null, fallback = ""): string {
   if (!isValidDate(date)) return fallback;
-  const utc = utcParts(date);
+  const utc = utcParts(catalogDay(date, timezone));
   if (locale === "en") {
     return `${WEEKDAY_NAMES_EN[utc.getUTCDay()]}, ${utc.getUTCDate()} ${MONTH_NAMES_EN[utc.getUTCMonth()]} ${utc.getUTCFullYear()}`;
   }
@@ -77,8 +84,13 @@ export function compactDate(locale: Locale, date: string, timezone?: string | nu
   );
 }
 
-/** The full date, with the clock time when the row carries one. */
-export function whenDate(locale: Locale, date: string, allDay = true, fallback = ""): string {
+/**
+ * The full date, with the clock time when the row carries one.
+ *
+ * A timed row is shown in its own zone when it has one — "Saturday, 12 December 2026 at 20:00 EST",
+ * the time and the day it actually happens — rather than in whatever zone the server runs in.
+ */
+export function whenDate(locale: Locale, date: string, allDay = true, timezone?: string | null, fallback = ""): string {
   if (!isValidDate(date)) return fallback;
   if (allDay && !date.includes("T")) {
     return dateFormat(locale, { weekday: "long", year: "numeric", month: "long", day: "numeric", timeZone: "UTC" }).format(
@@ -93,6 +105,7 @@ export function whenDate(locale: Locale, date: string, allDay = true, fallback =
     hour: "2-digit",
     minute: "2-digit",
     timeZoneName: "short",
+    ...(timezone ? { timeZone: timezone } : {}),
   }).format(date.includes("T") ? new Date(date) : new Date(`${date}T00:00:00${allDay ? "" : "Z"}`));
 }
 

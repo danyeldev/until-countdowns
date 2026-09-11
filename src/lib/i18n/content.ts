@@ -47,11 +47,12 @@ export function entityName(locale: Locale, title: string, slug?: string): string
   if (locale === DEFAULT_LOCALE) return undefined;
   const names = ENTITY_NAMES[locale];
   if (!names) return undefined;
-  if (slug) {
-    const bySlug = names[slug];
-    if (bySlug) return bySlug;
-  }
-  return names[entityKey(title)];
+  // `hasOwnProperty`, not a truthiness check: the tables are object literals, so a row titled
+  // "Constructor" slugifies to a key every object already has and would otherwise hand back
+  // `Object.prototype.constructor` — a function, which `truncate()` then throws on.
+  const own = (key: string): string | undefined =>
+    Object.prototype.hasOwnProperty.call(names, key) ? names[key] : undefined;
+  return (slug ? own(slug) : undefined) ?? own(entityKey(title));
 }
 
 /** The title to display: the curated translation when there is one, the catalog's English otherwise. */

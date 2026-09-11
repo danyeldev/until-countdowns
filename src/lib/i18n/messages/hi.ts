@@ -291,12 +291,12 @@ export const hi: Messages = {
         other: "“{q}” से मिलती {n} आने वाली तारीखें।",
       } as PluralForms,
       countInCategory: {
-        one: "{category} में {n} आने वाली तारीख।",
-        other: "{category} में {n} आने वाली तारीखें।",
+        one: "{category} — {n} आने वाली तारीख।",
+        other: "{category} — {n} आने वाली तारीखें।",
       } as PluralForms,
       countMatchingInCategory: {
-        one: "{category} में “{q}” से मिलती {n} आने वाली तारीख।",
-        other: "{category} में “{q}” से मिलती {n} आने वाली तारीखें।",
+        one: "{category} — “{q}” से मिलती {n} आने वाली तारीख।",
+        other: "{category} — “{q}” से मिलती {n} आने वाली तारीखें।",
       } as PluralForms,
       sort: {
         soonest: "सबसे पहले",
@@ -426,7 +426,7 @@ export const hi: Messages = {
     tagsLabel: "टैग:",
 
     related: {
-      heading: "{category} की और तारीखें जो हर साल लौटती हैं",
+      heading: "{category} — हर साल लौटने वाली और तारीखें",
       all: "हर साल लौटने वाले सभी काउंटडाउन",
     },
   },
@@ -473,7 +473,7 @@ export const hi: Messages = {
       } as PluralForms,
       soon: "अगले 30 दिन",
       everyYear: "हर साल",
-      all: "{category} की सभी आने वाली तारीखें",
+      all: "{category} — सभी आने वाली तारीखें",
       empty: "इस श्रेणी में अभी कुछ नहीं है।",
     },
 

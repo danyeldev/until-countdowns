@@ -486,9 +486,9 @@ export const nl: Messages = {
 
     country: {
       description: {
-        one: "{country}: feestdagen, nationale dagen en evenementen — {n} aankomende datum per maand, met live countdown en agenda-links.",
+        one: "{country}: feestdagen, nationale dagen en evenementen — {n} aankomende datum, per maand gegroepeerd, met live countdown en agenda-links.",
         other:
-          "{country}: feestdagen, nationale dagen en evenementen — {n} aankomende datums per maand, elk met live countdown en agenda-links.",
+          "{country}: feestdagen, nationale dagen en evenementen — {n} aankomende datums, per maand gegroepeerd, elk met live countdown en agenda-links.",
       } as PluralForms,
       descriptionEmpty:
         "{country}: feestdagen, nationale dagen en evenementen, per maand gegroepeerd, elk met live countdown en agenda-links.",

@@ -49,9 +49,25 @@ describe("localeRewrites", () => {
   });
 
   it("never rewrites a path outside the nine sections", () => {
-    const heads = new Set([...sources].map((s) => s.split("/").filter(Boolean)[0]).filter(Boolean));
+    // …except the last rule, which is the deliberate catch for an unknown first segment.
+    const heads = new Set(
+      rewrites.slice(0, -1).map((r) => r.source.split("/").filter(Boolean)[0]).filter(Boolean),
+    );
     const allowed = new Set<string>([...SECTIONS, ...PREFIXED_LOCALES]);
     for (const head of heads) expect(allowed.has(head), head).toBe(true);
+  });
+
+  it("ends with a rule that 404s an unknown first segment, and excuses every locale", () => {
+    const last = rewrites[rewrites.length - 1];
+    expect(last.source).toBe(`/:seg((?!${LOCALES.join("$|")}$)[^/.]+)`);
+    // `[^/.]+` is what keeps /robots.txt, /favicon.ico and public/ out of it, and a one-segment
+    // source is what keeps /api/health and /_next/… out; scripts/check-i18n-routes.mjs proves both
+    // against a real server.
+    expect(last.source).toContain("[^/.]+");
+    const regex = new RegExp(`^/((?!${LOCALES.join("$|")}$)[^/.]+)$`);
+    for (const locale of LOCALES) expect(regex.test(`/${locale}`), locale).toBe(false);
+    for (const path of ["/robots.txt", "/file.svg", "/sitemap-index.xml"]) expect(regex.test(path), path).toBe(false);
+    for (const path of ["/foobar", "/dayss-until", "/nonsense"]) expect(regex.test(path), path).toBe(true);
   });
 
   it("has no duplicate sources: the first match wins, so a duplicate is a dead rule", () => {

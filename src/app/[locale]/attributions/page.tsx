@@ -48,7 +48,7 @@ export default async function AttributionsPage() {
                 ) : (
                   s.label
                 )}
-                {s.license ? <span className="ml-2 font-mono text-xs text-muted">{s.license}</span> : null}
+                {s.license ? <span className="ms-2 font-mono text-xs text-muted">{s.license}</span> : null}
               </p>
               {s.attribution ? <p className="mt-1 text-sm text-paper-dim">{s.attribution}</p> : null}
             </li>
@@ -68,7 +68,7 @@ export default async function AttributionsPage() {
               <li key={`${row.provider}:${row.license}`} className="flex items-baseline justify-between gap-4 py-2">
                 <span className="text-paper-dim">
                   {providerLabel(row.provider)}
-                  <span className="ml-2 font-mono text-xs text-muted">{row.license}</span>
+                  <span className="ms-2 font-mono text-xs text-muted">{row.license}</span>
                 </span>
                 <span className="tabular font-mono text-xs text-muted">{L.fmt.number(row.count)}</span>
               </li>

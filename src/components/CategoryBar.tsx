@@ -51,7 +51,7 @@ export function CategoryBar({
           }`}
         >
           {L.m.categories.labels[c]}
-          <span className="ml-2 opacity-60">{L.fmt.number(counts[c] ?? 0)}</span>
+          <span className="ms-2 opacity-60">{L.fmt.number(counts[c] ?? 0)}</span>
         </Link>
       ))}
     </div>

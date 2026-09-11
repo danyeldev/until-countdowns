@@ -421,7 +421,7 @@ export function EmbedStudio({
           that it sits above its own row, so the two options stay a pair instead of one landing
           hard right and the other alone underneath it. */}
       <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
-        <h2 className="text-[11px] uppercase tracking-[0.22em] text-amber sm:mr-auto">{labels.heading}</h2>
+        <h2 className="text-[11px] uppercase tracking-[0.22em] text-amber sm:me-auto">{labels.heading}</h2>
         <div className="flex flex-wrap gap-2 sm:gap-3">
           <button
             type="button"
@@ -671,7 +671,7 @@ export function EmbedStudio({
                     {fill(labels.stream.source, { width: STREAM_CANVAS.width, height: STREAM_CANVAS.height })}
                   </span>
                 </div>
-                <ol className="list-decimal space-y-1 pl-5 text-xs text-muted">
+                <ol className="list-decimal space-y-1 ps-5 text-xs text-muted">
                   {labels.stream.steps.map((step, i) => (
                     <li key={i}>
                       {fill(step, { width: STREAM_CANVAS.width, height: STREAM_CANVAS.height })}

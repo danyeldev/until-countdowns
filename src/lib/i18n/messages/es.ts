@@ -190,25 +190,25 @@ export const es: Messages = {
       countdownColon: "Cuenta atrás para {title}: {when}",
       countdownDash: "{title} — cuenta atrás hasta el {when}",
       countdownDashCoarse: "{title} — {when}",
-      description: "{title}{status} es el {date}. {days} Cuenta atrás y enlaces al calendario.",
+      description: "{title}{status}: {date}. {days} Cuenta atrás y enlaces al calendario.",
       descriptionCoarse:
-        "{title} se espera en {period}. Todavía no hay día exacto. La cuenta atrás arranca en cuanto lo haya.",
+        "{title}: fecha prevista, {period}. Todavía no hay día exacto. La cuenta atrás arranca en cuanto lo haya.",
       statusCancelled: " (cancelado)",
       statusPostponed: " (aplazado)",
       fallbackTitle: "Cuenta atrás",
       mineTitle: "Tu cuenta atrás",
       sharedTitle: "Cuenta atrás compartida",
       sharedMetaTitle: "{title} — cuenta atrás hasta el {date}",
-      sharedMetaDescription: "{title} es el {date}. Una cuenta atrás creada en Until.",
+      sharedMetaDescription: "{title}: {date}. Una cuenta atrás creada en Until.",
     },
 
     series: {
       title: "¿Cuántos días faltan para {title}? — {when}",
       titleNoDate: "¿Cuántos días faltan para {title}?",
       heading: "¿Cuántos días faltan para {title}?",
-      description: "{title} es el {date}. {days} Cuenta atrás, fechas de cada año y calendario.",
+      description: "{title}: {date}. {days} Cuenta atrás, fechas de cada año y calendario.",
       descriptionCoarse:
-        "{title} se espera en {period}. Fechas de cada año, cuenta atrás en directo y enlaces al calendario.",
+        "{title}: fecha prevista, {period}. Fechas de cada año, cuenta atrás en directo y enlaces al calendario.",
       descriptionNoDate: "{title}: próximas fechas, cuenta atrás hasta la siguiente y enlaces al calendario.",
       fallbackTitle: "Cuántos días faltan",
     },
@@ -317,19 +317,19 @@ export const es: Messages = {
 
   event: {
     answer: {
-      today: "{title} es hoy, {date}.",
-      tomorrow: "Falta {n} día para {title}: es mañana, {date}.",
+      today: "{title}: hoy, {date}.",
+      tomorrow: "Falta {n} día para {title}: mañana, {date}.",
       days: {
         one: "Falta {n} día para {title}, el {date}.",
         other: "Faltan {n} días para {title}, el {date}.",
       } as PluralForms,
       past: {
-        one: "{title} fue hace {n} día, el {date}.",
-        other: "{title} fue hace {n} días, el {date}.",
+        one: "{title}: hace {n} día, el {date}.",
+        other: "{title}: hace {n} días, el {date}.",
       } as PluralForms,
       cancelled: "{title} se ha cancelado. Fecha prevista: {date}.",
-      coarse: "{title} se espera en {period}. Todavía no se ha anunciado el día exacto.",
-      plain: "{title} es el {date}.",
+      coarse: "{title}: fecha prevista, {period}. Todavía no se ha anunciado el día exacto.",
+      plain: "{title}: {date}.",
     },
 
     statusHappened: "Ya pasó",

@@ -17,7 +17,7 @@
  *
  * Imported by `next.config.ts`: no React, no `server-only`, no `@/` alias.
  */
-import { DEFAULT_LOCALE, PREFIXED_LOCALES } from "./config";
+import { DEFAULT_LOCALE, LOCALES, PREFIXED_LOCALES } from "./config";
 import { SECTIONS, sectionName } from "./paths";
 
 export type Rewrite = { source: string; destination: string };
@@ -56,6 +56,17 @@ export function localeRewrites(): Rewrite[] {
       out.push(rule(`/${locale}/${name}`, `/${locale}/${section}`));
     }
   }
+  // Last, and only reached by a single dot-free segment that is neither a section (rewritten above)
+  // nor a locale: `/foobar`, `/dayss-until`. Without this it matches `[locale]`, and a page that
+  // refuses an unknown locale can only answer with Next's bare `__next_error__` document — the right
+  // status with nothing rendered in it. Sent somewhere that matches no route, it becomes a genuine
+  // 404 and `src/app/global-not-found.tsx` draws it. The `[^/.]+` is what keeps `/robots.txt`,
+  // `/favicon.ico` and everything in `public/` out of it; multi-segment paths (`/api/health`,
+  // `/_next/…`) never match a one-segment source at all.
+  out.push({
+    source: `/:seg((?!${LOCALES.join("$|")}$)[^/.]+)`,
+    destination: "/__unmatched",
+  });
   return out;
 }
 

@@ -10,13 +10,14 @@
  *   `{month}` slot opens its clause (with a colon after it) or sits behind an agreement-free
  *   preposition — "nella categoria {category}", "nel mese di {month}", "con l’etichetta {country}".
  *   At the head of a clause the label's own capital is the right one.
- * - No template puts a definite article in front of `{title}`: Italian picks it by gender and elides
- *   it ("il Ramadan", "l’Epifania", "Natale" bare), and the entity names in
- *   `src/data/i18n/entities/it.ts` are written bare for the same reason. Sentences are built so the
- *   title either opens them or follows "a" / "da", which never inflect.
- * - Sentences about a date avoid agreeing with `{title}` where a plural title would break them:
- *   "Sono passati {n} giorni da {title}" rather than "{title} è stato…", "l’evento è stato
- *   annullato" rather than "{title} è stato annullato".
+ * - No template puts a definite article in front of `{title}`, and none puts a preposition there
+ *   either. Italian picks the article by gender and number and then fuses it into the preposition —
+ *   "alle Olimpiadi", "ai Mondiali", "dall’Epifania" — and nothing here knows which one an entity
+ *   takes. So `{title}` opens its clause, followed by a colon; the verb then agrees with "giorni",
+ *   which is always plural, instead of with a title that might be either.
+ * - For the same reason no sentence puts a copula or a participle after `{title}`: "{title}: {date}"
+ *   rather than "{title} è {date}" (a plural entity needs "sono"), and "l’evento è stato annullato"
+ *   rather than "{title} è stato annullato".
  */
 import type { Messages } from "./en";
 import type { PluralForms } from "./types";
@@ -198,7 +199,7 @@ export const it: Messages = {
       countdownColon: "Conto alla rovescia per {title}: {when}",
       countdownDash: "{title} — conto alla rovescia: {when}",
       countdownDashCoarse: "{title} — {when}",
-      description: "{title}{status} è {date}. {days} Conto alla rovescia in tempo reale e calendario.",
+      description: "{title}{status}: {date}. {days} Conto alla rovescia in tempo reale e calendario.",
       descriptionCoarse:
         "{title}: data prevista {period}. Il giorno esatto non è ancora annunciato. Conto alla rovescia appena lo sarà.",
       statusCancelled: " (annullato)",
@@ -207,14 +208,14 @@ export const it: Messages = {
       mineTitle: "Il tuo conto alla rovescia",
       sharedTitle: "Conto alla rovescia condiviso",
       sharedMetaTitle: "{title} — conto alla rovescia: {date}",
-      sharedMetaDescription: "{title} è {date}. Un conto alla rovescia creato su Until.",
+      sharedMetaDescription: "{title}: {date}. Un conto alla rovescia creato su Until.",
     },
 
     series: {
-      title: "Quanti giorni mancano a {title}? — {when}",
-      titleNoDate: "Quanti giorni mancano a {title}?",
-      heading: "Quanti giorni mancano a {title}?",
-      description: "{title} è {date}. {days} Conto alla rovescia, date di ogni anno e calendario.",
+      title: "{title}: quanti giorni mancano? — {when}",
+      titleNoDate: "{title}: quanti giorni mancano?",
+      heading: "{title}: quanti giorni mancano?",
+      description: "{title}: {date}. {days} Conto alla rovescia, date di ogni anno e calendario.",
       descriptionCoarse:
         "{title}: data prevista {period}. Date di ogni anno, conto alla rovescia e link al calendario.",
       descriptionNoDate: "{title}: le prossime date, il conto alla rovescia verso la prima e il calendario.",
@@ -325,19 +326,19 @@ export const it: Messages = {
 
   event: {
     answer: {
-      today: "{title} è oggi, {date}.",
-      tomorrow: "Manca {n} giorno a {title}: è domani, {date}.",
+      today: "{title}: oggi, {date}.",
+      tomorrow: "{title}: manca {n} giorno, domani {date}.",
       days: {
-        one: "Manca {n} giorno a {title}, {date}.",
-        other: "Mancano {n} giorni a {title}, {date}.",
+        one: "{title}: manca {n} giorno, {date}.",
+        other: "{title}: mancano {n} giorni, {date}.",
       } as PluralForms,
       past: {
-        one: "È passato {n} giorno da {title}, {date}.",
-        other: "Sono passati {n} giorni da {title}, {date}.",
+        one: "{title}: è passato {n} giorno, {date}.",
+        other: "{title}: sono passati {n} giorni, {date}.",
       } as PluralForms,
       cancelled: "{title} era in programma per {date}: l’evento è stato annullato.",
       coarse: "{title}: la data prevista è {period}. Il giorno esatto non è ancora stato annunciato.",
-      plain: "{title} è {date}.",
+      plain: "{title}: {date}.",
     },
 
     statusHappened: "Già passato",

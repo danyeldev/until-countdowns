@@ -284,6 +284,7 @@ export default async function EventPage({ params }: PageProps<"/[locale]/event/[
         days={event.daysUntil}
         precision={event.datePrecision}
         status={event.status}
+        timezone={event.timezone}
       />
       <p className="mt-4 max-w-2xl text-lg text-paper-dim">{event.description}</p>
       {event.summary && event.summary !== event.description ? (

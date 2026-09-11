@@ -83,9 +83,15 @@ export function truncate(text: string, max = DESCRIPTION_MAX): string {
 // Dates in prose
 // ---------------------------------------------------------------------------
 
-/** "Friday, 25 December 2026" — the long form used inside titles and descriptions. */
-export function formatLongDate(L: Localized, date: string): string {
-  return longDate(L.locale, date, L.m.common.labels.dateToBeAnnounced);
+/**
+ * "Friday, 25 December 2026" — the long form used inside titles and descriptions.
+ *
+ * `timezone` is the row's own zone, and passing it is not optional politeness: it is what makes the
+ * title name the same day as the slug, `starts_on` and every listing. A 20:00 premiere in New York
+ * is filed under the 12th; without the zone this sentence would say the 13th.
+ */
+export function formatLongDate(L: Localized, date: string, timezone?: string | null): string {
+  return longDate(L.locale, date, timezone, L.m.common.labels.dateToBeAnnounced);
 }
 
 /** "June 2027" · "Q3 2027" · "2027" — a coarse precision's period, with no leading verb. */
@@ -105,17 +111,22 @@ export function expectedPeriod(L: Localized, date: string, precision?: DatePreci
 }
 
 /** "expected June 2027" for coarse precisions, the full date otherwise. */
-export function formatApproximate(L: Localized, date: string, precision?: DatePrecision | null): string {
+export function formatApproximate(
+  L: Localized,
+  date: string,
+  precision?: DatePrecision | null,
+  timezone?: string | null,
+): string {
   if (!isValidDate(date)) return L.m.seo.period.unknown;
-  if (!isCoarsePrecision(precision)) return L.fmt.whenDate(date, true, L.m.seo.period.unknown);
+  if (!isCoarsePrecision(precision)) return L.fmt.whenDate(date, true, timezone, L.m.seo.period.unknown);
   return L.t(L.m.seo.period.expected, { period: expectedPeriod(L, date, precision) });
 }
 
 /** The date as a title should say it: the full day, or "expected <period>" when that is all we have. */
-function whenLabel(L: Localized, date: string, precision?: DatePrecision | null): string {
+function whenLabel(L: Localized, date: string, precision?: DatePrecision | null, timezone?: string | null): string {
   return isCoarsePrecision(precision)
     ? L.t(L.m.seo.period.expected, { period: expectedPeriod(L, date, precision) })
-    : formatLongDate(L, date);
+    : formatLongDate(L, date, timezone);
 }
 
 /** "That is 107 days away." · "That is today." · "It was 3 days ago." */
@@ -173,10 +184,10 @@ export function displayTitle(L: Localized, item: { title: string; slug?: string 
 /** One-off event title, rotated by category so the corpus is not a single template. Never the day count. */
 export function eventTitle(
   L: Localized,
-  event: Pick<CountdownEvent, "title" | "date" | "category" | "datePrecision"> & { slug?: string },
+  event: Pick<CountdownEvent, "title" | "date" | "category" | "datePrecision"> & { slug?: string; timezone?: string },
 ): string {
   const title = displayTitle(L, event);
-  const when = whenLabel(L, event.date, event.datePrecision);
+  const when = whenLabel(L, event.date, event.datePrecision, event.timezone);
   const coarse = isCoarsePrecision(event.datePrecision);
   const period = expectedPeriod(L, event.date, event.datePrecision);
   const e = L.m.seo.event;
@@ -192,7 +203,10 @@ export function eventTitle(
 
 export function eventDescription(
   L: Localized,
-  event: Pick<CountdownEvent, "title" | "date" | "datePrecision" | "daysUntil" | "status"> & { slug?: string },
+  event: Pick<CountdownEvent, "title" | "date" | "datePrecision" | "daysUntil" | "status"> & {
+    slug?: string;
+    timezone?: string;
+  },
 ): string {
   const title = displayTitle(L, event);
   const e = L.m.seo.event;
@@ -205,7 +219,7 @@ export function eventDescription(
     L.t(e.description, {
       title,
       status,
-      date: formatLongDate(L, event.date),
+      date: formatLongDate(L, event.date, event.timezone),
       days: daysSentence(L, event.daysUntil),
     }),
   );

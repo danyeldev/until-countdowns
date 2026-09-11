@@ -19,6 +19,7 @@ export async function IntentAnswer({
   days,
   precision,
   status,
+  timezone,
   className = "",
 }: {
   title: string;
@@ -26,11 +27,13 @@ export async function IntentAnswer({
   days?: number | null;
   precision?: DatePrecision | null;
   status?: string | null;
+  /** The row's own zone, so the sentence names the day the page is filed under. */
+  timezone?: string | null;
   className?: string;
 }) {
   const L = await i18n();
   const a = L.m.event.answer;
-  const when = formatLongDate(L, date);
+  const when = formatLongDate(L, date, timezone);
   let text: string;
   if (isCoarsePrecision(precision)) {
     text = L.t(a.coarse, { title, period: expectedPeriod(L, date, precision) });

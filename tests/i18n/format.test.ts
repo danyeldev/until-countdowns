@@ -15,7 +15,11 @@ describe("English output is unchanged", () => {
 
   it("longDate keeps the hand-rolled 'Friday, 25 December 2026' shape", () => {
     expect(longDate("en", "2026-12-25")).toBe("Friday, 25 December 2026");
-    expect(longDate("en", "not-a-date", "a date to be announced")).toBe("a date to be announced");
+    // …and names the day the row is filed under, not the UTC one: a 20:00 New York premiere carries
+    // the instant 2026-12-13T01:00Z and belongs to the 12th, which is what its slug says.
+    expect(longDate("en", "2026-12-13T01:00:00Z", "America/New_York")).toBe("Saturday, 12 December 2026");
+    expect(longDate("en", "2026-12-13T01:00:00Z")).toBe("Sunday, 13 December 2026");
+    expect(longDate("en", "not-a-date", null, "a date to be announced")).toBe("a date to be announced");
   });
 
   it("shortDate keeps 'Mon, 14 Sep 2026' and the catalog day", () => {
@@ -80,6 +84,7 @@ describe("every locale can format everything", () => {
     expect(shortDate(locale, "2027-03-01")).not.toBe("");
     expect(compactDate(locale, "2027-03-01")).not.toBe("");
     expect(whenDate(locale, "2027-03-01T18:30:00Z", false)).not.toBe("");
+    expect(whenDate(locale, "2027-03-01T18:30:00Z", false, "America/New_York")).not.toBe("");
     expect(monthYear(locale, 2027, 3)).not.toBe("");
     expect(humanDays(locale, 42)).not.toBe("");
     expect(number(locale, 1234)).not.toBe("");
@@ -87,7 +92,7 @@ describe("every locale can format everything", () => {
   });
 
   it.each(LOCALES)("%s degrades to a fallback on a broken date instead of throwing", (locale) => {
-    expect(longDate(locale, "", "TBA")).toBe("TBA");
+    expect(longDate(locale, "", null, "TBA")).toBe("TBA");
     expect(shortDate(locale, "nonsense")).toBe("TBA");
     expect(compactDate(locale, "nonsense")).toBe("—");
   });

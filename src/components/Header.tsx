@@ -68,7 +68,7 @@ export function Header({
             className="w-full rounded-full border border-line bg-ink-2 px-4 py-2 text-sm text-paper outline-none placeholder:text-muted focus:border-amber/60"
           />
         </form>
-        <nav className="ml-auto flex items-center gap-3 overflow-x-auto text-sm text-paper-dim sm:gap-4">
+        <nav className="ms-auto flex items-center gap-3 overflow-x-auto text-sm text-paper-dim sm:gap-4">
           {NAV.map((item) => {
             const active = item.exact ? here === item.path : here.startsWith(item.path);
             return (

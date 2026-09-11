@@ -19,6 +19,7 @@ import {
   todayUtc,
   yearMonthOf,
 } from "@/lib/seo";
+import { catalogDay } from "@/lib/time";
 import type { CountdownEvent } from "@/lib/types";
 
 export const revalidate = 3600;
@@ -82,10 +83,13 @@ export default async function CalendarMonthPage({ params }: Props) {
   const path = `/calendar/${ym.year}/${pad2(ym.month)}`;
   const label = L.fmt.monthYear(ym.year, ym.month);
 
+  // `eventsInMonth()` selects and orders on `starts_on`, the day in the event's own zone, so the
+  // buckets have to be keyed the same way. Keying on the UTC prefix filed a 20:00 New York premiere
+  // under tomorrow's heading while the table row beneath it printed today's date.
   const events = await eventsInMonth(ym.year, ym.month);
   const byDay = new Map<string, CountdownEvent[]>();
   for (const event of events) {
-    const key = event.date.slice(0, 10);
+    const key = catalogDay(event.date, event.timezone);
     const bucket = byDay.get(key) ?? [];
     bucket.push(event);
     byDay.set(key, bucket);
@@ -120,7 +124,7 @@ export default async function CalendarMonthPage({ params }: Props) {
           </Link>
         ) : null}
         {canNext ? (
-          <Link href={L.href(`/calendar/${next.year}/${pad2(next.month)}`)} rel="next" className="ml-auto text-paper-dim hover:text-paper">
+          <Link href={L.href(`/calendar/${next.year}/${pad2(next.month)}`)} rel="next" className="ms-auto text-paper-dim hover:text-paper">
             {L.t(L.m.hubs.calendar.next, { month: L.fmt.monthYear(next.year, next.month) })}
           </Link>
         ) : null}

@@ -24,10 +24,10 @@ export type Bound = {
   /** Every locale's URL for a path, keyed by `hreflang`, for `alternates.languages`. */
   alternates: (path: string) => Record<string, string>;
   fmt: {
-    longDate: (date: string, fallback?: string) => string;
+    longDate: (date: string, timezone?: string | null, fallback?: string) => string;
     shortDate: (date: string, timezone?: string | null, fallback?: string) => string;
     compactDate: (date: string, timezone?: string | null, fallback?: string) => string;
-    whenDate: (date: string, allDay?: boolean, fallback?: string) => string;
+    whenDate: (date: string, allDay?: boolean, timezone?: string | null, fallback?: string) => string;
     monthName: (month: number) => string;
     monthYear: (year: number, month: number) => string;
     number: (value: number) => string;
@@ -59,10 +59,10 @@ export function bind(locale: Locale): Bound {
     href: (path) => localePath(locale, path),
     alternates: (path) => alternatePaths(path),
     fmt: {
-      longDate: (date, fallback) => format.longDate(locale, date, fallback),
+      longDate: (date, timezone, fallback) => format.longDate(locale, date, timezone, fallback),
       shortDate: (date, timezone, fallback) => format.shortDate(locale, date, timezone, fallback),
       compactDate: (date, timezone, fallback) => format.compactDate(locale, date, timezone, fallback),
-      whenDate: (date, allDay, fallback) => format.whenDate(locale, date, allDay, fallback),
+      whenDate: (date, allDay, timezone, fallback) => format.whenDate(locale, date, allDay, timezone, fallback),
       monthName: (month) => format.monthName(locale, month),
       monthYear: (year, month) => format.monthYear(locale, year, month),
       number: (value) => format.number(locale, value),

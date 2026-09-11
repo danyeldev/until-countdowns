@@ -349,9 +349,11 @@ Two generated rule sets in `next.config.ts` (`src/lib/i18n/routing.ts`) connect 
 database key, a series slug is what `finalize_catalog()` links rows by, and a mistranslated slug is a
 404 on a page that was ranking. The keyword value of a slug is small; the risk is not.
 
-`ja`, `ko`, `hi` and `ar` keep the English section names: a romanisation of those scripts is a
-keyword to nobody, and native script in a path only buys percent-encoding. `ru` uses transliteration
-(`skolko-dney-do`), which is what Russian sites do.
+`ja`, `ko` and `ar` keep the English section names: a romanisation of those scripts is a keyword to
+nobody, and native script in a path only buys percent-encoding. `ru` uses transliteration
+(`skolko-dney-do`), which is what Russian sites do. `hi` is the in-between case — it keeps eight of
+the nine and takes `kitne-din-baaki` for `days-until`, because Roman-script Hindi is a mainstream
+written register and *that* string is a query people actually type.
 
 Because `[locale]` sits above the root layout it is a **root parameter**, so any Server Component
 reads it with `next/root-params` instead of being handed it: `const L = await localePage()` in a
@@ -360,9 +362,17 @@ page, `await i18n()` in a shared component. Route Handlers cannot (`/og/*`, `/em
 `unstable_cache`, which is why `src/lib/catalog.ts` stays locale-free and translation happens on the
 way out.
 
-An unknown first segment (`/foobar`) reaches `[locale]` the same way `/es` does, so every page starts
-with `localePage()`, which 404s it; `[locale]/[...rest]` catches the deeper misses. That is also why
-there is no `global-not-found.tsx`.
+An unknown first segment (`/foobar`) reaches `[locale]` the same way `/es` does, so it is 404ed
+twice over: a last rewrite rule sends any dot-free single segment that is not a locale to a path
+that matches no route, and every page still starts with `localePage()`, which catches what that rule
+cannot (`/foo.bar`). `[locale]/[...rest]` takes the deeper misses under a real locale.
+
+A 404 in this app answers with the right status and an empty document: with the root layout under a
+dynamic segment, Next emits `__next_error__` and puts the markup in the flight payload, so the page
+paints after hydration. That is how Next serves any page-thrown `notFound()` in this shape — a bad
+event slug has always answered that way — and `src/app/global-not-found.tsx` (with
+`experimental.globalNotFound`) is what makes the payload carry *our* 404 rather than Next's default.
+Crawlers read the status line, which is what the noindex decisions above depend on.
 
 ### What is translated, and what is not
 

@@ -36,6 +36,10 @@ const nextConfig: NextConfig = {
     minimumCacheTTL: 2678400,
   },
   serverExternalPackages: ["sharp"],
+  // The root layout lives under `[locale]`, which is one of the two shapes Next says `not-found.tsx`
+  // cannot compose a global 404 from (the other is multiple root layouts). `global-not-found.tsx`
+  // is the documented answer.
+  experimental: { globalNotFound: true },
   outputFileTracingIncludes: {
     "/og/**": OG_FONT_FILES,
     "/og/*": OG_FONT_FILES,
