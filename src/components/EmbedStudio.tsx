@@ -12,8 +12,15 @@
  * what a person is looking at is exactly what they are about to paste.
  */
 
-import { useEffect, useId, useRef, useState, useSyncExternalStore } from "react";
+import {
+  useEffect,
+  useId,
+  useRef,
+  useState,
+  useSyncExternalStore,
+} from "react";
 import type { CSSProperties } from "react";
+import { Icon } from "./Icon";
 import {
   DEFAULT_EMBED_THEME,
   DONE_MAX,
@@ -50,16 +57,21 @@ import type {
   EmbedUnits,
 } from "@/lib/embed/theme";
 
-const CAPTION = "text-xs uppercase tracking-[0.16em] text-muted";
-const FIELD = "mt-2 w-full rounded-xl border border-line bg-ink-2 px-4 py-3 text-paper outline-none focus:border-amber/60";
-const BUTTON = "rounded-full border border-line px-4 py-2 text-sm text-paper hover:border-amber/50 hover:text-amber";
+const CAPTION = "text-sm font-medium text-paper-dim";
+const FIELD = "field mt-2 w-full";
+const BUTTON = "button-secondary";
 /** The two options share their row evenly on a phone, and take their own width once there is space. */
 const TRIGGER = `${BUTTON} flex-1 basis-40 whitespace-nowrap sm:flex-none sm:basis-auto`;
-const CHIP = "rounded-full border px-3 py-1.5 text-xs";
+const CHIP = "min-h-11 rounded-xl border px-3 py-2 text-sm transition-colors";
 const CHIP_ON = "border-amber/60 bg-amber/10 text-amber";
-const CHIP_OFF = "border-line text-paper-dim hover:border-amber/40 hover:text-amber";
+const CHIP_OFF =
+  "border-line text-paper-dim hover:border-amber/40 hover:text-amber";
 
-const FONT_LABELS: Record<EmbedFont, string> = { serif: "Serif", sans: "Sans", mono: "Mono" };
+const FONT_LABELS: Record<EmbedFont, string> = {
+  serif: "Serif",
+  sans: "Sans",
+  mono: "Mono",
+};
 const LAYOUT_LABELS: Record<EmbedLayout, string> = {
   row: "Row",
   stack: "Stacked",
@@ -72,7 +84,11 @@ const SEPARATOR_LABELS: Record<EmbedSeparator, string> = {
   space: "Space",
   none: "None",
 };
-const FRAME_LABELS: Record<EmbedFrame, string> = { card: "Card", outline: "Outline", none: "None" };
+const FRAME_LABELS: Record<EmbedFrame, string> = {
+  card: "Card",
+  outline: "Outline",
+  none: "None",
+};
 const UNIT_LABELS: Record<EmbedUnits, string> = {
   dhms: "Days · hours · minutes · seconds",
   dhm: "Days · hours · minutes",
@@ -104,9 +120,9 @@ const POSITION_ALIGN: Record<EmbedPosition, string> = {
 
 /** Behind the stream preview: a streamer has to SEE that the background is keyed out, not read it. */
 const CHECKERBOARD: CSSProperties = {
-  backgroundColor: "#1b1917",
+  backgroundColor: "#14171f",
   backgroundImage:
-    "linear-gradient(45deg, #2c2822 25%, transparent 25%), linear-gradient(-45deg, #2c2822 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #2c2822 75%), linear-gradient(-45deg, transparent 75%, #2c2822 75%)",
+    "linear-gradient(45deg, #292e3c 25%, transparent 25%), linear-gradient(-45deg, #292e3c 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #292e3c 75%), linear-gradient(-45deg, transparent 75%, #292e3c 75%)",
   backgroundSize: "16px 16px",
   backgroundPosition: "0 0, 0 8px, 8px -8px, -8px 0",
 };
@@ -219,7 +235,7 @@ function Toggle({
   onChange: (next: boolean) => void;
 }) {
   return (
-    <label className="flex items-center gap-2 text-sm text-paper-dim">
+    <label className="flex min-h-11 items-center gap-2 text-sm text-paper-dim">
       <input
         type="checkbox"
         checked={checked}
@@ -295,15 +311,25 @@ function ColorField({
 
 type Tab = "embed" | "stream";
 
-export function EmbedStudio({ slug, title, origin }: { slug: string; title: string; origin: string }) {
+export function EmbedStudio({
+  slug,
+  title,
+  origin,
+}: {
+  slug: string;
+  title: string;
+  origin: string;
+}) {
   const panelId = useId();
   const [open, setOpen] = useState(false);
   const [tab, setTab] = useState<Tab>("embed");
   const [embedTheme, setEmbedTheme] = useState<EmbedTheme>(DEFAULT_EMBED_THEME);
-  const [streamTheme, setStreamTheme] = useState<EmbedTheme>(STREAM_EMBED_THEME);
+  const [streamTheme, setStreamTheme] =
+    useState<EmbedTheme>(STREAM_EMBED_THEME);
   /** The last solid background, so the Transparent toggle is reversible without a colour hunt. */
   const [solidBg, setSolidBg] = useState(DEFAULT_EMBED_THEME.bg);
   const [copied, setCopied] = useState<string | null>(null);
+  const [copyMessage, setCopyMessage] = useState("");
 
   const host = useHost(origin);
 
@@ -349,10 +375,16 @@ export function EmbedStudio({ slug, title, origin }: { slug: string; title: stri
     try {
       await navigator.clipboard.writeText(text);
     } catch {
-      // Denied permission, or an insecure origin — the text is on screen to select by hand.
+      setCopied(null);
+      setCopyMessage(
+        "Copy wasn’t available. Select the code or URL above and copy it manually.",
+      );
       return;
     }
     setCopied(key);
+    setCopyMessage(
+      key === "code" ? "Embed code copied." : "Countdown URL copied.",
+    );
     setTimeout(() => setCopied(null), 1600);
   }
 
@@ -377,12 +409,22 @@ export function EmbedStudio({ slug, title, origin }: { slug: string; title: stri
   const transparent = theme.bg === "transparent";
 
   return (
-    <section className="mt-10 border-t border-line pt-8">
+    <section className="panel mt-8 rounded-2xl border border-line bg-ink-2 p-5 sm:p-6">
       {/* The heading only shares a line with the buttons once there is room for all three. Below
           that it sits above its own row, so the two options stay a pair instead of one landing
           hard right and the other alone underneath it. */}
       <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
-        <h2 className="text-[11px] uppercase tracking-[0.22em] text-amber sm:mr-auto">Take it with you</h2>
+        <div className="sm:mr-auto">
+          <div className="flex items-center gap-2">
+            <Icon name="spark" size={18} className="text-amber" />
+            <h2 className="text-base font-semibold tracking-tight text-paper">
+              Make it part of your world
+            </h2>
+          </div>
+          <p className="mt-2 text-sm text-muted">
+            A live widget for your site or stream.
+          </p>
+        </div>
         <div className="flex flex-wrap gap-2 sm:gap-3">
           <button
             type="button"
@@ -393,7 +435,7 @@ export function EmbedStudio({ slug, title, origin }: { slug: string; title: stri
             aria-controls={open && !stream ? panelId : undefined}
             className={`${TRIGGER} ${open && !stream ? "border-amber/60 text-amber" : ""}`}
           >
-            Embed on your site
+            Website widget
           </button>
           <button
             type="button"
@@ -402,16 +444,19 @@ export function EmbedStudio({ slug, title, origin }: { slug: string; title: stri
             aria-controls={open && stream ? panelId : undefined}
             className={`${TRIGGER} ${open && stream ? "border-amber/60 text-amber" : ""}`}
           >
-            Add to your stream
+            Stream overlay
           </button>
         </div>
       </div>
 
       {open && (
-        <div id={panelId} className="mt-6 grid gap-8 lg:grid-cols-2">
+        <div
+          id={panelId}
+          className="mt-6 grid gap-6 border-t border-line pt-6 lg:grid-cols-2"
+        >
           {/* `min-w-0` on both columns: a grid child's minimum is its content, and the URL below is
               one long unbreakable string that would otherwise push the panel past a phone screen. */}
-          <div className="min-w-0 space-y-6">
+          <div className="order-last min-w-0 space-y-6 rounded-2xl border border-line bg-ink p-4 lg:order-first sm:p-5">
             <Choice
               label="Preset"
               value={theme.preset}
@@ -421,8 +466,18 @@ export function EmbedStudio({ slug, title, origin }: { slug: string; title: stri
             />
 
             <div className="grid gap-4 sm:grid-cols-2">
-              <ColorField label="Digits" value={theme.accent} parse={parseColor} onChange={(v) => patch({ accent: v })} />
-              <ColorField label="Type" value={theme.text} parse={parseColor} onChange={(v) => patch({ text: v })} />
+              <ColorField
+                label="Digits"
+                value={theme.accent}
+                parse={parseColor}
+                onChange={(v) => patch({ accent: v })}
+              />
+              <ColorField
+                label="Type"
+                value={theme.text}
+                parse={parseColor}
+                onChange={(v) => patch({ text: v })}
+              />
             </div>
 
             <div>
@@ -442,7 +497,13 @@ export function EmbedStudio({ slug, title, origin }: { slug: string; title: stri
               </div>
             </div>
 
-            <Choice label="Font" value={theme.font} options={EMBED_FONTS} labels={FONT_LABELS} onChange={(font) => patch({ font })} />
+            <Choice
+              label="Font"
+              value={theme.font}
+              options={EMBED_FONTS}
+              labels={FONT_LABELS}
+              onChange={(font) => patch({ font })}
+            />
 
             <Slider
               label="Size"
@@ -523,8 +584,10 @@ export function EmbedStudio({ slug, title, origin }: { slug: string; title: stri
                     aria-label={positionLabel(position)}
                     aria-pressed={position === theme.position}
                     onClick={() => patch({ position })}
-                    className={`flex h-10 w-10 rounded-lg border p-1.5 ${POSITION_ALIGN[position]} ${
-                      position === theme.position ? "border-amber/60 bg-amber/10" : "border-line hover:border-amber/40"
+                    className={`flex h-11 w-11 rounded-lg border p-1.5 ${POSITION_ALIGN[position]} ${
+                      position === theme.position
+                        ? "border-amber/60 bg-amber/10"
+                        : "border-line hover:border-amber/40"
                     }`}
                   >
                     <span
@@ -536,13 +599,41 @@ export function EmbedStudio({ slug, title, origin }: { slug: string; title: stri
             </div>
 
             <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
-              <Toggle label="Unit labels" checked={theme.labels} onChange={(labels) => patch({ labels })} />
-              <Toggle label="Title" checked={theme.title} onChange={(v) => patch({ title: v })} />
-              <Toggle label="Date" checked={theme.date} onChange={(date) => patch({ date })} />
-              <Toggle label="Note" checked={theme.note} onChange={(note) => patch({ note })} />
-              <Toggle label="Wordmark" checked={theme.brand} onChange={(brand) => patch({ brand })} />
-              <Toggle label="Glow" checked={theme.glow} onChange={(glow) => patch({ glow })} />
-              <Toggle label="Trim leading zeros" checked={theme.trim} onChange={(trim) => patch({ trim })} />
+              <Toggle
+                label="Unit labels"
+                checked={theme.labels}
+                onChange={(labels) => patch({ labels })}
+              />
+              <Toggle
+                label="Title"
+                checked={theme.title}
+                onChange={(v) => patch({ title: v })}
+              />
+              <Toggle
+                label="Date"
+                checked={theme.date}
+                onChange={(date) => patch({ date })}
+              />
+              <Toggle
+                label="Note"
+                checked={theme.note}
+                onChange={(note) => patch({ note })}
+              />
+              <Toggle
+                label="Wordmark"
+                checked={theme.brand}
+                onChange={(brand) => patch({ brand })}
+              />
+              <Toggle
+                label="Glow"
+                checked={theme.glow}
+                onChange={(glow) => patch({ glow })}
+              />
+              <Toggle
+                label="Trim leading zeros"
+                checked={theme.trim}
+                onChange={(trim) => patch({ trim })}
+              />
             </div>
 
             <label className="block">
@@ -557,13 +648,17 @@ export function EmbedStudio({ slug, title, origin }: { slug: string; title: stri
               />
             </label>
 
-            <button type="button" onClick={() => setTheme(startingTheme)} className={BUTTON}>
+            <button
+              type="button"
+              onClick={() => setTheme(startingTheme)}
+              className={BUTTON}
+            >
               Reset
             </button>
           </div>
 
           {/* The controls run long; the preview and the thing to copy stay in view beside them. */}
-          <div className="min-w-0 space-y-4 lg:sticky lg:top-20 lg:self-start">
+          <div className="order-first min-w-0 space-y-4 lg:sticky lg:top-24 lg:order-last lg:self-start">
             {stream ? (
               <>
                 <div
@@ -590,33 +685,50 @@ export function EmbedStudio({ slug, title, origin }: { slug: string; title: stri
                   </div>
                 </div>
                 <p className="text-xs text-muted">
-                  The {STREAM_CANVAS.width} × {STREAM_CANVAS.height} canvas, scaled down — the chequerboard is what OBS
-                  keys out.
+                  The {STREAM_CANVAS.width} × {STREAM_CANVAS.height} canvas,
+                  scaled down — the chequerboard is what OBS keys out.
                 </p>
 
                 <div>
                   <span className={CAPTION}>Browser source URL</span>
-                  <pre className="mt-2 whitespace-pre-wrap break-all rounded-xl border border-line bg-ink-2 p-4 font-mono text-xs text-paper-dim">
-                    {url}
-                  </pre>
+                  <textarea
+                    readOnly
+                    rows={3}
+                    value={url}
+                    onFocus={(e) => e.currentTarget.select()}
+                    aria-label="Browser source URL"
+                    className="field mt-2 w-full font-mono text-xs"
+                  />
                 </div>
                 <div className="flex flex-wrap items-center gap-3">
-                  <button type="button" onClick={() => copy("url", url)} className={BUTTON}>
+                  <button
+                    type="button"
+                    onClick={() => copy("url", url)}
+                    className={BUTTON}
+                  >
                     {copied === "url" ? "Copied" : "Copy URL"}
                   </button>
                   <span className="text-xs text-muted">
-                    Browser source · {STREAM_CANVAS.width} × {STREAM_CANVAS.height}
+                    Browser source · {STREAM_CANVAS.width} ×{" "}
+                    {STREAM_CANVAS.height}
                   </span>
                 </div>
                 <ol className="list-decimal space-y-1 pl-5 text-xs text-muted">
                   <li>In OBS or Streamlabs, add a Browser source.</li>
                   <li>Paste the URL above.</li>
                   <li>
-                    Set the size to {STREAM_CANVAS.width} × {STREAM_CANVAS.height} — the canvas the position is measured
+                    Set the size to {STREAM_CANVAS.width} ×{" "}
+                    {STREAM_CANVAS.height} — the canvas the position is measured
                     against.
                   </li>
-                  <li>Leave the background transparent; the overlay brings its own.</li>
-                  <li>Tick &ldquo;Refresh browser when scene becomes active&rdquo; so the clock starts fresh.</li>
+                  <li>
+                    Leave the background transparent; the overlay brings its
+                    own.
+                  </li>
+                  <li>
+                    Tick &ldquo;Refresh browser when scene becomes active&rdquo;
+                    so the clock starts fresh.
+                  </li>
                 </ol>
               </>
             ) : (
@@ -644,20 +756,33 @@ export function EmbedStudio({ slug, title, origin }: { slug: string; title: stri
                   />
                 </div>
                 <div className="flex flex-wrap gap-3">
-                  <button type="button" onClick={() => copy("code", snippet)} className={BUTTON}>
+                  <button
+                    type="button"
+                    onClick={() => copy("code", snippet)}
+                    className={BUTTON}
+                  >
                     {copied === "code" ? "Copied" : "Copy code"}
                   </button>
-                  <button type="button" onClick={() => copy("url", url)} className={BUTTON}>
+                  <button
+                    type="button"
+                    onClick={() => copy("url", url)}
+                    className={BUTTON}
+                  >
                     {copied === "url" ? "Copied" : "Copy URL"}
                   </button>
                 </div>
                 <p className="text-xs text-muted">
-                  It drops in at full width and {EMBED_BOX.height}px tall. WordPress, Ghost and Notion also accept
-                  the countdown&rsquo;s own link and find the embed themselves — but that unfurls the standard card,
-                  so paste the code above to keep what you have built here.
+                  It drops in at full width and {EMBED_BOX.height}px tall.
+                  WordPress, Ghost and Notion also accept the countdown&rsquo;s
+                  own link and find the embed themselves — but that unfurls the
+                  standard card, so paste the code above to keep what you have
+                  built here.
                 </p>
               </>
             )}
+            <p role="status" className="text-sm text-paper-dim">
+              {copyMessage}
+            </p>
           </div>
         </div>
       )}

@@ -1,5 +1,5 @@
 import type { NextRequest } from "next/server";
-import { assertCron } from "@/lib/cron";
+import { assertCron, cronBudget, CRON_HEADERS, cronTrigger } from "@/lib/cron";
 
 /**
  * Cron entry point for one ingest source: `GET /api/cron/<source>[?force=1][&dry=1][&budget=<ms>]`.
@@ -10,17 +10,10 @@ import { assertCron } from "@/lib/cron";
 export const maxDuration = 300;
 
 /** The run budget (env or `?budget=`) is clamped so the runner's own margin fits under `maxDuration`. */
-const MAX_BUDGET_MS = (maxDuration - 20) * 1000;
+const MAX_BUDGET_MS = 240_000;
 
-const NO_STORE = { "Cache-Control": "no-store" };
+const NO_STORE = CRON_HEADERS;
 const SOURCE_RE = /^[a-z][a-z0-9-]{1,40}$/;
-
-function budgetMs(param: string | null): number {
-  const fromParam = Number(param);
-  const fromEnv = Number(process.env.INGEST_BUDGET_MS);
-  const wanted = Number.isFinite(fromParam) && fromParam > 0 ? fromParam : Number.isFinite(fromEnv) && fromEnv > 0 ? fromEnv : MAX_BUDGET_MS;
-  return Math.min(wanted, MAX_BUDGET_MS);
-}
 
 export async function GET(req: NextRequest, ctx: { params: Promise<{ source: string }> }) {
   const denied = assertCron(req);
@@ -36,10 +29,10 @@ export async function GET(req: NextRequest, ctx: { params: Promise<{ source: str
   const params = req.nextUrl.searchParams;
   const force = params.get("force") === "1";
   const dryRun = params.get("dry") === "1";
-  const trigger = req.headers.get("user-agent")?.startsWith("vercel-cron") ? "cron" : "manual";
+  const trigger = cronTrigger(req);
   try {
     const { runSource } = await import("@/lib/ingest/run");
-    const summary = await runSource(source, { trigger, force, dryRun, budgetMs: budgetMs(params.get("budget")) });
+    const summary = await runSource(source, { trigger, force, dryRun, budgetMs: cronBudget(params.get("budget"), process.env.INGEST_BUDGET_MS, MAX_BUDGET_MS) });
     const status = summary.status === "error" ? 500 : 200;
     return Response.json(summary, { status, headers: NO_STORE });
   } catch (err) {

@@ -21,6 +21,7 @@ import {
   type AstroTime,
   type TransitInfo,
 } from "astronomy-engine";
+import { SERIES } from "@/data/series";
 import { buildEvent, classify, farFutureCutoffMs } from "../../normalize";
 import type { IngestEvent } from "../../types";
 import { fmtInt, fmtLatLng, isoDay, isoInstant, KM_PER_AU, moonPhaseName, utcParts } from "./format";
@@ -46,6 +47,11 @@ export const FEATURED_HORIZON_YEARS = 2;
 const PRECESSION_DEG_PER_YEAR = 50.29 / 3600;
 
 const HOUR_MS = 3_600_000;
+
+/** Keep established recurring-page URLs while computed event names remain hemisphere-neutral. */
+const SERIES_FOR_SKY = new Map(SERIES.filter((rule) => rule.recurrence.kind === "external").map((rule) => [rule.title, rule.slug]));
+SERIES_FOR_SKY.set("June solstice", "northern-hemisphere-summer-solstice");
+SERIES_FOR_SKY.set("December solstice", "northern-hemisphere-winter-solstice");
 
 function jan1(year: number): Date {
   return new Date(Date.UTC(year, 0, 1));
@@ -80,6 +86,7 @@ export function skyEvent(input: SkyInput): IngestEvent {
     source: "astronomy",
     sourceUrl: ENGINE_URL,
     sourceKey: input.sourceKey,
+    seriesSlug: SERIES_FOR_SKY.get(input.title),
     featured: Boolean(input.featured),
     popularity: input.popularity,
     status: "scheduled",

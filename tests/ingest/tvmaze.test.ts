@@ -92,9 +92,15 @@ describe("tvmaze helpers", () => {
     expect(toUtcInstant("2026-09-28")).toBeNull();
     expect(toUtcInstant("garbage")).toBeNull();
     expect(toUtcInstant(null)).toBeNull();
+    expect(toUtcInstant("2026-09-17T20:00:00")).toBeNull();
+    expect(toUtcInstant("2026-02-30T20:00:00Z")).toBeNull();
   });
   it("minWeight reads TVMAZE_MIN_WEIGHT and ignores nonsense", () => {
     expect(minWeight()).toBe(DEFAULT_MIN_WEIGHT);
+    process.env.TVMAZE_MIN_WEIGHT = " ";
+    expect(minWeight()).toBe(DEFAULT_MIN_WEIGHT);
+    process.env.TVMAZE_MIN_WEIGHT = "0";
+    expect(minWeight()).toBe(0);
     process.env.TVMAZE_MIN_WEIGHT = "95";
     expect(minWeight()).toBe(95);
     process.env.TVMAZE_MIN_WEIGHT = "abc";
@@ -231,6 +237,8 @@ describe("tvmaze fixture → rows", () => {
     expect(scheduleToEvents(FIXTURE, LATER).some((r) => r.source_key === "tvmaze:ep:3696904")).toBe(false);
     expect(episodeToEvent({ ...byId(3444239), airdate: "2027-01-10", airstamp: "2027-01-10T01:00:00+00:00" }, NOW)).toEqual({ reject: "label-year" });
     expect(episodeToEvent({ ...byId(3717627), airdate: "not-a-date" }, NOW)).toEqual({ reject: "bad-date" });
+    expect(episodeToEvent({ ...byId(3717627), airdate: "2027-02-30" }, NOW)).toEqual({ reject: "bad-date" });
+    expect(episodeToEvent({ ...byId(3717627), airdate: "2026-09-17garbage" }, NOW)).toEqual({ reject: "bad-date" });
     expect(episodeToEvent({ ...byId(3717627), _embedded: { show: null } }, NOW)).toEqual({ reject: "no-show" });
     expect(episodeToEvent({ ...byId(3717627), airdate: "2045-09-17", airstamp: "2045-09-17T20:00:00+00:00" }, NOW)).toEqual({ reject: "far-future" });
     // The weight threshold is tunable through the environment (near-term rows keep the slack).
@@ -286,7 +294,7 @@ describe("tvmaze adapter plan/run", () => {
     expect(plan.done).toBe(true);
     expect(plan.units).toHaveLength(1); // a same-day re-run still fetches: an empty pass would mark every row stale
   });
-  it("run() fetches the endpoint once and returns identical rows across two calls; non-array bodies yield no rows", async () => {
+  it("run() fetches the endpoint once and returns identical rows across two calls; malformed bodies fail the pass", async () => {
     const calls: string[] = [];
     const ctx = ctxFor(FIXTURE, calls);
     const [unit] = planUnits(NOW);
@@ -295,7 +303,8 @@ describe("tvmaze adapter plan/run", () => {
     expect(calls).toEqual([TVMAZE_ENDPOINT, TVMAZE_ENDPOINT]);
     expect(a).toEqual(b);
     expect(a.map((r) => r.source_key)).toEqual(scheduleToEvents(FIXTURE, NOW).map((r) => r.source_key));
-    expect(await adapter.run(unit, ctxFor({ error: "nope" }))).toEqual([]);
+    await expect(adapter.run(unit, ctxFor({ error: "nope" }))).rejects.toThrow("invalid schedule response");
+    await expect(adapter.run(unit, ctxFor([]))).rejects.toThrow("invalid schedule response");
     expect(adapter.id).toBe("tvmaze");
     expect(adapter.rank).toBe(5);
     expect(adapter.cadence).toBe("daily");

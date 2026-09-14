@@ -1,0 +1,68 @@
+{
+  "races": [
+    {
+      "name": "Azerbaijan",
+      "location": "Baku",
+      "latitude": 40.3699,
+      "longitude": 49.8433,
+      "round": 15,
+      "slug": "azerbaijan-grand-prix",
+      "localeKey": "azerbaijan-grand-prix",
+      "sessions": {
+        "fp1": "2026-09-24T08:30:00Z",
+        "fp2": "2026-09-24T12:00:00Z",
+        "fp3": "2026-09-25T08:30:00Z",
+        "qualifying": "2026-09-25T12:00:00Z",
+        "gp": "2026-09-26T11:00:00Z"
+      }
+    },
+    {
+      "name": "Bahrain Grand Prix (Malaysia)",
+      "location": "Sepang",
+      "latitude": 2.760278,
+      "longitude": 101.738056,
+      "round": 16,
+      "slug": "bahrain-malaysia-grand-prix",
+      "localeKey": "bahrain-malaysia-grand-prix",
+      "sessions": {
+        "fp1": "2026-10-02T04:30:00Z",
+        "fp2": "2026-10-02T08:00:00Z",
+        "fp3": "2026-10-03T04:30:00Z",
+        "qualifying": "2026-10-03T08:00:00Z",
+        "gp": "2026-10-04T07:00:00Z"
+      }
+    },
+    {
+      "name": "Singapore",
+      "location": "Singapore",
+      "latitude": 1.2857,
+      "longitude": 103.8575,
+      "round": 17,
+      "slug": "singapore-grand-prix",
+      "localeKey": "singapore-grand-prix",
+      "sessions": {
+        "fp1": "2026-10-09T08:30:00Z",
+        "sprintQualifying": "2026-10-09T12:30:00Z",
+        "sprint": "2026-10-10T09:00:00Z",
+        "qualifying": "2026-10-10T13:00:00Z",
+        "gp": "2026-10-11T12:00:00Z"
+      }
+    },
+    {
+      "name": "Las Vegas",
+      "location": "Las Vegas",
+      "latitude": 36.166747,
+      "longitude": -115.148708,
+      "round": 21,
+      "slug": "las-vegas-grand-prix",
+      "localeKey": "las-vegas-grand-prix",
+      "sessions": {
+        "fp1": "2026-11-20T00:30:00Z",
+        "fp2": "2026-11-20T04:00:00Z",
+        "fp3": "2026-11-21T00:30:00Z",
+        "qualifying": "2026-11-21T04:00:00Z",
+        "gp": "2026-11-22T04:00:00Z"
+      }
+    }
+  ]
+}

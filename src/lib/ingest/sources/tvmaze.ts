@@ -16,14 +16,9 @@ import type { Adapter, IngestContext, IngestEvent, IngestLogger, Json, Plan, Uni
  * Dates: TVMaze sets `airtime = ''` for about a third of the rows and then synthesises a local-
  * midnight `airstamp`. Only a real `airtime` yields an instant (`date = airstamp` in UTC,
  * `timezone` = the network's country zone); an empty one yields the all-day `airdate`.
- * An instant is kept **only when its UTC day is still the local air day**: `buildEvent` derives the
- * slug and the catalog day from `date.slice(0, 10)` in UTC and `src/lib/time.ts` renders listing
- * cards in UTC, so a 22:00 America/New_York premiere would otherwise be slugged, listed and
- * counted down one calendar day late (92 of 224 live rows on 2026-09-09). Those rows fall back to
- * the all-day `airdate` and keep the `airstamp` in `raw`. Restoring instant precision for them
- * needs a shared change (derive the day in the row's timezone in `normalize.ts` + `time.ts`).
- * All-day rows keep the network's `timezone` as provenance for that future local-day renderer —
- * nothing reads the column today, and the value is the show's real broadcast zone, not a guess.
+ * Instants retain the network timezone, and `catalogDay`/`buildEvent` derive their local air day.
+ * A 22:00 America/New_York premiere keeps its exact instant and the correct local date even
+ * though UTC has advanced to the next day. All-day rows retain the published `airdate`.
  *
  * `description` always clears the 80-character indexability bar of `finalize_catalog` /
  * `0009_indexable_summary.sql` on its own: no tvmaze row is `featured`, none reaches
@@ -118,7 +113,9 @@ function isoDaysFromNow(now: Date, days: number): string {
 
 /** `TVMAZE_MIN_WEIGHT` (0..100) or the default. Read at run time so tests and ops can tune it without a redeploy. */
 export function minWeight(): number {
-  const n = Number(process.env.TVMAZE_MIN_WEIGHT);
+  const configured = process.env.TVMAZE_MIN_WEIGHT?.trim();
+  if (!configured) return DEFAULT_MIN_WEIGHT;
+  const n = Number(configured);
   return Number.isFinite(n) && n >= 0 && n <= 100 ? n : DEFAULT_MIN_WEIGHT;
 }
 
@@ -206,10 +203,17 @@ export function describe(show: TvmazeShow, season: number, airdate: string, chan
 
 /** `2026-09-17T20:00:00+00:00` → `2026-09-17T20:00:00Z`; null for anything unparsable. */
 export function toUtcInstant(airstamp: string | null | undefined): string | null {
-  if (typeof airstamp !== "string" || !airstamp.includes("T")) return null;
+  if (typeof airstamp !== "string" || !/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(?::\d{2}(?:\.\d+)?)?(?:Z|[+-]\d{2}:\d{2})$/.test(airstamp)) return null;
+  if (!validDay(airstamp.slice(0, 10))) return null;
   const t = Date.parse(airstamp);
   if (Number.isNaN(t)) return null;
   return new Date(t).toISOString().replace(/\.000Z$/, "Z");
+}
+
+function validDay(value: string): boolean {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
+  const parsed = new Date(`${value}T00:00:00Z`);
+  return Number.isFinite(parsed.getTime()) && parsed.toISOString().slice(0, 10) === value;
 }
 
 export type Reject =
@@ -231,8 +235,8 @@ export function episodeToEvent(ep: TvmazeEpisode, now: Date, threshold = minWeig
   const showType = typeof show.type === "string" ? show.type : "";
   if (SKIPPED_SHOW_TYPES.has(showType)) return { reject: "show-type" };
   const weight = typeof show.weight === "number" ? show.weight : 0;
-  const airdate = typeof ep.airdate === "string" ? ep.airdate.slice(0, 10) : "";
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(airdate) || Number.isNaN(Date.parse(`${airdate}T00:00:00Z`))) return { reject: "bad-date" };
+  const airdate = typeof ep.airdate === "string" ? ep.airdate : "";
+  if (!validDay(airdate)) return { reject: "bad-date" };
   const today = now.toISOString().slice(0, 10);
   if (airdate < today) return { reject: "past" };
   // Anti-flap: `weight` moves daily, so premieres in the near window (the ones actually being
@@ -389,9 +393,8 @@ export const adapter: Adapter<TvmazeUnit> = {
 
   async run(unit, ctx: IngestContext) {
     const body = await ctx.http.fetchJson<unknown>(TVMAZE_ENDPOINT);
-    if (!Array.isArray(body)) {
-      ctx.log.warn(`${unit.label}: response is not an array`);
-      return [];
+    if (!Array.isArray(body) || !body.length) {
+      throw new Error(`${unit.label}: invalid schedule response; expected a non-empty episode array`);
     }
     const rows = scheduleToEvents(body as TvmazeEpisode[], ctx.now, ctx.log);
     ctx.log.info(`${unit.label}: ${rows.length} rows`);

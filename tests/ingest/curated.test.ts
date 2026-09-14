@@ -1,8 +1,27 @@
 import { describe, expect, it, vi } from "vitest";
 import { CURATED } from "@/data/curated";
-import { aliasRows, computeCuratedRows, expandCurated, filterAliasCollisions, parseCursor, planUnits, resumeIndex } from "@/lib/ingest/sources/curated";
+import { SERIES } from "@/data/series";
+import { aliasRows, computeCuratedRows, expandCurated, expandSeries, filterAliasCollisions, parseCursor, planUnits, resumeIndex, seriesRows } from "@/lib/ingest/sources/curated";
 
 const NOW = new Date("2026-09-09T12:00:00Z");
+
+describe("astronomy source ownership", () => {
+  it("keeps recurring page metadata without creating fixed dates over computed instants", () => {
+    const external = SERIES.filter((rule) => rule.recurrence.kind === "external");
+    expect(external).toHaveLength(12);
+    for (const rule of external) {
+      expect(expandSeries(rule, [2026, 2027, 2028], NOW)).toEqual([]);
+      expect(seriesRows().find((row) => row.slug === rule.slug)?.recurrence).toEqual({ kind: "external", source: "astronomy" });
+    }
+    const rows = computeCuratedRows(NOW);
+    expect(rows.filter((row) => external.some((rule) => rule.slug === row.series_slug))).toEqual([]);
+  });
+
+  it("does not regenerate an old manually listed approximation for an externally owned series", () => {
+    const rows = expandCurated(CURATED, new Date("2026-01-01T00:00:00Z"));
+    expect(rows.some((row) => row.series_slug === "perseid-meteor-shower-peak")).toBe(false);
+  });
+});
 
 describe("curated far-future guard", () => {
   it("keeps explicitly tagged far-future one-offs and drops untagged ones with a warning", () => {

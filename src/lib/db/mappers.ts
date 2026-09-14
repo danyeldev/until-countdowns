@@ -31,7 +31,7 @@ export function toCategory(value: string | null | undefined): Category {
   return CATEGORIES.includes(value as Category) ? (value as Category) : "culture";
 }
 
-function toStatus(value: string | null | undefined): EventStatus | undefined {
+export function toStatus(value: string | null | undefined): EventStatus | undefined {
   return value && STATUSES.has(value) ? (value as EventStatus) : undefined;
 }
 

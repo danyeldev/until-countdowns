@@ -1,6 +1,14 @@
 import { describe, expect, it } from "vitest";
-import { buildEmbedDocument, buildEmbedNotFoundDocument, type EmbedSubject } from "@/lib/embed/html";
-import { DEFAULT_EMBED_THEME, presetTheme, type EmbedTheme } from "@/lib/embed/theme";
+import {
+  buildEmbedDocument,
+  buildEmbedNotFoundDocument,
+  type EmbedSubject,
+} from "@/lib/embed/html";
+import {
+  DEFAULT_EMBED_THEME,
+  presetTheme,
+  type EmbedTheme,
+} from "@/lib/embed/theme";
 
 /** 2026-12-25T00:00:00Z — a week of UTC days before the subject below. */
 const NOW = Date.UTC(2026, 11, 25);
@@ -14,8 +22,15 @@ const SUBJECT: EmbedSubject = {
   href: "https://until.test/event/new-years-day-2027-01-01",
 };
 
-function build(theme: Partial<EmbedTheme> = {}, subject: Partial<EmbedSubject> = {}) {
-  return buildEmbedDocument({ ...SUBJECT, ...subject }, { ...DEFAULT_EMBED_THEME, ...theme }, { now: NOW });
+function build(
+  theme: Partial<EmbedTheme> = {},
+  subject: Partial<EmbedSubject> = {},
+) {
+  return buildEmbedDocument(
+    { ...SUBJECT, ...subject },
+    { ...DEFAULT_EMBED_THEME, ...theme },
+    { now: NOW },
+  );
 }
 
 /**
@@ -40,7 +55,9 @@ describe("buildEmbedDocument", () => {
     // nothing a stranger's page has to trust. The only absolute URL is the click-through.
     const html = build();
     const urls = html.match(/https?:\/\/[^\s"')]+/g) ?? [];
-    expect(urls.every((url) => url.startsWith("https://until.test/"))).toBe(true);
+    expect(urls.every((url) => url.startsWith("https://until.test/"))).toBe(
+      true,
+    );
   });
 
   it("escapes the subject's text", () => {
@@ -84,7 +101,10 @@ describe("the ticker", () => {
     // A syntax error here is a frozen clock on someone else's page, and nothing on this side of the
     // request would notice. `new Function` parses without running, so `document` never matters.
     expect(() => new Function(script(build()))).not.toThrow();
-    expect(() => new Function(script(build({ layout: "big", units: "hm", trim: true })))).not.toThrow();
+    expect(
+      () =>
+        new Function(script(build({ layout: "big", units: "hm", trim: true }))),
+    ).not.toThrow();
   });
 
   it("stays inside ES5", () => {
@@ -105,7 +125,8 @@ describe("the clock", () => {
   it("renders the enabled units and no others", () => {
     const html = build({ units: "hms" });
     expect(html).not.toContain('data-v="d"');
-    for (const unit of ["h", "m", "s"]) expect(html).toContain(`data-v="${unit}"`);
+    for (const unit of ["h", "m", "s"])
+      expect(html).toContain(`data-v="${unit}"`);
   });
 
   it("renders one unit for the big layout", () => {
@@ -125,7 +146,9 @@ describe("the clock", () => {
   });
 
   it("puts a separator between units in a row, and none in a stack", () => {
-    expect(markup(build({ layout: "row", separator: "colon" }))).toContain("data-after=");
+    expect(markup(build({ layout: "row", separator: "colon" }))).toContain(
+      "data-after=",
+    );
     expect(markup(build({ layout: "stack" }))).not.toContain("data-after=");
   });
 
@@ -133,21 +156,33 @@ describe("the clock", () => {
     const suffixed = markup(build({ layout: "compact", labels: true }));
     expect(suffixed).toContain('<span class="l">d</span>');
     expect(suffixed).not.toContain("data-after=");
-    expect(markup(build({ layout: "compact", labels: false }))).toContain("data-after=");
+    expect(
+      markup(build({ layout: "compact", labels: false, separator: "colon" })),
+    ).toContain("data-after=");
   });
 
   it("ships a finished countdown finished, rather than flashing a row of zeros", () => {
     // 2027-01-02, a day after the subject: the clock is hidden and the done line is already up.
-    const html = buildEmbedDocument(SUBJECT, DEFAULT_EMBED_THEME, { now: Date.UTC(2027, 0, 2) });
+    const html = buildEmbedDocument(SUBJECT, DEFAULT_EMBED_THEME, {
+      now: Date.UTC(2027, 0, 2),
+    });
     expect(markup(html)).toContain('id="clock" style="display:none"');
     expect(markup(html)).toContain("This one already happened.");
     // On the day itself it reads as arrival, not as history.
-    const onTheDay = markup(buildEmbedDocument(SUBJECT, DEFAULT_EMBED_THEME, { now: Date.UTC(2027, 0, 1, 9) }));
+    const onTheDay = markup(
+      buildEmbedDocument(SUBJECT, DEFAULT_EMBED_THEME, {
+        now: Date.UTC(2027, 0, 1, 9),
+      }),
+    );
     expect(onTheDay).toContain("It&#39;s here.");
     expect(onTheDay).not.toContain("already happened");
     // A custom message replaces both.
     const custom = markup(
-      buildEmbedDocument(SUBJECT, { ...DEFAULT_EMBED_THEME, done: "Doors open" }, { now: Date.UTC(2027, 0, 2) }),
+      buildEmbedDocument(
+        SUBJECT,
+        { ...DEFAULT_EMBED_THEME, done: "Doors open" },
+        { now: Date.UTC(2027, 0, 2) },
+      ),
     );
     expect(custom).toContain("Doors open");
     expect(custom).not.toContain("already happened");
@@ -155,10 +190,27 @@ describe("the clock", () => {
 });
 
 describe("the theme", () => {
+  it("uses the event timezone for an optional date label", () => {
+    const html = markup(
+      build(
+        { date: true },
+        {
+          date: "2027-06-15T02:00:00Z",
+          allDay: false,
+          timezone: "America/New_York",
+        },
+      ),
+    );
+    expect(html).toContain('class="meta">Monday, 14 June 2027');
+    expect(html).not.toContain('class="meta">Tuesday, 15 June 2027');
+  });
+
   it("lets the scene through when the background is transparent", () => {
-    const html = buildEmbedDocument(SUBJECT, presetTheme("clear"), { now: NOW });
+    const html = buildEmbedDocument(SUBJECT, presetTheme("clear"), {
+      now: NOW,
+    });
     expect(html).toContain("transparent");
-    expect(html).not.toContain("#161410");
+    expect(html).not.toContain(DEFAULT_EMBED_THEME.bg);
   });
 
   it("scales every size from one custom property", () => {
@@ -184,7 +236,10 @@ describe("the theme", () => {
 
 describe("buildEmbedNotFoundDocument", () => {
   it("renders a legible card rather than a browser error", () => {
-    const html = buildEmbedNotFoundDocument(DEFAULT_EMBED_THEME, "https://until.test");
+    const html = buildEmbedNotFoundDocument(
+      DEFAULT_EMBED_THEME,
+      "https://until.test",
+    );
     expect(html.toLowerCase().startsWith("<!doctype html>")).toBe(true);
     expect(html).toContain("https://until.test");
     expect(html).not.toContain(SUBJECT.title);

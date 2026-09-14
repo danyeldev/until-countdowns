@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
+import { Icon, type IconName } from "@/components/Icon";
 import { JsonLd } from "@/components/JsonLd";
 import { categoryCounts } from "@/lib/catalog";
 import { collectionPage } from "@/lib/jsonld";
@@ -9,6 +10,7 @@ import { buildMetadata } from "@/lib/seo";
 import { CATEGORY_GROUPS } from "@/lib/taxonomy";
 
 export const revalidate = 3600;
+const GROUP_ICONS: Record<string, IconName> = { celebrate: "spark", watch: "film", play: "bolt", "look-up": "moon", vote: "globe", wonder: "compass" };
 
 export const metadata: Metadata = buildMetadata({
   title: "Categories — every kind of date that has not happened yet",
@@ -23,23 +25,26 @@ export default async function CategoryIndexPage() {
   return (
     <div>
       <Breadcrumbs items={[{ name: "Home", path: "/" }, { name: "Categories", path: "/category" }]} />
-      <p className="mt-6 text-[11px] uppercase tracking-[0.24em] text-amber">Browse</p>
-      <h1 className="mt-3 font-serif text-4xl text-paper sm:text-5xl">Every kind of date</h1>
-      <p className="mt-4 max-w-2xl text-paper-dim">Twenty-three categories, grouped by what you would do with them.</p>
+      <p className="eyebrow mt-7">Browse</p>
+      <h1 className="page-heading mt-3">Every kind of date</h1>
+      <p className="page-subtitle mt-3 max-w-2xl">Find your next obsession. Explore holidays, releases, discoveries and everything in between.</p>
 
+      <nav aria-label="Category groups" className="mt-7 flex flex-wrap gap-2">
+        {CATEGORY_GROUPS.map((group) => <a key={group.id} href={`#${group.id}`} className="button-secondary"><Icon name={GROUP_ICONS[group.id]} size={16} />{group.label}</a>)}
+      </nav>
       {CATEGORY_GROUPS.map((group) => (
-        <section key={group.id} className="mt-12">
-          <h2 className="font-serif text-2xl text-paper">{group.label}</h2>
+        <section key={group.id} id={group.id} className="mt-10 scroll-mt-28">
+          <h2 className="section-heading flex items-center gap-3 text-paper"><Icon name={GROUP_ICONS[group.id]} size={22} className="text-amber" />{group.label}</h2>
           <p className="mt-1 text-sm text-muted">{group.tagline}</p>
           <ul className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {group.categories.map((c) => (
               <li key={c}>
-                <Link href={`/category/${c}`} className="ticket flex h-full flex-col gap-1 rounded-2xl p-4 hover:text-amber">
+                <Link href={`/category/${c}`} className="ticket group flex h-full min-h-36 flex-col gap-3 rounded-2xl p-5">
                   <span className="flex items-baseline justify-between gap-3">
-                    <span className="font-serif text-lg text-paper">{CATEGORY_LABELS[c]}</span>
-                    <span className="tabular font-mono text-xs text-muted">{(counts[c] ?? 0).toLocaleString("en-US")}</span>
+                    <span className="text-lg font-semibold text-paper">{CATEGORY_LABELS[c]}</span>
+                    <span className="tabular shrink-0 rounded-lg bg-amber/10 px-2 py-1 text-xs font-medium text-amber">{(counts[c] ?? 0).toLocaleString("en-US")}</span>
                   </span>
-                  <span className="text-sm text-paper-dim">{CATEGORY_BLURB[c]}</span>
+                  <span className="text-sm leading-relaxed text-paper-dim">{CATEGORY_BLURB[c]}</span><span className="mt-auto flex items-center gap-2 pt-1 text-xs font-medium text-muted group-hover:text-amber">Explore category <Icon name="arrow" size={14} /></span>
                 </Link>
               </li>
             ))}

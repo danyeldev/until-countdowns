@@ -1,39 +1,15 @@
 "use client";
 
-import { formatApproximate, isCoarsePrecision, localDateString, remainingUntil } from "@/lib/time";
-import type { DatePrecision } from "@/lib/types";
+import {
+  formatApproximate,
+  isCoarsePrecision,
+  localDateString,
+  remainingUntil,
+} from "@/lib/time";
+import type { DatePrecision, EventStatus } from "@/lib/types";
 import { useNow } from "@/lib/use-now";
 
 const PLACEHOLDER = "--";
-/** Width reserved for the days cell when no server figure is known (personal countdowns): fits up to 999. */
-const UNKNOWN_DAYS_CHARS = 3;
-
-function Unit({
-  value,
-  label,
-  huge,
-  minChars = 2,
-}: {
-  value: string;
-  label: string;
-  huge?: boolean;
-  minChars?: number;
-}) {
-  return (
-    <div className="flex min-w-0 flex-col items-center">
-      <span
-        className={`tabular amber-glow inline-block text-center font-mono tracking-tight text-amber ${
-          huge ? "text-5xl sm:text-7xl md:text-8xl" : "text-2xl sm:text-3xl"
-        }`}
-        style={{ minWidth: `${Math.max(2, minChars)}ch` }}
-      >
-        {value}
-      </span>
-      <span className="mt-1 text-[10px] uppercase tracking-[0.22em] text-muted">{label}</span>
-    </div>
-  );
-}
-
 function pad(n: number): string {
   return String(n).padStart(2, "0");
 }
@@ -47,8 +23,12 @@ function pad(n: number): string {
  * the exact midnight second). Timed events already use the same floor in SQL. The residual
  * ±1 for visitors far from UTC resolves on the first client tick.
  */
-function initialDayFigure(initialDays: number | null | undefined, allDay: boolean): number | null {
-  if (typeof initialDays !== "number" || !Number.isFinite(initialDays)) return null;
+function initialDayFigure(
+  initialDays: number | null | undefined,
+  allDay: boolean,
+): number | null {
+  if (typeof initialDays !== "number" || !Number.isFinite(initialDays))
+    return null;
   return Math.max(0, allDay ? initialDays - 1 : initialDays);
 }
 
@@ -58,6 +38,7 @@ export function Countdown({
   size = "card",
   initialDays,
   precision,
+  status,
 }: {
   date: string;
   allDay?: boolean;
@@ -65,13 +46,37 @@ export function Countdown({
   /** Whole days until the event as computed by SQL at render time; shown until the client clock is live. */
   initialDays?: number | null;
   precision?: DatePrecision | null;
+  status?: EventStatus;
 }) {
   const now = useNow();
   const huge = size === "hero";
 
+  if (
+    status === "cancelled" ||
+    status === "postponed" ||
+    status === "retired" ||
+    status === "done"
+  ) {
+    return (
+      <p
+        className={`font-medium tracking-tight text-muted ${huge ? "text-3xl" : "text-lg"}`}
+      >
+        {status === "cancelled"
+          ? "Event cancelled"
+          : status === "postponed"
+            ? "Date postponed"
+            : status === "retired"
+              ? "No longer scheduled"
+              : "This event has passed"}
+      </p>
+    );
+  }
+
   if (isCoarsePrecision(precision)) {
     return (
-      <p className={`font-serif italic text-amber ${huge ? "text-3xl sm:text-4xl" : "text-lg"}`}>
+      <p
+        className={`font-medium tracking-tight text-amber ${huge ? "text-3xl sm:text-4xl" : "text-lg"}`}
+      >
         {formatApproximate(date, precision)}
       </p>
     );
@@ -82,47 +87,76 @@ export function Countdown({
 
   // An all-day event on its own day: the clock has reached midnight but the day is not over.
   // Server-side that is SQL `days_until === 0`; client-side, the local date equals the event date.
-  const today = dateOnly && (live ? live.past && localDateString(now as number) === date.slice(0, 10) : initialDays === 0);
+  const today =
+    dateOnly &&
+    (live
+      ? live.past && localDateString(now as number) === date.slice(0, 10)
+      : initialDays === 0);
 
   if (today) {
     return (
-      <p className={`font-serif italic text-amber ${huge ? "text-4xl sm:text-5xl" : "text-xl"}`} data-live={live ? "true" : "false"}>
-        Today.
+      <p
+        className={`font-medium tracking-tight text-amber ${huge ? "text-4xl sm:text-5xl" : "text-xl"}`}
+        data-live={live ? "true" : "false"}
+      >
+        Today
       </p>
     );
   }
 
-  const past = live ? live.past : typeof initialDays === "number" && initialDays < 0;
+  const past = live
+    ? live.past
+    : typeof initialDays === "number" && initialDays < 0;
 
   if (past) {
     return (
-      <p className={`font-serif italic text-muted ${huge ? "text-2xl" : "text-sm"}`}>
-        This one already happened.
+      <p
+        className={`font-medium tracking-tight text-muted ${huge ? "text-2xl" : "text-sm"}`}
+      >
+        This event has passed
       </p>
     );
   }
 
   const days = live ? live.days : initialDayFigure(initialDays, allDay);
   const daysText = days === null ? PLACEHOLDER : pad(days);
-  const daysChars = days === null ? UNKNOWN_DAYS_CHARS : Math.max(2, daysText.length);
   const hours = live ? pad(live.hours) : PLACEHOLDER;
   const minutes = live ? pad(live.minutes) : PLACEHOLDER;
   const seconds = live ? pad(live.seconds) : PLACEHOLDER;
-  const sep = <span className={`pb-4 text-muted ${huge ? "text-4xl" : "text-lg"}`}>:</span>;
 
   return (
     <div
-      className={`flex items-end justify-between gap-3 ${huge ? "max-w-3xl" : ""}`}
+      className={`timer ${huge ? "timer-hero" : "timer-card"}`}
       aria-live="off"
       data-live={live ? "true" : "false"}
     >
-      <Unit value={daysText} label={days === 1 ? "day" : "days"} huge={huge} minChars={daysChars} />
-      {sep}
-      <Unit value={hours} label="hrs" huge={huge} />
-      {sep}
-      <Unit value={minutes} label="min" huge={huge} />
-      {sep}
-      <Unit value={seconds} label="sec" huge={huge} />
+      <div className="timer-days">
+        <span className="timer-major">{daysText}</span>
+        <span className="timer-days-label">{days === 1 ? "day" : "days"}</span>
+      </div>
+      <div
+        className="timer-clock"
+        role="group"
+        aria-label={`${hours} hours, ${minutes} minutes, ${seconds} seconds`}
+      >
+        {[
+          [hours, "hours"],
+          [minutes, "minutes"],
+          [seconds, "seconds"],
+        ].map(([value, label], index) => (
+          <div key={label} className="flex items-start gap-1">
+            {!huge && index > 0 && (
+              <span aria-hidden="true" className="text-xs">
+                :
+              </span>
+            )}
+            <div aria-hidden="true">
+              <p className="timer-clock-value">{value}</p>
+              <p className="timer-clock-label">{label}</p>
+            </div>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }

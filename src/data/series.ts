@@ -10,6 +10,8 @@ import type { Category, EventStatus } from "@/lib/types";
  */
 export type Recurrence =
   | { kind: "fixed"; month: number; day: number; offsetDays?: number }
+  /** Occurrences come from the named adapter; never invent a fixed calendar-day fallback. */
+  | { kind: "external"; source: "astronomy" }
   /** `weekday`: 0 = Sunday … 6 = Saturday; `n`: 1..5, or -1 for the last one. */
   | { kind: "nth-weekday"; month: number; weekday: number; n: number; offsetDays?: number }
   | { kind: "easter-offset"; days: number }
@@ -46,30 +48,31 @@ const WED = 3;
 const THU = 4;
 const SAT = 6;
 
-/** Former RECURRING_ASTRONOMY: fixed calendar dates (mean peaks; exact times vary by a day). */
+/** Series metadata only. Astronomy computes the changing UTC instants for each year's seasons
+ * and meteor peaks; a rank-nine fixed-date expansion would override or duplicate those dates. */
 const ASTRONOMY: SeriesRule[] = [
-  ["Perseid meteor shower peak", 8, 12, ["meteors", "perseids"], "Swift–Tuttle debris. Best after midnight, away from city lights.", true],
-  ["Geminid meteor shower peak", 12, 14, ["meteors", "geminids"], "Often the richest shower of the year — bright, slow meteors from 3200 Phaethon.", true],
-  ["Quadrantid meteor shower peak", 1, 3, ["meteors", "quadrantids"], "A sharp January peak. Bundle up.", false],
-  ["Lyrid meteor shower peak", 4, 22, ["meteors", "lyrids"], "One of the oldest recorded showers, from comet Thatcher.", false],
-  ["Orionid meteor shower peak", 10, 21, ["meteors", "orionids"], "Halley's Comet dust, radiating from Orion.", false],
-  ["Leonid meteor shower peak", 11, 17, ["meteors", "leonids"], "Famous for historic storms. Usually modest, occasionally unforgettable.", false],
-  ["Ursid meteor shower peak", 12, 22, ["meteors", "ursids"], "A quiet December shower from Ursa Minor.", false],
-  ["Eta Aquariid meteor shower peak", 5, 6, ["meteors", "eta-aquariids"], "Another Halley stream — better in the Southern Hemisphere.", false],
-  ["Northern Hemisphere summer solstice", 6, 21, ["solstice", "seasons"], "Longest day north of the equator.", true],
-  ["Northern Hemisphere winter solstice", 12, 21, ["solstice", "seasons"], "Shortest day north of the equator — and the light begins to return.", true],
-  ["March equinox", 3, 20, ["equinox", "seasons"], "Sun over the equator. Spring in the north, autumn in the south.", true],
-  ["September equinox", 9, 22, ["equinox", "seasons"], "Sun over the equator again. Harvest in the north.", true],
-].map(([title, month, day, tags, description, featured]) => ({
+  ["Perseid meteor shower peak", ["meteors", "perseids"], "Swift–Tuttle debris. Best after midnight, away from city lights.", true],
+  ["Geminid meteor shower peak", ["meteors", "geminids"], "Often the richest shower of the year — bright, slow meteors from 3200 Phaethon.", true],
+  ["Quadrantid meteor shower peak", ["meteors", "quadrantids"], "A sharp January peak. Bundle up.", false],
+  ["Lyrid meteor shower peak", ["meteors", "lyrids"], "One of the oldest recorded showers, from comet Thatcher.", false],
+  ["Orionid meteor shower peak", ["meteors", "orionids"], "Halley's Comet dust, radiating from Orion.", false],
+  ["Leonid meteor shower peak", ["meteors", "leonids"], "Famous for historic storms. Usually modest, occasionally unforgettable.", false],
+  ["Ursid meteor shower peak", ["meteors", "ursids"], "A quiet December shower from Ursa Minor.", false],
+  ["Eta Aquariid meteor shower peak", ["meteors", "eta-aquariids"], "Another Halley stream — better in the Southern Hemisphere.", false],
+  ["Northern Hemisphere summer solstice", ["solstice", "seasons"], "Longest day north of the equator.", true],
+  ["Northern Hemisphere winter solstice", ["solstice", "seasons"], "Shortest day north of the equator — and the light begins to return.", true],
+  ["March equinox", ["equinox", "seasons"], "Sun over the equator. Spring in the north, autumn in the south.", true],
+  ["September equinox", ["equinox", "seasons"], "Sun over the equator again. Harvest in the north.", true],
+].map(([title, tags, description, featured]) => ({
   slug: slugOf(title as string),
   title: title as string,
   category: "astronomy" as const,
   tags: tags as string[],
-  recurrence: { kind: "fixed" as const, month: month as number, day: day as number },
+  recurrence: { kind: "external" as const, source: "astronomy" as const },
   description: description as string,
   popularity: 58,
   featured: featured as boolean,
-  confidence: 0.9,
+  sourceUrl: "https://github.com/cosinekitty/astronomy",
 }));
 
 /** Former RECURRING_CULTURE (Programmers' Day and Ada Lovelace Day now use their real rules). */

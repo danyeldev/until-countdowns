@@ -13,9 +13,9 @@ import type { Adapter, IngestContext, IngestEvent, IngestLogger, Json, RunSummar
  * unit, and — through `ctx.budget.remainingMs()` — inside the HTTP layer, which clamps every
  * request timeout to the remaining budget and refuses retries that would not fit. A unit cut
  * short by the deadline is not a failure of the source: the run ends `partial` with the cursor
- * still pointing at that unit, and the next invocation retries it with a fresh budget (unless it
- * was the only unit of this run, in which case it is recorded as failed and skipped so the pass
- * always makes progress).
+ * still pointing at that unit, and the next invocation retries it with a fresh budget. Failed
+ * units also retain their checkpoint: a later successful slice must never retire records that
+ * an earlier slice failed to fetch.
  */
 
 export type RunOptions = {
@@ -30,7 +30,6 @@ const DEFAULT_BUDGET_MS = 240_000;
 const SAFETY_MARGIN_MS = 15_000;
 const LEASE_MIN_MS = 10 * 60_000;
 const MAX_UNIT_ERRORS_KEPT = 20;
-const MAX_CONSECUTIVE_UNIT_FAILURES = 3;
 const BACKOFF_BASE_MS = 60 * 60_000;
 const BACKOFF_CAP_MS = 24 * 60 * 60_000;
 const SAMPLE_ROWS = 5;
@@ -136,7 +135,7 @@ export async function runSource(id: string, opts: RunOptions = {}): Promise<RunS
   if (!adapter.isConfigured()) return emit(await recordSkipped(null, skipped(summary, "unconfigured"), log));
 
   const db = await getDb();
-  const state = await readState(db, id);
+  let state = await readState(db, id);
   if (!force && !dryRun && state?.backoff_until && Date.parse(state.backoff_until) > started) {
     log.warn(`in backoff until ${state.backoff_until}`);
     return emit(await recordSkipped(db, skipped(summary, "backoff"), log));
@@ -171,12 +170,16 @@ export async function runSource(id: string, opts: RunOptions = {}): Promise<RunS
   let systemic: string | null = null;
   let passComplete = false;
   let budgetOut = false;
-  let consecutiveFailures = 0;
   let lostUnits = false;
-  let completedUnits = 0;
+  let staleChanged = 0;
 
   try {
     if (!dryRun) {
+      // Another invocation may finish between our optimistic backoff read and lease acquisition.
+      // Only the checkpoint read while holding the lease is safe to resume.
+      state = await readState(db, id);
+      cursor = force ? null : (state?.cursor ?? null);
+      passStartedAt = force || cursor === null ? null : state?.pass_started_at ?? null;
       const { data, error } = await db
         .from("ingest_runs")
         .insert({ source: id, trigger, status: "running" } as never)
@@ -194,6 +197,11 @@ export async function runSource(id: string, opts: RunOptions = {}): Promise<RunS
     log.info(`start ${trigger}${dryRun ? " (dry run)" : ""}${force ? " (forced)" : ""} budget=${budgetMs}ms cursor=${JSON.stringify(cursor)}`);
 
     planning: for (;;) {
+      if (remainingMs() <= 0) {
+        budgetOut = true;
+        break;
+      }
+      const planningCursor = JSON.stringify(cursor);
       const plan = await adapter.plan(cursor, ctx);
       for (const unit of plan.units) {
         if (remainingMs() <= 0) {
@@ -204,30 +212,17 @@ export async function runSource(id: string, opts: RunOptions = {}): Promise<RunS
         const result = await runUnit(adapter, unit, ctx);
         summary.units++;
         if (result.kind === "budget") {
-          if (completedUnits === 0) {
-            // The whole budget went into this one unit: skip it so the pass still progresses.
-            lostUnits = true;
-            unitErrors.push({ unit: unit.key, message: `unit exceeded the whole budget (${budgetMs} ms) and was skipped` });
-            log.error(`${unit.label}: exceeded the whole budget; skipped`);
-            cursor = unit.after;
-            if (!dryRun) await writeState(db, id, { cursor });
-          } else {
-            log.warn(`budget exhausted during ${unit.label}; it is retried from ${JSON.stringify(cursor)} next run`);
-          }
+          log.warn(`budget exhausted during ${unit.label}; it is retried from ${JSON.stringify(cursor)} next run`);
           budgetOut = true;
           break planning;
         }
         if (result.kind === "failed") {
-          consecutiveFailures++;
           lostUnits = true;
-          unitErrors.push({ unit: unit.key, message: `unit failed after ${UNIT_ATTEMPTS} attempt(s)` });
-          if (consecutiveFailures >= MAX_CONSECUTIVE_UNIT_FAILURES) {
-            systemic = `${consecutiveFailures} consecutive unit failures`;
-            break planning;
-          }
+          unitErrors.push({ unit: unit.key, message: result.message });
+          systemic = `unit ${unit.key} failed after ${UNIT_ATTEMPTS} attempts; checkpoint retained`;
+          break planning;
         } else {
           const rows = result.rows;
-          consecutiveFailures = 0;
           summary.fetched += rows.length;
           if (dryRun) {
             const prepared = prepareRows(rows, log);
@@ -236,20 +231,22 @@ export async function runSource(id: string, opts: RunOptions = {}): Promise<RunS
             for (const r of prepared.rows) if (sample.length < SAMPLE_ROWS) sample.push(r);
             for (const e of prepared.errors) if (unitErrors.length < MAX_UNIT_ERRORS_KEPT) unitErrors.push({ unit: unit.key, message: e });
           } else if (rows.length > 0) {
-            const res = await upsertEvents(rows, log);
+            const res = await upsertEvents(rows, log, remainingMs);
             summary.inserted += res.inserted;
             summary.updated += res.updated;
             summary.unchanged += res.unchanged;
             summary.drifted += res.drifted;
             summary.invalid += res.invalid;
             for (const e of res.errors) if (unitErrors.length < MAX_UNIT_ERRORS_KEPT) unitErrors.push({ unit: unit.key, message: e });
-            if (res.failed > 0) lostUnits = true;
-            if (res.sent === 0 && res.failed > 0) {
-              consecutiveFailures++;
-              if (consecutiveFailures >= MAX_CONSECUTIVE_UNIT_FAILURES) {
-                systemic = "database rejected every chunk";
-                break planning;
-              }
+            if (res.deferred > 0) {
+              budgetOut = true;
+              log.warn(`${unit.label}: ${res.deferred} rows deferred; checkpoint retained`);
+              break planning;
+            }
+            if (res.failed > 0 || res.invalid > 0) {
+              lostUnits = true;
+              systemic = `unit ${unit.key}: ${res.failed} rejected rows, ${res.invalid} invalid rows; checkpoint retained`;
+              break planning;
             }
             log.info(
               `${unit.label}: ${rows.length} rows → +${res.inserted} ins, ${res.updated} upd, ${res.unchanged} same, ${res.drifted} drift` +
@@ -260,7 +257,6 @@ export async function runSource(id: string, opts: RunOptions = {}): Promise<RunS
             log.info(`${unit.label}: 0 rows`);
           }
         }
-        completedUnits++;
         cursor = unit.after;
         if (!dryRun) await writeState(db, id, { cursor });
         if (remainingMs() <= 0) {
@@ -274,6 +270,9 @@ export async function runSource(id: string, opts: RunOptions = {}): Promise<RunS
         break;
       }
       cursor = plan.nextCursor ?? null;
+      if (JSON.stringify(cursor) === planningCursor) {
+        throw new Error("adapter returned an unfinished plan without advancing its cursor");
+      }
       if (!dryRun) await writeState(db, id, { cursor });
       if (remainingMs() <= 0) {
         budgetOut = true;
@@ -282,8 +281,13 @@ export async function runSource(id: string, opts: RunOptions = {}): Promise<RunS
       }
     }
   } catch (err) {
-    systemic = errorMessage(err);
-    log.error(`systemic failure: ${systemic}`);
+    if (isBudgetExceeded(err)) {
+      budgetOut = true;
+      log.warn("budget exhausted while planning; checkpoint retained");
+    } else {
+      systemic = errorMessage(err);
+      log.error(`systemic failure: ${systemic}`);
+    }
   }
 
   // Outcome.
@@ -314,9 +318,10 @@ export async function runSource(id: string, opts: RunOptions = {}): Promise<RunS
         if (adapter.rank > 0 && passStartedAt) {
           const rpcDb = await getLongDb(RPC_TIMEOUT_MS);
           const { data, error } = await rpcDb.rpc("mark_stale_records", { p_source: id, p_pass_started: passStartedAt });
-          if (error) log.warn(`mark_stale_records failed: ${error.message}`);
+          if (error) throw new Error(`mark_stale_records failed: ${error.message}`);
           else stale = Number(data ?? 0);
         }
+        staleChanged = stale;
         if (stale) log.info(`${stale} row(s) not seen this pass (tentative)`);
         await writeState(db, id, { cursor: null, pass_started_at: null, last_success_at: nowIso, consecutive_failures: 0, backoff_until: null });
       } else if (summary.status === "partial") {
@@ -328,11 +333,19 @@ export async function runSource(id: string, opts: RunOptions = {}): Promise<RunS
         log.warn(`consecutive_failures=${n}; backing off ${Math.round(backoff / 60000)} min`);
       }
     } catch (err) {
+      summary.status = "error";
+      summary.errors.unshift({ message: errorMessage(err) });
       log.error(`state update failed: ${errorMessage(err)}`);
     } finally {
       if (lease) {
-        const { error } = await db.rpc("release_source_lease", { p_source: id, p_token: lease });
-        if (error) log.error(`release_source_lease failed: ${error.message}`);
+        try {
+          const { error } = await db.rpc("release_source_lease", { p_source: id, p_token: lease });
+          if (error) throw new Error(error.message);
+        } catch (err) {
+          summary.status = "error";
+          summary.errors.push({ message: `release_source_lease failed: ${errorMessage(err)}` });
+          log.error(`release_source_lease failed: ${errorMessage(err)}`);
+        }
       }
     }
     summary.duration_ms = Date.now() - started;
@@ -354,7 +367,7 @@ export async function runSource(id: string, opts: RunOptions = {}): Promise<RunS
         .eq("id", summary.runId);
       if (error) log.error(`ingest_runs update failed: ${error.message}`);
     }
-    if (summary.inserted + summary.updated + summary.drifted > 0) await revalidateCatalog(log);
+    if (summary.inserted + summary.updated + summary.drifted + staleChanged > 0) await revalidateCatalog(log);
   }
   summary.duration_ms = Date.now() - started;
   return emit(summary);
@@ -363,7 +376,7 @@ export async function runSource(id: string, opts: RunOptions = {}): Promise<RunS
 /** One retry at most: `ctx.http` already retries transient failures per request. */
 const UNIT_ATTEMPTS = 2;
 
-type UnitResult = { kind: "ok"; rows: IngestEvent[] } | { kind: "failed" } | { kind: "budget" };
+type UnitResult = { kind: "ok"; rows: IngestEvent[] } | { kind: "failed"; message: string } | { kind: "budget" };
 
 /**
  * Runs one unit. `budget` means the deadline (not the source) stopped it: either the HTTP layer
@@ -381,7 +394,7 @@ async function runUnit(adapter: Adapter, unit: Unit, ctx: IngestContext): Promis
         return { kind: "budget" };
       }
       ctx.log.warn(`${unit.label}: attempt ${attempt + 1}/${attempts} failed: ${msg}`);
-      if (attempt === attempts - 1) return { kind: "failed" };
+      if (attempt === attempts - 1) return { kind: "failed", message: msg };
       const remaining = ctx.budget.remainingMs();
       if (remaining < adapter.limits.timeoutMs) {
         ctx.log.warn(`${unit.label}: not retried, ${remaining} ms of budget left (< ${adapter.limits.timeoutMs} ms timeout)`);
@@ -390,7 +403,7 @@ async function runUnit(adapter: Adapter, unit: Unit, ctx: IngestContext): Promis
       await sleep(Math.min(remaining, 1000 * 2 ** attempt));
     }
   }
-  return { kind: "failed" };
+  return { kind: "failed", message: "unit attempts exhausted" };
 }
 
 /** Exactly one machine-readable line per run. */

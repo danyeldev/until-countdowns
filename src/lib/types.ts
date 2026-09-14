@@ -173,6 +173,8 @@ export type Series = {
   nextSlug?: string;
   nextDate?: string;
   nextAllDay?: boolean;
+  nextTimezone?: string;
+  nextStatus?: EventStatus;
   nextPrecision?: DatePrecision;
   /** Whole days until the next occurrence, computed in SQL at read time. */
   daysUntil?: number;
@@ -203,6 +205,15 @@ export type SearchResult = {
   total: number;
   page: number;
   pageSize: number;
+};
+
+/** Small date links shown below a recurring event's primary countdown. */
+export type SeriesOccurrencePreview = {
+  slug: string;
+  title: string;
+  date: string;
+  timezone?: string;
+  datePrecision?: DatePrecision;
 };
 
 export type CatalogMeta = {

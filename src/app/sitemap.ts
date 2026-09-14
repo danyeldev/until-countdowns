@@ -32,7 +32,7 @@ function entry(path: string, lastModified?: string): MetadataRoute.Sitemap[numbe
 }
 
 async function hubs(): Promise<MetadataRoute.Sitemap> {
-  const out: MetadataRoute.Sitemap = [entry("/"), entry("/days-until"), entry("/category"), entry("/country"), entry("/about"), entry("/attributions")];
+  const out: MetadataRoute.Sitemap = [entry("/"), entry("/days-until"), entry("/category"), entry("/country"), entry("/create"), entry("/about"), entry("/attributions")];
   // Empty categories render `noindex` (thin pages); they join the sitemap once they have rows.
   const byCategory = await categoryCounts();
   for (const c of CATEGORIES) if ((byCategory[c] ?? 0) > 0) out.push(entry(`/category/${c}`));

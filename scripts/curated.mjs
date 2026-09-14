@@ -345,6 +345,7 @@ export const CURATED = [
   },
   {
     title: "Perseid meteor shower peak",
+    skip: true, // The astronomy adapter owns the variable peak instant.
     date: "2026-08-12",
     category: "astronomy",
     tags: ["meteors", "perseids"],
@@ -654,20 +655,9 @@ export const CURATED = [
   },
 ];
 
-export const RECURRING_ASTRONOMY = [
-  { title: "Perseid meteor shower peak", month: 8, day: 12, tags: ["meteors", "perseids"], description: "Swift–Tuttle debris. Best after midnight, away from city lights." },
-  { title: "Geminid meteor shower peak", month: 12, day: 14, tags: ["meteors", "geminids"], description: "Often the richest shower of the year — bright, slow meteors from 3200 Phaethon." },
-  { title: "Quadrantid meteor shower peak", month: 1, day: 3, tags: ["meteors", "quadrantids"], description: "A sharp January peak. Bundle up." },
-  { title: "Lyrid meteor shower peak", month: 4, day: 22, tags: ["meteors", "lyrids"], description: "One of the oldest recorded showers, from comet Thatcher." },
-  { title: "Orionid meteor shower peak", month: 10, day: 21, tags: ["meteors", "orionids"], description: "Halley's Comet dust, radiating from Orion." },
-  { title: "Leonid meteor shower peak", month: 11, day: 17, tags: ["meteors", "leonids"], description: "Famous for historic storms. Usually modest, occasionally unforgettable." },
-  { title: "Ursid meteor shower peak", month: 12, day: 22, tags: ["meteors", "ursids"], description: "A quiet December shower from Ursa Minor." },
-  { title: "Eta Aquariid meteor shower peak", month: 5, day: 6, tags: ["meteors", "eta-aquariids"], description: "Another Halley stream — better in the Southern Hemisphere." },
-  { title: "Northern Hemisphere summer solstice", month: 6, day: 21, tags: ["solstice", "seasons"], description: "Longest day north of the equator." },
-  { title: "Northern Hemisphere winter solstice", month: 12, day: 21, tags: ["solstice", "seasons"], description: "Shortest day north of the equator — and the light begins to return." },
-  { title: "March equinox", month: 3, day: 20, tags: ["equinox", "seasons"], description: "Sun over the equator. Spring in the north, autumn in the south." },
-  { title: "September equinox", month: 9, day: 22, tags: ["equinox", "seasons"], description: "Sun over the equator again. Harvest in the north." },
-];
+// Seasons and meteor peaks are owned by the astronomy adapter. Fixed days here would
+// reintroduce contradictory rank-nine dates when the legacy seed script is run.
+export const RECURRING_ASTRONOMY = [];
 
 export const RECURRING_CULTURE = [
   { title: "New Year's Day", month: 1, day: 1, category: "holidays", tags: ["new-year"], description: "The calendar flips.", featured: true, popularity: 95 },

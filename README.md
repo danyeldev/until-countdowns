@@ -1,6 +1,10 @@
 # Until
 
-A catalog of future dates — public holidays from nearly every country, scheduled events from Wikipedia and Wikidata, plus curated milestones (eclipses, World Cups, Olympics, elections). Each date is tagged, classified, and shown as a live countdown.
+A place for the things you’re looking forward to. Explore events across 23 categories, save your favorites, or create a personal countdown with calendar links and a shareable embed.
+
+The interface uses a graphite/violet design system, original event artwork, persistent desktop and mobile navigation, keyboard search, a month calendar, and a local saved collection. Event dates retain their source timezone and precision; approximate dates never get an invented countdown.
+
+**Project guides:** [Data sources and access](docs/data-sources.md) · [Cron operations](docs/operations.md) · [SEO and social previews](docs/seo.md) · [Rebuild validation and deployment](docs/rebuild.md).
 
 ## What you can do
 
@@ -10,6 +14,7 @@ A catalog of future dates — public holidays from nearly every country, schedul
 - Open a full-page ticking countdown (dates without a confirmed day show "expected …" instead of a clock)
 - Add any date to Google Calendar, Outlook, or download an `.ics`
 - Create personal countdowns (stored in the browser, shareable via URL)
+- Save catalog events and browse them alongside personal dates in **My countdowns** (`/saved`), with cached snapshots when offline
 - Put any countdown on your own site as an `<iframe>`, or on a stream as an OBS browser source — colours, font, size, units and position all live in the URL
 
 ## Catalog
@@ -136,7 +141,7 @@ Every event page still shows its source and when the date was last verified.
 
 ## Ingestion
 
-The catalog is kept fresh by cron jobs that run one **source adapter** each. Everything lives under `src/lib/ingest/`:
+The catalog is kept fresh by a cadence-aware dispatcher and separate enrichment/finalization jobs. Source adapters retain independent leases, checkpoints and backoff. The [operations guide](docs/operations.md) is the scheduling and recovery reference. Everything lives under `src/lib/ingest/`:
 
 | file | role |
 |---|---|
@@ -160,9 +165,9 @@ The catalog is kept fresh by cron jobs that run one **source adapter** each. Eve
 }
 ```
 
-`ctx` carries `http`, `log`, `now`, `budget.remainingMs()` and `dryRun`. The runner persists `unit.after` as the cursor after every unit, stops with status `partial` when the budget (`INGEST_BUDGET_MS`, minus a safety margin) runs out and resumes from that cursor on the next invocation; only a *complete* pass calls `mark_stale_records` (rows the source no longer reports become `tentative`). A source in trouble gets `consecutive_failures` and an exponential `backoff_until` (1 h … 24 h); overlapping invocations are prevented by a lease row (`acquire_source_lease`). Unit-level failures are recorded in `ingest_runs.errors` without failing the run (the pass then ends `partial` and restarts from scratch next time). Skipped runs (lease held, backoff, unconfigured) also get an `ingest_runs` row with `status = 'skipped'`.
+`ctx` carries `http`, `log`, `now`, `budget.remainingMs()` and `dryRun`. The runner persists `unit.after` as the cursor after every unit, stops with status `partial` when the budget (`INGEST_BUDGET_MS`, minus a safety margin) runs out and resumes from that cursor on the next invocation; only a *complete* pass calls `mark_stale_records` (rows the source no longer reports become `tentative`). A source in trouble gets `consecutive_failures` and an exponential `backoff_until` (1 h … 24 h); overlapping invocations are prevented by a lease row (`acquire_source_lease`). Unit-level failures stop the pass, preserve its previous checkpoint and enter backoff. Stale marking happens only after every unit succeeds; failed validation or database writes cannot be mistaken for a complete pass. Skipped runs (lease held, backoff, unconfigured) also get an `ingest_runs` row with `status = 'skipped'`.
 
-**Budget is enforced inside a unit too.** `ctx.http` clamps every request timeout to `budget.remainingMs()`, refuses a retry that would not fit and raises `BudgetExceededError` when the deadline — not the remote — cut a request short; the runner then ends `partial` (`reason: budget`) with the cursor still at that unit so the next invocation retries it with a fresh budget (a unit that swallowed the *whole* budget is recorded as failed and skipped so the pass always progresses). The cron route clamps `INGEST_BUDGET_MS` / `?budget=` to `maxDuration − 20 s`, so a run can no longer be killed by Vercel mid-unit with the `ingest_runs` row stuck at `running`.
+**Budget is enforced inside a unit too.** `ctx.http` clamps every request timeout to `budget.remainingMs()`, refuses a retry that would not fit and raises `BudgetExceededError` when the deadline — not the remote — cut a request short; the runner then ends `partial` (`reason: budget`) with the cursor still at that unit so the next invocation retries it with a fresh budget (even a unit that consumed the whole budget keeps its checkpoint, so it cannot be silently skipped). The cron route clamps `INGEST_BUDGET_MS` / `?budget=` to `maxDuration − 20 s`, so a run can no longer be killed by Vercel mid-unit with the `ingest_runs` row stuck at `running`.
 
 **Cursors are content-addressed.** The offline sources (`holidays`, `curated`) compute their whole row set per pass and filter it by "now"; a resumed pass therefore continues after the last upserted *slug* (`{ year, afterSlug }`), never at a positional index that would shift once rows became past. Wikidata carries its paging decision in `unit.after` (next page, or next variant when a page was the last one) instead of module state.
 
@@ -176,7 +181,7 @@ The catalog is kept fresh by cron jobs that run one **source adapter** each. Eve
 
 1. Create `src/lib/ingest/sources/<id>.ts` exporting `adapter` (a `docs` comment with the licence / attribution rule, a recorded fixture under `tests/fixtures/<id>/` and a vitest for its mapper).
 2. Register it in `src/lib/ingest/sources/index.ts` and add the id to `SOURCE_IDS` in `types.ts` if it is new to `public.sources` (insert the row with its rank and licence in a migration).
-3. Add a cron line to `vercel.json` (see the list below) — one path per source, `/api/cron/<id>`.
+3. Set its `cadence` and configuration gate in the registry. The dispatcher discovers registered adapters automatically; `/api/cron/<id>` remains available for targeted recovery.
 4. Dry-run it twice: source keys must be identical across runs.
 
 ### CLI
@@ -195,17 +200,14 @@ The script runs the same `runSource()` as the cron routes (via `tsx --conditions
 
 | path | schedule | what |
 |---|---|---|
-| `/api/cron/finalize` | `5 0 * * *` | `finalize_catalog()` (110 s client deadline): past → done, indexability, series linking, enrichment queue, `catalog_stats`; revalidates `events` + `stats` |
-| `/api/cron/enrich` | `*/10 * * * *` | drains `enrichment_jobs`: Wikipedia summaries and the licensed image pipeline (see [Images](#images)) |
-| `/api/cron/enrich?kind=recheck` | `0 4 1 * *` | monthly licence re-check of the oldest stored Commons files (see [Re-checks](#re-checks)) |
-| `/api/cron/holidays` | `0 2 * * 1` | date-holidays, this year … +6 |
-| `/api/cron/curated` | `30 2 * * *` | curated one-offs + series expansion (now … +14 years), syncs `series` / `series_aliases` |
-| `/api/cron/wikidata` | `0 3 * * *` | precision-guarded SPARQL per class (one query at a time, 1.5 s spacing) |
-| `/api/cron/wikipedia` | `20 3 * * *` | year pages, this year … +4 |
-| `/api/cron/espn` | `40 4 * * *` | ESPN MMA scoreboard — UFC cards with a real start time (rank 6, so an instant displaces the day-precision Wikidata row) |
-| `/api/cron/housekeeping` | `0 8 * * *` | popularity decay (−1/week for non-curated rows unseen 30 days), prune `ingest_runs` > 90 days, `[ingest] STALE <source>` log |
+| `/api/cron/dispatch` | `*/15 * * * *` | Select due or partial sources fairly; respect leases, cadence and backoff |
+| `/api/cron/finalize` | `5 0,8,16 * * *` | Refresh lifecycle, series, enrichment queue and catalog statistics under a lease |
+| `/api/cron/enrich` | `3-59/10 * * * *` | Drain the licensed image and summary queue with bounded work |
+| `/api/cron/enrich?kind=recheck&limit=25` | `7 4 * * *` | Recheck a daily slice of previously stored Commons image licenses |
 
-Every route needs `Authorization: Bearer $CRON_SECRET` (401 otherwise) and answers with the run summary JSON (`{ ok: false, status: "error", error }` with HTTP 500 when the runner cannot even start, e.g. missing env or a failed lease RPC). `GET /api/cron/<source>?force=1` ignores the cursor and backoff, `?dry=1` validates without writing, `?budget=<ms>` caps the run (clamped to `maxDuration − 20 s`). `GET /api/cron/status` returns the last 30 runs, `ingest_state` and `catalog_stats`.
+Subdaily Vercel scheduling requires a compatible plan. See [operations](docs/operations.md) for settings and supported scheduling alternatives.
+
+Every route needs `Authorization: Bearer $CRON_SECRET` (401 otherwise) and answers with the run summary JSON (`{ ok: false, status: "error", error }` with HTTP 500 when the runner cannot even start, e.g. missing env or a failed lease RPC). `GET /api/cron/<source>?force=1` ignores the cursor and backoff, `?dry=1` validates without writing, `?budget=<ms>` caps the run (clamped to `maxDuration − 20 s`). `GET /api/cron/status` returns source freshness, next due times, leases, backoff, recent runs, catalog freshness and queue health. Dry-run enrichment previews do not claim jobs or change attempt counts.
 
 The curated adapter syncs `public.series` / `series_aliases` at the start of each pass; an alias that is also an existing `series.slug` (a shell auto-created by `finalize_catalog()` from holiday rows, e.g. `thanksgiving`) is skipped with a warning until the owner retires that shell — otherwise `/days-until/<x>` would have two targets.
 
@@ -225,7 +227,9 @@ npm run dev
 
 Open [http://localhost:3000](http://localhost:3000). With no `NEXT_PUBLIC_SUPABASE_URL` the site renders with an empty catalog.
 
-Checks: `npm run lint` · `npm run typecheck` · `npm run build`.
+Use Node 24 (`.nvmrc`). Checks: `npm run check` · `npm run test:sql` (Docker) · `npm run build`. The GitHub Actions workflow runs these on pull requests and main pushes without production credentials.
+
+Catalog detail pages use on-demand ISR by default. `CATALOG_PRERENDER_LIMIT` optionally warms a bounded number of pages per route family during builds (for example `10`); keep it `0` for fast builds without a live-database stampede. `generateStaticParams` returning an empty list still allows pages to render on their first request and cache for one hour.
 
 ## Images
 
@@ -240,7 +244,7 @@ Every photo on the site is a **re-hosted copy** of a freely licensed file, never
 3. Wikidata `P18` → venue `P276`'s `P18` → country `P17`'s `P41` flag (elections, national days). `P154` logos are **not** taken: the brief allows a trademarked mark inline only, and everything stored here becomes a hero (the step survives behind an `allowLogo` option no caller passes).
 4. Commons keyword search (`gsrnamespace=6`), filtered on size, aspect and title.
 5. NASA `images-api.nasa.gov`, for space/astronomy/science, screened for third-party copyright notices and mission patches.
-6. Nothing licensed → `image_status = 'skip'` with the reason in `enrichment_jobs.last_error`, and the UI draws the deterministic `FallbackCard` (category gradient + typography seeded by the slug).
+6. Nothing licensed → `image_status = 'skip'` with the reason in `enrichment_jobs.last_error`, and the UI draws the deterministic `FallbackCard` (category colors and geometric artwork seeded by the slug).
 
 ### Licence gate
 
@@ -269,7 +273,7 @@ Failures that a retry cannot fix (too large, too small, undecodable) park the jo
 
 ### ShareAlike, and what may be *made* from a photo
 
-A CC BY-SA file may be published as-is with its credit; cropping it to 1200×630 and laying a scrim, the title and the wordmark over it produces Adapted Material (CC BY-SA 4.0 §2(a)(1)(B)), which would have to be released under a share-alike licence and say so on the card. Until does not do that: `isShareAlike()` in `src/lib/images.ts` gates both ends — `process.ts` does not even build the `og.jpg` crop for such a file, and `ogBackgroundUrl()` makes the OG route fall back to the seeded gradient. CC0 / public domain / CC BY photos keep the card, with `Photo: <author> · <licence>` composed from the parts so the licence name is never the half that gets truncated. Heroes are shown unmodified, in a box clamped to at most 5:4 so a portrait source cannot fill three viewports.
+A CC BY-SA file may be published as-is with its credit; cropping it to 1200×630 and laying a scrim, the title and the wordmark over it produces Adapted Material (CC BY-SA 4.0 §2(a)(1)(B)), which would have to be released under a share-alike licence and say so on the card. Until does not do that: `isShareAlike()` in `src/lib/images.ts` gates both ends — `process.ts` does not even build the `og.jpg` crop for such a file, and `ogBackgroundUrl()` makes the OG route fall back to the seeded gradient. CC0 / public domain / CC BY photos keep the card, with `Photo: <author> · <licence>` composed from the parts so the licence name is never the half that gets truncated. ShareAlike photos remain in a separate credited photograph view, contained at their original proportions in a bounded frame. Their countdown backgrounds and discovery cards use original decorative artwork.
 
 ### Re-checks
 
@@ -309,7 +313,11 @@ Mixed-case paths (`/country/Ae`, `/event/Foo-…`) are 404s, never redirects: an
 
 Metadata comes from `src/lib/seo.ts` (`buildMetadata()`; titles rotate by category and never carry the day count; descriptions do, from SQL `days_until`). JSON-LD builders live in `src/lib/jsonld.ts`: `BreadcrumbList` everywhere, `WebSite` + `Organization` on `/`, `EventSeries` on series pages (its `subEvent` list carries `Event` items only for `jsonld_eligible` occurrences), schema.org `Event` only for `jsonld_eligible` rows (no FAQPage, no SearchAction). Sitemaps: `generateSitemaps()` in `src/app/sitemap.ts` shards into `hubs`, `series` and `events-<year>` (`-h1/-h2` above 40k URLs), served at `/sitemap/<id>.xml`; `/sitemap-index.xml` is a hand-written index because Next emits none. `lastmod` is `updated_at`, no priority/changefreq.
 
-Open Graph cards are route handlers under `src/app/og/*` (`src/lib/og.tsx`, `ImageResponse`, Fraunces + Geist Mono woff from `@fontsource/*`, traced with `outputFileTracingIncludes`). Event and series cards embed the metadata date in the URL (`/og/event/<slug>/<yyyy-mm-dd>.png`) so the day count is fixed per URL and social scrapers refetch daily; dated URLs are `s-maxage=86400, immutable`, undated hubs `s-maxage=3600`. Unknown slugs get the default card (200); a malformed date is a 400. A card only uses a photo when the licence allows adaptations (see [ShareAlike](#sharealike-and-what-may-be-made-from-a-photo)); everything else draws the seeded gradient. Cards stay under 600 KB (WhatsApp limit) — the PNG is quantised in steps and, if it still will not fit, the photo is dropped for the gradient rather than shipped over budget. `GOOGLE_SITE_VERIFICATION` (optional) is emitted from the root layout.
+Open Graph cards are route handlers under `src/app/og/*` (`src/lib/og.tsx`, `ImageResponse`, Geist + Geist Mono woff from `@fontsource/*`, traced with `outputFileTracingIncludes`). Event and series cards embed the metadata date in the URL (`/og/event/<slug>/<yyyy-mm-dd>.png`) so the day count is fixed per URL and social scrapers refetch daily; dated and undated cards use an hourly cache (`s-maxage=3600`) so corrected dates and statuses can refresh. Unknown slugs get the default card (200); a malformed date is a 400. A card only uses a photo when the licence allows adaptations (see [ShareAlike](#sharealike-and-what-may-be-made-from-a-photo)); everything else draws the seeded gradient. Cards stay under 600 KB (WhatsApp limit) — the PNG is quantised in steps and, if it still will not fit, the photo is dropped for the gradient rather than shipped over budget. `GOOGLE_SITE_VERIFICATION` (optional) is emitted from the root layout.
+
+## Design research
+
+The September 2026 UI rebuild follows a review of recent product releases and current consumer interfaces. See [the research report](docs/design-research.md), its dated source appendices, and [browser/build verification](docs/ui-verification.md).
 
 ## Sharing
 
@@ -409,7 +417,7 @@ produces the widget. Event and series pages advertise it as
 
 ## Deploy
 
-Vercel (`framework: nextjs`, no custom build command). Set `NEXT_PUBLIC_SITE_URL`, `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` and `SUPABASE_SECRET_KEY` in the project environment (see `.env.example`). Event pages are ISR (`revalidate = 3600`). Cached reads refresh after 1 h (`events` and `stats` tags) or sooner when `/api/revalidate` is called with the `CRON_SECRET` bearer (do this after every `npm run push`); the cron jobs (see Ingestion) invalidate the same tags after each run that changes rows. Set `CRON_SECRET` before relying on the route.
+Vercel (`framework: nextjs`, no custom build command). Set `NEXT_PUBLIC_SITE_URL`, `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` and `SUPABASE_SECRET_KEY` in the project environment (see `.env.example`). Apply the new migrations listed in [the rebuild guide](docs/rebuild.md) before deployment. Event pages are on-demand ISR (`revalidate = 3600`). Cached reads refresh after 1 h (`events` and `stats` tags) or sooner when `/api/revalidate` is called with the `CRON_SECRET` bearer (do this after every `npm run push`); the cron jobs (see Ingestion) invalidate the same tags after each run that changes rows. Set `CRON_SECRET` before relying on the route.
 
 ## Stack
 

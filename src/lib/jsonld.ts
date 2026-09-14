@@ -4,7 +4,8 @@
  * Event only for rows the finalize job marked `jsonld_eligible` (attendable events with a place).
  * No FAQPage and no SearchAction: neither earns a rich result any more.
  */
-import { absoluteUrl, eventDescription, SITE_NAME } from "./seo";
+import { absoluteUrl, eventDescription, SITE_DESCRIPTION, SITE_NAME } from "./seo";
+import { isCoarsePrecision, isValidDate } from "./time";
 import type { CountdownEvent, Series } from "./types";
 
 export type JsonLdObject = Record<string, unknown>;
@@ -30,10 +31,12 @@ export function webSite(): JsonLdObject {
   return {
     "@context": SCHEMA,
     "@type": "WebSite",
+    "@id": absoluteUrl("/#website"),
     name: SITE_NAME,
     url: absoluteUrl("/"),
     inLanguage: "en",
-    description: "Live countdowns and dates for thousands of upcoming events, holidays and milestones.",
+    description: SITE_DESCRIPTION,
+    publisher: { "@id": absoluteUrl("/#organization") },
   };
 }
 
@@ -41,9 +44,10 @@ export function organization(): JsonLdObject {
   return {
     "@context": SCHEMA,
     "@type": "Organization",
+    "@id": absoluteUrl("/#organization"),
     name: SITE_NAME,
     url: absoluteUrl("/"),
-    logo: absoluteUrl("/og/default"),
+    logo: { "@type": "ImageObject", url: absoluteUrl("/icons/icon-512.png"), width: 512, height: 512 },
   };
 }
 
@@ -53,10 +57,12 @@ export function collectionPage(name: string, description: string, path: string, 
   return {
     "@context": SCHEMA,
     "@type": "CollectionPage",
+    "@id": absoluteUrl(`${path}#collection`),
     name,
     description,
     url: absoluteUrl(path),
-    isPartOf: { "@type": "WebSite", name: SITE_NAME, url: absoluteUrl("/") },
+    inLanguage: "en",
+    isPartOf: { "@id": absoluteUrl("/#website") },
     mainEntity: {
       "@type": "ItemList",
       numberOfItems: items.length,
@@ -81,7 +87,7 @@ function eventStatusUrl(event: CountdownEvent): string {
     case "cancelled":
       return `${SCHEMA}/EventCancelled`;
     case "postponed":
-      return rescheduled ? `${SCHEMA}/EventRescheduled` : `${SCHEMA}/EventPostponed`;
+      return `${SCHEMA}/EventPostponed`;
     default:
       return rescheduled ? `${SCHEMA}/EventRescheduled` : `${SCHEMA}/EventScheduled`;
   }
@@ -89,13 +95,13 @@ function eventStatusUrl(event: CountdownEvent): string {
 
 function placeOf(event: CountdownEvent): JsonLdObject | undefined {
   const loc = event.location;
-  if (!loc) return undefined;
+  if (!loc || (!loc.name?.trim() && !loc.city?.trim() && !loc.country?.trim())) return undefined;
   const address: JsonLdObject = { "@type": "PostalAddress" };
   if (loc.city) address.addressLocality = loc.city;
   if (loc.country) address.addressCountry = loc.country;
   const place: JsonLdObject = { "@type": "Place", name: loc.name ?? loc.city ?? loc.country ?? event.title };
   if (loc.city || loc.country) place.address = address;
-  if (loc.lat !== undefined && loc.lng !== undefined) {
+  if (Number.isFinite(loc.lat) && Number.isFinite(loc.lng)) {
     place.geo = { "@type": "GeoCoordinates", latitude: loc.lat, longitude: loc.lng };
   }
   if (loc.url) place.url = loc.url;
@@ -104,12 +110,13 @@ function placeOf(event: CountdownEvent): JsonLdObject | undefined {
 
 /** schema.org Event, or null when the row is not eligible (holidays, eclipses, releases…). */
 export function eventJsonLd(event: CountdownEvent): JsonLdObject | null {
-  if (!event.jsonldEligible) return null;
+  if (!event.jsonldEligible || isCoarsePrecision(event.datePrecision) || !isValidDate(event.date)) return null;
   const place = placeOf(event);
   if (!place) return null;
   const out: JsonLdObject = {
     "@context": SCHEMA,
     "@type": "Event",
+    "@id": absoluteUrl(`/event/${event.slug}#event`),
     name: event.title,
     startDate: schemaDate(event.date, event.allDay),
     eventStatus: eventStatusUrl(event),
@@ -121,50 +128,44 @@ export function eventJsonLd(event: CountdownEvent): JsonLdObject | null {
     description: event.description || eventDescription(event),
     url: absoluteUrl(`/event/${event.slug}`),
   };
-  if (event.endDate) out.endDate = schemaDate(event.endDate, event.allDay);
+  if (event.endDate && isValidDate(event.endDate)) out.endDate = schemaDate(event.endDate, event.allDay);
   if (event.image?.url) out.image = [event.image.url];
   const previous = event.dateHistory?.at(-1)?.date;
-  if (previous && out.eventStatus === `${SCHEMA}/EventRescheduled`) {
+  if (previous && isValidDate(previous) && out.eventStatus === `${SCHEMA}/EventRescheduled`) {
     out.previousStartDate = schemaDate(previous, event.allDay);
   }
   return out;
 }
 
 /**
- * EventSeries for a series page. `subEvent` carries schema.org `Event` items only for occurrences
- * that are `jsonld_eligible` (attendable, with a place) — the same gate as `eventJsonLd()` — so a
- * holiday series never emits location-less Events that Search Console flags. Every other series
- * keeps the EventSeries with `startDate`/`endDate`/`url` and no `subEvent`.
+ * Attendable series carry qualified Event children. Other recurring dates are collections,
+ * without fictional exact start dates or location-less Event markup for holidays and releases.
  */
 export function eventSeries(series: Series, occurrences: CountdownEvent[]): JsonLdObject {
+  const description = series.description || `Upcoming dates of ${series.title}.`;
+  const subEvents = occurrences
+    .map(eventJsonLd)
+    .filter((event): event is JsonLdObject => event !== null)
+    .slice(0, 20)
+    .map((event) => {
+      const child = { ...event };
+      delete child["@context"];
+      return child;
+    });
+  if (subEvents.length === 0) {
+    return collectionPage(series.title, description, `/days-until/${series.slug}`, occurrences.map((event) => ({
+      name: event.title,
+      path: `/event/${event.slug}`,
+    })));
+  }
   const out: JsonLdObject = {
     "@context": SCHEMA,
     "@type": "EventSeries",
+    "@id": absoluteUrl(`/days-until/${series.slug}#series`),
     name: series.title,
     url: absoluteUrl(`/days-until/${series.slug}`),
-    description: series.summary || series.description || `Upcoming dates of ${series.title}.`,
+    description,
+    subEvent: subEvents,
   };
-  if (series.nextDate) out.startDate = schemaDate(series.nextDate, series.nextAllDay ?? true);
-  const last = occurrences.at(-1);
-  if (last) out.endDate = schemaDate(last.endDate ?? last.date, last.allDay);
-  const subEvents = occurrences
-    .filter((o) => o.jsonldEligible === true)
-    .slice(0, 20)
-    .map((o) => {
-      const place = placeOf(o);
-      if (!place) return null;
-      return {
-        "@type": "Event",
-        name: o.title,
-        startDate: schemaDate(o.date, o.allDay),
-        ...(o.endDate ? { endDate: schemaDate(o.endDate, o.allDay) } : {}),
-        url: absoluteUrl(`/event/${o.slug}`),
-        eventStatus: eventStatusUrl(o),
-        eventAttendanceMode: `${SCHEMA}/OfflineEventAttendanceMode`,
-        location: place,
-      };
-    })
-    .filter((e): e is NonNullable<typeof e> => e !== null);
-  if (subEvents.length > 0) out.subEvent = subEvents;
   return out;
 }

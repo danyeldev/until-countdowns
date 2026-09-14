@@ -1,7 +1,7 @@
 /**
  * Open Graph card renderer shared by every `/og/*` route handler (Node runtime).
  *
- * One layout for the whole site: eyebrow, title in Fraunces, subtitle, the day count in Geist
+ * One layout for the whole site: eyebrow, title in Geist, subtitle, the day count in Geist
  * Mono, the "Until" wordmark; a deterministic gradient from the seed when there is no image.
  * Fonts are the woff files installed as npm packages (traced into the OG routes by
  * `outputFileTracingIncludes` in next.config.ts). Satori supports flexbox only, no grid.
@@ -9,23 +9,22 @@
 import { ImageResponse } from "next/og";
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
+import { catalogDay, isValidDate } from "./time";
 
 export const OG_WIDTH = 1200;
 export const OG_HEIGHT = 630;
 
-/** Dated URLs (`/og/event/<slug>/<date>.png`) are immutable; undated hubs refresh hourly. */
-export const CACHE_DATED = "public, max-age=0, s-maxage=86400, stale-while-revalidate=604800, immutable";
+/** Day counts are fixed per dated URL, but source corrections must still refresh within an hour. */
+export const CACHE_DATED = "public, max-age=0, s-maxage=3600, stale-while-revalidate=86400";
 export const CACHE_UNDATED = "public, max-age=0, s-maxage=3600, stale-while-revalidate=86400";
 
 const PALETTE = {
-  ink: "#0c0b09",
-  ink2: "#161410",
-  paper: "#f3ece0",
-  paperDim: "#c9c0b0",
-  muted: "#8a8174",
-  line: "#2c2822",
-  amber: "#f0a202",
-  ember: "#e85d04",
+  ink: "#0b0d12",
+  paper: "#f4f5f8",
+  paperDim: "#b4b9c8",
+  muted: "#969eaf",
+  line: "#292e3c",
+  accent: "#b7a6ff",
 };
 
 type FontSpec = { name: string; data: Buffer; weight: 400 | 500 | 600 | 700; style: "normal" };
@@ -40,10 +39,10 @@ let fontsPromise: Promise<FontSpec[]> | null = null;
 function loadFonts(): Promise<FontSpec[]> {
   if (!fontsPromise) {
     fontsPromise = Promise.all([
-      readFile(join(process.cwd(), "node_modules", "@fontsource", "fraunces", "files", "fraunces-latin-600-normal.woff")),
+      readFile(join(process.cwd(), "node_modules", "@fontsource", "geist", "files", "geist-latin-600-normal.woff")),
       readFile(join(process.cwd(), "node_modules", "@fontsource", "geist-mono", "files", "geist-mono-latin-500-normal.woff")),
-    ]).then(([serif, mono]) => [
-      { name: "Fraunces", data: serif, weight: 600, style: "normal" },
+    ]).then(([sans, mono]) => [
+      { name: "Geist", data: sans, weight: 600, style: "normal" },
       { name: "Geist Mono", data: mono, weight: 500, style: "normal" },
     ]);
     fontsPromise.catch(() => {
@@ -75,13 +74,13 @@ function hslToHex(h: number, s: number, l: number): string {
   return `#${to(f(0))}${to(f(8))}${to(f(4))}`;
 }
 
-/** Deterministic dark gradient: two hues from the seed, kept close to the ink so text stays legible. */
+/** Subtle variation within the graphite and violet palette keeps every shared card recognisably Until. */
 export function seedGradient(seed: string): string {
   const h = hashSeed(seed);
-  const h1 = h % 360;
-  const h2 = (h1 + 35 + ((h >>> 9) % 50)) % 360;
-  const c1 = hslToHex(h1, 42, 14);
-  const c2 = hslToHex(h2, 55, 9);
+  const h1 = 245 + (h % 30);
+  const h2 = 230 + ((h >>> 9) % 30);
+  const c1 = hslToHex(h1, 24, 19);
+  const c2 = hslToHex(h2, 24, 9);
   return `linear-gradient(135deg, ${c1} 0%, ${PALETTE.ink} 52%, ${c2} 100%)`;
 }
 
@@ -128,7 +127,7 @@ function Counter({ days, expectedLabel }: { days?: number | null; expectedLabel?
   if (expectedLabel) {
     return (
       <div style={{ display: "flex", flexDirection: "column" }}>
-        <div style={{ fontFamily: "Fraunces", fontSize: 56, color: PALETTE.amber, fontStyle: "italic" }}>
+        <div style={{ fontFamily: "Geist", fontSize: 48, color: PALETTE.accent }}>
           {expectedLabel}
         </div>
       </div>
@@ -142,10 +141,10 @@ function Counter({ days, expectedLabel }: { days?: number | null; expectedLabel?
     <div style={{ display: "flex", alignItems: "flex-end", gap: 22 }}>
       <div
         style={{
-          fontFamily: n === 0 ? "Fraunces" : "Geist Mono",
-          fontSize: n === 0 ? 150 : value.length > 4 ? 150 : 188,
+          fontFamily: n === 0 ? "Geist" : "Geist Mono",
+          fontSize: n === 0 ? 124 : value.length > 4 ? 116 : 156,
           lineHeight: 0.9,
-          color: PALETTE.amber,
+          color: PALETTE.accent,
           letterSpacing: n === 0 ? 0 : -6,
         }}
       >
@@ -154,11 +153,10 @@ function Counter({ days, expectedLabel }: { days?: number | null; expectedLabel?
       {label ? (
         <div
           style={{
-            fontFamily: "Geist Mono",
-            fontSize: 26,
+            fontFamily: "Geist",
+            fontSize: 20,
             color: PALETTE.paperDim,
-            letterSpacing: 4,
-            textTransform: "uppercase",
+            letterSpacing: 0,
             paddingBottom: 14,
           }}
         >
@@ -235,7 +233,7 @@ export async function renderOgCard(input: OgCardInput, cacheControl = CACHE_UNDA
                 top: 0,
                 width: OG_WIDTH,
                 height: OG_HEIGHT,
-                background: `linear-gradient(100deg, ${PALETTE.ink} 4%, rgba(12,11,9,0.90) 44%, rgba(12,11,9,0.55) 100%)`,
+                background: `linear-gradient(100deg, ${PALETTE.ink} 4%, rgba(11,13,18,0.93) 44%, rgba(11,13,18,0.60) 100%)`,
               }}
             />
             <div
@@ -245,22 +243,13 @@ export async function renderOgCard(input: OgCardInput, cacheControl = CACHE_UNDA
                 bottom: 0,
                 width: OG_WIDTH,
                 height: 320,
-                background: `linear-gradient(0deg, ${PALETTE.ink} 0%, rgba(12,11,9,0) 100%)`,
+                background: `linear-gradient(0deg, ${PALETTE.ink} 0%, rgba(11,13,18,0) 100%)`,
               }}
             />
           </div>
         ) : null}
 
-        <div
-          style={{
-            position: "absolute",
-            left: 0,
-            top: 0,
-            width: OG_WIDTH,
-            height: 8,
-            background: `linear-gradient(90deg, ${PALETTE.amber}, ${PALETTE.ember})`,
-          }}
-        />
+
 
         <div
           style={{
@@ -269,29 +258,30 @@ export async function renderOgCard(input: OgCardInput, cacheControl = CACHE_UNDA
             justifyContent: "space-between",
             width: OG_WIDTH,
             height: OG_HEIGHT,
-            padding: "56px 60px 48px 60px",
+            padding: "48px 60px 42px 60px",
           }}
         >
           <div style={{ display: "flex", flexDirection: "column", width: textWidth }}>
             <div
               style={{
-                fontFamily: "Geist Mono",
-                fontSize: 22,
-                letterSpacing: 6,
+                fontFamily: "Geist",
+                fontSize: 19,
+                letterSpacing: 1,
                 textTransform: "uppercase",
-                color: PALETTE.amber,
+                color: PALETTE.accent,
               }}
             >
               {input.eyebrow}
             </div>
             <div
               style={{
-                fontFamily: "Fraunces",
+                fontFamily: "Geist",
                 fontSize,
                 lineHeight: 1.05,
-                marginTop: 18,
+                marginTop: 28,
                 color: PALETTE.paper,
                 letterSpacing: -1,
+                maxWidth: input.days == null && !input.expectedLabel ? 900 : textWidth,
               }}
             >
               {title}
@@ -299,13 +289,13 @@ export async function renderOgCard(input: OgCardInput, cacheControl = CACHE_UNDA
             {input.subtitle ? (
               <div
                 style={{
-                  fontFamily: "Geist Mono",
-                  fontSize: 26,
-                  marginTop: 22,
+                  fontFamily: "Geist",
+                  fontSize: 23,
+                  marginTop: 24,
                   color: PALETTE.paperDim,
                 }}
               >
-                {input.subtitle}
+                {clampTitle(input.subtitle, 140)}
               </div>
             ) : null}
           </div>
@@ -316,16 +306,20 @@ export async function renderOgCard(input: OgCardInput, cacheControl = CACHE_UNDA
               alignItems: "flex-end",
               justifyContent: "space-between",
               width: OG_WIDTH - 120,
+              paddingTop: 20,
+              borderTop: `1px solid ${PALETTE.line}`,
             }}
           >
-            <Counter days={input.days} expectedLabel={input.expectedLabel} />
+            {input.days == null && !input.expectedLabel ? (
+              <div style={{ display: "flex", fontFamily: "Geist", fontSize: 19, color: PALETTE.paperDim, paddingBottom: 10 }}>Find a date. Look forward.</div>
+            ) : <Counter days={input.days} expectedLabel={input.expectedLabel} />}
             <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end" }}>
               {hasImage && input.imageCredit ? (
-                <div style={{ fontFamily: "Geist Mono", fontSize: 15, color: PALETTE.muted, paddingBottom: 10 }}>
+                <div style={{ fontFamily: "Geist Mono", fontSize: 12, color: PALETTE.muted, paddingBottom: 10, maxWidth: 340, textAlign: "right" }}>
                   {input.imageCredit}
                 </div>
               ) : null}
-              <div style={{ fontFamily: "Fraunces", fontSize: 40, color: PALETTE.paper, paddingBottom: 6 }}>Until</div>
+              <div style={{ fontFamily: "Geist", fontSize: 48, color: PALETTE.paper, paddingBottom: 6 }}>Until.</div>
             </div>
           </div>
         </div>
@@ -343,7 +337,13 @@ export async function renderOgCard(input: OgCardInput, cacheControl = CACHE_UNDA
   );
   if (!hasImage) return response;
   // Buffering is only worth it for the photo cards, which are the ones that blow the budget.
-  const png = await compactPng(Buffer.from(await response.arrayBuffer()));
+  let png: Buffer;
+  try {
+    png = await compactPng(Buffer.from(await response.arrayBuffer()));
+  } catch {
+    // An unavailable photo should never turn a valid countdown into a broken social preview.
+    return renderOgCard({ ...input, imageUrl: null, imageCredit: null }, cacheControl);
+  }
   // The 600 KB budget is binding, not aspirational: a busy photo that will not quantise under it
   // is dropped for the gradient rather than shipped as a card WhatsApp refuses to preview.
   if (png.byteLength > OG_MAX_BYTES) return renderOgCard({ ...input, imageUrl: null, imageCredit: null }, cacheControl);
@@ -352,14 +352,13 @@ export async function renderOgCard(input: OgCardInput, cacheControl = CACHE_UNDA
   }) as ImageResponse;
 }
 
-/** Whole calendar days from `fromDate` (`YYYY-MM-DD`) to an event date; timed events floor the difference. */
-export function daysBetween(fromDate: string, eventDate: string, allDay: boolean): number | null {
+/** Calendar days from a dated card to the event's own calendar day, matching catalog labels. */
+export function daysBetween(fromDate: string, eventDate: string, allDay: boolean, timezone?: string): number | null {
+  if (!parseOgDate(fromDate) || !isValidDate(eventDate)) return null;
   const from = Date.UTC(Number(fromDate.slice(0, 4)), Number(fromDate.slice(5, 7)) - 1, Number(fromDate.slice(8, 10)));
   if (!Number.isFinite(from)) return null;
-  const target =
-    allDay || !eventDate.includes("T")
-      ? Date.UTC(Number(eventDate.slice(0, 4)), Number(eventDate.slice(5, 7)) - 1, Number(eventDate.slice(8, 10)))
-      : new Date(eventDate).getTime();
+  const day = catalogDay(eventDate, allDay ? undefined : timezone);
+  const target = Date.UTC(Number(day.slice(0, 4)), Number(day.slice(5, 7)) - 1, Number(day.slice(8, 10)));
   if (!Number.isFinite(target)) return null;
   return Math.floor((target - from) / 86_400_000);
 }

@@ -1,5 +1,11 @@
 import Image from "next/image";
-import { heroAspectRatio, imageSize, imageUrl, type ImageVariant } from "@/lib/images";
+import {
+  heroAspectRatio,
+  imageSize,
+  imageUrl,
+  isShareAlike,
+  type ImageVariant,
+} from "@/lib/images";
 import { thumbhashToDataUrl } from "@/lib/thumbhash";
 import type { EventImage as EventImageType } from "@/lib/types";
 
@@ -13,6 +19,8 @@ import type { EventImage as EventImageType } from "@/lib/types";
  * The box always has a known aspect ratio before the bytes arrive (16:9 for cards, the image's
  * own ratio for heroes, clamped so a portrait source never grows past 5:4) and is painted with the
  * stored dominant colour under a thumbhash blur, so the page never shifts while it loads.
+ * ShareAlike photos are contained in that box, fully visible at their own proportions, without
+ * the artwork overlay class used by discovery cards.
  */
 export type EventImageProps = {
   image: EventImageType;
@@ -30,17 +38,33 @@ const DEFAULT_SIZES: Record<"card" | "hero", string> = {
   hero: "(max-width: 1024px) 100vw, 900px",
 };
 
-export function EventImage({ image, alt, variant = "card", priority = false, sizes, className }: EventImageProps) {
+export function EventImage({
+  image,
+  alt,
+  variant = "card",
+  priority = false,
+  sizes,
+  className,
+}: EventImageProps) {
   const src = imageUrl(image, variant);
   const { width, height } = imageSize(image, variant);
   const blurDataURL = thumbhashToDataUrl(image.thumbhash);
+  const shareAlike = isShareAlike(image.license);
+  const frameClasses = shareAlike
+    ? className
+        ?.split(/\s+/)
+        .filter((token) => token !== "event-art")
+        .join(" ")
+    : className;
 
   return (
     <div
-      className={`relative overflow-hidden bg-ink-2 ${className ?? ""}`}
+      className={`relative overflow-hidden bg-ink-2 ${frameClasses ?? ""}`}
       style={{
         aspectRatio: variant === "card" ? "16 / 9" : heroAspectRatio(image),
-        backgroundColor: image.color ?? undefined,
+        backgroundColor: shareAlike ? undefined : (image.color ?? undefined),
+        maxHeight:
+          shareAlike && variant === "hero" ? "min(60vh, 480px)" : undefined,
       }}
     >
       <Image
@@ -49,11 +73,15 @@ export function EventImage({ image, alt, variant = "card", priority = false, siz
         width={width}
         height={height}
         sizes={sizes ?? DEFAULT_SIZES[variant]}
-        priority={priority}
+        preload={priority}
         loading={priority ? undefined : "lazy"}
         unoptimized
         {...(blurDataURL ? { placeholder: "blur" as const, blurDataURL } : {})}
-        className="h-full w-full object-cover"
+        className={
+          shareAlike
+            ? "absolute inset-0 h-full w-full object-contain"
+            : "h-full w-full object-cover"
+        }
       />
     </div>
   );

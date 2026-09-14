@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { JsonLd } from "@/components/JsonLd";
+import { Icon } from "@/components/Icon";
 import { allSeries } from "@/lib/catalog";
 import { collectionPage } from "@/lib/jsonld";
 import { CATEGORY_LABELS } from "@/lib/labels";
@@ -32,32 +33,36 @@ export default async function SeriesIndexPage() {
   return (
     <div>
       <Breadcrumbs items={[{ name: "Home", path: "/" }, { name: "Days until", path: "/days-until" }]} />
-      <p className="mt-6 text-[11px] uppercase tracking-[0.24em] text-amber">Recurring</p>
-      <h1 className="mt-3 font-serif text-4xl text-paper sm:text-5xl">How many days until…</h1>
-      <p className="mt-4 max-w-2xl text-paper-dim">
-        {list.length.toLocaleString("en-US")} dates that come back every year. Each page keeps the next occurrence
-        on top and lists the years to come.
+      <p className="eyebrow mt-7">Recurring</p>
+      <h1 className="page-heading mt-3">How many days until…</h1>
+      <p className="page-subtitle mt-3 max-w-2xl">
+        {list.length.toLocaleString("en-US")} moments worth coming back to. Find the next date,
+        then explore the years ahead.
       </p>
+      <nav className="mt-7 flex flex-wrap gap-2" aria-label="Recurring countdown categories">
+        {groups.map((category) => <a key={category} href={`#recurring-${category}`} className="button-secondary">{CATEGORY_LABELS[category]} <span className="text-muted">{byCategory.get(category)?.length}</span></a>)}
+      </nav>
 
       {groups.length === 0 ? (
-        <p className="mt-10 text-sm text-muted">The catalog is being filled — check back soon.</p>
+        <div className="empty-state mt-10"><Icon name="calendar" size={28} /><h2 className="section-heading mt-4">More dates on the way</h2><p className="mt-2 text-paper-dim">Explore the latest events while recurring dates are being added.</p><Link href="/" className="button-primary mt-5">Explore countdowns</Link></div>
       ) : (
         groups.map((category) => (
-          <section key={category} className="mt-12">
-            <h2 className="font-serif text-2xl text-paper">
+          <section key={category} id={`recurring-${category}`} className="mt-12 scroll-mt-28">
+            <h2 className="section-heading text-paper">
               <Link href={`/category/${category}`} className="hover:text-amber">
                 {CATEGORY_LABELS[category]}
               </Link>
             </h2>
-            <ul className="mt-4 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+            <ul className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
               {(byCategory.get(category) ?? []).map((s) => (
-                <li key={s.slug} className="ticket flex items-baseline justify-between gap-3 rounded-xl px-4 py-3">
-                  <Link href={`/days-until/${s.slug}`} className="text-paper hover:text-amber">
-                    {s.title}
+                <li key={s.slug}>
+                  <Link href={`/days-until/${s.slug}`} className="ticket group flex h-full min-h-40 flex-col rounded-2xl p-5">
+                    <span className="flex items-start justify-between gap-3"><span className="text-lg font-semibold leading-snug text-paper group-hover:text-amber">{s.title}</span><Icon name="arrow" className="mt-1 shrink-0 text-muted group-hover:text-amber" /></span>
+                    <span className="mt-auto flex flex-wrap items-end justify-between gap-2 pt-6">
+                      <span className="text-sm text-muted">{s.nextDate ? formatShortDate(s.nextDate, s.nextTimezone) : "Next date to be announced"}</span>
+                      {typeof s.daysUntil === "number" ? <span className="tabular text-lg font-semibold text-amber">{humanDays(s.daysUntil)}</span> : null}
+                    </span>
                   </Link>
-                  <span className="tabular whitespace-nowrap font-mono text-xs text-muted">
-                    {s.nextDate ? (typeof s.daysUntil === "number" ? humanDays(s.daysUntil) : formatShortDate(s.nextDate)) : ""}
-                  </span>
                 </li>
               ))}
             </ul>

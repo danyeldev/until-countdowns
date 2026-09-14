@@ -1,5 +1,5 @@
 /**
- * The monthly licence re-check (plan Phase 5: "a slow monthly re-check confirms the Commons file
+ * The rolling licence re-check ("a slow re-check confirms the Commons file
  * still exists and is still free").
  *
  * A re-hosted copy outlives its source. Commons deletes copyright violations, and an uploader can
@@ -24,7 +24,7 @@ import { CommonsVerifier, fileTitleFromUrl } from "./images/commons";
 import { creditLine } from "./images/license";
 import { bucketName, VARIANT_NAMES, variantPath } from "./images/process";
 
-/** How many files one pass re-verifies. Deliberately small: this runs monthly, not hourly. */
+/** Small daily slices revisit the oldest checks without a monthly backlog. */
 export const RECHECK_LIMIT = 25;
 export const MAX_RECHECK_LIMIT = 200;
 
@@ -83,7 +83,7 @@ async function dropImage(db: Db, row: RecheckRow, reason: string, summary: Reche
 
   summary.dropped++;
   for (const slug of slugs) summary.changed.push(slug);
-  summary.errors.push(`dropped ${row.origin_page ?? row.origin_url}: ${reason}`);
+  console.info(`[enrich:recheck] dropped ${row.origin_page ?? row.origin_url}: ${reason}`);
 }
 
 /**
@@ -117,7 +117,7 @@ export async function runRecheck(
       if (!verdict.ok) {
         if (options.dryRun) {
           summary.dropped++;
-          summary.errors.push(`would drop ${title}: ${verdict.reason}`);
+          ctx.log.info(`would drop ${title}: ${verdict.reason}`);
           continue;
         }
         await dropImage(db, row, verdict.reason, summary);

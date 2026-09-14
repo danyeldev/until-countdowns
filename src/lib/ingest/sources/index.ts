@@ -4,7 +4,7 @@ import type { Adapter } from "../types";
  * Source registry. Adapters are loaded lazily (dynamic import per source) so that a cron
  * invocation for one source never bundles or initialises the others (date-holidays alone is
  * several MB of data). Add a source: create `sources/<id>.ts` exporting `adapter`, register it
- * here, add a `vercel.json` cron and a row in `public.sources` (rank + licence).
+ * here with its refresh cadence and add a row in `public.sources` (rank + licence).
  */
 export type SourceEntry = {
   id: string;
@@ -164,6 +164,13 @@ export const SOURCES: Record<string, SourceEntry> = {
     rank: 6,
     cadence: "daily",
     load: () => import("./espn").then((m) => m.adapter),
+  },
+  f1calendar: {
+    id: "f1calendar",
+    label: "F1Calendar race and sprint schedules",
+    rank: 6,
+    cadence: "daily",
+    load: () => import("./f1calendar").then((m) => m.adapter),
   },
   musicbrainz: {
     id: "musicbrainz",

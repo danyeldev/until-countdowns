@@ -1,6 +1,6 @@
 import type { NextRequest } from "next/server";
 import { eventTag, invalidateTags, TAG_EVENTS } from "@/lib/cache";
-import { assertCron } from "@/lib/cron";
+import { assertCron, cronBudget, CRON_HEADERS, cronTrigger } from "@/lib/cron";
 
 /**
  * Enrichment cron: `GET /api/cron/enrich[?kind=…][&limit=n][&dry=1][&slug=…]`.
@@ -11,7 +11,7 @@ import { assertCron } from "@/lib/cron";
  * switch. The worker itself lives in `src/lib/enrich/run.ts` and is imported lazily so an
  * unauthorised request never loads sharp.
  *
- * Flags: `kind` (`wikipedia_summary` / `image`, default both, plus `recheck` — the monthly pass
+ * Flags: `kind` (`wikipedia_summary` / `image`, default both, plus `recheck` — the rolling pass
  * that re-verifies the oldest stored Commons files and drops any that stopped being free),
  * `limit` (per kind, default 60 and 25 for `recheck`, max 200), `dry=1` (resolve and report,
  * write nothing), `slug=<slug>` (enrich one event and ignore the queue — the way to test a single
@@ -20,17 +20,9 @@ import { assertCron } from "@/lib/cron";
 export const maxDuration = 300;
 
 /** Clamped so the worker's own margin still fits inside `maxDuration`. */
-const MAX_BUDGET_MS = (maxDuration - 20) * 1000;
-const NO_STORE = { "Cache-Control": "no-store" };
+const MAX_BUDGET_MS = 240_000;
+const NO_STORE = CRON_HEADERS;
 const SLUG_RE = /^[a-z0-9-]{1,200}$/;
-
-function budgetMs(param: string | null): number {
-  const fromParam = Number(param);
-  const fromEnv = Number(process.env.ENRICH_BUDGET_MS ?? process.env.INGEST_BUDGET_MS);
-  const wanted =
-    Number.isFinite(fromParam) && fromParam > 0 ? fromParam : Number.isFinite(fromEnv) && fromEnv > 0 ? fromEnv : 240_000;
-  return Math.min(wanted, MAX_BUDGET_MS);
-}
 
 export async function GET(req: NextRequest) {
   const denied = assertCron(req);
@@ -58,9 +50,9 @@ export async function GET(req: NextRequest) {
     return Response.json({ ok: false, error: "bad slug" }, { status: 400, headers: NO_STORE });
   }
 
-  const trigger = req.headers.get("user-agent")?.startsWith("vercel-cron") ? "cron" : "manual";
+  const trigger = cronTrigger(req);
   try {
-    const summary = await runEnrichment({ kinds, limit, dryRun: params.get("dry") === "1", slug, budgetMs: budgetMs(params.get("budget")) });
+    const summary = await runEnrichment({ kinds, limit, dryRun: params.get("dry") === "1", slug, budgetMs: cronBudget(params.get("budget"), process.env.ENRICH_BUDGET_MS ?? process.env.INGEST_BUDGET_MS, MAX_BUDGET_MS) });
 
     // One catalog-wide tag plus a bounded list of per-event tags: a big run must not turn into
     // hundreds of revalidations, and `events` alone would already be correct.
@@ -77,6 +69,8 @@ export async function GET(req: NextRequest) {
         slug: slug ?? null,
         dry: summary.dry,
         claimed: summary.claimed,
+        deferred: summary.deferred,
+        budget_exhausted: summary.budget_exhausted,
         done: summary.done,
         skipped: summary.skipped,
         failed: summary.failed,
@@ -90,7 +84,7 @@ export async function GET(req: NextRequest) {
     );
     return Response.json(
       { ...summary, revalidated: summary.dry || summary.changed.length === 0 ? [] : tags.length },
-      { headers: NO_STORE },
+      { status: summary.ok ? 200 : 500, headers: NO_STORE },
     );
   } catch (err) {
     const error = err instanceof Error ? err.message : String(err);

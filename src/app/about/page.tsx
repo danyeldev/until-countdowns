@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import Link from "next/link";
+import { Icon } from "@/components/Icon";
 import { catalogMeta } from "@/lib/catalog";
 import { CATEGORY_LABELS, sourceLabel } from "@/lib/labels";
 import { buildMetadata } from "@/lib/seo";
@@ -8,7 +10,8 @@ export const revalidate = 3600;
 
 export const metadata: Metadata = buildMetadata({
   title: "About",
-  description: "How Until collects, tags, and classifies thousands of future dates.",
+  description:
+    "How Until collects, tags, and classifies thousands of future dates.",
   canonical: "/about",
   ogPath: "/og/default",
 });
@@ -20,89 +23,84 @@ export default async function AboutPage() {
   const updated = meta.generatedAt ? meta.generatedAt.slice(0, 10) : "—";
 
   return (
-    <article className="max-w-2xl">
-      <p className="text-[11px] uppercase tracking-[0.24em] text-amber">The project</p>
-      <h1 className="mt-3 font-serif text-4xl text-paper sm:text-5xl">A newspaper of the future</h1>
-      <div className="mt-8 space-y-5 text-paper-dim leading-relaxed">
-        <p>
-          Until is a catalog of dates that have not happened yet. Public holidays from nearly every country, scheduled
-          events drawn from Wikipedia year pages and Wikidata, plus a curated layer of the ones people actually wait
-          for — eclipses, World Cups, Olympics, elections, Halley&apos;s Comet.
-        </p>
-        <p>
-          Each row is tagged and classified across {Object.keys(CATEGORY_LABELS).length} categories — holidays,
-          national days, sports, astronomy, space, tech, politics, history, and more. Search the whole set, filter a
-          category, open a live countdown, and add it to a calendar.
-        </p>
-        <p>
-          The holiday backbone is the offline{" "}
-          <a className="underline" href="https://github.com/commenthol/date-holidays" target="_blank" rel="noreferrer">
-            date-holidays
-          </a>{" "}
-          dataset, extended with{" "}
-          <a className="underline" href="https://www.wikidata.org/" target="_blank" rel="noreferrer">
-            Wikidata
-          </a>{" "}
-          and{" "}
-          <a className="underline" href="https://en.wikipedia.org/" target="_blank" rel="noreferrer">
-            Wikipedia
-          </a>
-          . Duplicate names on the same day (Christmas in 140 countries) are merged into one countdown. When sources
-          disagree, curated records win. Every event page names its source and when the date was last verified.
-        </p>
-        <p>
-          Dates without a confirmed day are labelled &ldquo;expected&rdquo; with the month, quarter, or year the
-          source gives, and they do not tick until a real date is published. The catalog refreshes daily from its
-          sources.
-        </p>
-        <p>
-          You can make your own. Those stay in the browser — no account — and the share link carries the title and date
-          in the URL so anyone can open the same ticking clock.
-        </p>
+    <article>
+      <p className="eyebrow">
+        The project
+      </p>
+      <h1 className="page-heading mt-3">
+        Make room for what’s next.
+      </h1>
+      <p className="page-subtitle mt-4 max-w-2xl">
+        The next eclipse. A much-awaited release. A day that means something to you.
+        Until brings the dates worth looking forward to into one place.
+      </p>
+      <div className="mt-7 flex flex-wrap gap-3">
+        <Link href="/" className="button-primary">Find your next moment <Icon name="arrow" /></Link>
+        <Link href="/create" className="button-secondary"><Icon name="plus" /> Make your own</Link>
       </div>
 
       <dl className="mt-12 grid gap-6 sm:grid-cols-3">
         <div className="ticket rounded-2xl p-5">
-          <dt className="text-xs uppercase tracking-[0.16em] text-muted">Dates</dt>
-          <dd className="mt-2 font-mono text-3xl text-amber">{meta.count.toLocaleString()}</dd>
+          <dt className="text-sm text-muted">
+            Dates
+          </dt>
+          <dd className="tabular mt-2 text-4xl font-semibold tracking-tight text-amber">
+            {meta.count.toLocaleString()}
+          </dd>
         </div>
         <div className="ticket rounded-2xl p-5">
-          <dt className="text-xs uppercase tracking-[0.16em] text-muted">Featured</dt>
-          <dd className="mt-2 font-mono text-3xl text-amber">{meta.stats.featured.toLocaleString()}</dd>
+          <dt className="text-sm text-muted">
+            Featured
+          </dt>
+          <dd className="tabular mt-2 text-4xl font-semibold tracking-tight text-amber">
+            {meta.stats.featured.toLocaleString()}
+          </dd>
         </div>
         <div className="ticket rounded-2xl p-5">
-          <dt className="text-xs uppercase tracking-[0.16em] text-muted">Updated</dt>
-          <dd className="mt-2 font-mono text-sm text-paper-dim">{updated}</dd>
+          <dt className="text-sm text-muted">
+            Updated
+          </dt>
+          <dd className="tabular mt-2 text-lg font-medium text-paper-dim">{updated}</dd>
         </div>
       </dl>
 
-      <h2 className="mt-12 font-serif text-2xl text-paper">By category</h2>
-      {cats.length === 0 ? (
-        <p className="mt-4 text-sm text-muted">The catalog is being filled — check back soon.</p>
-      ) : (
-        <ul className="mt-4 space-y-2 text-sm">
-          {cats.map(([name, n]) => (
-            <li key={name} className="flex justify-between border-b border-line/60 py-1.5">
-              <span className="text-paper-dim">{CATEGORY_LABELS[name as Category] ?? name}</span>
-              <span className="font-mono text-muted">{n.toLocaleString()}</span>
-            </li>
-          ))}
-        </ul>
-      )}
-
-      <h2 className="mt-12 font-serif text-2xl text-paper">By source</h2>
-      {srcs.length === 0 ? (
-        <p className="mt-4 text-sm text-muted">No sources reported yet.</p>
-      ) : (
-        <ul className="mt-4 space-y-2 text-sm">
-          {srcs.map(([name, n]) => (
-            <li key={name} className="flex justify-between border-b border-line/60 py-1.5">
-              <span className="text-paper-dim">{sourceLabel(name, meta.sourceLabels)}</span>
-              <span className="font-mono text-muted">{n.toLocaleString()}</span>
-            </li>
-          ))}
-        </ul>
-      )}
+      <div className="mt-10 grid gap-5 lg:grid-cols-2">
+        <section className="panel p-6 sm:p-8">
+          <Icon name="compass" className="text-amber" size={26} />
+          <h2 className="section-heading mt-5">Discover, then make it yours</h2>
+          <div className="mt-4 space-y-4 leading-relaxed text-paper-dim">
+            <p>Explore {Object.keys(CATEGORY_LABELS).length} categories, from public holidays and sport to astronomy, film and games. Save a countdown, add it to a calendar, or look through the years ahead.</p>
+            <p>Create a personal countdown for a birthday, trip or something only you understand. Your collection stays in this browser without an account. A share link carries the title, date and note so others can open the same countdown.</p>
+          </div>
+        </section>
+        <section className="panel p-6 sm:p-8">
+          <Icon name="check" className="text-amber" size={26} />
+          <h2 className="section-heading mt-5">Dates with a source</h2>
+          <div className="mt-4 space-y-4 leading-relaxed text-paper-dim">
+            <p>The catalog combines public datasets, specialist calendars and curated records. Event pages name their sources and show verification dates when available. Matching records are reconciled so the same occasion is easier to find.</p>
+            <p>An unconfirmed day is marked “expected,” with the month, quarter or year its source gives. Refresh schedules follow each source, and the last known information is retained when a source is unavailable.</p>
+          </div>
+          <Link href="/attributions" className="button-secondary mt-5">Meet the sources <Icon name="arrow" /></Link>
+        </section>
+      </div>
+      <div className="mt-10 grid gap-5 lg:grid-cols-2">
+        <section className="panel p-6 sm:p-8">
+          <h2 className="section-heading">Inside the catalog</h2>
+          {cats.length === 0 ? <p className="mt-4 text-muted">Category totals will appear as dates are added.</p> : (
+            <ul className="mt-5 divide-y divide-line text-sm">
+              {cats.map(([name, n]) => <li key={name}><Link href={`/category/${name}`} className="flex min-h-11 items-center justify-between gap-3 py-3 text-paper-dim hover:text-amber"><span>{CATEGORY_LABELS[name as Category] ?? name}</span><span className="tabular text-muted">{n.toLocaleString("en-US")}</span></Link></li>)}
+            </ul>
+          )}
+        </section>
+        <section className="panel p-6 sm:p-8">
+          <h2 className="section-heading">Built on open data</h2>
+          {srcs.length === 0 ? <p className="mt-4 text-muted">Source totals will appear as dates are added.</p> : (
+            <ul className="mt-5 divide-y divide-line text-sm">
+              {srcs.map(([name, n]) => <li key={name} className="flex min-h-11 items-center justify-between gap-3 py-3"><span className="text-paper-dim">{sourceLabel(name, meta.sourceLabels)}</span><span className="tabular text-muted">{n.toLocaleString("en-US")}</span></li>)}
+            </ul>
+          )}
+        </section>
+      </div>
     </article>
   );
 }

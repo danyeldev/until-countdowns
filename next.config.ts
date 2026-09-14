@@ -18,11 +18,16 @@ function supabaseImageHost(): string {
 
 /** Fonts read at runtime by the `/og/*` handlers (src/lib/og.tsx); traced explicitly so Vercel ships them. */
 const OG_FONT_FILES = [
-  "node_modules/@fontsource/fraunces/files/fraunces-latin-600-normal.woff",
+  "node_modules/@fontsource/geist/files/geist-latin-600-normal.woff",
   "node_modules/@fontsource/geist-mono/files/geist-mono-latin-500-normal.woff",
 ];
 
 const nextConfig: NextConfig = {
+  // Bound database fan-out when optional catalog warming is enabled.
+  experimental: {
+    staticGenerationMaxConcurrency: 2,
+    staticGenerationMinPagesPerWorker: 100,
+  },
   images: {
     remotePatterns: [
       {
@@ -56,8 +61,18 @@ const nextConfig: NextConfig = {
         permanent: true,
       },
       // Hub pagination moved from `?page=n` into the path (page 1 stays ISR).
-      { source: "/category/:c", has: [{ type: "query", key: "page", value: page }], destination: "/category/:c/page/:n", permanent: true },
-      { source: "/tag/:t", has: [{ type: "query", key: "page", value: page }], destination: "/tag/:t/page/:n", permanent: true },
+      {
+        source: "/category/:c",
+        has: [{ type: "query", key: "page", value: page }],
+        destination: "/category/:c/page/:n",
+        permanent: true,
+      },
+      {
+        source: "/tag/:t",
+        has: [{ type: "query", key: "page", value: page }],
+        destination: "/tag/:t/page/:n",
+        permanent: true,
+      },
       // (`?page=1` is left alone: a redirect to the bare path would carry the query along and loop.)
     ];
   },

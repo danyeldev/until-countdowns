@@ -58,11 +58,11 @@ export default async function TagPageN({ params }: Props) {
   return (
     <div>
       <Breadcrumbs items={[{ name: "Home", path: "/" }, { name: `#${label}`, path: basePath }, { name: `Page ${n}`, path }]} />
-      <p className="mt-6 text-[11px] uppercase tracking-[0.24em] text-amber">Tag</p>
-      <h1 className="mt-3 font-serif text-4xl text-paper sm:text-5xl">
+      <p className="eyebrow mt-7">Tag</p>
+      <h1 className="page-heading mt-3">
         {label} <span className="text-muted">— page {n}</span>
       </h1>
-      <p className="tabular mt-4 max-w-2xl text-paper-dim">
+      <p className="tabular page-subtitle mt-3 max-w-2xl">
         {result.total.toLocaleString("en-US")} upcoming {result.total === 1 ? "date" : "dates"} tagged “{label}”, soonest first.{" "}
         <Link href={basePath} className="text-amber underline hover:text-paper">
           Back to the first page

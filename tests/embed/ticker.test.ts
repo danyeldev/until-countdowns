@@ -26,11 +26,16 @@ function node(display = ""): Node {
 function stubDom(html: string) {
   // Seed from what the server actually emitted: `.done` is `display:none` in the stylesheet, and a
   // finished countdown ships with the clock hidden and the done line already up.
-  const clock = node(/id="clock" style="display:none"/.test(html) ? "none" : "");
-  const done = node(/id="done" style="display:block"/.test(html) ? "block" : "none");
+  const clock = node(
+    /id="clock" style="display:none"/.test(html) ? "none" : "",
+  );
+  const done = node(
+    /id="done" style="display:block"/.test(html) ? "block" : "none",
+  );
   const cells = new Map<string, Node>();
   const document = {
-    getElementById: (id: string) => (id === "clock" ? clock : id === "done" ? done : null),
+    getElementById: (id: string) =>
+      id === "clock" ? clock : id === "done" ? done : null,
     querySelector: (selector: string) => {
       const existing = cells.get(selector);
       if (existing) return existing;
@@ -47,7 +52,9 @@ function movableDate(start: number) {
   const state = { now: start };
   const Real = Date;
   function Fake(this: unknown, ...args: unknown[]) {
-    return args.length === 0 ? new Real(state.now) : new (Real as unknown as new (...a: unknown[]) => Date)(...args);
+    return args.length === 0
+      ? new Real(state.now)
+      : new (Real as unknown as new (...a: unknown[]) => Date)(...args);
   }
   Fake.now = () => state.now;
   Fake.parse = Real.parse;
@@ -70,7 +77,13 @@ function run(html: string, start: number) {
   };
 
   // eslint-disable-next-line @typescript-eslint/no-implied-eval
-  const ticker = new Function("document", "setInterval", "clearInterval", "Date", source[1]);
+  const ticker = new Function(
+    "document",
+    "setInterval",
+    "clearInterval",
+    "Date",
+    source[1],
+  );
   ticker(dom.document, setIntervalStub, clearIntervalStub, Fake);
 
   return {
@@ -92,7 +105,11 @@ const HOUR = 3_600_000;
 const DAY = 86_400_000;
 
 function build(theme: Partial<EmbedTheme> = {}, now = Date.UTC(2026, 11, 25)) {
-  return buildEmbedDocument(SUBJECT, { ...DEFAULT_EMBED_THEME, ...theme }, { now });
+  return buildEmbedDocument(
+    SUBJECT,
+    { ...DEFAULT_EMBED_THEME, ...theme },
+    { now },
+  );
 }
 
 describe("the ticker, driven", () => {
@@ -114,7 +131,10 @@ describe("the ticker, driven", () => {
   });
 
   it("trims leading zero units together with their separators, never the last one", () => {
-    const ticker = run(build({ trim: true }), TARGET - 90_000);
+    const ticker = run(
+      build({ trim: true, separator: "colon" }),
+      TARGET - 90_000,
+    );
     expect(ticker.cells.get('[data-u="d"]')?.style.display).toBe("none");
     expect(ticker.cells.get('[data-after="d"]')?.style.display).toBe("none");
     expect(ticker.cells.get('[data-u="h"]')?.style.display).toBe("none");

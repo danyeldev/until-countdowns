@@ -9,9 +9,10 @@ import type { Category } from "@/lib/types";
  * names, `nationwide` vs ISO-3166-2 subdivision scoping, stable UUID ids. Rank 2 > holidays
  * rank 1, so on a slug collision its title/date win.
  *
- * Licence: the server code is AGPL-3.0; the *data* licence is not stated anywhere on the site
- * (`/en/sources/` and `/en/about/` 404 on 2026-09-09). `public.sources` records ODbL — treat as
- * unverified; attribution "Holiday data from OpenHolidays API (openholidaysapi.org)". No images.
+ * Licence: processed data is ODbL, including free commercial use, explicitly confirmed by the
+ * operator's https://www.openholidaysapi.org/en/faq/ (verified 2026-09-14). Server code is
+ * separately AGPL-3.0. Attribution: "Holiday data from OpenHolidays API (openholidaysapi.org)".
+ * No images are copied.
  *
  * Rejected alternatives (do not add): Nager.Date — ToS "It is not allowed to use the holiday
  * information to publish or operate your own holiday portal", commercial use requires

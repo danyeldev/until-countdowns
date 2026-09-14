@@ -1,7 +1,22 @@
 import { regionLabel } from "./regions";
 import { absoluteUrl } from "./seo";
-import { googleDates, icsDate, isValidDate, shiftDay } from "./time";
+import {
+  googleDates,
+  icsDate,
+  isCoarsePrecision,
+  isValidDate,
+  shiftDay,
+} from "./time";
 import type { CountdownEvent } from "./types";
+
+/** Calendar exports require a real confirmed day; never turn a year/month placeholder into a date. */
+export function canAddToCalendar(event: CountdownEvent): boolean {
+  return (
+    isValidDate(event.date) &&
+    !isCoarsePrecision(event.datePrecision) &&
+    !["cancelled", "postponed", "retired"].includes(event.status ?? "")
+  );
+}
 
 /** The countdown's own page, unless the caller knows a better one (a share payload, a series). */
 function pageUrlFor(event: CountdownEvent, pageUrl?: string): string {
@@ -24,11 +39,15 @@ const DEFAULT_DURATION_MS = 3_600_000;
  * came from when the catalog has one. Google and Outlook both linkify a bare URL in the body, and
  * the ICS repeats the page in `URL:` for clients that show that as a field of its own.
  */
-export function calendarDescription(event: CountdownEvent, pageUrl?: string): string {
+export function calendarDescription(
+  event: CountdownEvent,
+  pageUrl?: string,
+): string {
   const page = pageUrlFor(event, pageUrl);
   const lines = [event.description?.trim() || event.title];
   lines.push("", `Countdown: ${page}`);
-  if (event.sourceUrl && event.sourceUrl !== page) lines.push(`Source: ${event.sourceUrl}`);
+  if (event.sourceUrl && event.sourceUrl !== page)
+    lines.push(`Source: ${event.sourceUrl}`);
   return lines.join("\n");
 }
 
@@ -133,7 +152,8 @@ function lastDayOf(event: CountdownEvent): string {
  */
 function timedEndIso(event: CountdownEvent): string {
   const startMs = new Date(event.date).getTime();
-  const raw = event.endDate && isValidDate(event.endDate) ? event.endDate : null;
+  const raw =
+    event.endDate && isValidDate(event.endDate) ? event.endDate : null;
   const endMs = raw
     ? raw.includes("T")
       ? new Date(raw).getTime()
@@ -141,7 +161,10 @@ function timedEndIso(event: CountdownEvent): string {
     : Number.NaN;
   // An end that is not later than the start (dates entered backwards) gets the default hour rather
   // than a DTEND the RFC forbids.
-  const resolved = Number.isFinite(endMs) && endMs > startMs ? endMs : startMs + DEFAULT_DURATION_MS;
+  const resolved =
+    Number.isFinite(endMs) && endMs > startMs
+      ? endMs
+      : startMs + DEFAULT_DURATION_MS;
   return new Date(resolved).toISOString();
 }
 
@@ -157,15 +180,22 @@ function timedEndIso(event: CountdownEvent): string {
  */
 const LOCATION_PARAM = "location";
 
-export function googleCalendarUrl(event: CountdownEvent, pageUrl?: string): string {
-  if (!isValidDate(event.date)) return "#";
+export function googleCalendarUrl(
+  event: CountdownEvent,
+  pageUrl?: string,
+): string {
+  if (!canAddToCalendar(event)) return "#";
   const timed = isTimed(event);
   const params = new URLSearchParams({
     action: "TEMPLATE",
     text: event.title,
     // `!timed`, not `event.allDay`: `googleDates()` reads the flag to pick DATE vs DATE-TIME halves
     // of the range, so it has to be told the same thing the ICS decided, from the same evidence.
-    dates: googleDates(event.date, timed ? timedEndIso(event) : lastDayOf(event), !timed),
+    dates: googleDates(
+      event.date,
+      timed ? timedEndIso(event) : lastDayOf(event),
+      !timed,
+    ),
     details: calendarDescription(event, pageUrl),
   });
   // Omitted rather than sent empty: a blank place row is worse than none. See LOCATION_PARAM.
@@ -174,10 +204,15 @@ export function googleCalendarUrl(event: CountdownEvent, pageUrl?: string): stri
   return `https://calendar.google.com/calendar/render?${params.toString()}`;
 }
 
-export function outlookCalendarUrl(event: CountdownEvent, pageUrl?: string): string {
-  if (!isValidDate(event.date)) return "#";
+export function outlookCalendarUrl(
+  event: CountdownEvent,
+  pageUrl?: string,
+): string {
+  if (!canAddToCalendar(event)) return "#";
   const timed = isTimed(event);
-  const start = timed ? new Date(event.date).toISOString() : `${dayOf(event.date)}T00:00:00`;
+  const start = timed
+    ? new Date(event.date).toISOString()
+    : `${dayOf(event.date)}T00:00:00`;
   // The all-day end stays inclusive (`23:59:59` on the last day): unchanged from before this
   // change, because whether Outlook wants an inclusive or an exclusive end alongside `allday=true`
   // is a GUESS with no live link to test it against, and a guess is not a reason to move it. What
@@ -226,14 +261,19 @@ function geoValue(event: CountdownEvent): string | null {
 }
 
 export function icsContent(event: CountdownEvent, pageUrl?: string): string {
-  if (!isValidDate(event.date)) return "BEGIN:VCALENDAR\r\nEND:VCALENDAR";
+  if (!canAddToCalendar(event)) return "BEGIN:VCALENDAR\r\nEND:VCALENDAR";
   const uid = `${event.id}@until`;
-  const stamp = new Date().toISOString().replace(/[-:]/g, "").replace(/\.\d{3}Z$/, "Z");
+  const stamp = new Date()
+    .toISOString()
+    .replace(/[-:]/g, "")
+    .replace(/\.\d{3}Z$/, "Z");
   const timed = isTimed(event);
   const start = icsDate(event.date, !timed);
   // RFC 5545: an all-day DTEND (VALUE=DATE) is exclusive, so it is the day AFTER the last day —
   // the same +1 that googleDates() applies. A timed one is exclusive too; see timedEndIso().
-  const end = timed ? icsDate(timedEndIso(event), false) : icsDate(shiftDay(lastDayOf(event), 1), true);
+  const end = timed
+    ? icsDate(timedEndIso(event), false)
+    : icsDate(shiftDay(lastDayOf(event), 1), true);
   const where = calendarLocation(event);
   const geo = geoValue(event);
   const lines = [
@@ -260,7 +300,10 @@ export function icsContent(event: CountdownEvent, pageUrl?: string): string {
     "END:VEVENT",
     "END:VCALENDAR",
   ];
-  return lines.filter((l): l is string => l !== null).map(foldIcsLine).join("\r\n");
+  return lines
+    .filter((l): l is string => l !== null)
+    .map(foldIcsLine)
+    .join("\r\n");
 }
 
 /**
@@ -268,7 +311,11 @@ export function icsContent(event: CountdownEvent, pageUrl?: string): string {
  * backslash of its own, which the first rule must not have already doubled.
  */
 function escapeIcs(value: string): string {
-  return value.replace(/\\/g, "\\\\").replace(/;/g, "\\;").replace(/,/g, "\\,").replace(/\n/g, "\\n");
+  return value
+    .replace(/\\/g, "\\\\")
+    .replace(/;/g, "\\;")
+    .replace(/,/g, "\\,")
+    .replace(/\n/g, "\\n");
 }
 
 const ICS_LINE_OCTETS = 75;
@@ -302,7 +349,9 @@ function foldIcsLine(line: string): string {
 }
 
 export function downloadIcs(event: CountdownEvent, pageUrl?: string) {
-  const blob = new Blob([icsContent(event, pageUrl)], { type: "text/calendar;charset=utf-8" });
+  const blob = new Blob([icsContent(event, pageUrl)], {
+    type: "text/calendar;charset=utf-8",
+  });
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.href = url;

@@ -1,8 +1,10 @@
+import { prerenderLimit } from "@/lib/prerender";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { EventTable } from "@/components/EventTable";
+import { Icon } from "@/components/Icon";
 import { JsonLd } from "@/components/JsonLd";
 import { Pager } from "@/components/Pager";
 import { listEvents, listEventsStrict, tagsWithAtLeast } from "@/lib/catalog";
@@ -24,7 +26,9 @@ const TAG_RE = /^[a-z0-9-]{1,60}$/;
 type Props = { params: Promise<{ tag: string }> };
 
 export async function generateStaticParams() {
-  const tags = await tagsWithAtLeast(INDEX_MIN_EVENTS, PRERENDER_TAGS);
+  const limit = prerenderLimit(PRERENDER_TAGS);
+  if (!limit) return [];
+  const tags = await tagsWithAtLeast(INDEX_MIN_EVENTS, limit);
   return tags.filter((t) => TAG_RE.test(t.tag)).map((t) => ({ tag: t.tag }));
 }
 
@@ -54,20 +58,17 @@ export default async function TagPage({ params }: Props) {
   return (
     <div>
       <Breadcrumbs items={[{ name: "Home", path: "/" }, { name: `#${label}`, path }]} />
-      <p className="mt-6 text-[11px] uppercase tracking-[0.24em] text-amber">Tag</p>
-      <h1 className="mt-3 font-serif text-4xl text-paper sm:text-5xl">{label}</h1>
-      <p className="tabular mt-4 max-w-2xl text-paper-dim">
+      <p className="eyebrow mt-7">Tag</p>
+      <h1 className="page-heading mt-3">{label}</h1>
+      <p className="tabular page-subtitle mt-3 max-w-2xl">
         {result.total.toLocaleString("en-US")} upcoming {result.total === 1 ? "date" : "dates"} tagged “{label}”, soonest first.
       </p>
       <EventTable events={result.items} />
       <Pager page={result.page} total={result.total} pageSize={result.pageSize} basePath={path} />
-      <p className="mt-8 text-sm text-muted">
-        Looking for something else?{" "}
-        <Link href={`/?q=${encodeURIComponent(label)}`} className="text-amber underline hover:text-paper">
-          Search the whole catalog for “{label}”
-        </Link>
-        .
-      </p>
+      <div className="panel mt-8 flex flex-wrap items-center justify-between gap-4 p-5">
+        <div><p className="font-medium text-paper">Keep exploring</p><p className="mt-1 text-sm text-muted">Find related moments across the catalog.</p></div>
+        <Link href={`/?q=${encodeURIComponent(label)}`} className="button-secondary"><Icon name="search" /> Search “{label}”</Link>
+      </div>
       <JsonLd
         data={collectionPage(
           tagTitle(tag),

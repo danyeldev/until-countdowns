@@ -29,10 +29,10 @@ export async function GET(_req: NextRequest, ctx: { params: Promise<{ slug: stri
   const next = series.nextDate;
   return renderOgCard(
     {
-      eyebrow: `${CATEGORY_LABELS[series.category]} · every year`,
+      eyebrow: `${CATEGORY_LABELS[series.category]} · recurring dates`,
       title: series.title,
-      subtitle: next && !coarse ? `Next: ${formatLongDate(next)}` : next ? undefined : "Dates to be announced",
-      days: next && !coarse ? daysBetween(day, next, series.nextAllDay ?? true) : null,
+      subtitle: next && !coarse ? `Next: ${formatLongDate(next, series.nextTimezone)}` : next ? undefined : "Dates to be announced",
+      days: next && !coarse ? daysBetween(day, next, series.nextAllDay ?? true, series.nextTimezone) : null,
       expectedLabel: next && coarse ? `expected ${expectedPeriod(next, series.nextPrecision)}` : undefined,
       seed: `series:${series.slug}`,
     },

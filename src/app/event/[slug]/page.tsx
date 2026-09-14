@@ -1,21 +1,20 @@
+import { canAddToCalendar } from "@/lib/calendar";
+import { prerenderLimit } from "@/lib/prerender";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound, permanentRedirect } from "next/navigation";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { CalendarButtons } from "@/components/CalendarButtons";
-import { Countdown } from "@/components/Countdown";
+import { DetailHero } from "@/components/DetailHero";
+import { YearTimeline } from "@/components/YearTimeline";
+import { Icon } from "@/components/Icon";
 import { EmbedStudio } from "@/components/EmbedStudio";
 import { EventCard } from "@/components/EventCard";
-import { EventImage } from "@/components/EventImage";
-import { EventTable } from "@/components/EventTable";
-import { FallbackCard } from "@/components/FallbackCard";
-import { ImageCredit } from "@/components/ImageCredit";
 import { IntentAnswer } from "@/components/IntentAnswer";
 import { JsonLd } from "@/components/JsonLd";
 import { MineEvent } from "@/components/MineEvent";
 import { SaveButton } from "@/components/SaveButton";
 import { ShareButton } from "@/components/ShareButton";
-import { StatusBadge } from "@/components/StatusBadge";
 import {
   getEvent,
   getEventStrict,
@@ -40,7 +39,7 @@ import {
   todayUtc,
   truncate,
 } from "@/lib/seo";
-import { formatApproximate, formatCompactDate, formatRange, isCoarsePrecision } from "@/lib/time";
+import { formatCompactDate, isCoarsePrecision } from "@/lib/time";
 import type { CountdownEvent } from "@/lib/types";
 import { decodeSharePayload } from "@/lib/user-events";
 
@@ -54,17 +53,26 @@ const OTHER_YEARS = 6;
  * empty or unreachable database prerenders nothing rather than a set of cached 404s.
  */
 export async function generateStaticParams() {
-  const slugs = await topSlugs(500);
+  const limit = prerenderLimit(500);
+  if (!limit) return [];
+  const slugs = await topSlugs(limit);
   return slugs.map((slug) => ({ slug }));
 }
 
-export async function generateMetadata({ params }: PageProps<"/event/[slug]">): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: PageProps<"/event/[slug]">): Promise<Metadata> {
   const { slug } = await params;
-  if (slug.startsWith("mine-")) return { title: "Your countdown", robots: { index: false, follow: false } };
+  if (slug.startsWith("mine-"))
+    return { title: "Your countdown", robots: { index: false, follow: false } };
   if (slug.startsWith("share-")) {
     const payload = slug.slice("share-".length);
     const shared = decodeSharePayload(payload);
-    if (!shared) return { title: "Shared countdown", robots: { index: false, follow: false } };
+    if (!shared)
+      return {
+        title: "Shared countdown",
+        robots: { index: false, follow: false },
+      };
     return buildMetadata({
       title: `${shared.title} — ${formatLongDate(shared.date)} countdown`,
       description: `${shared.title} is on ${formatLongDate(shared.date)}. A countdown someone made on Until.`,
@@ -74,7 +82,8 @@ export async function generateMetadata({ params }: PageProps<"/event/[slug]">): 
     });
   }
   const event = await getEvent(slug);
-  if (!event) return { title: "Countdown", robots: { index: false, follow: true } };
+  if (!event)
+    return { title: "Countdown", robots: { index: false, follow: true } };
   const metadata = buildMetadata({
     title: eventTitle(event),
     description: eventDescription(event),
@@ -86,12 +95,18 @@ export async function generateMetadata({ params }: PageProps<"/event/[slug]">): 
   metadata.alternates = {
     ...metadata.alternates,
     types: {
-      "text/calendar": absoluteUrl(`/api/ics/${event.slug}`),
+      ...(canAddToCalendar(event)
+        ? { "text/calendar": absoluteUrl(`/api/ics/${event.slug}`) }
+        : {}),
       // Advertised only where there is a clock to embed: a coarse date has none, and a consumer
       // that follows the link into a 404 shows the reader an embed error rather than a plain link.
-      ...(isCoarsePrecision(event.datePrecision)
+      ...(!canAddToCalendar(event)
         ? {}
-        : { "application/json+oembed": oembedDiscoveryUrl(`/event/${event.slug}`) }),
+        : {
+            "application/json+oembed": oembedDiscoveryUrl(
+              `/event/${event.slug}`,
+            ),
+          }),
     },
   };
   return metadata;
@@ -99,23 +114,40 @@ export async function generateMetadata({ params }: PageProps<"/event/[slug]">): 
 
 function Provenance({ event }: { event: CountdownEvent }) {
   const label = event.sourceLabel || sourceLabel(event.source);
-  const verified = event.lastVerifiedAt ? formatCompactDate(event.lastVerifiedAt.slice(0, 10)) : null;
+  const verified = event.lastVerifiedAt
+    ? formatCompactDate(event.lastVerifiedAt.slice(0, 10))
+    : null;
   return (
-    <p className="mt-8 text-xs text-muted">
-      Source:{" "}
-      {event.sourceUrl ? (
-        <a href={event.sourceUrl} className="underline hover:text-paper" target="_blank" rel="noreferrer">
-          {label}
-        </a>
-      ) : (
-        label
-      )}
-      {verified ? ` · last verified ${verified}` : ""}
-      {" · "}
-      <Link href="/attributions" className="underline hover:text-paper">
-        attributions
+    <section className="panel rounded-2xl border border-line bg-ink-2 p-5 sm:p-6">
+      <div className="flex items-center gap-2 text-muted">
+        <Icon name="globe" size={17} />
+        <h2 className="text-sm font-medium text-paper">Date source</h2>
+      </div>
+      <p className="mt-4 text-base font-medium text-paper">
+        {event.sourceUrl ? (
+          <a
+            href={event.sourceUrl}
+            className="inline-flex min-h-11 items-center gap-2 text-amber hover:underline"
+            target="_blank"
+            rel="noreferrer"
+          >
+            {label}
+            <Icon name="arrow" size={16} />
+          </a>
+        ) : (
+          label
+        )}
+      </p>
+      {verified ? (
+        <p className="mt-1 text-sm text-muted">Last verified {verified}</p>
+      ) : null}
+      <Link
+        href="/attributions"
+        className="mt-4 inline-flex min-h-11 items-center text-xs text-paper-dim underline decoration-line underline-offset-4 hover:text-paper"
+      >
+        Sources and attributions
       </Link>
-    </p>
+    </section>
   );
 }
 
@@ -128,7 +160,12 @@ function WikipediaCredit({ article }: { article: string }) {
   return (
     <p className="mt-2 text-xs text-muted">
       Summary from{" "}
-      <a href={href} className="underline hover:text-paper" target="_blank" rel="noreferrer">
+      <a
+        href={href}
+        className="underline hover:text-paper"
+        target="_blank"
+        rel="noreferrer"
+      >
         Wikipedia
       </a>{" "}
       (
@@ -147,13 +184,18 @@ function WikipediaCredit({ article }: { article: string }) {
 
 function Chip({ href, children }: { href: string; children: React.ReactNode }) {
   return (
-    <Link href={href} className="rounded-full border border-line px-2 py-0.5 text-xs text-paper-dim hover:text-paper">
+    <Link
+      href={href}
+      className="inline-flex min-h-11 items-center rounded-xl border border-line bg-ink px-3 text-xs text-paper-dim hover:border-amber/40 hover:text-amber"
+    >
       {children}
     </Link>
   );
 }
 
-export default async function EventPage({ params }: PageProps<"/event/[slug]">) {
+export default async function EventPage({
+  params,
+}: PageProps<"/event/[slug]">) {
   const { slug } = await params;
 
   if (slug.startsWith("mine-")) {
@@ -177,10 +219,14 @@ export default async function EventPage({ params }: PageProps<"/event/[slug]">) 
   const isUser = event.source === "user";
   const [related, siblings, citation] = await Promise.all([
     isUser ? [] : relatedEvents(event, 6),
-    event.seriesSlug ? seriesOccurrences(event.seriesSlug, OTHER_YEARS + 2) : [],
+    event.seriesSlug
+      ? seriesOccurrences(event.seriesSlug, OTHER_YEARS + 2)
+      : [],
     isUser || !event.summary ? null : summaryCitation(event.slug),
   ]);
-  const otherYears = siblings.filter((o) => o.slug !== event.slug).slice(0, OTHER_YEARS);
+  const otherYears = siblings
+    .filter((o) => o.slug !== event.slug)
+    .slice(0, OTHER_YEARS);
   // A shared personal countdown is reached at the payload URL it arrived on — the `mine-…` slug
   // the payload decodes to only resolves in the browser that created it, so it is not shareable.
   const shared = slug.startsWith("share-");
@@ -190,168 +236,210 @@ export default async function EventPage({ params }: PageProps<"/event/[slug]">) 
   const previousDate = event.dateHistory?.at(-1)?.date;
 
   const crumbs: Crumb[] = [{ name: "Home", path: "/" }];
-  if (!isUser) crumbs.push({ name: CATEGORY_LABELS[event.category], path: `/category/${event.category}` });
-  if (event.seriesSlug && event.seriesTitle) crumbs.push({ name: event.seriesTitle, path: `/days-until/${event.seriesSlug}` });
+  if (!isUser)
+    crumbs.push({
+      name: CATEGORY_LABELS[event.category],
+      path: `/category/${event.category}`,
+    });
+  if (event.seriesSlug && event.seriesTitle)
+    crumbs.push({
+      name: event.seriesTitle,
+      path: `/days-until/${event.seriesSlug}`,
+    });
   crumbs.push({ name: truncate(event.title, 80), path: sharePath });
 
   return (
-    <article>
+    <article className="pb-4">
       <Breadcrumbs items={crumbs} />
-      <p className="mt-6 flex flex-wrap items-center gap-3 text-[11px] uppercase tracking-[0.24em] text-amber">
-        <Link href={`/category/${event.category}`} className="hover:text-paper">
-          {CATEGORY_LABELS[event.category]}
-        </Link>
-        <StatusBadge status={event.status} />
-      </p>
-      <h1 className="mt-3 font-serif text-4xl leading-tight text-paper sm:text-6xl">{event.title}</h1>
-      <IntentAnswer
-        className="mt-5 max-w-2xl"
+      <DetailHero
         title={event.title}
+        kicker={
+          isUser ? (
+            <span>Shared countdown</span>
+          ) : (
+            <Link
+              href={`/category/${event.category}`}
+              className="rounded-md hover:text-paper"
+            >
+              {CATEGORY_LABELS[event.category]}
+            </Link>
+          )
+        }
         date={event.date}
-        days={event.daysUntil}
+        endDate={event.endDate}
+        allDay={event.allDay}
+        timezone={event.timezone}
+        initialDays={event.daysUntil}
         precision={event.datePrecision}
         status={event.status}
+        image={isUser ? undefined : event.image}
+        actions={
+          <>
+            <SaveButton id={event.id} event={event} />
+            <CalendarButtons event={event} url={absoluteUrl(sharePath)} />
+            <ShareButton title={event.title} path={sharePath} />
+          </>
+        }
       />
-      <p className="mt-4 max-w-2xl text-lg text-paper-dim">{event.description}</p>
-      {event.summary && event.summary !== event.description ? (
-        <div className="mt-3 max-w-2xl">
-          <p className="text-paper-dim">{event.summary}</p>
-          {citation ? <WikipediaCredit article={citation.enwiki} /> : null}
-        </div>
-      ) : null}
-      <p className="mt-3 font-mono text-sm text-muted">
-        {coarse ? formatApproximate(event.date, event.datePrecision) : formatRange(event.date, event.endDate)}
-      </p>
-      {coarse ? (
-        <p className="mt-2 max-w-2xl text-sm text-muted">
-          The exact day has not been announced yet. This page will start ticking once the source publishes one.
-        </p>
-      ) : null}
+
       {previousDate ? (
-        <p className="mt-2 max-w-2xl text-sm text-ember">
-          Date changed: previously {formatLongDate(previousDate)}.
+        <p className="mt-4 rounded-xl border border-ember/30 bg-ember/5 px-4 py-3 text-sm text-ember">
+          Schedule updated. Previously{" "}
+          {formatLongDate(previousDate, event.timezone)}.
         </p>
       ) : null}
-
-      {!isUser ? (
-        <figure className="mt-10">
-          {event.image ? (
-            <>
-              <EventImage
-                image={event.image}
-                alt={event.title}
-                variant="hero"
-                priority
-                className="rounded-3xl border border-line"
-              />
-              <ImageCredit image={event.image} className="mt-2" />
-            </>
-          ) : (
-            <FallbackCard
-              slug={event.slug}
-              title={event.title}
-              category={event.category}
-              variant="hero"
-              className="rounded-3xl border border-line"
-            />
-          )}
-        </figure>
-      ) : null}
-
-      <div className="ticket mt-10 rounded-3xl px-6 py-10 sm:px-10">
-        <Countdown
-          date={event.date}
-          allDay={event.allDay}
-          size="hero"
-          initialDays={event.daysUntil}
-          precision={event.datePrecision}
-        />
-      </div>
-
-      <div className="mt-8 flex flex-wrap items-center gap-2">
-        <CalendarButtons event={event} url={absoluteUrl(sharePath)} />
-        <SaveButton id={event.id} />
-        <ShareButton title={event.title} path={sharePath} />
-      </div>
-
-      {coarse ? null : (
-        <EmbedStudio slug={shared ? slug : event.slug} title={event.title} origin={siteUrl()} />
-      )}
 
       {event.seriesSlug ? (
-        <p className="mt-8 text-sm text-paper-dim">
-          Part of the{" "}
-          <Link href={`/days-until/${event.seriesSlug}`} className="text-amber underline hover:text-paper">
-            {event.seriesTitle ?? event.seriesSlug} series
-          </Link>
-          {" — every year, with the next date always on top."}
-        </p>
-      ) : null}
-
-      <dl className="mt-10 grid gap-6 border-t border-line pt-8 text-sm sm:grid-cols-2">
-        <div>
-          <dt className="uppercase tracking-[0.16em] text-muted">Where</dt>
-          <dd className="mt-2 flex flex-wrap items-center gap-2 text-paper-dim">
-            {shownRegions.length === 0 ? (
-              <span>Worldwide</span>
-            ) : (
-              shownRegions.slice(0, 24).map((code) =>
-                COUNTRY_NAMES[code] ? (
-                  <Chip key={code} href={`/country/${code.toLowerCase()}`}>
-                    {regionLabel(code)}
-                  </Chip>
-                ) : (
-                  <span key={code}>{regionLabel(code)}</span>
-                ),
-              )
-            )}
-            {shownRegions.length > 24 ? <span>+{shownRegions.length - 24}</span> : null}
-            {event.location?.name ? <span>· {event.location.name}</span> : null}
-          </dd>
-        </div>
-        <div>
-          <dt className="uppercase tracking-[0.16em] text-muted">Tags</dt>
-          <dd className="mt-2 flex flex-wrap gap-2">
-            {event.tags.length === 0 ? (
-              <span className="text-paper-dim">—</span>
-            ) : (
-              event.tags.map((tag) => (
-                <Chip key={tag} href={isUser ? `/?q=${encodeURIComponent(tag)}` : `/tag/${encodeURIComponent(tag)}`}>
-                  {tag}
-                </Chip>
-              ))
-            )}
-          </dd>
-        </div>
-      </dl>
-
-      {!isUser ? <Provenance event={event} /> : null}
-
-      {otherYears.length > 0 ? (
-        <section className="mt-16">
-          <h2 className="font-serif text-2xl text-paper">Other years</h2>
-          <EventTable events={otherYears} showCategory={false} />
-          {event.seriesSlug ? (
-            <p className="mt-3 text-sm">
-              <Link href={`/days-until/${event.seriesSlug}`} className="text-amber underline hover:text-paper">
-                Every upcoming date
-              </Link>
-            </p>
+        <section className="mt-8" aria-labelledby="other-dates-heading">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <div>
+              <h2 id="other-dates-heading" className="section-heading">
+                Choose a year
+              </h2>
+              <p className="mt-1 text-sm text-muted">
+                More dates for {event.seriesTitle ?? event.title}.
+              </p>
+            </div>
+            <Link
+              href={`/days-until/${event.seriesSlug}`}
+              className="button-secondary gap-2"
+            >
+              All dates <Icon name="arrow" size={16} />
+            </Link>
+          </div>
+          {otherYears.length ? (
+            <YearTimeline
+              events={[event, ...otherYears].sort((a, b) =>
+                a.date.localeCompare(b.date),
+              )}
+              currentSlug={event.slug}
+            />
           ) : null}
         </section>
       ) : null}
 
-      {related.length > 0 && (
-        <section className="mt-16">
-          <h2 className="font-serif text-2xl text-paper">Also coming</h2>
-          <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="mt-8 grid items-start gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(260px,0.48fr)]">
+        <section className="panel min-w-0 rounded-2xl border border-line bg-ink-2 p-5 sm:p-6">
+          <h2 className="section-heading">About this moment</h2>
+          <IntentAnswer
+            className="mt-4"
+            title={event.title}
+            date={event.date}
+            days={event.daysUntil}
+            precision={event.datePrecision}
+            status={event.status}
+            timezone={event.timezone}
+          />
+          {event.description ? (
+            <p className="mt-4 text-sm leading-relaxed text-paper-dim">
+              {event.description}
+            </p>
+          ) : null}
+          {event.summary && event.summary !== event.description ? (
+            <div className="mt-4 text-sm leading-relaxed text-paper-dim">
+              <p>{event.summary}</p>
+              {citation ? <WikipediaCredit article={citation.enwiki} /> : null}
+            </div>
+          ) : null}
+          {coarse ? (
+            <p className="mt-4 rounded-xl border border-line bg-ink px-4 py-3 text-sm text-muted">
+              The source has announced a date range. An exact day has not been
+              confirmed.
+            </p>
+          ) : null}
+          <dl className="mt-6 space-y-5 border-t border-line pt-5 text-sm">
+            <div>
+              <dt className="font-medium text-paper">Where</dt>
+              <dd className="mt-2 flex flex-wrap items-center gap-2 text-paper-dim">
+                {shownRegions.length === 0 ? (
+                  <span>Worldwide</span>
+                ) : (
+                  shownRegions.slice(0, 24).map((code) =>
+                    COUNTRY_NAMES[code] ? (
+                      <Chip key={code} href={`/country/${code.toLowerCase()}`}>
+                        {regionLabel(code)}
+                      </Chip>
+                    ) : (
+                      <span key={code}>{regionLabel(code)}</span>
+                    ),
+                  )
+                )}
+                {shownRegions.length > 24 ? (
+                  <span>+{shownRegions.length - 24}</span>
+                ) : null}
+                {event.location?.name ? (
+                  <span>{event.location.name}</span>
+                ) : null}
+              </dd>
+            </div>
+            {event.tags.length ? (
+              <div>
+                <dt className="font-medium text-paper">
+                  Explore related topics
+                </dt>
+                <dd className="mt-2 flex flex-wrap gap-2">
+                  {event.tags.map((tag) => (
+                    <Chip
+                      key={tag}
+                      href={
+                        isUser
+                          ? `/?q=${encodeURIComponent(tag)}`
+                          : `/tag/${encodeURIComponent(tag)}`
+                      }
+                    >
+                      {tag}
+                    </Chip>
+                  ))}
+                </dd>
+              </div>
+            ) : null}
+          </dl>
+        </section>
+        {!isUser ? (
+          <Provenance event={event} />
+        ) : (
+          <aside className="panel rounded-2xl border border-line bg-ink-2 p-5 sm:p-6">
+            <Icon name="bookmark" className="text-amber" />
+            <h2 className="mt-3 text-base font-medium text-paper">
+              Keep this countdown
+            </h2>
+            <p className="mt-2 text-sm leading-relaxed text-muted">
+              Save it to your collection on this browser, or share the link with
+              someone else.
+            </p>
+            <Link href="/saved" className="button-secondary mt-5">
+              Open collection
+            </Link>
+          </aside>
+        )}
+      </div>
+
+      {canAddToCalendar(event) ? (
+        <EmbedStudio
+          slug={shared ? slug : event.slug}
+          title={event.title}
+          origin={siteUrl()}
+        />
+      ) : null}
+
+      {related.length > 0 ? (
+        <section className="mt-10">
+          <div className="flex items-center justify-between gap-3">
+            <h2 className="section-heading">Also on the horizon</h2>
+            <Link
+              href={`/category/${event.category}`}
+              className="inline-flex min-h-11 items-center gap-2 text-sm text-amber hover:text-paper"
+            >
+              Explore more <Icon name="arrow" size={16} />
+            </Link>
+          </div>
+          <div className="mt-5 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
             {related.map((item) => (
               <EventCard key={item.id} event={item} />
             ))}
           </div>
         </section>
-      )}
-
+      ) : null}
       <JsonLd data={eventJsonLd(event)} />
     </article>
   );

@@ -39,9 +39,9 @@ export async function GET(_req: NextRequest, ctx: { params: Promise<{ slug: stri
     {
       eyebrow: CATEGORY_LABELS[event.category],
       title: event.title,
-      subtitle: coarse ? undefined : `${status}${formatLongDate(event.date)}`,
-      days: coarse ? null : daysBetween(day, event.date, event.allDay),
-      expectedLabel: coarse ? `expected ${expectedPeriod(event.date, event.datePrecision)}` : undefined,
+      subtitle: coarse ? undefined : `${status}${formatLongDate(event.date, event.timezone)}`,
+      days: coarse || status ? null : daysBetween(day, event.date, event.allDay, event.timezone),
+      expectedLabel: status ? status.replace(/ · $/, "") : coarse ? `expected ${expectedPeriod(event.date, event.datePrecision)}` : undefined,
       // The stored `og.jpg` derivative is already 1200x630: no cropping happens at render time.
       imageUrl: background,
       imageCredit: background && event.image ? shortCredit(event.image) : null,

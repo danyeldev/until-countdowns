@@ -29,13 +29,14 @@ export function CategoryBar({
   }
 
   return (
-    <div className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1 sm:mx-0 sm:flex-wrap sm:overflow-visible sm:px-0">
+    <div className="flex gap-2 overflow-x-auto pb-2 [scrollbar-width:thin]">
       <Link
         href={href()}
-        className={`shrink-0 rounded-full px-3 py-1.5 text-xs uppercase tracking-[0.14em] ${
+        aria-current={!active || active === "all" ? "true" : undefined}
+        className={`shrink-0 inline-flex min-h-11 items-center rounded-full px-4 py-2 text-xs ${
           !active || active === "all"
-            ? "bg-paper text-ink"
-            : "border border-line text-paper-dim hover:text-paper"
+            ? "border border-amber/40 bg-amber/15 text-amber"
+            : "border border-line bg-ink-2 text-paper-dim hover:border-amber hover:text-amber"
         }`}
       >
         All
@@ -44,12 +45,19 @@ export function CategoryBar({
         <Link
           key={c}
           href={href(c)}
-          className={`shrink-0 rounded-full px-3 py-1.5 text-xs uppercase tracking-[0.14em] ${
-            active === c ? "bg-paper text-ink" : "border border-line text-paper-dim hover:text-paper"
+          aria-current={active === c ? "true" : undefined}
+          className={`shrink-0 inline-flex min-h-11 items-center rounded-full px-4 py-2 text-xs ${
+            active === c
+              ? "border border-amber/40 bg-amber/15 text-amber"
+              : "border border-line bg-ink-2 text-paper-dim hover:border-amber hover:text-amber"
           }`}
         >
           {CATEGORY_LABELS[c]}
-          <span className="ml-2 opacity-60">{counts[c]}</span>
+          {!q && (
+            <span className="ml-2 font-mono text-[10px]">
+              {counts[c]?.toLocaleString("en-US")}
+            </span>
+          )}
         </Link>
       ))}
     </div>

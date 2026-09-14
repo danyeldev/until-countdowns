@@ -84,6 +84,15 @@ describe("computed sky events (astronomy-engine)", () => {
     expectValid(rows);
   });
 
+  it("uses the varying September equinox day and preserves established recurring series URLs", () => {
+    const rows = seasonRows(2026);
+    expect(rows.find((row) => row.title === "September equinox")?.date.slice(0, 10)).toBe("2026-09-23");
+    expect(rows.map((row) => row.series_slug)).toEqual([
+      "march-equinox", "northern-hemisphere-summer-solstice", "september-equinox", "northern-hemisphere-winter-solstice",
+    ]);
+    expect(showerRows(2026).find((row) => row.source_key === "astronomy:shower:per:2026")?.series_slug).toBe("perseid-meteor-shower-peak");
+  });
+
   it("meteor showers: IMO 2026 λ☉ reproduces the calendar dates (Perseids Aug 13, Ursids Dec 22 22h UT)", () => {
     const rows = showerRows(2026);
     expect(rows).toHaveLength(10);

@@ -12,7 +12,14 @@
  * build a theme from a request — `buildEmbedDocument()` never sees a raw parameter.
  */
 
-export const EMBED_PRESETS = ["dark", "light", "amber", "mono", "neon", "clear"] as const;
+export const EMBED_PRESETS = [
+  "dark",
+  "light",
+  "amber",
+  "mono",
+  "neon",
+  "clear",
+] as const;
 export type EmbedPreset = (typeof EMBED_PRESETS)[number];
 
 export const EMBED_FONTS = ["serif", "sans", "mono"] as const;
@@ -24,14 +31,28 @@ export type EmbedLayout = (typeof EMBED_LAYOUTS)[number];
 
 /** Where the clock sits inside the frame it is given (an iframe box, or the whole stream canvas). */
 export const EMBED_POSITIONS = [
-  "top-left", "top", "top-right",
-  "left", "center", "right",
-  "bottom-left", "bottom", "bottom-right",
+  "top-left",
+  "top",
+  "top-right",
+  "left",
+  "center",
+  "right",
+  "bottom-left",
+  "bottom",
+  "bottom-right",
 ] as const;
 export type EmbedPosition = (typeof EMBED_POSITIONS)[number];
 
 /** Which units tick. Always a contiguous slice of days → hours → minutes → seconds. */
-export const EMBED_UNITS = ["dhms", "dhm", "dh", "d", "hms", "hm", "ms"] as const;
+export const EMBED_UNITS = [
+  "dhms",
+  "dhm",
+  "dh",
+  "d",
+  "hms",
+  "hm",
+  "ms",
+] as const;
 export type EmbedUnits = (typeof EMBED_UNITS)[number];
 
 export const EMBED_FRAMES = ["card", "outline", "none"] as const;
@@ -84,19 +105,37 @@ export const STREAM_CANVAS = { width: 1920, height: 1080 } as const;
 /** Default `<iframe>` box for a website embed. */
 export const EMBED_BOX = { width: 480, height: 220 } as const;
 
-type Palette = Pick<EmbedTheme, "accent" | "text" | "bg"> & Partial<Pick<EmbedTheme, "frame" | "glow" | "font">>;
+type Palette = Pick<EmbedTheme, "accent" | "text" | "bg"> &
+  Partial<Pick<EmbedTheme, "frame" | "glow" | "font">>;
 
 /**
  * Named starting points. `dark` is the site's own palette; `clear` is the streaming default —
  * no background, no frame, so only the type lands on the scene.
  */
 export const PRESET_PALETTES: Record<EmbedPreset, Palette> = {
-  dark: { accent: "#f0a202", text: "#f3ece0", bg: "#161410" },
+  dark: {
+    accent: "#b7a6ff",
+    text: "#f4f5f8",
+    bg: "#14171f",
+    font: "sans",
+    glow: false,
+  },
   light: { accent: "#b06d00", text: "#1a1713", bg: "#f7f3ea" },
   amber: { accent: "#0c0b09", text: "#3a2f14", bg: "#f0a202" },
-  mono: { accent: "#ffffff", text: "#c9c0b0", bg: "#000000", glow: false, font: "mono" },
+  mono: {
+    accent: "#ffffff",
+    text: "#c9c0b0",
+    bg: "#000000",
+    glow: false,
+    font: "mono",
+  },
   neon: { accent: "#39ff88", text: "#eaffef", bg: "#04120a" },
-  clear: { accent: "#ffffff", text: "#ffffff", bg: "transparent", frame: "none" },
+  clear: {
+    accent: "#ffffff",
+    text: "#ffffff",
+    bg: "transparent",
+    frame: "none",
+  },
 };
 
 export const PRESET_LABELS: Record<EmbedPreset, string> = {
@@ -109,13 +148,13 @@ export const PRESET_LABELS: Record<EmbedPreset, string> = {
 };
 
 const BASE: Omit<EmbedTheme, "preset" | "accent" | "text" | "bg"> = {
-  font: "mono",
+  font: "sans",
   scale: 100,
   layout: "row",
   position: "center",
   units: "dhms",
   frame: "card",
-  separator: "colon",
+  separator: "none",
   radius: 24,
   padding: 24,
   labels: true,
@@ -196,13 +235,20 @@ export function parseBackground(value: string | undefined): string | null {
   return parseColor(value);
 }
 
-function parseEnum<T extends string>(value: string | undefined, allowed: readonly T[]): T | null {
+function parseEnum<T extends string>(
+  value: string | undefined,
+  allowed: readonly T[],
+): T | null {
   if (!value) return null;
   const needle = value.trim().toLowerCase();
   return (allowed as readonly string[]).includes(needle) ? (needle as T) : null;
 }
 
-function parseInt10(value: string | undefined, min: number, max: number): number | null {
+function parseInt10(
+  value: string | undefined,
+  min: number,
+  max: number,
+): number | null {
   if (value === undefined || value.trim() === "") return null;
   const n = Number(value);
   if (!Number.isFinite(n)) return null;
@@ -213,8 +259,16 @@ function parseInt10(value: string | undefined, min: number, max: number): number
 function parseBool(value: string | undefined): boolean | null {
   if (value === undefined) return null;
   const raw = value.trim().toLowerCase();
-  if (raw === "" || raw === "1" || raw === "true" || raw === "yes" || raw === "on") return true;
-  if (raw === "0" || raw === "false" || raw === "no" || raw === "off") return false;
+  if (
+    raw === "" ||
+    raw === "1" ||
+    raw === "true" ||
+    raw === "yes" ||
+    raw === "on"
+  )
+    return true;
+  if (raw === "0" || raw === "false" || raw === "no" || raw === "off")
+    return false;
   return null;
 }
 
@@ -233,7 +287,10 @@ function pick<T>(parsed: T | null, fallback: T): T {
  * A complete theme from a query string. Unknown, malformed or out-of-range values are ignored in
  * favour of the preset's own — a broken URL still renders a countdown someone can read.
  */
-export function parseEmbedTheme(input: EmbedParamsInput, fallback: EmbedTheme = DEFAULT_EMBED_THEME): EmbedTheme {
+export function parseEmbedTheme(
+  input: EmbedParamsInput,
+  fallback: EmbedTheme = DEFAULT_EMBED_THEME,
+): EmbedTheme {
   const get = reader(input);
   const preset = parseEnum(get("preset") ?? get("theme"), EMBED_PRESETS);
   const base = preset ? presetTheme(preset) : fallback;
@@ -285,7 +342,8 @@ const BOOL_KEYS: [key: keyof EmbedTheme, param: string][] = [
 export function embedQuery(theme: EmbedTheme): string {
   const base = presetTheme(theme.preset);
   const usp = new URLSearchParams();
-  if (theme.preset !== DEFAULT_EMBED_THEME.preset) usp.set("preset", theme.preset);
+  if (theme.preset !== DEFAULT_EMBED_THEME.preset)
+    usp.set("preset", theme.preset);
   if (theme.accent !== base.accent) usp.set("accent", theme.accent);
   if (theme.text !== base.text) usp.set("text", theme.text);
   if (theme.bg !== base.bg) usp.set("bg", theme.bg);
@@ -311,12 +369,20 @@ export function embedPath(slug: string, theme: EmbedTheme): string {
   return `/embed/${encodeURIComponent(slug)}${query ? `?${query}` : ""}`;
 }
 
-export function embedUrl(origin: string, slug: string, theme: EmbedTheme): string {
+export function embedUrl(
+  origin: string,
+  slug: string,
+  theme: EmbedTheme,
+): string {
   return `${origin.replace(/\/$/, "")}${embedPath(slug, theme)}`;
 }
 
 function escapeAttribute(value: string): string {
-  return value.replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  return value
+    .replace(/&/g, "&amp;")
+    .replace(/"/g, "&quot;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;");
 }
 
 /**
@@ -326,11 +392,16 @@ function escapeAttribute(value: string): string {
 export function embedIframeSnippet(
   url: string,
   title: string,
-  size: { width: number | string; height: number } = { width: "100%", height: EMBED_BOX.height },
+  size: { width: number | string; height: number } = {
+    width: "100%",
+    height: EMBED_BOX.height,
+  },
 ): string {
   // The attribute takes a bare number, the declaration needs a unit — `width:480` is simply dropped.
-  const attribute = typeof size.width === "number" ? String(size.width) : size.width;
-  const declared = typeof size.width === "number" ? `${size.width}px` : size.width;
+  const attribute =
+    typeof size.width === "number" ? String(size.width) : size.width;
+  const declared =
+    typeof size.width === "number" ? `${size.width}px` : size.width;
   return [
     `<iframe src="${escapeAttribute(url)}"`,
     ` title="${escapeAttribute(`${title} countdown`)}"`,

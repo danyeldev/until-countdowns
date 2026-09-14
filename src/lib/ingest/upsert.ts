@@ -23,6 +23,8 @@ export type UpsertResult = {
   sent: number;
   /** Rows lost to failed chunks. */
   failed: number;
+  /** Valid rows left for the next invocation because its database budget ran out. */
+  deferred: number;
   errors: string[];
 };
 
@@ -86,7 +88,12 @@ export function prepareRows(input: readonly unknown[], log?: IngestLogger): Prep
 
 type Counts = { inserted: number; updated: number; unchanged: number; drifted: number };
 
-async function sendChunk(db: Db, chunk: IngestEvent[], out: UpsertResult, log?: IngestLogger, depth = 0): Promise<void> {
+async function sendChunk(db: Db, chunk: IngestEvent[], out: UpsertResult, log?: IngestLogger, depth = 0, remainingMs?: () => number): Promise<void> {
+  // Leave enough time for the bounded RPC to finish before checkpoint/finalization cleanup.
+  if (remainingMs && remainingMs() < RPC_TIMEOUT_MS + 1_000) {
+    out.deferred += chunk.length;
+    return;
+  }
   const { data, error } = await db.rpc("upsert_events", { p_rows: chunk as unknown as never });
   if (!error) {
     const r = (Array.isArray(data) ? data[0] : data) as Partial<Counts> | null | undefined;
@@ -102,8 +109,8 @@ async function sendChunk(db: Db, chunk: IngestEvent[], out: UpsertResult, log?: 
   if (chunk.length > MIN_SPLIT && depth < 6) {
     log?.warn(`upsert_events failed for ${chunk.length} rows (${errorMessage(error)}); splitting`);
     const mid = Math.ceil(chunk.length / 2);
-    await sendChunk(db, chunk.slice(0, mid), out, log, depth + 1);
-    await sendChunk(db, chunk.slice(mid), out, log, depth + 1);
+    await sendChunk(db, chunk.slice(0, mid), out, log, depth + 1, remainingMs);
+    await sendChunk(db, chunk.slice(mid), out, log, depth + 1, remainingMs);
     return;
   }
   out.failed += chunk.length;
@@ -112,7 +119,7 @@ async function sendChunk(db: Db, chunk: IngestEvent[], out: UpsertResult, log?: 
   }
 }
 
-export async function upsertEvents(input: readonly unknown[], log?: IngestLogger): Promise<UpsertResult> {
+export async function upsertEvents(input: readonly unknown[], log?: IngestLogger, remainingMs?: () => number): Promise<UpsertResult> {
   const prepared = prepareRows(input, log);
   const out: UpsertResult = {
     inserted: 0,
@@ -122,12 +129,13 @@ export async function upsertEvents(input: readonly unknown[], log?: IngestLogger
     invalid: prepared.invalid,
     sent: 0,
     failed: 0,
+    deferred: 0,
     errors: [...prepared.errors],
   };
   if (prepared.rows.length === 0) return out;
   const db = await getLongDb(RPC_TIMEOUT_MS);
   for (let i = 0; i < prepared.rows.length; i += CHUNK_SIZE) {
-    await sendChunk(db, prepared.rows.slice(i, i + CHUNK_SIZE), out, log);
+    await sendChunk(db, prepared.rows.slice(i, i + CHUNK_SIZE), out, log, 0, remainingMs);
   }
   return out;
 }
