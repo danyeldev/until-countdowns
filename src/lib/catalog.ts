@@ -9,10 +9,11 @@
  *   degrades to an empty catalog instead of failing the build.
  */
 import type { PostgrestSingleResponse } from "@supabase/supabase-js";
+import { isCatalogEventId } from "./event-id";
 import { cached, eventTag, TAG_EVENTS, TAG_STATS } from "./cache";
 import { anonClient, supabaseEnv } from "./db/client";
 import type { Database } from "./db/database.types";
-import { jsonToEvent, rowToEvent, toCategory } from "./db/mappers";
+import { jsonToEvent, rowToEvent, toCategory, toStatus } from "./db/mappers";
 import {
   addDays,
   chineseLunarToSolar,
@@ -27,6 +28,7 @@ import {
   type Ymd,
 } from "./ingest/recurrence";
 import { regionCodesMatching } from "./regions";
+import { groupFutureOccurrences } from "./series-previews";
 import type {
   CatalogMeta,
   Category,
@@ -38,6 +40,7 @@ import type {
   Series,
   SeriesFaq,
   SeriesRecurrence,
+  SeriesOccurrencePreview,
   SourceInfo,
 } from "./types";
 import { CATEGORIES } from "./types";
@@ -55,23 +58,73 @@ const REVALIDATE_STATS = 3600;
  * rejected before it can touch the Data Cache or the database (junk URLs otherwise cost two cache
  * writes plus an ISR 404 entry each).
  */
+/** Batch read for local bookmarks; goes through the same public view/RLS as every event page. */
+export async function eventsByIds(ids: string[]): Promise<CountdownEvent[]> {
+  const valid = [...new Set(ids)].filter(isCatalogEventId).slice(0, 50);
+  if (valid.length === 0) return [];
+  const rows = unwrap(
+    await anonClient().from("events_public").select("*").in("id", valid),
+  );
+  return (rows ?? []).map(rowToEvent);
+}
+
+/** One bounded catalog read for the expandable dates on the current search page. */
+export async function futureOccurrencesForEvents(
+  events: readonly CountdownEvent[],
+): Promise<Record<string, SeriesOccurrencePreview[]>> {
+  const slugs = [
+    ...new Set(
+      events.flatMap((event) => (event.seriesSlug ? [event.seriesSlug] : [])),
+    ),
+  ];
+  if (slugs.length === 0) return {};
+  return safe(
+    "futureOccurrencesForEvents",
+    async () => {
+      const rows = unwrap(
+        await anonClient()
+          .from("events_public")
+          .select("*")
+          .in("series_slug", slugs)
+          .not("status", "in", "(done,cancelled,retired)")
+          .or(UPCOMING_FILTER)
+          .order("sort_at", { ascending: true })
+          .order("id", { ascending: true })
+          .limit(1000),
+      );
+      return groupFutureOccurrences(events, (rows ?? []).map(rowToEvent));
+    },
+    {},
+  );
+}
+
 const SLUG_RE = /^[a-z0-9-]{1,200}$/;
 
 function isCatalogSlug(slug: string): boolean {
-  return SLUG_RE.test(slug) && !slug.startsWith("mine-") && !slug.startsWith("share-");
+  return (
+    SLUG_RE.test(slug) &&
+    !slug.startsWith("mine-") &&
+    !slug.startsWith("share-")
+  );
 }
 
 /** Thrown by the strict readers when the database could not be read (as opposed to a genuine miss). */
 export class CatalogReadError extends Error {
   constructor(name: string, cause: unknown) {
-    super(`[catalog] ${name} failed: ${cause instanceof Error ? cause.message : String(cause)}`);
+    super(
+      `[catalog] ${name} failed: ${cause instanceof Error ? cause.message : String(cause)}`,
+    );
     this.name = "CatalogReadError";
   }
 }
 
 const warned = new Set<string>();
 
-async function safe<T>(name: string, fn: () => Promise<T>, fallback: T): Promise<T> {
+async function safe<T>(
+  name: string,
+  fn: () => Promise<T>,
+  fallback: T,
+): Promise<T> {
   try {
     return await fn();
   } catch (err) {
@@ -98,7 +151,8 @@ const EMPTY_META: CatalogMeta = {
 };
 
 function asCounts(value: unknown): Record<string, number> {
-  if (typeof value !== "object" || value === null || Array.isArray(value)) return {};
+  if (typeof value !== "object" || value === null || Array.isArray(value))
+    return {};
   const out: Record<string, number> = {};
   for (const [k, v] of Object.entries(value as Record<string, unknown>)) {
     if (typeof v === "number" && Number.isFinite(v)) out[k] = v;
@@ -126,14 +180,20 @@ function normalizeParams(params: SearchParams): SearchArgs {
   const q = params.q?.trim() || undefined;
   return {
     q,
-    category: params.category && params.category !== "all" ? params.category : undefined,
+    category:
+      params.category && params.category !== "all"
+        ? params.category
+        : undefined,
     tag: params.tag?.trim() || undefined,
     region: params.region?.trim() || undefined,
     featured: params.featured ? true : undefined,
     sort: params.sort ?? "soonest",
     minPopularity: params.minPopularity ?? 0,
     page: Math.max(1, Math.floor(params.page ?? 1) || 1),
-    pageSize: Math.min(100, Math.max(1, Math.floor(params.pageSize ?? 24) || 24)),
+    pageSize: Math.min(
+      100,
+      Math.max(1, Math.floor(params.pageSize ?? 24) || 24),
+    ),
   };
 }
 
@@ -171,23 +231,47 @@ const listEventsCached = cached(
     minPopularity: number,
     page: number,
     pageSize: number,
-  ) => runSearch({ category, tag, region, featured, sort, minPopularity, page, pageSize }),
+  ) =>
+    runSearch({
+      category,
+      tag,
+      region,
+      featured,
+      sort,
+      minPopularity,
+      page,
+      pageSize,
+    }),
   ["catalog", "list-events"],
   { tags: [TAG_EVENTS], revalidate: REVALIDATE_EVENTS },
 );
 
 /** Filtered listing without free text — cached, keyed by every parameter value. */
-export async function listEvents(params: SearchParams = {}): Promise<SearchResult> {
+export async function listEvents(
+  params: SearchParams = {},
+): Promise<SearchResult> {
   const a = normalizeParams({ ...params, q: undefined });
   return safe(
     "listEvents",
-    () => listEventsCached(a.category, a.tag, a.region, a.featured, a.sort, a.minPopularity, a.page, a.pageSize),
+    () =>
+      listEventsCached(
+        a.category,
+        a.tag,
+        a.region,
+        a.featured,
+        a.sort,
+        a.minPopularity,
+        a.page,
+        a.pageSize,
+      ),
     { items: [], total: 0, page: a.page, pageSize: a.pageSize },
   );
 }
 
 /** Free-text search — uncached (the query space is unbounded). */
-export async function searchEventsLive(params: SearchParams = {}): Promise<SearchResult> {
+export async function searchEventsLive(
+  params: SearchParams = {},
+): Promise<SearchResult> {
   const a = normalizeParams(params);
   return safe("searchEventsLive", () => runSearch(a), {
     items: [],
@@ -198,12 +282,18 @@ export async function searchEventsLive(params: SearchParams = {}): Promise<Searc
 }
 
 /** Same signature as before: delegates to the live search when `q` is present, else the cached list. */
-export async function searchEvents(params: SearchParams = {}): Promise<SearchResult> {
-  return params.q && params.q.trim() ? searchEventsLive(params) : listEvents(params);
+export async function searchEvents(
+  params: SearchParams = {},
+): Promise<SearchResult> {
+  return params.q && params.q.trim()
+    ? searchEventsLive(params)
+    : listEvents(params);
 }
 
 /** Uncached query for `/api/events` (the route sets its own CDN cache headers). */
-export async function queryEvents(params: SearchParams = {}): Promise<SearchResult> {
+export async function queryEvents(
+  params: SearchParams = {},
+): Promise<SearchResult> {
   const a = normalizeParams(params);
   return safe("queryEvents", () => runSearch(a), {
     items: [],
@@ -221,12 +311,14 @@ function parseDateHistory(value: unknown): DateChange[] {
   if (!Array.isArray(value)) return [];
   const out: DateChange[] = [];
   for (const item of value) {
-    if (typeof item !== "object" || item === null || Array.isArray(item)) continue;
+    if (typeof item !== "object" || item === null || Array.isArray(item))
+      continue;
     const rec = item as Record<string, unknown>;
     if (typeof rec.date !== "string" || rec.date.length < 10) continue;
     out.push({
       date: rec.date,
-      changedAt: typeof rec.changed_at === "string" ? rec.changed_at : undefined,
+      changedAt:
+        typeof rec.changed_at === "string" ? rec.changed_at : undefined,
       source: typeof rec.source === "string" ? rec.source : undefined,
       note: typeof rec.note === "string" ? rec.note : undefined,
     });
@@ -235,7 +327,13 @@ function parseDateHistory(value: unknown): DateChange[] {
 }
 
 async function fetchEvent(slug: string): Promise<CountdownEvent | null> {
-  const row = unwrap(await anonClient().from("events_public").select("*").eq("slug", slug).maybeSingle());
+  const row = unwrap(
+    await anonClient()
+      .from("events_public")
+      .select("*")
+      .eq("slug", slug)
+      .maybeSingle(),
+  );
   if (!row) return null;
   const event = rowToEvent(row);
   const dateHistory = parseDateHistory(row.date_history);
@@ -250,7 +348,9 @@ function cachedEvent(slug: string) {
 }
 
 /** One event by its current slug. Cached per slug with both the `events` and the `event:<slug>` tags. */
-export async function getEvent(slug: string): Promise<CountdownEvent | undefined> {
+export async function getEvent(
+  slug: string,
+): Promise<CountdownEvent | undefined> {
   if (!isCatalogSlug(slug)) return undefined;
   const event = await safe("getEvent", () => cachedEvent(slug)(), null);
   return event ?? undefined;
@@ -261,7 +361,9 @@ export async function getEvent(slug: string): Promise<CountdownEvent | undefined
  * so an ISR page can answer 500 (uncached) rather than caching a 404 for an existing slug.
  * With no Supabase env at all it resolves to `undefined`, keeping the env-less build green.
  */
-export async function getEventStrict(slug: string): Promise<CountdownEvent | undefined> {
+export async function getEventStrict(
+  slug: string,
+): Promise<CountdownEvent | undefined> {
   if (!isCatalogSlug(slug) || supabaseEnv() === null) return undefined;
   try {
     return (await cachedEvent(slug)()) ?? undefined;
@@ -271,13 +373,23 @@ export async function getEventStrict(slug: string): Promise<CountdownEvent | und
 }
 
 /** One row of the licence table on `/attributions`. */
-export type ImageLicenseCount = { provider: string; license: string; count: number };
+export type ImageLicenseCount = {
+  provider: string;
+  license: string;
+  count: number;
+};
 
 const IMAGE_LICENSE_SCAN = 5000;
 
 const imageLicensesCached = cached(
   async () => {
-    const rows = unwrap(await anonClient().from("images").select("provider, license").limit(IMAGE_LICENSE_SCAN)) ?? [];
+    const rows =
+      unwrap(
+        await anonClient()
+          .from("images")
+          .select("provider, license")
+          .limit(IMAGE_LICENSE_SCAN),
+      ) ?? [];
     const tally = new Map<string, ImageLicenseCount>();
     for (const row of rows) {
       const provider = row.provider ?? "unknown";
@@ -287,7 +399,9 @@ const imageLicensesCached = cached(
       if (hit) hit.count++;
       else tally.set(key, { provider, license, count: 1 });
     }
-    return [...tally.values()].sort((a, b) => b.count - a.count || a.provider.localeCompare(b.provider));
+    return [...tally.values()].sort(
+      (a, b) => b.count - a.count || a.provider.localeCompare(b.provider),
+    );
   },
   ["catalog", "image-licenses"],
   // Also tagged `events`: every enrichment run that stores an image invalidates that tag, so the
@@ -305,11 +419,22 @@ export async function imageLicenses(): Promise<ImageLicenseCount[]> {
 
 const summaryCitationCached = cached(
   async (slug: string) => {
-    const row = unwrap(await anonClient().from("events_public").select("external_ids").eq("slug", slug).maybeSingle());
+    const row = unwrap(
+      await anonClient()
+        .from("events_public")
+        .select("external_ids")
+        .eq("slug", slug)
+        .maybeSingle(),
+    );
     const ids = row?.external_ids;
     if (!ids || typeof ids !== "object" || Array.isArray(ids)) return null;
     const bag = ids as Record<string, unknown>;
-    if (bag.summary_source !== "wikipedia" || typeof bag.enwiki !== "string" || bag.enwiki.length === 0) return null;
+    if (
+      bag.summary_source !== "wikipedia" ||
+      typeof bag.enwiki !== "string" ||
+      bag.enwiki.length === 0
+    )
+      return null;
     return { enwiki: bag.enwiki };
   },
   ["catalog", "summary-citation"],
@@ -323,17 +448,29 @@ const summaryCitationCached = cached(
  * CC BY-SA 4.0 licence on Wikipedia prose obliges the page to name and link the article — so the
  * event page reads just this one field, cached under the same tags as the event itself.
  */
-export async function summaryCitation(slug: string): Promise<{ enwiki: string } | null> {
+export async function summaryCitation(
+  slug: string,
+): Promise<{ enwiki: string } | null> {
   if (!isCatalogSlug(slug)) return null;
   return safe("summaryCitation", () => summaryCitationCached(slug), null);
 }
 
 const resolveSlugAliasCached = cached(
   async (slug: string) => {
-    const alias = unwrap(await anonClient().from("event_slugs").select("event_id").eq("slug", slug).maybeSingle());
+    const alias = unwrap(
+      await anonClient()
+        .from("event_slugs")
+        .select("event_id")
+        .eq("slug", slug)
+        .maybeSingle(),
+    );
     if (!alias) return null;
     const row = unwrap(
-      await anonClient().from("events_public").select("slug").eq("id", alias.event_id).maybeSingle(),
+      await anonClient()
+        .from("events_public")
+        .select("slug")
+        .eq("id", alias.event_id)
+        .maybeSingle(),
     );
     return row?.slug ?? null;
   },
@@ -344,12 +481,18 @@ const resolveSlugAliasCached = cached(
 /** Old slug (after a date slip or rename) -> current slug, or null. */
 export async function resolveSlugAlias(slug: string): Promise<string | null> {
   if (!isCatalogSlug(slug)) return null;
-  const current = await safe("resolveSlugAlias", () => resolveSlugAliasCached(slug), null);
+  const current = await safe(
+    "resolveSlugAlias",
+    () => resolveSlugAliasCached(slug),
+    null,
+  );
   return current && current !== slug ? current : null;
 }
 
 /** `resolveSlugAlias` that throws `CatalogReadError` on a read failure (see `getEventStrict`). */
-export async function resolveSlugAliasStrict(slug: string): Promise<string | null> {
+export async function resolveSlugAliasStrict(
+  slug: string,
+): Promise<string | null> {
   if (!isCatalogSlug(slug) || supabaseEnv() === null) return null;
   let current: string | null;
   try {
@@ -365,7 +508,11 @@ export async function resolveSlugAliasStrict(slug: string): Promise<string | nul
 // ---------------------------------------------------------------------------
 
 const featuredUpcomingCached = cached(
-  async (limit: number) => (unwrap(await anonClient().rpc("featured_upcoming", { p_limit: limit })) ?? []).map(rowToEvent),
+  async (limit: number) =>
+    (
+      unwrap(await anonClient().rpc("featured_upcoming", { p_limit: limit })) ??
+      []
+    ).map(rowToEvent),
   ["catalog", "featured-upcoming"],
   { tags: [TAG_EVENTS], revalidate: REVALIDATE_EVENTS },
 );
@@ -375,7 +522,11 @@ export async function featuredUpcoming(limit = 1): Promise<CountdownEvent[]> {
 }
 
 const soonestUpcomingCached = cached(
-  async (limit: number) => (unwrap(await anonClient().rpc("soonest_upcoming", { p_limit: limit })) ?? []).map(rowToEvent),
+  async (limit: number) =>
+    (
+      unwrap(await anonClient().rpc("soonest_upcoming", { p_limit: limit })) ??
+      []
+    ).map(rowToEvent),
   ["catalog", "soonest-upcoming"],
   { tags: [TAG_EVENTS], revalidate: REVALIDATE_EVENTS },
 );
@@ -386,19 +537,30 @@ export async function soonestUpcoming(limit = 8): Promise<CountdownEvent[]> {
 
 const relatedEventsCached = cached(
   async (id: string, limit: number) =>
-    (unwrap(await anonClient().rpc("related_events", { p_id: id, p_limit: limit })) ?? []).map(rowToEvent),
+    (
+      unwrap(
+        await anonClient().rpc("related_events", { p_id: id, p_limit: limit }),
+      ) ?? []
+    ).map(rowToEvent),
   ["catalog", "related-events"],
   { tags: [TAG_EVENTS], revalidate: REVALIDATE_EVENTS },
 );
 
-export async function relatedEvents(event: CountdownEvent, limit = 6): Promise<CountdownEvent[]> {
+export async function relatedEvents(
+  event: CountdownEvent,
+  limit = 6,
+): Promise<CountdownEvent[]> {
   if (!event.id || event.source === "user") return [];
   return safe("relatedEvents", () => relatedEventsCached(event.id, limit), []);
 }
 
 /** Bounded listing kept for API compatibility; prefer `searchEvents`. */
 export async function allEvents(limit = 1000): Promise<CountdownEvent[]> {
-  const result = await listEvents({ sort: "soonest", page: 1, pageSize: Math.min(100, limit) });
+  const result = await listEvents({
+    sort: "soonest",
+    page: 1,
+    pageSize: Math.min(100, limit),
+  });
   return result.items;
 }
 
@@ -410,7 +572,8 @@ const categoryCountsCached = cached(
   async () => {
     const rows = unwrap(await anonClient().rpc("category_counts")) ?? [];
     const counts = {} as Record<Category, number>;
-    for (const row of rows) counts[row.category as Category] = Number(row.n) || 0;
+    for (const row of rows)
+      counts[row.category as Category] = Number(row.n) || 0;
     return counts;
   },
   ["catalog", "category-counts"],
@@ -418,12 +581,18 @@ const categoryCountsCached = cached(
 );
 
 export async function categoryCounts(): Promise<Record<Category, number>> {
-  return safe("categoryCounts", () => categoryCountsCached(), {} as Record<Category, number>);
+  return safe(
+    "categoryCounts",
+    () => categoryCountsCached(),
+    {} as Record<Category, number>,
+  );
 }
 
 const popularTagsCached = cached(
   async (limit: number) =>
-    (unwrap(await anonClient().rpc("popular_tags", { p_limit: limit })) ?? []).map((row) => ({
+    (
+      unwrap(await anonClient().rpc("popular_tags", { p_limit: limit })) ?? []
+    ).map((row) => ({
       tag: row.tag,
       count: Number(row.n) || 0,
     })),
@@ -431,13 +600,17 @@ const popularTagsCached = cached(
   { tags: [TAG_EVENTS], revalidate: REVALIDATE_EVENTS },
 );
 
-export async function popularTags(limit = 18): Promise<{ tag: string; count: number }[]> {
+export async function popularTags(
+  limit = 18,
+): Promise<{ tag: string; count: number }[]> {
   return safe("popularTags", () => popularTagsCached(limit), []);
 }
 
 const topSlugsCached = cached(
   async (limit: number) =>
-    (unwrap(await anonClient().rpc("top_slugs", { p_limit: limit })) ?? []).map((row) => row.slug).filter(Boolean),
+    (unwrap(await anonClient().rpc("top_slugs", { p_limit: limit })) ?? [])
+      .map((row) => row.slug)
+      .filter(Boolean),
   ["catalog", "top-slugs"],
   { tags: [TAG_EVENTS], revalidate: REVALIDATE_EVENTS },
 );
@@ -450,18 +623,27 @@ export async function topSlugs(limit = 500): Promise<string[]> {
 const catalogMetaCached = cached(
   async (): Promise<CatalogMeta> => {
     const [statsRes, sourcesRes] = await Promise.all([
-      anonClient().from("catalog_stats").select("*").eq("id", true).maybeSingle(),
+      anonClient()
+        .from("catalog_stats")
+        .select("*")
+        .eq("id", true)
+        .maybeSingle(),
       anonClient().from("sources").select("id, label"),
     ]);
     const row = unwrap(statsRes);
     const sourceLabels: Record<string, string> = {};
-    for (const s of unwrap(sourcesRes) ?? []) if (s.label) sourceLabels[s.id] = s.label;
+    for (const s of unwrap(sourcesRes) ?? [])
+      if (s.label) sourceLabels[s.id] = s.label;
     if (!row) return { ...EMPTY_META, sourceLabels };
     const bySrc = asCounts(row.by_src);
     return {
       generatedAt: row.generated_at ?? "",
       count: row.count ?? 0,
-      stats: { byCat: asCounts(row.by_cat), bySrc, featured: row.featured ?? 0 },
+      stats: {
+        byCat: asCounts(row.by_cat),
+        bySrc,
+        featured: row.featured ?? 0,
+      },
       sources: Object.keys(bySrc),
       sourceLabels,
     };
@@ -483,7 +665,9 @@ export async function logSearch(q: string, results: number): Promise<void> {
   await safe(
     "logSearch",
     async () => {
-      unwrap(await anonClient().rpc("log_search", { p_q: q, p_results: results }));
+      unwrap(
+        await anonClient().rpc("log_search", { p_q: q, p_results: results }),
+      );
     },
     undefined,
   );
@@ -495,11 +679,26 @@ export async function logSearch(q: string, results: number): Promise<void> {
 
 type SeriesRow = Database["public"]["Views"]["series_next"]["Row"];
 
-const PRECISIONS: ReadonlySet<string> = new Set(["instant", "day", "month", "quarter", "year", "decade"]);
-const COARSE_PRECISIONS: ReadonlySet<string> = new Set(["month", "quarter", "year", "decade"]);
+const PRECISIONS: ReadonlySet<string> = new Set([
+  "instant",
+  "day",
+  "month",
+  "quarter",
+  "year",
+  "decade",
+]);
+const COARSE_PRECISIONS: ReadonlySet<string> = new Set([
+  "month",
+  "quarter",
+  "year",
+  "decade",
+]);
 /** PostgREST value literals that Postgres resolves at query time (`'now'::timestamptz`, `'today'::date`). */
-const SQL_NOW = "now";
 const SQL_TODAY = "today";
+// Same predicate as event_is_upcoming in the freshness migration; uses only existing columns
+// so the application also works during a rolling database deployment.
+const UPCOMING_FILTER =
+  "and(date_precision.eq.instant,starts_at.gte.now),and(date_precision.eq.day,starts_on.gte.today),and(date_precision.in.(month,quarter,year,decade),period_end.gte.today)";
 /** Supabase caps a single response at 1000 rows; larger reads page with `.range()`. */
 const PAGE_ROWS = 1000;
 const SITEMAP_MAX_URLS = 50_000;
@@ -508,7 +707,9 @@ function isSeriesSlug(slug: string): boolean {
   return SLUG_RE.test(slug);
 }
 
-function toPrecisionValue(value: string | null | undefined): DatePrecision | undefined {
+function toPrecisionValue(
+  value: string | null | undefined,
+): DatePrecision | undefined {
   return value && PRECISIONS.has(value) ? (value as DatePrecision) : undefined;
 }
 
@@ -516,11 +717,17 @@ function parseFaq(value: unknown): SeriesFaq[] {
   if (!Array.isArray(value)) return [];
   const out: SeriesFaq[] = [];
   for (const item of value) {
-    if (typeof item !== "object" || item === null || Array.isArray(item)) continue;
+    if (typeof item !== "object" || item === null || Array.isArray(item))
+      continue;
     const rec = item as Record<string, unknown>;
     const question = rec.question ?? rec.q;
     const answer = rec.answer ?? rec.a;
-    if (typeof question === "string" && typeof answer === "string" && question.trim() && answer.trim()) {
+    if (
+      typeof question === "string" &&
+      typeof answer === "string" &&
+      question.trim() &&
+      answer.trim()
+    ) {
       out.push({ question: question.trim(), answer: answer.trim() });
     }
   }
@@ -533,25 +740,45 @@ function isFiniteInt(value: unknown): value is number {
 
 /** `series.recurrence` jsonb -> typed rule, or undefined when absent or malformed. */
 function parseRecurrence(value: unknown): SeriesRecurrence | undefined {
-  if (typeof value !== "object" || value === null || Array.isArray(value)) return undefined;
+  if (typeof value !== "object" || value === null || Array.isArray(value))
+    return undefined;
   const rec = value as Record<string, unknown>;
   const offsetDays = isFiniteInt(rec.offsetDays) ? rec.offsetDays : undefined;
   switch (rec.kind) {
     case "fixed":
       return isFiniteInt(rec.month) && isFiniteInt(rec.day)
-        ? { kind: "fixed", month: rec.month, day: rec.day, ...(offsetDays !== undefined ? { offsetDays } : {}) }
+        ? {
+            kind: "fixed",
+            month: rec.month,
+            day: rec.day,
+            ...(offsetDays !== undefined ? { offsetDays } : {}),
+          }
         : undefined;
     case "nth-weekday":
-      return isFiniteInt(rec.month) && isFiniteInt(rec.weekday) && isFiniteInt(rec.n)
-        ? { kind: "nth-weekday", month: rec.month, weekday: rec.weekday, n: rec.n, ...(offsetDays !== undefined ? { offsetDays } : {}) }
+      return isFiniteInt(rec.month) &&
+        isFiniteInt(rec.weekday) &&
+        isFiniteInt(rec.n)
+        ? {
+            kind: "nth-weekday",
+            month: rec.month,
+            weekday: rec.weekday,
+            n: rec.n,
+            ...(offsetDays !== undefined ? { offsetDays } : {}),
+          }
         : undefined;
     case "easter-offset":
     case "orthodox-easter-offset":
-      return isFiniteInt(rec.days) ? { kind: rec.kind, days: rec.days } : undefined;
+      return isFiniteInt(rec.days)
+        ? { kind: rec.kind, days: rec.days }
+        : undefined;
     case "lunar-chinese":
-      return isFiniteInt(rec.month) && isFiniteInt(rec.day) ? { kind: "lunar-chinese", month: rec.month, day: rec.day } : undefined;
+      return isFiniteInt(rec.month) && isFiniteInt(rec.day)
+        ? { kind: "lunar-chinese", month: rec.month, day: rec.day }
+        : undefined;
     case "custom":
-      return typeof rec.rule === "string" ? { kind: "custom", rule: rec.rule } : undefined;
+      return typeof rec.rule === "string"
+        ? { kind: "custom", rule: rec.rule }
+        : undefined;
     default:
       return undefined;
   }
@@ -565,7 +792,12 @@ function ruleDatesInYear(rule: SeriesRecurrence, year: number): Ymd[] | null {
   try {
     switch (rule.kind) {
       case "fixed":
-        return [addDays({ y: year, m: rule.month, d: rule.day }, rule.offsetDays ?? 0)];
+        return [
+          addDays(
+            { y: year, m: rule.month, d: rule.day },
+            rule.offsetDays ?? 0,
+          ),
+        ];
       case "nth-weekday": {
         const d = nthWeekday(year, rule.month, rule.weekday, rule.n);
         return d ? [addDays(d, rule.offsetDays ?? 0)] : [];
@@ -596,7 +828,10 @@ function ruleDatesInYear(rule: SeriesRecurrence, year: number): Ymd[] | null {
 }
 
 /** Whether `date` (`YYYY-MM-DD…`) is one the rule produces (offsets may cross a year boundary). */
-function matchesRecurrence(rule: SeriesRecurrence, date: string): boolean | null {
+function matchesRecurrence(
+  rule: SeriesRecurrence,
+  date: string,
+): boolean | null {
   const iso = date.slice(0, 10);
   const year = Number(iso.slice(0, 4));
   if (!Number.isFinite(year)) return null;
@@ -619,7 +854,11 @@ type OccurrenceLike = Pick<CountdownEvent, "date" | "regions" | "source">;
  *  - it is a curated/worldwide row, or at least half as many countries observe it as the most
  *    widely observed linked row (regional variants of a holiday carry a handful of regions).
  */
-function isCanonicalOccurrence(rule: SeriesRecurrence | undefined, maxRegions: number, o: OccurrenceLike): boolean {
+function isCanonicalOccurrence(
+  rule: SeriesRecurrence | undefined,
+  maxRegions: number,
+  o: OccurrenceLike,
+): boolean {
   if (rule && matchesRecurrence(rule, o.date) === false) return false;
   if (o.source === "curated" || o.regions.includes("GLOBAL")) return true;
   return o.regions.length * 2 >= maxRegions;
@@ -627,22 +866,28 @@ function isCanonicalOccurrence(rule: SeriesRecurrence | undefined, maxRegions: n
 
 function maxRegionCount(rows: readonly OccurrenceLike[]): number {
   let max = 0;
-  for (const o of rows) if (!o.regions.includes("GLOBAL")) max = Math.max(max, o.regions.length);
+  for (const o of rows)
+    if (!o.regions.includes("GLOBAL")) max = Math.max(max, o.regions.length);
   return max;
 }
 
 /** Splits linked occurrences (any order preserved) into canonical rows and regional variants. */
-function splitOccurrences<T extends OccurrenceLike>(rule: SeriesRecurrence | undefined, rows: T[]): { canonical: T[]; variants: T[] } {
+function splitOccurrences<T extends OccurrenceLike>(
+  rule: SeriesRecurrence | undefined,
+  rows: T[],
+): { canonical: T[]; variants: T[] } {
   const max = maxRegionCount(rows);
   const canonical: T[] = [];
   const variants: T[] = [];
-  for (const o of rows) (isCanonicalOccurrence(rule, max, o) ? canonical : variants).push(o);
+  for (const o of rows)
+    (isCanonicalOccurrence(rule, max, o) ? canonical : variants).push(o);
   return { canonical, variants };
 }
 
 function seriesRowToSeries(row: SeriesRow): Series {
   const nextPrecision = toPrecisionValue(row.next_precision);
-  const coarse = nextPrecision !== undefined && COARSE_PRECISIONS.has(nextPrecision);
+  const coarse =
+    nextPrecision !== undefined && COARSE_PRECISIONS.has(nextPrecision);
   const recurrence = parseRecurrence(row.recurrence);
   return {
     slug: row.slug ?? "",
@@ -666,31 +911,48 @@ function seriesRowToSeries(row: SeriesRow): Series {
   };
 }
 
-type NextLike = Pick<CountdownEvent, "slug" | "date" | "allDay" | "datePrecision" | "daysUntil">;
+type NextLike = Pick<
+  CountdownEvent,
+  | "slug"
+  | "date"
+  | "allDay"
+  | "datePrecision"
+  | "daysUntil"
+  | "timezone"
+  | "status"
+>;
 
 /** `series` with its next occurrence taken from `next` (the first canonical linked row). */
 function withNext(series: Series, next: NextLike | undefined): Series {
   if (!next) return series;
-  const coarse = next.datePrecision !== undefined && COARSE_PRECISIONS.has(next.datePrecision);
+  const coarse =
+    next.datePrecision !== undefined &&
+    COARSE_PRECISIONS.has(next.datePrecision);
   return {
     ...series,
     nextSlug: next.slug,
     nextDate: next.date,
     nextAllDay: next.allDay,
+    nextTimezone: next.timezone,
+    nextStatus: next.status,
     nextPrecision: next.datePrecision,
     daysUntil: coarse ? undefined : next.daysUntil,
   };
 }
 
 /** Future linked rows of one series, soonest first (raw, before the canonical guard). */
-async function fetchLinkedOccurrences(slug: string, limit: number): Promise<CountdownEvent[]> {
+async function fetchLinkedOccurrences(
+  slug: string,
+  limit: number,
+): Promise<CountdownEvent[]> {
   return (
     unwrap(
       await anonClient()
         .from("events_public")
         .select("*")
         .eq("series_slug", slug)
-        .gte("sort_at", SQL_NOW)
+        .not("status", "in", "(done,cancelled,retired)")
+        .or(UPCOMING_FILTER)
         .order("starts_on", { ascending: true })
         .limit(limit),
     ) ?? []
@@ -701,11 +963,20 @@ async function fetchLinkedOccurrences(slug: string, limit: number): Promise<Coun
 const OCCURRENCE_OVERFETCH = 4;
 
 async function fetchSeries(slug: string): Promise<Series | null> {
-  const row = unwrap(await anonClient().from("series_next").select("*").eq("slug", slug).maybeSingle());
+  const row = unwrap(
+    await anonClient()
+      .from("series_next")
+      .select("*")
+      .eq("slug", slug)
+      .maybeSingle(),
+  );
   if (!row) return null;
   const series = seriesRowToSeries(row);
   if (!series.nextSlug) return series;
-  const rows = await fetchLinkedOccurrences(series.slug, Math.min(PAGE_ROWS, 8 * OCCURRENCE_OVERFETCH));
+  const rows = await fetchLinkedOccurrences(
+    series.slug,
+    Math.min(PAGE_ROWS, 8 * OCCURRENCE_OVERFETCH),
+  );
   const { canonical } = splitOccurrences(series.recurrence, rows);
   // No canonical row among the soonest linked ones: keep the view's answer rather than none.
   return withNext(series, canonical[0]);
@@ -721,11 +992,15 @@ function cachedSeries(slug: string) {
 /** One published series with its next occurrence, by canonical slug. */
 export async function getSeries(slug: string): Promise<Series | undefined> {
   if (!isSeriesSlug(slug)) return undefined;
-  return (await safe("getSeries", () => cachedSeries(slug)(), null)) ?? undefined;
+  return (
+    (await safe("getSeries", () => cachedSeries(slug)(), null)) ?? undefined
+  );
 }
 
 /** `getSeries` that throws `CatalogReadError` on a read failure (see `getEventStrict`). */
-export async function getSeriesStrict(slug: string): Promise<Series | undefined> {
+export async function getSeriesStrict(
+  slug: string,
+): Promise<Series | undefined> {
   if (!isSeriesSlug(slug) || supabaseEnv() === null) return undefined;
   try {
     return (await cachedSeries(slug)()) ?? undefined;
@@ -736,7 +1011,13 @@ export async function getSeriesStrict(slug: string): Promise<Series | undefined>
 
 const resolveSeriesAliasCached = cached(
   async (alias: string) => {
-    const row = unwrap(await anonClient().from("series_aliases").select("series_slug").eq("alias", alias).maybeSingle());
+    const row = unwrap(
+      await anonClient()
+        .from("series_aliases")
+        .select("series_slug")
+        .eq("alias", alias)
+        .maybeSingle(),
+    );
     return row?.series_slug ?? null;
   },
   ["catalog", "series-alias"],
@@ -744,13 +1025,21 @@ const resolveSeriesAliasCached = cached(
 );
 
 /** Series alias (`series_aliases.alias`) -> canonical series slug, or null. */
-export async function resolveSeriesAlias(alias: string): Promise<string | null> {
+export async function resolveSeriesAlias(
+  alias: string,
+): Promise<string | null> {
   if (!isSeriesSlug(alias)) return null;
-  const slug = await safe("resolveSeriesAlias", () => resolveSeriesAliasCached(alias), null);
+  const slug = await safe(
+    "resolveSeriesAlias",
+    () => resolveSeriesAliasCached(alias),
+    null,
+  );
   return slug && slug !== alias ? slug : null;
 }
 
-export async function resolveSeriesAliasStrict(alias: string): Promise<string | null> {
+export async function resolveSeriesAliasStrict(
+  alias: string,
+): Promise<string | null> {
   if (!isSeriesSlug(alias) || supabaseEnv() === null) return null;
   let slug: string | null;
   try {
@@ -761,17 +1050,30 @@ export async function resolveSeriesAliasStrict(alias: string): Promise<string | 
   return slug && slug !== alias ? slug : null;
 }
 
-export type SeriesOccurrences = { canonical: CountdownEvent[]; variants: CountdownEvent[] };
+export type SeriesOccurrences = {
+  canonical: CountdownEvent[];
+  variants: CountdownEvent[];
+};
 
 const seriesOccurrencesCached = cached(
   async (slug: string, limit: number): Promise<SeriesOccurrences> => {
     const [seriesRow, rows] = await Promise.all([
-      anonClient().from("series").select("recurrence").eq("slug", slug).maybeSingle(),
-      fetchLinkedOccurrences(slug, Math.min(PAGE_ROWS, limit * OCCURRENCE_OVERFETCH)),
+      anonClient()
+        .from("series")
+        .select("recurrence")
+        .eq("slug", slug)
+        .maybeSingle(),
+      fetchLinkedOccurrences(
+        slug,
+        Math.min(PAGE_ROWS, limit * OCCURRENCE_OVERFETCH),
+      ),
     ]);
     const rule = parseRecurrence(unwrap(seriesRow)?.recurrence);
     const { canonical, variants } = splitOccurrences(rule, rows);
-    return { canonical: canonical.slice(0, limit), variants: variants.slice(0, limit) };
+    return {
+      canonical: canonical.slice(0, limit),
+      variants: variants.slice(0, limit),
+    };
   },
   ["catalog", "series-occurrences"],
   { tags: [TAG_EVENTS], revalidate: REVALIDATE_EVENTS },
@@ -781,16 +1083,27 @@ const seriesOccurrencesCached = cached(
  * Future occurrences of a series, soonest first, split into the canonical dates and the regional
  * variants the linker attached by title (see `isCanonicalOccurrence`).
  */
-export async function seriesOccurrencesSplit(slug: string, limit = 60): Promise<SeriesOccurrences> {
+export async function seriesOccurrencesSplit(
+  slug: string,
+  limit = 60,
+): Promise<SeriesOccurrences> {
   if (!isSeriesSlug(slug)) return { canonical: [], variants: [] };
-  return safe("seriesOccurrences", () => seriesOccurrencesCached(slug, Math.max(1, Math.min(PAGE_ROWS, limit))), {
-    canonical: [],
-    variants: [],
-  });
+  return safe(
+    "seriesOccurrences",
+    () =>
+      seriesOccurrencesCached(slug, Math.max(1, Math.min(PAGE_ROWS, limit))),
+    {
+      canonical: [],
+      variants: [],
+    },
+  );
 }
 
 /** Canonical future occurrences of a series, soonest first (the curated expansion covers ~14 years). */
-export async function seriesOccurrences(slug: string, limit = 60): Promise<CountdownEvent[]> {
+export async function seriesOccurrences(
+  slug: string,
+  limit = 60,
+): Promise<CountdownEvent[]> {
   return (await seriesOccurrencesSplit(slug, limit)).canonical;
 }
 
@@ -800,10 +1113,21 @@ const NEXT_INDEX_MAX_ROWS = 20_000;
 
 type NextIndexRow = Pick<
   Database["public"]["Views"]["events_public"]["Row"],
-  "slug" | "series_slug" | "date" | "all_day" | "date_precision" | "days_until" | "regions" | "source" | "starts_on"
+  | "slug"
+  | "series_slug"
+  | "date"
+  | "all_day"
+  | "date_precision"
+  | "days_until"
+  | "regions"
+  | "source"
+  | "starts_on"
+  | "timezone"
+  | "status"
 >;
 
-const NEXT_INDEX_COLUMNS = "slug, series_slug, date, all_day, date_precision, days_until, regions, source, starts_on";
+const NEXT_INDEX_COLUMNS =
+  "slug, series_slug, date, all_day, date_precision, days_until, regions, source, starts_on, timezone, status";
 
 /**
  * Soonest linked rows of every series inside the horizon, keyed by series slug, soonest first.
@@ -820,6 +1144,8 @@ const seriesNextIndexCached = cached(
             .from("events_public")
             .select(NEXT_INDEX_COLUMNS)
             .not("series_slug", "is", null)
+            .not("status", "in", "(done,cancelled,retired)")
+            .or(UPCOMING_FILTER)
             .gte("days_until", 0)
             .lte("days_until", NEXT_INDEX_HORIZON_DAYS)
             .order("starts_on", { ascending: true })
@@ -842,6 +1168,8 @@ function indexRowToOccurrence(r: NextIndexRow): OccurrenceLike & NextLike {
   return {
     slug: r.slug ?? "",
     date: r.date ?? "",
+    timezone: r.timezone ?? undefined,
+    status: toStatus(r.status),
     allDay: r.all_day ?? true,
     regions: r.regions && r.regions.length > 0 ? r.regions : ["GLOBAL"],
     source: r.source ?? "curated",
@@ -858,7 +1186,7 @@ async function withCanonicalNext(list: Series[]): Promise<Series[]> {
     const rows = (index[series.slug] ?? []).map(indexRowToOccurrence);
     const { canonical } = splitOccurrences(series.recurrence, rows);
     const next = canonical[0];
-    if (!next || next.slug === series.nextSlug) return series;
+    if (!next) return series;
     return withNext(series, next);
   });
 }
@@ -884,7 +1212,11 @@ const topSeriesCached = cached(
 
 /** Most popular series that still have a future occurrence. */
 export async function topSeries(limit = 24): Promise<Series[]> {
-  return safe("topSeries", () => topSeriesCached(Math.min(PAGE_ROWS, limit)), []);
+  return safe(
+    "topSeries",
+    () => topSeriesCached(Math.min(PAGE_ROWS, limit)),
+    [],
+  );
 }
 
 const allSeriesCached = cached(
@@ -932,8 +1264,15 @@ const seriesInCategoryCached = cached(
   { tags: [TAG_EVENTS], revalidate: REVALIDATE_EVENTS },
 );
 
-export async function seriesInCategory(category: Category, limit = 12): Promise<Series[]> {
-  return safe("seriesInCategory", () => seriesInCategoryCached(category, Math.min(PAGE_ROWS, limit)), []);
+export async function seriesInCategory(
+  category: Category,
+  limit = 12,
+): Promise<Series[]> {
+  return safe(
+    "seriesInCategory",
+    () => seriesInCategoryCached(category, Math.min(PAGE_ROWS, limit)),
+    [],
+  );
 }
 
 // ---------------------------------------------------------------------------
@@ -941,18 +1280,30 @@ export async function seriesInCategory(category: Category, limit = 12): Promise<
 // ---------------------------------------------------------------------------
 
 const eventsWithinDaysCached = cached(
-  async (category: string | undefined, minDays: number, maxDays: number, sort: "soonest" | "popular", limit: number) => {
+  async (
+    category: string | undefined,
+    minDays: number,
+    maxDays: number,
+    sort: "soonest" | "popular",
+    limit: number,
+  ) => {
     let query = anonClient()
       .from("events_public")
       .select("*")
+      .not("status", "in", "(done,cancelled,retired)")
+      .or(UPCOMING_FILTER)
       .gte("days_until", minDays)
       .lte("days_until", maxDays)
       .in("date_precision", ["instant", "day"]);
     if (category) query = query.eq("category", category);
     query =
       sort === "popular"
-        ? query.order("popularity", { ascending: false }).order("starts_on", { ascending: true })
-        : query.order("starts_on", { ascending: true }).order("popularity", { ascending: false });
+        ? query
+            .order("popularity", { ascending: false })
+            .order("starts_on", { ascending: true })
+        : query
+            .order("starts_on", { ascending: true })
+            .order("popularity", { ascending: false });
     return (unwrap(await query.limit(limit)) ?? []).map(rowToEvent);
   },
   ["catalog", "events-within-days"],
@@ -967,18 +1318,37 @@ export async function eventsWithinDays(options: {
   sort?: "soonest" | "popular";
   limit?: number;
 }): Promise<CountdownEvent[]> {
-  const { category, minDays = 0, maxDays, sort = "soonest", limit = 24 } = options;
+  const {
+    category,
+    minDays = 0,
+    maxDays,
+    sort = "soonest",
+    limit = 24,
+  } = options;
   return safe(
     "eventsWithinDays",
-    () => eventsWithinDaysCached(category, minDays, maxDays, sort, Math.min(PAGE_ROWS, limit)),
+    () =>
+      eventsWithinDaysCached(
+        category,
+        minDays,
+        maxDays,
+        sort,
+        Math.min(PAGE_ROWS, limit),
+      ),
     [],
   );
 }
 
-function monthBounds(year: number, month: number): { from: string; to: string } {
+function monthBounds(
+  year: number,
+  month: number,
+): { from: string; to: string } {
   const mm = String(month).padStart(2, "0");
   const next = month >= 12 ? { y: year + 1, m: 1 } : { y: year, m: month + 1 };
-  return { from: `${year}-${mm}-01`, to: `${next.y}-${String(next.m).padStart(2, "0")}-01` };
+  return {
+    from: `${year}-${mm}-01`,
+    to: `${next.y}-${String(next.m).padStart(2, "0")}-01`,
+  };
 }
 
 const eventsInMonthCached = cached(
@@ -992,6 +1362,8 @@ const eventsInMonthCached = cached(
           .gte("starts_on", from)
           .lt("starts_on", to)
           .gte("starts_on", SQL_TODAY)
+          .not("status", "in", "(done,cancelled,retired)")
+          .or(UPCOMING_FILTER)
           .order("starts_on", { ascending: true })
           .order("popularity", { ascending: false })
           .limit(limit),
@@ -1003,9 +1375,23 @@ const eventsInMonthCached = cached(
 );
 
 /** Upcoming events starting in a calendar month (past days of the current month are excluded). */
-export async function eventsInMonth(year: number, month: number, limit = PAGE_ROWS): Promise<CountdownEvent[]> {
-  if (!Number.isInteger(year) || !Number.isInteger(month) || month < 1 || month > 12) return [];
-  return safe("eventsInMonth", () => eventsInMonthCached(year, month, Math.min(PAGE_ROWS, limit)), []);
+export async function eventsInMonth(
+  year: number,
+  month: number,
+  limit = PAGE_ROWS,
+): Promise<CountdownEvent[]> {
+  if (
+    !Number.isInteger(year) ||
+    !Number.isInteger(month) ||
+    month < 1 ||
+    month > 12
+  )
+    return [];
+  return safe(
+    "eventsInMonth",
+    () => eventsInMonthCached(year, month, Math.min(PAGE_ROWS, limit)),
+    [],
+  );
 }
 
 const countryEventsCached = cached(
@@ -1016,7 +1402,8 @@ const countryEventsCached = cached(
           .from("events_public")
           .select("*")
           .contains("regions", [code])
-          .gte("sort_at", SQL_NOW)
+          .not("status", "in", "(done,cancelled,retired)")
+          .or(UPCOMING_FILTER)
           .order("starts_on", { ascending: true })
           .order("popularity", { ascending: false })
           .limit(limit),
@@ -1027,10 +1414,17 @@ const countryEventsCached = cached(
 );
 
 /** Upcoming events tagged with one ISO-3166 alpha-2 region (uppercase), soonest first. */
-export async function countryEvents(code: string, limit = 400): Promise<CountdownEvent[]> {
+export async function countryEvents(
+  code: string,
+  limit = 400,
+): Promise<CountdownEvent[]> {
   const cc = code.toUpperCase();
   if (!/^[A-Z]{2}$/.test(cc)) return [];
-  return safe("countryEvents", () => countryEventsCached(cc, Math.min(PAGE_ROWS, limit)), []);
+  return safe(
+    "countryEvents",
+    () => countryEventsCached(cc, Math.min(PAGE_ROWS, limit)),
+    [],
+  );
 }
 
 const worldwideUpcomingCached = cached(
@@ -1041,7 +1435,8 @@ const worldwideUpcomingCached = cached(
           .from("events_public")
           .select("*")
           .contains("regions", ["GLOBAL"])
-          .gte("sort_at", SQL_NOW)
+          .not("status", "in", "(done,cancelled,retired)")
+          .or(UPCOMING_FILTER)
           .order("sort_at", { ascending: true })
           .order("popularity", { ascending: false })
           .limit(limit),
@@ -1052,12 +1447,22 @@ const worldwideUpcomingCached = cached(
 );
 
 export async function worldwideUpcoming(limit = 12): Promise<CountdownEvent[]> {
-  return safe("worldwideUpcoming", () => worldwideUpcomingCached(Math.min(PAGE_ROWS, limit)), []);
+  return safe(
+    "worldwideUpcoming",
+    () => worldwideUpcomingCached(Math.min(PAGE_ROWS, limit)),
+    [],
+  );
 }
 
 const countryCountsCached = cached(
   async () => {
-    const row = unwrap(await anonClient().from("catalog_stats").select("by_country").eq("id", true).maybeSingle());
+    const row = unwrap(
+      await anonClient()
+        .from("catalog_stats")
+        .select("by_country")
+        .eq("id", true)
+        .maybeSingle(),
+    );
     const counts = asCounts(row?.by_country);
     delete counts.GLOBAL;
     return counts;
@@ -1099,23 +1504,40 @@ export async function sourcesList(): Promise<SourceInfo[]> {
 }
 
 /** Tags with at least `min` upcoming events (from the `popular_tags` rpc). */
-export async function tagsWithAtLeast(min = 8, limit = 400): Promise<{ tag: string; count: number }[]> {
+export async function tagsWithAtLeast(
+  min = 8,
+  limit = 400,
+): Promise<{ tag: string; count: number }[]> {
   const tags = await popularTags(limit);
   return tags.filter((t) => t.count >= min);
 }
 
 /** `listEvents` that throws `CatalogReadError` on a read failure instead of returning an empty page. */
-export async function listEventsStrict(params: SearchParams = {}): Promise<SearchResult> {
+export async function listEventsStrict(
+  params: SearchParams = {},
+): Promise<SearchResult> {
   const a = normalizeParams({ ...params, q: undefined });
-  if (supabaseEnv() === null) return { items: [], total: 0, page: a.page, pageSize: a.pageSize };
+  if (supabaseEnv() === null)
+    return { items: [], total: 0, page: a.page, pageSize: a.pageSize };
   try {
-    return await listEventsCached(a.category, a.tag, a.region, a.featured, a.sort, a.minPopularity, a.page, a.pageSize);
+    return await listEventsCached(
+      a.category,
+      a.tag,
+      a.region,
+      a.featured,
+      a.sort,
+      a.minPopularity,
+      a.page,
+      a.pageSize,
+    );
   } catch (err) {
     throw new CatalogReadError("listEvents", err);
   }
 }
 
-export function isCategory(value: string | undefined | null): value is Category {
+export function isCategory(
+  value: string | undefined | null,
+): value is Category {
   return CATEGORIES.includes(value as Category);
 }
 
@@ -1139,7 +1561,8 @@ const sitemapSeriesCached = cached(
             .range(offset, offset + PAGE_ROWS - 1),
         ) ?? [];
       for (const r of rows) {
-        if (typeof r.slug === "string" && r.slug.length > 0) out.push({ slug: r.slug, updatedAt: r.updated_at ?? undefined });
+        if (typeof r.slug === "string" && r.slug.length > 0)
+          out.push({ slug: r.slug, updatedAt: r.updated_at ?? undefined });
       }
       if (rows.length < PAGE_ROWS) break;
     }
@@ -1159,7 +1582,8 @@ async function countIndexable(from: string, to: string): Promise<number> {
     .select("slug", { count: "exact", head: true })
     .eq("indexable", true)
     .is("series_slug", null)
-    .gte("sort_at", SQL_NOW)
+    .not("status", "in", "(done,cancelled,retired)")
+    .or(UPCOMING_FILTER)
     .gte("starts_on", from)
     .lt("starts_on", to);
   if (res.error) throw new Error(res.error.message);
@@ -1169,7 +1593,13 @@ async function countIndexable(from: string, to: string): Promise<number> {
 const indexableYearsCached = cached(
   async (): Promise<{ year: number; count: number }[]> => {
     const base = () =>
-      anonClient().from("events_public").select("starts_on").eq("indexable", true).is("series_slug", null).gte("sort_at", SQL_NOW);
+      anonClient()
+        .from("events_public")
+        .select("starts_on")
+        .eq("indexable", true)
+        .is("series_slug", null)
+        .not("status", "in", "(done,cancelled,retired)")
+        .or(UPCOMING_FILTER);
     const [first, last] = await Promise.all([
       base().order("starts_on", { ascending: true }).limit(1).maybeSingle(),
       base().order("starts_on", { ascending: false }).limit(1).maybeSingle(),
@@ -1195,7 +1625,9 @@ const indexableYearsCached = cached(
  * Series members are excluded explicitly (not only via `indexable`, which the nightly finalize
  * flips): a member upserted during the day must never sit in a sitemap while its page is noindex.
  */
-export async function indexableYears(): Promise<{ year: number; count: number }[]> {
+export async function indexableYears(): Promise<
+  { year: number; count: number }[]
+> {
   return safe("indexableYears", () => indexableYearsCached(), []);
 }
 
@@ -1212,7 +1644,8 @@ const indexableEventsCached = cached(
             .select("slug, updated_at")
             .eq("indexable", true)
             .is("series_slug", null)
-            .gte("sort_at", SQL_NOW)
+            .not("status", "in", "(done,cancelled,retired)")
+            .or(UPCOMING_FILTER)
             .gte("starts_on", from)
             .lt("starts_on", to)
             .order("starts_on", { ascending: true })
@@ -1220,7 +1653,8 @@ const indexableEventsCached = cached(
             .range(offset, offset + PAGE_ROWS - 1),
         ) ?? [];
       for (const r of rows) {
-        if (r.slug) out.push({ slug: r.slug, updatedAt: r.updated_at ?? undefined });
+        if (r.slug)
+          out.push({ slug: r.slug, updatedAt: r.updated_at ?? undefined });
       }
       if (rows.length < PAGE_ROWS) break;
     }
@@ -1231,7 +1665,10 @@ const indexableEventsCached = cached(
 );
 
 /** Indexable upcoming event slugs starting in `year` (`half` 1 = Jan–Jun, 2 = Jul–Dec, 0 = whole year). */
-export async function indexableEvents(year: number, half: 0 | 1 | 2 = 0): Promise<SitemapEntry[]> {
+export async function indexableEvents(
+  year: number,
+  half: 0 | 1 | 2 = 0,
+): Promise<SitemapEntry[]> {
   if (!Number.isInteger(year) || year < 2000 || year > 2200) return [];
   return safe("indexableEvents", () => indexableEventsCached(year, half), []);
 }
@@ -1247,7 +1684,8 @@ const SITEMAP_SPLIT_AT = 40_000;
 export async function sitemapShardIds(): Promise<string[]> {
   const ids = ["hubs", "series"];
   for (const { year, count } of await indexableYears()) {
-    if (count > SITEMAP_SPLIT_AT) ids.push(`events-${year}-h1`, `events-${year}-h2`);
+    if (count > SITEMAP_SPLIT_AT)
+      ids.push(`events-${year}-h1`, `events-${year}-h2`);
     else ids.push(`events-${year}`);
   }
   return ids;

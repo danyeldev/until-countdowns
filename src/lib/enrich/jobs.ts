@@ -32,6 +32,7 @@ export type EnrichJob = {
   attempts: number;
   /** Last recorded failure, if any. `null` means every attempt so far was a wasted claim. */
   last_error: string | null;
+  next_attempt_at?: string;
 };
 
 /** After this many attempts a job stops being retried and is parked as `failed`. */
@@ -57,7 +58,7 @@ export function truncateError(message: string): string {
 export async function claimJobs(db: Db, kind: EnrichKind, limit: number): Promise<EnrichJob[]> {
   const { data, error } = await db.rpc("claim_enrichment_jobs", { p_kind: kind, p_limit: limit });
   if (error) throw new Error(`claim_enrichment_jobs(${kind}) failed: ${error.message}`);
-  const rows = (data ?? []) as Array<{ id: number; kind: string; event_id: string; attempts: number; last_error: string | null }>;
+  const rows = (data ?? []) as Array<{ id: number; kind: string; event_id: string; attempts: number; last_error: string | null; next_attempt_at: string }>;
   return rows
     .filter((r) => isEnrichKind(r.kind))
     .map((r) => ({
@@ -66,7 +67,37 @@ export async function claimJobs(db: Db, kind: EnrichKind, limit: number): Promis
       event_id: r.event_id,
       attempts: r.attempts ?? 0,
       last_error: r.last_error ?? null,
+      next_attempt_at: r.next_attempt_at,
     }));
+}
+
+/** Inspect due work without calling the claim RPC: a dry run must never advance a live queue. */
+export async function previewJobs(db: Db, kind: EnrichKind, limit: number): Promise<EnrichJob[]> {
+  const { data, error } = await db
+    .from("enrichment_jobs")
+    .select("id, kind, event_id, attempts, last_error, next_attempt_at")
+    .eq("kind", kind)
+    .eq("status", "pending")
+    .lte("next_attempt_at", new Date().toISOString())
+    .order("next_attempt_at")
+    .order("id")
+    .limit(limit);
+  if (error) throw new Error(`enrichment_jobs preview failed: ${error.message}`);
+  return (data ?? []) as EnrichJob[];
+}
+
+/** Return untouched work immediately and refund its claim attempt. The original claim timestamp
+ * guards against overwriting a job that a later worker has already reclaimed. */
+export async function releaseJob(db: Db, job: EnrichJob): Promise<void> {
+  let query = db
+    .from("enrichment_jobs")
+    .update({ attempts: Math.max(0, job.attempts - 1), next_attempt_at: new Date().toISOString() })
+    .eq("id", job.id)
+    .eq("status", "pending")
+    .eq("attempts", job.attempts);
+  if (job.next_attempt_at) query = query.eq("next_attempt_at", job.next_attempt_at);
+  const { error } = await query;
+  if (error) throw new Error(`enrichment_jobs release failed: ${error.message}`);
 }
 
 /** Terminal outcome: `done` or `skipped` (the reason of a skip is kept for the next operator). */

@@ -3,8 +3,8 @@
  * `buildMetadata()` that turns them into Next `Metadata` (canonical, Open Graph, Twitter, robots).
  *
  * Titles never carry the day count (it would go stale in the index); descriptions and the
- * server-rendered intent sentence do. This module is the only server-side place allowed to read
- * the wall clock (`todayUtc()`), and only for the dated OG-image URL that must change daily.
+ * server-rendered intent sentence do. `todayUtc()` is the shared clock for dated social images
+ * and calendar navigation; date formatting itself is deterministic.
  */
 import type { Metadata } from "next";
 import { CATEGORY_LABELS } from "./labels";
@@ -14,9 +14,9 @@ import type { Category, CountdownEvent, DatePrecision, Series } from "./types";
 const DEFAULT_SITE_URL = "https://until-inky.vercel.app";
 export const SITE_NAME = "Until";
 /** Root layout default title and the home page's absolute title (kept identical on purpose). */
-export const HOME_TITLE = "Until — countdowns for everything coming";
+export const HOME_TITLE = "Until — something to look forward to";
 export const SITE_DESCRIPTION =
-  "Thousands of future dates, tagged and ticking. Holidays, eclipses, World Cups, elections — plus the ones you make yourself.";
+  "Find your next thing to look forward to. Explore holidays, sports, space and culture with live countdowns, source links and free calendar links.";
 export const DESCRIPTION_MAX = 155;
 /** `/calendar/[year]/[month]` and `/og/month` answer only for this window (else 404). */
 export const CALENDAR_MIN_YEAR = 2026;
@@ -33,7 +33,8 @@ const WEEKDAY_NAMES = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "
 export function siteUrl(): string {
   const raw = process.env.NEXT_PUBLIC_SITE_URL || DEFAULT_SITE_URL;
   try {
-    return new URL(raw).origin;
+    const url = new URL(raw);
+    return ["https:", "http:"].includes(url.protocol) ? url.origin : DEFAULT_SITE_URL;
   } catch {
     return DEFAULT_SITE_URL;
   }
@@ -71,10 +72,10 @@ export function pad2(n: number): string {
   return String(n).padStart(2, "0");
 }
 
-/** "Friday, 25 December 2026" from the date part of an ISO string (UTC calendar). */
-export function formatLongDate(date: string): string {
+/** "Friday, 25 December 2026", using a timed event's local calendar day when known. */
+export function formatLongDate(date: string, timezone?: string | null): string {
   if (!isValidDate(date)) return "a date to be announced";
-  const [y, m, d] = date.slice(0, 10).split("-").map(Number);
+  const [y, m, d] = catalogDay(date, timezone).split("-").map(Number);
   const utc = new Date(Date.UTC(y, (m || 1) - 1, d || 1));
   return `${WEEKDAY_NAMES[utc.getUTCDay()]}, ${utc.getUTCDate()} ${MONTH_NAMES[utc.getUTCMonth()]} ${utc.getUTCFullYear()}`;
 }
@@ -144,13 +145,15 @@ const TITLE_STYLE: Record<Category, TitleStyle> = {
 };
 
 /** "Friday, 25 December 2026", or "expected June 2027" for coarse precisions (never the bare period). */
-function whenLabel(date: string, precision?: DatePrecision | null): string {
-  return isCoarsePrecision(precision) ? `expected ${expectedPeriod(date, precision)}` : formatLongDate(date);
+function whenLabel(date: string, precision?: DatePrecision | null, timezone?: string): string {
+  return isCoarsePrecision(precision) ? `expected ${expectedPeriod(date, precision)}` : formatLongDate(date, timezone);
 }
 
 /** One-off event title, rotated by category so the corpus is not a single template. Never the day count. */
-export function eventTitle(event: Pick<CountdownEvent, "title" | "date" | "category" | "datePrecision">): string {
-  const when = whenLabel(event.date, event.datePrecision);
+export function eventTitle(event: Pick<CountdownEvent, "title" | "date" | "category" | "datePrecision" | "timezone" | "status">): string {
+  if (event.status === "cancelled") return `${event.title} — cancelled`;
+  if (event.status === "postponed") return `${event.title} — postponed`;
+  const when = whenLabel(event.date, event.datePrecision, event.timezone);
   const coarse = isCoarsePrecision(event.datePrecision);
   switch (TITLE_STYLE[event.category] ?? "countdown-dash") {
     case "when-is":
@@ -164,26 +167,35 @@ export function eventTitle(event: Pick<CountdownEvent, "title" | "date" | "categ
 }
 
 export function eventDescription(
-  event: Pick<CountdownEvent, "title" | "date" | "datePrecision" | "daysUntil" | "status">,
+  event: Pick<CountdownEvent, "title" | "date" | "datePrecision" | "daysUntil" | "status" | "timezone">,
 ): string {
+  if (event.status === "cancelled") {
+    return truncate(`${event.title} has been cancelled. See the last announced date, source details and related events on Until.`);
+  }
+  if (event.status === "postponed") {
+    return truncate(`${event.title} has been postponed. The new date is awaiting confirmation. Check the source and date history on Until.`);
+  }
   if (isCoarsePrecision(event.datePrecision)) {
     return truncate(
       `${event.title} is expected ${expectedPeriod(event.date, event.datePrecision)}. The exact day is not announced yet. Live countdown once it is, add to calendar.`,
     );
   }
-  const status =
-    event.status === "cancelled" ? " (cancelled)" : event.status === "postponed" ? " (postponed)" : "";
+  const when = formatLongDate(event.date, event.timezone);
+  if (event.status === "tentative") {
+    return truncate(`${event.title} is provisionally scheduled for ${when}. The date may change. Check the source and follow the countdown.`);
+  }
+  const past = typeof event.daysUntil === "number" && event.daysUntil < 0;
   return truncate(
-    `${event.title}${status} is on ${formatLongDate(event.date)}. ${daysSentence(event.daysUntil)} Live countdown, add to calendar.`,
+    `${event.title} ${past ? "was" : "is"} on ${when}. ${daysSentence(event.daysUntil)} ${past ? "Explore the date and related events." : "Live countdown and free calendar links."}`,
   );
 }
 
-export function seriesTitle(series: Pick<Series, "title" | "nextDate" | "nextPrecision">): string {
-  const when = series.nextDate ? whenLabel(series.nextDate, series.nextPrecision) : null;
+export function seriesTitle(series: Pick<Series, "title" | "nextDate" | "nextPrecision" | "nextTimezone">): string {
+  const when = series.nextDate ? whenLabel(series.nextDate, series.nextPrecision, series.nextTimezone) : null;
   return when ? `How many days until ${series.title}? — ${when}` : `How many days until ${series.title}?`;
 }
 
-export function seriesDescription(series: Pick<Series, "title" | "nextDate" | "nextPrecision" | "daysUntil">): string {
+export function seriesDescription(series: Pick<Series, "title" | "nextDate" | "nextPrecision" | "daysUntil" | "nextTimezone">): string {
   if (!series.nextDate) {
     return truncate(`${series.title}: upcoming dates, a live countdown to the next one, and calendar links.`);
   }
@@ -193,7 +205,7 @@ export function seriesDescription(series: Pick<Series, "title" | "nextDate" | "n
     );
   }
   return truncate(
-    `${series.title} is on ${formatLongDate(series.nextDate)}. ${daysSentence(series.daysUntil)} Live countdown, dates for every year, add to calendar.`,
+    `${series.title} is on ${formatLongDate(series.nextDate, series.nextTimezone)}. ${daysSentence(series.daysUntil)} Live countdown, recurring dates and calendar links.`,
   );
 }
 
@@ -258,14 +270,20 @@ export function buildMetadata({ title, description, canonical, ogPath, noindex, 
       siteName: SITE_NAME,
       type: type ?? "website",
       locale: "en_US",
-      images: [{ url: image, width: 1200, height: 630, alt: ogAlt ?? title }],
+      images: [{ url: image, width: 1200, height: 630, alt: ogAlt ?? title, type: "image/png" }],
     },
     twitter: {
       card: "summary_large_image",
       title,
       description: desc,
-      images: [image],
+      images: [{ url: image, width: 1200, height: 630, alt: ogAlt ?? title }],
     },
-    robots: noindex ? { index: false, follow: true } : undefined,
+    robots: noindex
+      ? { index: false, follow: true }
+      : {
+          index: true,
+          follow: true,
+          googleBot: { index: true, follow: true, "max-image-preview": "large", "max-snippet": -1, "max-video-preview": -1 },
+        },
   };
 }

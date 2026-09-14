@@ -13,21 +13,21 @@ export function Pager({ page, total, pageSize, basePath }: { page: number; total
   const pages = Math.max(1, Math.ceil(total / pageSize));
   if (pages <= 1) return null;
   return (
-    <nav className="mt-8 flex items-center justify-between text-sm text-paper-dim" aria-label="Pagination">
+    <nav className="mt-6 flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-line bg-ink-2 px-4 py-3 text-sm text-paper-dim" aria-label="Pagination">
       {page > 1 ? <link rel="prev" href={pageHref(basePath, page - 1)} /> : null}
       {page < pages ? <link rel="next" href={pageHref(basePath, page + 1)} /> : null}
-      <span className="tabular">
-        Page {page} of {pages}
+      <span className="tabular" aria-live="polite">
+        Page <span className="font-semibold text-paper">{page}</span> of {pages.toLocaleString("en-US")}
       </span>
-      <div className="flex gap-4">
+      <div className="flex gap-2">
         {page > 1 ? (
-          <Link href={pageHref(basePath, page - 1)} rel="prev" className="hover:text-paper">
-            Previous
+          <Link href={pageHref(basePath, page - 1)} rel="prev" className="button-secondary">
+            <span aria-hidden="true">←</span> Previous
           </Link>
         ) : null}
         {page < pages ? (
-          <Link href={pageHref(basePath, page + 1)} rel="next" className="hover:text-paper">
-            Next
+          <Link href={pageHref(basePath, page + 1)} rel="next" className="button-secondary">
+            Next <span aria-hidden="true">→</span>
           </Link>
         ) : null}
       </div>

@@ -53,10 +53,11 @@ export function sleep(ms: number): Promise<void> {
 class HostBucket {
   private nextAt = new Map<string, number>();
 
-  async take(host: string, minIntervalMs: number): Promise<void> {
+  async take(host: string, minIntervalMs: number, url: string, remaining: () => number): Promise<void> {
     if (minIntervalMs <= 0) return;
     const now = Date.now();
     const at = Math.max(now, this.nextAt.get(host) ?? 0);
+    if (at - now + MIN_REQUEST_MS > remaining()) throw new BudgetExceededError(url, remaining());
     this.nextAt.set(host, at + minIntervalMs);
     if (at > now) await sleep(at - now);
   }
@@ -94,7 +95,7 @@ export function createHttp(defaults: Partial<HttpDefaults> = {}, log?: IngestLog
   const d: HttpDefaults = { timeoutMs: 20_000, maxRetries: 3, minIntervalMs: 0, ...defaults };
   const remaining = (): number => (d.remainingMs ? d.remainingMs() : Number.POSITIVE_INFINITY);
 
-  async function request(url: string, init: HttpInit, accept: string): Promise<Response> {
+  async function request<T>(url: string, init: HttpInit, accept: string, consume: (res: Response) => Promise<T>): Promise<T> {
     const host = new URL(url).host;
     const retries = Math.min(MAX_RETRIES_CAP, init.maxRetries ?? d.maxRetries);
     const timeoutMs = init.timeoutMs ?? d.timeoutMs;
@@ -102,7 +103,7 @@ export function createHttp(defaults: Partial<HttpDefaults> = {}, log?: IngestLog
     let lastErr: unknown;
     for (let attempt = 0; attempt <= retries; attempt++) {
       if (remaining() < MIN_REQUEST_MS) throw new BudgetExceededError(url, remaining());
-      await bucket.take(host, spacing);
+      await bucket.take(host, spacing, url, remaining);
       const left = remaining();
       if (left < MIN_REQUEST_MS) throw new BudgetExceededError(url, left);
       const budgetBound = left < timeoutMs;
@@ -111,26 +112,31 @@ export function createHttp(defaults: Partial<HttpDefaults> = {}, log?: IngestLog
           method: init.method ?? "GET",
           body: init.body,
           headers: { "User-Agent": userAgent(), Accept: accept, ...(init.headers ?? {}) },
-          signal: AbortSignal.timeout(Math.min(timeoutMs, left)),
+          signal: AbortSignal.timeout(Math.max(1, Math.floor(Math.min(timeoutMs, left)))),
           redirect: "follow",
+          cache: "no-store",
         });
-        if (res.ok) return res;
+        // Body consumption belongs inside the deadline/retry boundary: headers can arrive while
+        // a slow response body still times out.
+        if (res.ok) return await consume(res);
         const err = new HttpError(res.status, url);
         if (!RETRYABLE.has(res.status) || attempt === retries) {
           await res.body?.cancel().catch(() => undefined);
           throw err;
         }
-        const wait = Math.min(MAX_WAIT_MS, Math.max(retryAfterMs(res) ?? 0, backoffMs(attempt, 1500)));
+        const wait = Math.max(retryAfterMs(res) ?? 0, backoffMs(attempt, 1500));
         await res.body?.cancel().catch(() => undefined);
         lastErr = err;
         if (remaining() < wait + MIN_REQUEST_MS) throw new BudgetExceededError(url, remaining());
+        // Never retry sooner than the provider requested or occupy a function for minutes.
+        if (wait > MAX_WAIT_MS) throw err;
         log?.warn(`http ${res.status} from ${host}; retry ${attempt + 1}/${retries} in ${wait}ms`, { url });
         await sleep(wait);
       } catch (err) {
         if (err instanceof HttpError || isBudgetExceeded(err)) throw err;
         // An abort that fired because the budget (not the per-request timeout) ran out is not a
         // transient failure of the remote: report it as such so the runner keeps the cursor.
-        if (budgetBound && (err as Error)?.name === "TimeoutError" && remaining() < MIN_REQUEST_MS) {
+        if (budgetBound && ["TimeoutError", "AbortError"].includes((err as Error)?.name) && remaining() < MIN_REQUEST_MS) {
           throw new BudgetExceededError(url, remaining());
         }
         lastErr = err;
@@ -148,12 +154,10 @@ export function createHttp(defaults: Partial<HttpDefaults> = {}, log?: IngestLog
 
   return {
     async fetchJson<T>(url: string, init: HttpInit = {}): Promise<T> {
-      const res = await request(url, init, init.headers?.Accept ?? "application/json");
-      return (await res.json()) as T;
+      return request<T>(url, init, init.headers?.Accept ?? "application/json", (res) => res.json() as Promise<T>);
     },
     async fetchText(url: string, init: HttpInit = {}): Promise<string> {
-      const res = await request(url, init, init.headers?.Accept ?? "text/html, text/plain;q=0.9, */*;q=0.5");
-      return await res.text();
+      return request(url, init, init.headers?.Accept ?? "text/html, text/plain;q=0.9, */*;q=0.5", (res) => res.text());
     },
   };
 }

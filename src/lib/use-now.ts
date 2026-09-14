@@ -17,17 +17,29 @@ function tick() {
   for (const notify of subscribers) notify();
 }
 
+function visibilityChanged() {
+  if (document.visibilityState === "hidden") {
+    if (timer !== null) clearInterval(timer);
+    timer = null;
+  } else if (subscribers.size > 0 && timer === null) {
+    tick();
+    timer = setInterval(tick, 1000);
+  }
+}
+
 function subscribe(notify: () => void): () => void {
   subscribers.add(notify);
-  if (timer === null) {
+  if (subscribers.size === 1) {
     now = Date.now();
-    timer = setInterval(tick, 1000);
+    if (document.visibilityState !== "hidden") timer = setInterval(tick, 1000);
+    document.addEventListener("visibilitychange", visibilityChanged);
   }
   return () => {
     subscribers.delete(notify);
-    if (subscribers.size === 0 && timer !== null) {
-      clearInterval(timer);
+    if (subscribers.size === 0) {
+      if (timer !== null) clearInterval(timer);
       timer = null;
+      document.removeEventListener("visibilitychange", visibilityChanged);
     }
   };
 }

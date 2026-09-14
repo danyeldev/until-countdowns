@@ -13,7 +13,7 @@ import type { Json } from "@/lib/db/database.types";
 import { errorMessage, getDb, type Db } from "@/lib/ingest/db";
 import { isBudgetExceeded } from "@/lib/ingest/http";
 import { makeContext, type EnrichContext } from "./context";
-import { claimJobs, type EnrichJob, type EnrichKind, finishJob, retryJob } from "./jobs";
+import { claimJobs, type EnrichJob, type EnrichKind, finishJob, previewJobs, releaseJob, retryJob } from "./jobs";
 import {
   attachImageToEvent,
   attachImageToSeries,
@@ -80,6 +80,9 @@ export type EnrichSummary = {
   ok: boolean;
   dry: boolean;
   claimed: number;
+  inspected: number;
+  deferred: number;
+  budget_exhausted: boolean;
   done: number;
   skipped: number;
   failed: number;
@@ -153,6 +156,7 @@ type Tally = {
   images_reused: number;
   changed: Set<string>;
   errors: string[];
+  settled: Set<number>;
 };
 
 function pushError(tally: Tally, message: string): void {
@@ -167,9 +171,10 @@ async function settle(
   note: string | null,
   dryRun: boolean,
 ): Promise<void> {
+  if (job && !dryRun) await finishJob(db, job.id, outcome, note);
+  if (job) tally.settled.add(job.id);
   if (outcome === "done") tally.done++;
   else tally.skipped++;
-  if (job && !dryRun) await finishJob(db, job.id, outcome, note);
 }
 
 async function failOne(db: Db, tally: Tally, job: EnrichJob | null, slug: string, err: unknown, dryRun: boolean): Promise<void> {
@@ -177,6 +182,7 @@ async function failOne(db: Db, tally: Tally, job: EnrichJob | null, slug: string
   const message = errorMessage(err);
   pushError(tally, `${slug}: ${message}`);
   if (job && !dryRun) await retryJob(db, job, message);
+  if (job) tally.settled.add(job.id);
 }
 
 async function runSummaries(
@@ -253,11 +259,14 @@ async function runImages(
 
 export async function runEnrichment(options: EnrichOptions): Promise<EnrichSummary> {
   const started = Date.now();
-  const deadline = started + options.budgetMs;
+  const deadline = started + options.budgetMs - Math.min(15_000, options.budgetMs / 4);
   const db = await getDb();
-  const tally: Tally = { done: 0, skipped: 0, failed: 0, images_created: 0, images_reused: 0, changed: new Set(), errors: [] };
+  const tally: Tally = { done: 0, skipped: 0, failed: 0, images_created: 0, images_reused: 0, changed: new Set(), errors: [], settled: new Set() };
   const durations: Record<string, number> = {};
   let claimed = 0;
+  let inspected = 0;
+  let deferred = 0;
+  let budgetExhausted = false;
   let rechecked = 0;
   let relicensed = 0;
   let dropped = 0;
@@ -268,7 +277,10 @@ export async function runEnrichment(options: EnrichOptions): Promise<EnrichSumma
   if (kinds.length > 1 && Math.floor(started / 600_000) % 2 === 1) kinds.reverse();
 
   for (const kind of kinds) {
-    if (Date.now() > deadline - MIN_WORK_MS) break;
+    if (Date.now() > deadline - MIN_WORK_MS) {
+      budgetExhausted = true;
+      break;
+    }
     const kindStarted = Date.now();
     const ctx = makeContext({ deadline, dryRun: options.dryRun, scope: kind });
 
@@ -282,48 +294,73 @@ export async function runEnrichment(options: EnrichOptions): Promise<EnrichSumma
       dropped += summary.dropped;
       for (const slug of summary.changed) tally.changed.add(slug);
       for (const message of summary.errors) pushError(tally, message);
+      tally.failed += summary.errors.length;
       durations[kind] = Date.now() - kindStarted;
       continue;
     }
 
     let rows: Array<{ row: EventRow; job: EnrichJob | null }> = [];
-
-    if (options.slug) {
-      const row = await loadEventBySlug(db, options.slug);
-      if (!row) {
-        tally.errors.push(`slug not found: ${options.slug}`);
-        durations[kind] = Date.now() - kindStarted;
-        continue;
-      }
-      rows = [{ row, job: null }];
-    } else {
-      // Claim only what the remaining budget can actually work through.
-      const affordable = Math.floor((deadline - Date.now()) / COST_MS[kind]);
-      const slice = Math.max(1, Math.min(options.limit, affordable));
-      const jobs = await claimJobs(db, kind, slice);
-      claimed += jobs.length;
-      if (jobs.length === 0) {
-        durations[kind] = Date.now() - kindStarted;
-        continue;
-      }
-      const events = await loadEvents(
-        db,
-        jobs.map((j) => j.event_id),
-      );
-      for (const job of jobs) {
-        const row = events.get(job.event_id);
+    let jobs: EnrichJob[] = [];
+    try {
+      if (options.slug) {
+        const row = await loadEventBySlug(db, options.slug);
         if (!row) {
-          // The event was deleted between the queue insert and now: the job is dead, not failed.
-          tally.skipped++;
-          if (!options.dryRun) await finishJob(db, job.id, "skipped", "event no longer exists");
+          tally.failed++;
+          tally.errors.push(`slug not found: ${options.slug}`);
+          durations[kind] = Date.now() - kindStarted;
           continue;
         }
-        rows.push({ row, job });
+        rows = [{ row, job: null }];
+      } else {
+        // Claim only what the remaining budget can actually work through.
+        const affordable = Math.floor((deadline - Date.now() - MIN_WORK_MS) / COST_MS[kind]);
+        // Keep batches small enough that refunding a deferred tail fits the cleanup margin.
+        const slice = Math.max(1, Math.min(options.limit, affordable, 20));
+        jobs = options.dryRun ? await previewJobs(db, kind, slice) : await claimJobs(db, kind, slice);
+        inspected += jobs.length;
+        if (!options.dryRun) claimed += jobs.length;
+        if (jobs.length === 0) {
+          durations[kind] = Date.now() - kindStarted;
+          continue;
+        }
+        const events = await loadEvents(
+          db,
+          jobs.map((j) => j.event_id),
+        );
+        for (const job of jobs) {
+          const row = events.get(job.event_id);
+          if (!row) {
+            // The event was deleted between the queue insert and now: the job is dead, not failed.
+            await settle(db, tally, job, "skipped", "event no longer exists", options.dryRun);
+            continue;
+          }
+          rows.push({ row, job });
+        }
+      }
+
+      if (kind === "wikipedia_summary") await runSummaries(db, ctx, rows, tally, options.dryRun);
+      else await runImages(db, ctx, rows, tally, options.dryRun);
+    } catch (err) {
+      if (isBudgetExceeded(err)) budgetExhausted = true;
+      else {
+        tally.failed++;
+        pushError(tally, `${kind}: ${errorMessage(err)}`);
+      }
+    } finally {
+      const unfinished = jobs.filter((job) => !tally.settled.has(job.id));
+      deferred += unfinished.length;
+      if (unfinished.length > 0 && ctx.budget.remainingMs() < MIN_WORK_MS) budgetExhausted = true;
+      if (!options.dryRun) {
+        await Promise.all(unfinished.map(async (job) => {
+          try {
+            await releaseJob(db, job);
+          } catch (err) {
+            tally.failed++;
+            pushError(tally, `${kind}: ${errorMessage(err)}`);
+          }
+        }));
       }
     }
-
-    if (kind === "wikipedia_summary") await runSummaries(db, ctx, rows, tally, options.dryRun);
-    else await runImages(db, ctx, rows, tally, options.dryRun);
     durations[kind] = Date.now() - kindStarted;
   }
 
@@ -332,6 +369,9 @@ export async function runEnrichment(options: EnrichOptions): Promise<EnrichSumma
     ok: tally.failed === 0,
     dry: options.dryRun,
     claimed,
+    inspected,
+    deferred,
+    budget_exhausted: budgetExhausted,
     done: tally.done,
     skipped: tally.skipped,
     failed: tally.failed,

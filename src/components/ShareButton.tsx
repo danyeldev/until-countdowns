@@ -3,30 +3,44 @@
 import { useState } from "react";
 
 export function ShareButton({ title, path }: { title: string; path: string }) {
-  const [copied, setCopied] = useState(false);
+  const [result, setResult] = useState({ path: "", feedback: "", fallbackUrl: "" });
+  const [busy, setBusy] = useState(false);
+  const feedback = result.path === path ? result.feedback : "";
+  const fallbackUrl = result.path === path ? result.fallbackUrl : "";
 
   async function share() {
-    const url = `${window.location.origin}${path}`;
-    if (navigator.share) {
-      try {
-        await navigator.share({ title, url });
-        return;
-      } catch {
-        /* fall through to copy */
+    const url = new URL(path, window.location.origin).href;
+    setBusy(true);
+    setResult({ path, feedback: "", fallbackUrl: "" });
+    try {
+      if (navigator.share) {
+        try {
+          await navigator.share({ title, url });
+          setResult({ path, feedback: "Shared.", fallbackUrl: "" });
+          return;
+        } catch (error) {
+          // Cancelling a native share must not silently copy the link instead.
+          if (error instanceof Error && error.name === "AbortError") return;
+        }
       }
+      if (!navigator.clipboard?.writeText) throw new Error("Clipboard unavailable");
+      await navigator.clipboard.writeText(url);
+      setResult({ path, feedback: "Link copied.", fallbackUrl: "" });
+    } catch {
+      setResult({ path, feedback: "Select and copy this link to share it.", fallbackUrl: url });
+    } finally {
+      setBusy(false);
     }
-    await navigator.clipboard.writeText(url);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 1600);
   }
 
   return (
-    <button
-      type="button"
-      onClick={share}
-      className="rounded-full border border-line px-4 py-2 text-sm text-paper hover:border-amber/50 hover:text-amber"
-    >
-      {copied ? "Link copied" : "Share"}
-    </button>
+    <div className="inline-flex max-w-full flex-col items-start gap-2">
+      <button type="button" onClick={share} className="button-secondary" disabled={busy}>
+        <svg aria-hidden="true" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7"><path d={feedback === "Link copied." ? "m5 12 4 4L19 6" : "M12 16V3m-5 5 5-5 5 5M5 13v7h14v-7"} /></svg>
+        {busy ? "Sharing…" : feedback === "Link copied." ? "Link copied" : "Share"}
+      </button>
+      {feedback && <p role="status" className="max-w-xs text-xs leading-relaxed text-muted">{feedback}</p>}
+      {fallbackUrl && <input aria-label="Shareable link" readOnly value={fallbackUrl} onFocus={(event) => event.currentTarget.select()} className="field min-w-0 w-full max-w-sm text-xs" />}
+    </div>
   );
 }

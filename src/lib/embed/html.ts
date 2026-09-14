@@ -11,7 +11,13 @@
  * `parseEmbedTheme()` already closed that door, and this closes it again from the inside.
  */
 import { formatLongDate, truncate } from "@/lib/seo";
-import { PADDING_MAX, RADIUS_MAX, SCALE_MAX, SCALE_MIN } from "./theme";
+import {
+  DEFAULT_EMBED_THEME,
+  PADDING_MAX,
+  RADIUS_MAX,
+  SCALE_MAX,
+  SCALE_MIN,
+} from "./theme";
 import type { EmbedLayout, EmbedTheme } from "./theme";
 
 export type EmbedSubject = {
@@ -22,6 +28,8 @@ export type EmbedSubject = {
   /** `YYYY-MM-DD` for an all-day date, or a full ISO instant. */
   date: string;
   allDay: boolean;
+  /** The event's calendar day for optional date labels; the clock still follows its ISO instant. */
+  timezone?: string;
   /** Absolute URL of the countdown's own page on Until. */
   href: string;
 };
@@ -42,17 +50,28 @@ function escapeHtml(value: string): string {
 
 /** Only ever an http(s) or site-relative target: a hand-built subject cannot smuggle in `javascript:`. */
 function safeHref(href: string, fallback = "/"): string {
-  return /^(?:https?:\/\/|\/(?!\/))/i.test(href.trim()) ? href.trim() : fallback;
+  return /^(?:https?:\/\/|\/(?!\/))/i.test(href.trim())
+    ? href.trim()
+    : fallback;
 }
 
 /** A colour is used only where a colour belongs, so it has to look like one — `;` can never survive. */
 function hex(value: string, fallback: string): string {
-  return /^#[0-9a-f]{6}$/i.test(value.trim()) ? value.trim().toLowerCase() : fallback;
+  return /^#[0-9a-f]{6}$/i.test(value.trim())
+    ? value.trim().toLowerCase()
+    : fallback;
 }
 
 /** Same idea for lengths: an integer in range, and the `px` is added here rather than carried in. */
-function num(value: number, min: number, max: number, fallback: number): number {
-  return Number.isFinite(value) ? Math.min(max, Math.max(min, Math.round(value))) : fallback;
+function num(
+  value: number,
+  min: number,
+  max: number,
+  fallback: number,
+): number {
+  return Number.isFinite(value)
+    ? Math.min(max, Math.max(min, Math.round(value)))
+    : fallback;
 }
 
 // ---------------------------------------------------------------------------
@@ -62,7 +81,12 @@ function num(value: number, min: number, max: number, fallback: number): number 
 type Unit = "d" | "h" | "m" | "s";
 
 const UNIT_SECONDS: Record<Unit, number> = { d: 86400, h: 3600, m: 60, s: 1 };
-const UNIT_WORDS: Record<Unit, string> = { d: "days", h: "hrs", m: "min", s: "sec" };
+const UNIT_WORDS: Record<Unit, string> = {
+  d: "days",
+  h: "hrs",
+  m: "min",
+  s: "sec",
+};
 /** A no-break space, not a plain one: a flex item holding only collapsible white space has no width. */
 const SEPARATOR_CHARS = { colon: ":", dot: "·", space: " ", none: "" } as const;
 
@@ -77,7 +101,9 @@ const FONT_STACKS = {
  * walk: the leading unit's value never depends on the ones below it.
  */
 function clockUnits(theme: EmbedTheme): Unit[] {
-  const parsed = theme.units.split("").filter((u): u is Unit => u === "d" || u === "h" || u === "m" || u === "s");
+  const parsed = theme.units
+    .split("")
+    .filter((u): u is Unit => u === "d" || u === "h" || u === "m" || u === "s");
   // A hand-built theme could name no unit at all; an empty clock is worse than the default one.
   const all: Unit[] = parsed.length ? parsed : ["d", "h", "m", "s"];
   return theme.layout === "big" ? all.slice(0, 1) : all;
@@ -109,7 +135,8 @@ function targetInstant(subject: EmbedSubject): number {
 function localYmd(subject: EmbedSubject): number[] | null {
   if (!subject.allDay || subject.date.includes("T")) return null;
   const [y, m, d] = subject.date.slice(0, 10).split("-").map(Number);
-  if (!Number.isFinite(y) || !Number.isFinite(m) || !Number.isFinite(d)) return null;
+  if (!Number.isFinite(y) || !Number.isFinite(m) || !Number.isFinite(d))
+    return null;
   return [y, m, d];
 }
 
@@ -129,7 +156,11 @@ function fontSize(base: number, vw: number): string {
   return `font-size:${raw};font-size:min(${raw},${vw}vw)`;
 }
 
-function layoutRules(layout: EmbedLayout, horizontal: string, labels: boolean): string {
+function layoutRules(
+  layout: EmbedLayout,
+  horizontal: string,
+  labels: boolean,
+): string {
   switch (layout) {
     case "stack":
       return [
@@ -144,7 +175,7 @@ function layoutRules(layout: EmbedLayout, horizontal: string, labels: boolean): 
         ".u{display:inline-flex;align-items:baseline}",
         `.v{${fontSize(26, 9)}}`,
         // The label is a suffix here ("12d"), not a caption: no tracking, no uppercase, no gap.
-        `.l{${fontSize(15, 5)};letter-spacing:0;text-transform:none;opacity:.72}`,
+        `.l{${fontSize(15, 5)};letter-spacing:0;text-transform:none;opacity:.8}`,
         `.sep{${fontSize(26, 9)};opacity:.5}`,
       ].join("");
     case "big":
@@ -167,25 +198,42 @@ function layoutRules(layout: EmbedLayout, horizontal: string, labels: boolean): 
 }
 
 function css(theme: EmbedTheme): string {
-  const accent = hex(theme.accent, "#f0a202");
-  const text = hex(theme.text, "#f3ece0");
+  const accent = hex(theme.accent, DEFAULT_EMBED_THEME.accent);
+  const text = hex(theme.text, DEFAULT_EMBED_THEME.text);
   // `transparent` is not a fallback — it is what OBS keys the overlay on, so the scene shows through.
-  const background = theme.bg === "transparent" ? "transparent" : hex(theme.bg, "#161410");
+  const background =
+    theme.bg === "transparent"
+      ? "transparent"
+      : hex(theme.bg, DEFAULT_EMBED_THEME.bg);
   const scale = num(theme.scale, SCALE_MIN, SCALE_MAX, 100) / 100;
   const radius = num(theme.radius, 0, RADIUS_MAX, 24);
   // The inset from the canvas / iframe EDGE — what a streamer means by "put it in the corner".
   const padding = num(theme.padding, 0, PADDING_MAX, 24);
 
-  const vertical = theme.position.startsWith("top") ? "flex-start" : theme.position.startsWith("bottom") ? "flex-end" : "center";
-  const horizontal = theme.position.endsWith("left") ? "flex-start" : theme.position.endsWith("right") ? "flex-end" : "center";
-  const align = horizontal === "flex-start" ? "left" : horizontal === "flex-end" ? "right" : "center";
+  const vertical = theme.position.startsWith("top")
+    ? "flex-start"
+    : theme.position.startsWith("bottom")
+      ? "flex-end"
+      : "center";
+  const horizontal = theme.position.endsWith("left")
+    ? "flex-start"
+    : theme.position.endsWith("right")
+      ? "flex-end"
+      : "center";
+  const align =
+    horizontal === "flex-start"
+      ? "left"
+      : horizontal === "flex-end"
+        ? "right"
+        : "center";
 
   // Where the frame carries its own fill, the canvas stays clear so the host page shows through the
   // inset — otherwise a light widget lands on a blog as a coloured rectangle the width of its
   // column, rather than as a card. `outline` and `none` draw no fill, so there `bg` is the canvas.
   const canvas = theme.frame === "card" ? "transparent" : background;
 
-  const inner = "border-radius:" + radius + "px;padding:calc(20px * var(--scale))";
+  const inner =
+    "border-radius:" + radius + "px;padding:calc(20px * var(--scale))";
   const frame =
     theme.frame === "none"
       ? "background:none;border:0;padding:0"
@@ -194,22 +242,23 @@ function css(theme: EmbedTheme): string {
         : `background:${background === "transparent" ? "none" : background};border:1px solid ${text}24;${inner}`;
 
   return [
-    `:root{--scale:${scale};--accent:${accent};--text:${text}}`,
+    `:root{color-scheme:light dark;--scale:${scale};--accent:${accent};--text:${text}}`,
     "*{box-sizing:border-box}",
-    "html,body{height:100%;margin:0}",
+    "html,body{height:100%;margin:0}html{background:transparent}",
     `body{min-height:100vh;display:flex;align-items:${vertical};justify-content:${horizontal};text-align:${align};`,
-    `padding:${padding}px;background:${canvas};color:${text};font-family:${FONT_STACKS[theme.font]};`,
+    `padding:${padding}px;background:${canvas};color:${text};font-family:${FONT_STACKS[theme.font] ?? FONT_STACKS.sans};`,
     "line-height:1.25;-webkit-font-smoothing:antialiased;overflow:hidden}",
-    `.card{display:flex;flex-direction:column;align-items:${horizontal};gap:calc(6px * var(--scale));max-width:100%;`,
+    `.card{display:flex;flex-direction:column;align-items:${horizontal};gap:calc(12px * var(--scale));max-width:100%;`,
     // Someone who turned the wordmark off did not ask for a click-through either, but when it is a
     // link it must not look like one inside a host page.
     `color:inherit;text-decoration:none;${frame}}`,
-    `.title{margin:0;${fontSize(15, 7)}}`,
-    `.v{color:var(--accent);font-variant-numeric:tabular-nums;letter-spacing:-.02em;line-height:1${theme.glow ? `;text-shadow:0 0 calc(28px * var(--scale)) ${accent}59` : ""}}`,
-    ".l{letter-spacing:.22em;text-transform:uppercase;opacity:.62}",
-    `.meta,.note{margin:0;${fontSize(12, 5)};opacity:.72}`,
-    `.brand{margin:0;font-family:${FONT_STACKS.serif};${fontSize(12, 5)};opacity:.55}`,
-    `.done{display:none;margin:0;font-family:${FONT_STACKS.serif};font-style:italic;color:var(--accent);${fontSize(20, 8)}}`,
+    ".card:focus-visible{outline:2px solid var(--accent);outline-offset:3px}",
+    `.title{margin:0;font-weight:600;letter-spacing:-.025em;${fontSize(15, 7)}}`,
+    `.v{color:var(--accent);font-variant-numeric:tabular-nums;font-weight:500;letter-spacing:-.045em;line-height:1${theme.glow ? `;text-shadow:0 0 calc(28px * var(--scale)) ${accent}59` : ""}}`,
+    ".l{letter-spacing:.02em;opacity:.8}",
+    `.meta,.note{margin:0;${fontSize(12, 5)};opacity:.85;line-height:1.4}`,
+    `.brand{margin:0;font-weight:600;letter-spacing:-.035em;${fontSize(12, 5)};opacity:.8}`,
+    `.done{display:none;margin:0;font-weight:500;letter-spacing:-.025em;color:var(--accent);${fontSize(20, 8)}}`,
     layoutRules(theme.layout, horizontal, theme.labels),
   ].join("");
 }
@@ -223,18 +272,30 @@ function unitLabel(unit: Unit, value: number, layout: EmbedLayout): string {
   return unit === "d" && value === 1 ? "day" : UNIT_WORDS[unit];
 }
 
-function renderClock(theme: EmbedTheme, units: Unit[], values: number[], hidden: boolean): string {
+function renderClock(
+  theme: EmbedTheme,
+  units: Unit[],
+  values: number[],
+  hidden: boolean,
+): string {
   const separator = SEPARATOR_CHARS[theme.separator];
   // Separators belong to the two layouts that read as one line of digits; `stack` and `big` have none,
   // and a compact line with letter suffixes already separates itself.
-  const separated = theme.layout === "row" || (theme.layout === "compact" && !theme.labels);
+  const separated =
+    theme.layout === "row" || (theme.layout === "compact" && !theme.labels);
   const parts: string[] = [];
   units.forEach((unit, i) => {
-    const label = theme.labels ? `<span class="l">${escapeHtml(unitLabel(unit, values[i], theme.layout))}</span>` : "";
-    parts.push(`<span class="u" data-u="${unit}"><span class="v" data-v="${unit}">${pad2(values[i])}</span>${label}</span>`);
+    const label = theme.labels
+      ? `<span class="l">${escapeHtml(unitLabel(unit, values[i], theme.layout))}</span>`
+      : "";
+    parts.push(
+      `<span class="u" data-u="${unit}"><span class="v" data-v="${unit}">${pad2(values[i])}</span>${label}</span>`,
+    );
     // `data-after` ties the separator to the unit before it, so `trim` can hide the pair together.
     if (separated && separator && i < units.length - 1) {
-      parts.push(`<span class="sep" data-after="${unit}">${escapeHtml(separator)}</span>`);
+      parts.push(
+        `<span class="sep" data-after="${unit}">${escapeHtml(separator)}</span>`,
+      );
     }
   });
   return `<div class="clock" id="clock"${hidden ? ' style="display:none"' : ""}>${parts.join("")}</div>`;
@@ -320,7 +381,11 @@ function shell(theme: EmbedTheme, title: string, body: string): string {
 /** Description shown under the clock: long enough to be a sentence, short enough not to be the page. */
 const NOTE_MAX = 120;
 
-export function buildEmbedDocument(subject: EmbedSubject, theme: EmbedTheme, options?: { now?: number }): string {
+export function buildEmbedDocument(
+  subject: EmbedSubject,
+  theme: EmbedTheme,
+  options?: { now?: number },
+): string {
   const units = clockUnits(theme);
   const target = targetInstant(subject);
   const now = options?.now ?? Date.now();
@@ -330,7 +395,9 @@ export function buildEmbedDocument(subject: EmbedSubject, theme: EmbedTheme, opt
    * local midnight in the ticker, which corrects it before first paint. What is rendered below is
    * the no-JS fallback and the first frame, nothing more.
    */
-  const seconds = Number.isFinite(target) ? Math.floor((target - now) / 1000) : 0;
+  const seconds = Number.isFinite(target)
+    ? Math.floor((target - now) / 1000)
+    : 0;
   const values = splitRemaining(units, seconds);
 
   const done = theme.done.trim();
@@ -340,19 +407,28 @@ export function buildEmbedDocument(subject: EmbedSubject, theme: EmbedTheme, opt
   // would flash `00:00:00:00` on every load, and leave a no-JS viewer with a clock that lies.
   const expired = seconds <= 0;
   const ymd = localYmd(subject);
-  const onTheDay = expired && ymd !== null && new Date(now).toISOString().slice(0, 10) === subject.date.slice(0, 10);
+  const onTheDay =
+    expired &&
+    ymd !== null &&
+    new Date(now).toISOString().slice(0, 10) === subject.date.slice(0, 10);
 
   const inner: string[] = [];
-  if (theme.title && subject.title.trim()) inner.push(`<p class="title">${escapeHtml(subject.title.trim())}</p>`);
+  if (theme.title && subject.title.trim())
+    inner.push(`<p class="title">${escapeHtml(subject.title.trim())}</p>`);
   inner.push(renderClock(theme, units, values, expired));
   inner.push(
     `<p class="done" id="done"${expired ? ' style="display:block"' : ""}>${escapeHtml(onTheDay ? here : past)}</p>`,
   );
-  if (theme.date) inner.push(`<p class="meta">${escapeHtml(formatLongDate(subject.date))}</p>`);
+  if (theme.date)
+    inner.push(
+      `<p class="meta">${escapeHtml(formatLongDate(subject.date, subject.timezone))}</p>`,
+    );
   if (theme.note && subject.description.trim()) {
-    inner.push(`<p class="note">${escapeHtml(truncate(subject.description, NOTE_MAX))}</p>`);
+    inner.push(
+      `<p class="note">${escapeHtml(truncate(subject.description, NOTE_MAX))}</p>`,
+    );
   }
-  if (theme.brand) inner.push('<p class="brand">Until</p>');
+  if (theme.brand) inner.push('<p class="brand">until.</p>');
 
   const card = theme.brand
     ? `<a class="card" href="${escapeHtml(safeHref(subject.href))}" target="_blank" rel="noopener">${inner.join("")}</a>`
@@ -365,7 +441,10 @@ export function buildEmbedDocument(subject: EmbedSubject, theme: EmbedTheme, opt
     trim: theme.trim,
     // A stale "days" beside a 01 is the one caption that ages; the compact suffix and the labels-off
     // clock never do, so the ticker is only handed the word when it has to swap it.
-    dayLabel: theme.labels && theme.layout !== "compact" && units[0] === "d" ? ["day", "days"] : null,
+    dayLabel:
+      theme.labels && theme.layout !== "compact" && units[0] === "d"
+        ? ["day", "days"]
+        : null,
     here,
     past,
   });
@@ -377,11 +456,14 @@ export function buildEmbedDocument(subject: EmbedSubject, theme: EmbedTheme, opt
  * The 404 body. An iframe that outlives its event should render a legible sentence and a way back,
  * not the browser's own error page inside someone else's column.
  */
-export function buildEmbedNotFoundDocument(theme: EmbedTheme, siteUrl: string): string {
+export function buildEmbedNotFoundDocument(
+  theme: EmbedTheme,
+  siteUrl: string,
+): string {
   const card = [
     `<a class="card" href="${escapeHtml(safeHref(siteUrl))}" target="_blank" rel="noopener">`,
     `<p class="title">This countdown is not here any more.</p>`,
-    `<p class="brand">Until</p>`,
+    `<p class="brand">until.</p>`,
     `</a>`,
   ].join("");
   return shell(theme, "Countdown not found — Until", card);

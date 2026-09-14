@@ -6,7 +6,12 @@
  * are deliberate: a database blip should leave a widget on someone else's page showing our polite
  * "countdown not found" card for five minutes, not a 500 inside their layout.
  */
-import { getEvent, getSeries, resolveSeriesAlias, resolveSlugAlias } from "@/lib/catalog";
+import {
+  getEvent,
+  getSeries,
+  resolveSeriesAlias,
+  resolveSlugAlias,
+} from "@/lib/catalog";
 import type { EmbedSubject } from "@/lib/embed/html";
 import { absoluteUrl } from "@/lib/seo";
 import { isCoarsePrecision } from "@/lib/time";
@@ -21,7 +26,9 @@ import { decodeSharePayload } from "@/lib/user-events";
 export const EMBED_SLUG_MAX = 8192;
 
 /** The subject behind `/embed/<slug>`, or null when there is nothing to count down to. */
-export async function resolveEmbedSubject(slug: string): Promise<EmbedSubject | null> {
+export async function resolveEmbedSubject(
+  slug: string,
+): Promise<EmbedSubject | null> {
   if (!slug || slug.length > EMBED_SLUG_MAX) return null;
 
   if (slug.startsWith("share-")) {
@@ -52,13 +59,18 @@ export async function resolveEmbedSubject(slug: string): Promise<EmbedSubject | 
   if (event) {
     // Same rule the series branch applies below, and the same one the event page applies to its own
     // clock: a month- or year-precision row carries a placeholder day, so there is nothing to tick.
-    if (isCoarsePrecision(event.datePrecision)) return null;
+    if (
+      isCoarsePrecision(event.datePrecision) ||
+      ["cancelled", "postponed", "retired"].includes(event.status ?? "")
+    )
+      return null;
     return {
       slug: event.slug,
       title: event.title,
       description: event.description,
       date: event.date,
       allDay: event.allDay,
+      timezone: event.timezone,
       href: absoluteUrl(`/event/${event.slug}`),
     };
   }
@@ -73,13 +85,19 @@ export async function resolveEmbedSubject(slug: string): Promise<EmbedSubject | 
   }
   // No next date, or one the source has only pinned to a month or a year: there is no clock to
   // show, and a widget that reads "expected 2029" is better served by the page itself.
-  if (!series?.nextDate || isCoarsePrecision(series.nextPrecision)) return null;
+  if (
+    !series?.nextDate ||
+    isCoarsePrecision(series.nextPrecision) ||
+    ["cancelled", "postponed", "retired"].includes(series.nextStatus ?? "")
+  )
+    return null;
   return {
     slug: series.slug,
     title: series.title,
     description: series.description,
     date: series.nextDate,
     allDay: series.nextAllDay ?? true,
+    timezone: series.nextTimezone,
     href: absoluteUrl(`/days-until/${series.slug}`),
   };
 }

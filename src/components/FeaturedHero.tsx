@@ -1,66 +1,72 @@
 import Link from "next/link";
+import Image from "next/image";
 import type { CountdownEvent } from "@/lib/types";
 import { CATEGORY_LABELS } from "@/lib/labels";
-import { formatApproximate, formatWhen, isCoarsePrecision } from "@/lib/time";
+import {
+  formatApproximate,
+  formatCompactDate,
+  isCoarsePrecision,
+} from "@/lib/time";
 import { Countdown } from "./Countdown";
 import { ImageCredit } from "./ImageCredit";
 import { StatusBadge } from "./StatusBadge";
-import { imageUrl } from "@/lib/images";
+import { SaveButton } from "./SaveButton";
+import { Icon } from "./Icon";
+import { imageUrl, isShareAlike } from "@/lib/images";
 
 export function FeaturedHero({ event }: { event: CountdownEvent }) {
+  const backdrop =
+    event.image && !isShareAlike(event.image.license) ? event.image : undefined;
   const when = isCoarsePrecision(event.datePrecision)
     ? formatApproximate(event.date, event.datePrecision)
-    : formatWhen(event.date, event.allDay);
-  const hero = event.image ? imageUrl(event.image, "hero") : null;
+    : formatCompactDate(event.date, event.timezone);
   return (
-    <section className="ticket relative overflow-hidden rounded-3xl px-6 py-10 sm:px-10 sm:py-14">
-      {/* The hero photo sits behind the text under a heavy scrim: decoration, so the plain <img>
-          (no next/image sizing) is deliberate — it never affects layout. */}
-      {hero ? (
-        <>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={hero}
-            alt=""
-            aria-hidden="true"
-            className="pointer-events-none absolute inset-0 h-full w-full object-cover opacity-25"
-          />
-          <div
-            className="pointer-events-none absolute inset-0"
-            style={{
-              background:
-                "linear-gradient(100deg, var(--ink) 8%, rgba(12,11,9,0.86) 46%, rgba(12,11,9,0.55) 100%)",
-            }}
-          />
-        </>
-      ) : null}
-      <p className="relative flex flex-wrap items-center gap-3 text-[11px] uppercase tracking-[0.28em] text-amber">
-        Featured countdown
+    <section className="hero-art flex min-h-[400px] min-w-0 flex-col p-6 sm:p-8">
+      <Image
+        src={backdrop ? imageUrl(backdrop, "hero") : "/art/until-sculpture.png"}
+        alt=""
+        fill
+        preload
+        unoptimized={Boolean(backdrop)}
+        sizes="(max-width: 1280px) 100vw, 850px"
+        className="pointer-events-none -z-20 object-cover object-right"
+      />
+      <div className="absolute inset-0 -z-10 bg-linear-to-r from-[#111019]/95 via-[#111019]/80 to-[#111019]/10" />
+      <div className="flex items-center justify-between gap-3">
+        <span className="pill !border-white/15 !bg-black/15 !text-white/90">
+          <Icon name="spark" size={13} /> In the spotlight
+        </span>
         <StatusBadge status={event.status} />
-      </p>
-      <h1 className="relative mt-4 max-w-3xl font-serif text-4xl leading-tight text-paper sm:text-6xl">
-        {event.title}
-      </h1>
-      <p className="relative mt-4 max-w-2xl text-paper-dim">{event.description}</p>
-      <p className="relative mt-3 font-mono text-xs uppercase tracking-[0.18em] text-muted">
-        {CATEGORY_LABELS[event.category]} · {when}
-      </p>
-      <div className="relative mt-10">
-        <Countdown
-          date={event.date}
-          allDay={event.allDay}
-          size="hero"
-          initialDays={event.daysUntil}
-          precision={event.datePrecision}
-        />
       </div>
-      <Link
-        href={`/event/${event.slug}`}
-        className="relative mt-10 inline-flex rounded-full bg-amber px-5 py-2.5 text-sm font-medium text-ink hover:bg-paper"
-      >
-        Open this countdown
-      </Link>
-      {event.image ? <ImageCredit image={event.image} className="relative mt-6" /> : null}
+      <div className="my-auto py-6">
+        <p className="mb-3 text-xs text-paper-dim">
+          {CATEGORY_LABELS[event.category]}
+          <span className="mx-2 text-muted">·</span>
+          <time dateTime={event.date}>{when}</time>
+        </p>
+        <h2 className="max-w-xl text-[clamp(1.65rem,3vw,2.6rem)] font-semibold leading-[1.08] tracking-[-.055em]">
+          <Link href={`/event/${event.slug}`} className="hover:text-amber">
+            {event.title}
+          </Link>
+        </h2>
+        <div className="mt-7 max-w-lg">
+          <Countdown
+            date={event.date}
+            allDay={event.allDay}
+            size="hero"
+            initialDays={event.daysUntil}
+            precision={event.datePrecision}
+            status={event.status}
+          />
+        </div>
+      </div>
+      <div className="flex flex-wrap items-center gap-3">
+        <Link href={`/event/${event.slug}`} className="button-primary">
+          Open countdown <Icon name="arrow" size={16} />
+        </Link>
+        <SaveButton id={event.id} event={event} />
+      </div>
+      {backdrop && <ImageCredit image={backdrop} className="mt-3" />}
     </section>
   );
 }

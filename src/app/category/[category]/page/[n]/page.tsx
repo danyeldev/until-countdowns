@@ -65,11 +65,11 @@ export default async function CategoryPageN({ params }: Props) {
           { name: `Page ${n}`, path },
         ]}
       />
-      <p className="mt-6 text-[11px] uppercase tracking-[0.24em] text-amber">Category</p>
-      <h1 className="mt-3 font-serif text-4xl text-paper sm:text-5xl">
+      <p className="eyebrow mt-7">Category</p>
+      <h1 className="page-heading mt-3">
         Upcoming {label.toLowerCase()} <span className="text-muted">— page {n}</span>
       </h1>
-      <p className="mt-4 max-w-2xl text-paper-dim">
+      <p className="page-subtitle mt-3 max-w-2xl">
         {CATEGORY_BLURB[category]}{" "}
         <Link href={basePath} className="text-amber underline hover:text-paper">
           Back to the first page
@@ -81,7 +81,7 @@ export default async function CategoryPageN({ params }: Props) {
       </p>
 
       <section className="mt-12">
-        <h2 className="font-serif text-2xl text-paper">All upcoming {label.toLowerCase()}</h2>
+        <h2 className="section-heading text-paper">All upcoming {label.toLowerCase()}</h2>
         <EventTable events={result.items} showCategory={false} />
         <Pager page={n} total={result.total} pageSize={result.pageSize} basePath={basePath} />
       </section>

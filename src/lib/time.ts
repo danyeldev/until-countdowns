@@ -29,7 +29,6 @@ export function catalogDay(date: string, timezone?: string | null): string {
   }
 }
 
-
 export type Remaining = {
   totalMs: number;
   past: boolean;
@@ -40,9 +39,18 @@ export type Remaining = {
 };
 
 export function isValidDate(date: string | undefined): date is string {
-  if (!date) return false;
-  const d = date.includes("T") ? new Date(date) : new Date(`${date}T00:00:00Z`);
-  return !Number.isNaN(d.getTime());
+  if (!date || !/^\d{4}-\d{2}-\d{2}(?:T|$)/.test(date)) return false;
+  const day = date.slice(0, 10);
+  const calendarDate = new Date(`${day}T00:00:00Z`);
+  // Date.parse silently normalizes February 30 into March; never share or display that as valid.
+  if (
+    Number.isNaN(calendarDate.getTime()) ||
+    calendarDate.toISOString().slice(0, 10) !== day
+  )
+    return false;
+  return !Number.isNaN(
+    new Date(date.includes("T") ? date : `${date}T00:00:00Z`).getTime(),
+  );
 }
 
 export function eventInstant(date: string, allDay = true): Date {
@@ -51,9 +59,20 @@ export function eventInstant(date: string, allDay = true): Date {
   return new Date(`${date}T00:00:00Z`);
 }
 
-export function remainingUntil(date: string, allDay = true, now = Date.now()): Remaining {
+export function remainingUntil(
+  date: string,
+  allDay = true,
+  now = Date.now(),
+): Remaining {
   if (!isValidDate(date)) {
-    return { totalMs: 0, past: true, days: 0, hours: 0, minutes: 0, seconds: 0 };
+    return {
+      totalMs: 0,
+      past: true,
+      days: 0,
+      hours: 0,
+      minutes: 0,
+      seconds: 0,
+    };
   }
   const target = eventInstant(date, allDay).getTime();
   const totalMs = target - now;
@@ -71,7 +90,11 @@ function utcParts(date: string): Date {
   return new Date(Date.UTC(y, (m || 1) - 1, d || 1));
 }
 
-export function formatWhen(date: string, allDay = true): string {
+export function formatWhen(
+  date: string,
+  allDay = true,
+  timezone?: string,
+): string {
   if (!isValidDate(date)) return "Pick a date";
   if (allDay && !date.includes("T")) {
     return new Intl.DateTimeFormat("en", {
@@ -90,10 +113,14 @@ export function formatWhen(date: string, allDay = true): string {
     hour: "2-digit",
     minute: "2-digit",
     timeZoneName: "short",
+    timeZone: timezone || "UTC",
   }).format(eventInstant(date, allDay));
 }
 
-export function formatCompactDate(date: string, timezone?: string | null): string {
+export function formatCompactDate(
+  date: string,
+  timezone?: string | null,
+): string {
   if (!isValidDate(date)) return "—";
   // Rendered from the catalog day, so a listing never contradicts the day the row is filed under.
   return new Intl.DateTimeFormat("en", {
@@ -104,9 +131,14 @@ export function formatCompactDate(date: string, timezone?: string | null): strin
   }).format(utcParts(catalogDay(date, timezone)));
 }
 
-export function formatRange(start: string, end?: string): string {
-  if (!end || end === start) return formatWhen(start);
-  return `${formatCompactDate(start)} – ${formatCompactDate(end)}`;
+export function formatRange(
+  start: string,
+  end?: string,
+  timezone?: string,
+): string {
+  if (!end || end === start)
+    return formatWhen(start, !start.includes("T"), timezone);
+  return `${formatCompactDate(start, timezone)} – ${formatCompactDate(end, timezone)}`;
 }
 
 export function icsDate(date: string, allDay: boolean): string {
@@ -120,17 +152,25 @@ export function icsDate(date: string, allDay: boolean): string {
     .replace(/\.\d{3}Z$/, "Z");
 }
 
-export function googleDates(date: string, endDate: string | undefined, allDay: boolean): string {
+export function googleDates(
+  date: string,
+  endDate: string | undefined,
+  allDay: boolean,
+): string {
   if (!isValidDate(date)) return "19700101/19700102";
   const start = icsDate(date, allDay);
   if (allDay) {
-    const end = endDate && isValidDate(endDate)
-      ? icsDate(shiftDay(endDate, 1), true)
-      : icsDate(shiftDay(date, 1), true);
+    const end =
+      endDate && isValidDate(endDate)
+        ? icsDate(shiftDay(endDate, 1), true)
+        : icsDate(shiftDay(date, 1), true);
     return `${start}/${end}`;
   }
   const startMs = new Date(date).getTime();
-  const endMs = endDate && isValidDate(endDate) ? new Date(endDate).getTime() : startMs + 3_600_000;
+  const endMs =
+    endDate && isValidDate(endDate)
+      ? new Date(endDate).getTime()
+      : startMs + 3_600_000;
   return `${icsDate(new Date(startMs).toISOString(), false)}/${icsDate(new Date(endMs).toISOString(), false)}`;
 }
 
@@ -194,17 +234,35 @@ export function humanDays(days?: number | null): string {
 }
 
 const MONTHS = [
-  "January", "February", "March", "April", "May", "June",
-  "July", "August", "September", "October", "November", "December",
+  "January",
+  "February",
+  "March",
+  "April",
+  "May",
+  "June",
+  "July",
+  "August",
+  "September",
+  "October",
+  "November",
+  "December",
 ];
 
 /** Whether a precision is coarser than a calendar day (no ticking clock should be shown). */
 export function isCoarsePrecision(precision?: DatePrecision | null): boolean {
-  return precision === "month" || precision === "quarter" || precision === "year" || precision === "decade";
+  return (
+    precision === "month" ||
+    precision === "quarter" ||
+    precision === "year" ||
+    precision === "decade"
+  );
 }
 
 /** "expected June 2027" (month), "expected Q3 2027" (quarter), "expected 2027" (year / decade). */
-export function formatApproximate(date: string, precision?: DatePrecision | null): string {
+export function formatApproximate(
+  date: string,
+  precision?: DatePrecision | null,
+): string {
   if (!isValidDate(date)) return "date to be announced";
   const year = Number(date.slice(0, 4));
   const month = Number(date.slice(5, 7)) || 1;

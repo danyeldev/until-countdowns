@@ -1,3 +1,4 @@
+import { prerenderLimit } from "@/lib/prerender";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -24,7 +25,7 @@ export const revalidate = 3600;
 type Props = { params: Promise<{ category: string }> };
 
 export function generateStaticParams() {
-  return CATEGORIES.map((category) => ({ category }));
+  return CATEGORIES.slice(0, prerenderLimit(CATEGORIES.length)).map((category) => ({ category }));
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
@@ -57,16 +58,16 @@ export default async function CategoryPage({ params }: Props) {
   return (
     <div>
       <Breadcrumbs items={[{ name: "Home", path: "/" }, { name: "Categories", path: "/category" }, { name: label, path }]} />
-      <p className="mt-6 text-[11px] uppercase tracking-[0.24em] text-amber">Category</p>
-      <h1 className="mt-3 font-serif text-4xl text-paper sm:text-5xl">Upcoming {label.toLowerCase()}</h1>
-      <p className="mt-4 max-w-2xl text-paper-dim">{CATEGORY_BLURB[category]}</p>
+      <p className="eyebrow mt-7">Category</p>
+      <h1 className="page-heading mt-3">Upcoming {label.toLowerCase()}</h1>
+      <p className="page-subtitle mt-3 max-w-2xl">{CATEGORY_BLURB[category]}</p>
       <p className="tabular mt-2 text-sm text-muted">
         {result.total.toLocaleString("en-US")} upcoming {result.total === 1 ? "date" : "dates"}.
       </p>
 
       {soon.length > 0 ? (
         <section className="mt-12">
-          <h2 className="font-serif text-2xl text-paper">Next 30 days</h2>
+          <h2 className="section-heading text-paper">Next 30 days</h2>
           <div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {soon.map((event) => (
               <EventCard key={event.id} event={event} />
@@ -77,14 +78,14 @@ export default async function CategoryPage({ params }: Props) {
 
       {series.length > 0 ? (
         <section className="mt-12">
-          <h2 className="font-serif text-2xl text-paper">Every year</h2>
+          <h2 className="section-heading text-paper">Coming around again</h2>
           <ul className="mt-4 flex flex-wrap gap-2">
             {series.map((s) => (
               <li key={s.slug}>
-                <Link href={`/days-until/${s.slug}`} className="inline-flex items-baseline gap-2 rounded-full border border-line px-3 py-1.5 text-sm text-paper-dim hover:text-paper">
+                <Link href={`/days-until/${s.slug}`} className="button-secondary flex-wrap">
                   {s.title}
                   <span className="tabular font-mono text-xs text-muted">
-                    {s.nextDate ? (typeof s.daysUntil === "number" ? humanDays(s.daysUntil) : formatShortDate(s.nextDate)) : ""}
+                    {s.nextDate ? (typeof s.daysUntil === "number" ? humanDays(s.daysUntil) : formatShortDate(s.nextDate, s.nextTimezone)) : ""}
                   </span>
                 </Link>
               </li>
@@ -94,7 +95,7 @@ export default async function CategoryPage({ params }: Props) {
       ) : null}
 
       <section className="mt-12">
-        <h2 className="font-serif text-2xl text-paper">All upcoming {label.toLowerCase()}</h2>
+        <h2 className="section-heading text-paper">All upcoming {label.toLowerCase()}</h2>
         <EventTable events={result.items} showCategory={false} emptyText="Nothing in this category yet." />
         <Pager page={1} total={result.total} pageSize={result.pageSize} basePath={path} />
       </section>

@@ -41,6 +41,8 @@ type Cursor = { year: number; afterSlug: string | null };
 /** Every occurrence of a rule in a year (usually one; Friday the 13th has up to three). */
 export function occurrencesIn(rule: Recurrence, year: number): Ymd[] {
   switch (rule.kind) {
+    case "external":
+      return [];
     case "fixed":
       return [addDays({ y: year, m: rule.month, d: rule.day }, rule.offsetDays ?? 0)];
     case "nth-weekday": {
@@ -103,8 +105,10 @@ export function expandSeries(rule: SeriesRule, years: readonly number[], now: Da
 
 export function expandCurated(list: readonly CuratedEvent[], now: Date, log?: IngestLogger): IngestEvent[] {
   const out: IngestEvent[] = [];
+  const externalSeries = new Set(SERIES.filter((rule) => rule.recurrence.kind === "external").map((rule) => rule.slug));
   for (const e of list) {
     if (e.skip || !e.date) continue;
+    if (e.series && externalSeries.has(e.series)) continue;
     const precision = e.datePrecision ?? (e.date.includes("T") ? "instant" : "day");
     if (!isFutureOrFar(e.date, precision, now)) continue;
     if (isFarFuture(e.date, e.tags, now)) {

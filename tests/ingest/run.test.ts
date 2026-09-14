@@ -16,6 +16,8 @@ let stateRow: Record<string, unknown> | null = { cursor: null, pass_started_at: 
 let leaseToken: string | null = "lease-1";
 let upsertResult = { inserted: 1, updated: 0, unchanged: 0, drifted: 0 };
 let statePatches: Record<string, unknown>[] = [];
+let onLease = () => {};
+let staleError: string | null = null;
 
 function fakeDb() {
   const chain = (table: string) => {
@@ -43,9 +45,9 @@ function fakeDb() {
     from: (table: string) => chain(table),
     rpc: async (name: string, args: unknown) => {
       calls.push({ kind: `rpc:${name}`, args: [args] });
-      if (name === "acquire_source_lease") return { data: leaseToken, error: null };
+      if (name === "acquire_source_lease") { onLease(); return { data: leaseToken, error: null }; }
       if (name === "release_source_lease") return { data: null, error: null };
-      if (name === "mark_stale_records") return { data: 3, error: null };
+      if (name === "mark_stale_records") return { data: 3, error: staleError ? { message: staleError } : null };
       if (name === "upsert_events") return { data: [upsertResult], error: null };
       return { data: null, error: null };
     },
@@ -54,7 +56,7 @@ function fakeDb() {
 
 vi.mock("@/lib/ingest/db", async (importOriginal) => {
   const mod = await importOriginal<typeof import("@/lib/ingest/db")>();
-  return { ...mod, getDb: async () => fakeDb(), getLongDb: async () => fakeDb() };
+  return { ...mod, RPC_TIMEOUT_MS: 100, getDb: async () => fakeDb(), getLongDb: async () => fakeDb() };
 });
 vi.mock("@/lib/ingest/revalidate", () => ({ revalidateCatalog: async () => undefined }));
 
@@ -118,6 +120,8 @@ beforeEach(() => {
   logLines = [];
   stateRow = { cursor: null, pass_started_at: null, backoff_until: null, consecutive_failures: 0 };
   leaseToken = "lease-1";
+  onLease = () => {};
+  staleError = null;
   upsertResult = { inserted: 1, updated: 0, unchanged: 0, drifted: 0 };
   vi.spyOn(console, "log").mockImplementation((line: unknown) => {
     logLines.push(String(line));
@@ -134,6 +138,53 @@ function ingestRunLines() {
 }
 
 describe("runSource", () => {
+  it("reads the checkpoint again after acquiring its lease", async () => {
+    scripted = makeAdapter([{ rows: [] }, { rows: [] }, { rows: [] }]);
+    stateRow = { cursor: { next: 1 }, pass_started_at: "2026-01-01T00:00:00Z", consecutive_failures: 0 };
+    onLease = () => { stateRow = { ...stateRow, cursor: { next: 2 } }; };
+    const result = await run({ budgetMs: 10_000 });
+    expect(result.status).toBe("ok");
+    expect(result.units).toBe(1);
+    expect((scripted as unknown as { attempts: () => Record<string, number> }).attempts()).toEqual({ u2: 1 });
+  });
+
+  it("stale-marking failures are visible and do not record a successful pass", async () => {
+    scripted = makeAdapter([{ rows: [] }]);
+    staleError = "database unavailable";
+    const result = await run({ budgetMs: 10_000 });
+    expect(result.status).toBe("error");
+    expect(result.errors[0].message).toContain("mark_stale_records");
+    expect(statePatches.some((patch) => patch.last_success_at)).toBe(false);
+    expect(rpcNames()).toContain("release_source_lease");
+  });
+
+  it("a failed resumed unit cannot advance over missing events", async () => {
+    scripted = makeAdapter([{ rows: [] }, { throws: new Error("upstream unavailable") }, { rows: [] }]);
+    stateRow = { cursor: { next: 1 }, pass_started_at: "2026-01-01T00:00:00Z", consecutive_failures: 0 };
+    const result = await run({ budgetMs: 10_000 });
+    expect(result.status).toBe("error");
+    expect(result.cursor).toEqual({ next: 1 });
+    expect(rpcNames()).not.toContain("mark_stale_records");
+  });
+
+  it("database work that cannot fit is deferred without losing its checkpoint", async () => {
+    scripted = makeAdapter([{ rows: [row("Alpha Event", "2027-01-01")] }]);
+    const result = await run({ budgetMs: 400 });
+    expect(result.status).toBe("partial");
+    expect(result.partialReason).toBe("budget");
+    expect(result.cursor).toBeNull();
+    expect(rpcNames()).not.toContain("upsert_events");
+  });
+
+  it("rejects an unfinished planner that does not move its cursor", async () => {
+    scripted = makeAdapter([]);
+    scripted.plan = async () => ({ units: [], done: false, nextCursor: null });
+    const result = await run({ budgetMs: 10_000 });
+    expect(result.status).toBe("error");
+    expect(result.errors[0].message).toContain("without advancing");
+    expect(rpcNames()).toContain("release_source_lease");
+  });
+
   it("ok: cursor written after each unit, stale marking, lease released, one log line", async () => {
     scripted = makeAdapter([{ rows: [row("Alpha Event", "2027-01-01")] }, { rows: [row("Beta Event", "2027-02-01")] }]);
     const s = await run({ budgetMs: 10_000 });
@@ -158,7 +209,7 @@ describe("runSource", () => {
     scripted = makeAdapter([{ rows: [row("Alpha Event", "2027-01-01")] }, { sleepMs: 200, throws: new BudgetExceededError("http://x", 0) }, { rows: [row("Gamma Event", "2027-03-01")] }], {
       timeoutMs: 1_000,
     });
-    const s = await run({ budgetMs: 400 }); // deadline = 400 - 100 = 300 ms
+    const s = await run({ budgetMs: 4_000 });
     expect(s.status).toBe("partial");
     expect(s.partialReason).toBe("budget");
     expect(s.units).toBe(2);
@@ -172,12 +223,13 @@ describe("runSource", () => {
     expect(ingestRunLines()[0]).toMatchObject({ status: "partial", reason: "budget" });
   });
 
-  it("partial (budget) with no progress: the unit is skipped so the pass advances", async () => {
+  it("partial (budget) with no progress retains the unit so its events cannot be retired", async () => {
     scripted = makeAdapter([{ throws: new BudgetExceededError("http://x", 0) }, { rows: [] }], { timeoutMs: 1_000 });
     const s = await run({ budgetMs: 400 });
     expect(s.status).toBe("partial");
-    expect(s.cursor).toEqual({ next: 1 });
-    expect(s.errors[0].message).toMatch(/exceeded the whole budget/);
+    expect(s.cursor).toBeNull();
+    expect(s.partialReason).toBe("budget");
+    expect(rpcNames()).not.toContain("mark_stale_records");
   });
 
   it("a slow unit is stopped by the deadline instead of overrunning it", async () => {
@@ -204,19 +256,19 @@ describe("runSource", () => {
     expect(fetchSpy).toHaveBeenCalledTimes(1);
   });
 
-  it("lost units: unit failure after 2 attempts → partial, cursor advanced, no stale marking", async () => {
+  it("a failed unit backs off with its checkpoint retained and stops the pass", async () => {
     scripted = makeAdapter([{ throws: new Error("boom") }, { rows: [row("Beta Event", "2027-02-01")] }]);
     const s = await run({ budgetMs: 10_000 });
-    expect(s.status).toBe("partial");
-    expect(s.partialReason).toBe("lost-units");
-    expect(s.cursor).toBeNull(); // plan finished: start over next time
+    expect(s.status).toBe("error");
+    expect(s.cursor).toBeNull();
+    expect(s.units).toBe(1);
     expect((scripted as unknown as { attempts: () => Record<string, number> }).attempts().u0).toBe(2);
     expect(rpcNames()).not.toContain("mark_stale_records");
     expect(rpcNames()).toContain("release_source_lease");
     expect(s.errors.map((e) => e.unit)).toContain("u0");
   });
 
-  it("systemic: 3 consecutive failures → error, backoff grows with consecutive_failures", async () => {
+  it("repeated failed runs increase exponential backoff", async () => {
     scripted = makeAdapter([{ throws: new Error("x") }, { throws: new Error("x") }, { throws: new Error("x") }, { rows: [] }]);
     stateRow = { cursor: null, pass_started_at: null, backoff_until: null, consecutive_failures: 2 };
     const s = await run({ budgetMs: 10_000 });
@@ -227,7 +279,7 @@ describe("runSource", () => {
     expect(backoffMs).toBeGreaterThan(3.9 * 3_600_000); // 60 min × 2^(3-1)
     expect(backoffMs).toBeLessThanOrEqual(4 * 3_600_000);
     expect(rpcNames()).toContain("release_source_lease");
-    expect(ingestRunLines()[0]).toMatchObject({ status: "error", errors: 4 });
+    expect(ingestRunLines()[0]).toMatchObject({ status: "error", errors: 2 });
   });
 
   it("skipped (lease held) writes an ingest_runs row and never touches state", async () => {

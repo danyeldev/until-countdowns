@@ -1,9 +1,12 @@
+import { prerenderLimit } from "@/lib/prerender";
 import type { Metadata } from "next";
+import { catalogDay } from "@/lib/time";
 import Link from "next/link";
 import { notFound, permanentRedirect } from "next/navigation";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { EventTable } from "@/components/EventTable";
 import { JsonLd } from "@/components/JsonLd";
+import { Icon } from "@/components/Icon";
 import { eventsInMonth } from "@/lib/catalog";
 import { collectionPage } from "@/lib/jsonld";
 import {
@@ -27,11 +30,21 @@ const PRERENDER_MONTHS = 24;
 
 type Props = { params: Promise<{ year: string; month: string }> };
 
-function parseMonth(params: { year: string; month: string }): { year: number; month: number } | null {
-  if (!/^\d{4}$/.test(params.year) || !/^\d{1,2}$/.test(params.month)) return null;
+function parseMonth(params: {
+  year: string;
+  month: string;
+}): { year: number; month: number } | null {
+  if (!/^\d{4}$/.test(params.year) || !/^\d{1,2}$/.test(params.month))
+    return null;
   const year = Number(params.year);
   const month = Number(params.month);
-  if (year < CALENDAR_MIN_YEAR || year > CALENDAR_MAX_YEAR || month < 1 || month > 12) return null;
+  if (
+    year < CALENDAR_MIN_YEAR ||
+    year > CALENDAR_MAX_YEAR ||
+    month < 1 ||
+    month > 12
+  )
+    return null;
   return { year, month };
 }
 
@@ -45,11 +58,15 @@ function isPastMonth(year: number, month: number): boolean {
   return year < now.year || (year === now.year && month < now.month);
 }
 
-/** The next 24 months are prerendered; other months in the 2026–2040 window render on first visit. */
+/** Optionally warm future months; default is on-demand ISR. */
 export function generateStaticParams() {
   let { year, month } = yearMonthOf(todayUtc());
   const out: { year: string; month: string }[] = [];
-  for (let i = 0; i < PRERENDER_MONTHS && year <= CALENDAR_MAX_YEAR; i++) {
+  for (
+    let i = 0;
+    i < prerenderLimit(PRERENDER_MONTHS) && year <= CALENDAR_MAX_YEAR;
+    i++
+  ) {
     out.push({ year: String(year), month: pad2(month) });
     ({ year, month } = nextMonth(year, month));
   }
@@ -59,7 +76,11 @@ export function generateStaticParams() {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const ym = parseMonth(await params);
   if (!ym) return { title: "Calendar", robots: { index: false, follow: true } };
-  if (isPastMonth(ym.year, ym.month)) return { title: monthTitle(ym.year, ym.month), robots: { index: false, follow: true } };
+  if (isPastMonth(ym.year, ym.month))
+    return {
+      title: monthTitle(ym.year, ym.month),
+      robots: { index: false, follow: true },
+    };
   return buildMetadata({
     title: monthTitle(ym.year, ym.month),
     description: `Everything in the catalog for ${monthLabel(ym.year, ym.month)}: holidays, launches, finals, premieres and anniversaries, day by day, with live countdowns.`,
@@ -72,7 +93,8 @@ export default async function CalendarMonthPage({ params }: Props) {
   const raw = await params;
   const ym = parseMonth(raw);
   if (!ym) notFound();
-  if (raw.month !== pad2(ym.month)) permanentRedirect(`/calendar/${ym.year}/${pad2(ym.month)}`);
+  if (raw.month !== pad2(ym.month))
+    permanentRedirect(`/calendar/${ym.year}/${pad2(ym.month)}`);
   if (isPastMonth(ym.year, ym.month)) notFound();
   const path = `/calendar/${ym.year}/${pad2(ym.month)}`;
   const label = monthLabel(ym.year, ym.month);
@@ -80,7 +102,7 @@ export default async function CalendarMonthPage({ params }: Props) {
   const events = await eventsInMonth(ym.year, ym.month);
   const byDay = new Map<string, CountdownEvent[]>();
   for (const event of events) {
-    const key = event.date.slice(0, 10);
+    const key = catalogDay(event.date, event.timezone);
     const bucket = byDay.get(key) ?? [];
     bucket.push(event);
     byDay.set(key, bucket);
@@ -88,36 +110,106 @@ export default async function CalendarMonthPage({ params }: Props) {
 
   const prev = prevMonth(ym.year, ym.month);
   const next = nextMonth(ym.year, ym.month);
-  const canPrev = prev.year >= CALENDAR_MIN_YEAR && !isPastMonth(prev.year, prev.month);
+  const canPrev =
+    prev.year >= CALENDAR_MIN_YEAR && !isPastMonth(prev.year, prev.month);
   const canNext = next.year <= CALENDAR_MAX_YEAR;
+  const today = todayUtc();
+  const firstWeekday = (new Date(Date.UTC(ym.year, ym.month - 1, 1)).getUTCDay() + 6) % 7;
+  const dayCount = new Date(Date.UTC(ym.year, ym.month, 0)).getUTCDate();
+  const weekCount = Math.ceil((firstWeekday + dayCount) / 7);
 
   return (
     <div>
-      <Breadcrumbs items={[{ name: "Home", path: "/" }, { name: String(ym.year), path: `/calendar/${ym.year}/01` }, { name: label, path }]} />
-      <p className="mt-6 text-[11px] uppercase tracking-[0.24em] text-amber">Calendar</p>
-      <h1 className="mt-3 font-serif text-4xl text-paper sm:text-5xl">{label}</h1>
-      <p className="tabular mt-4 max-w-2xl text-paper-dim">
+      <Breadcrumbs
+        items={[
+          { name: "Home", path: "/" },
+          { name: "Calendar", path: "/calendar" },
+          { name: label, path },
+        ]}
+      />
+      <p className="eyebrow mt-7">
+        Calendar
+      </p>
+      <h1 className="page-heading mt-3">
+        {label}
+      </h1>
+      <p className="page-subtitle tabular mt-3 max-w-2xl">
         {events.length === 0
           ? `Nothing upcoming in ${label} yet.`
           : `${events.length.toLocaleString("en-US")} upcoming ${events.length === 1 ? "date" : "dates"} in ${label}, day by day.`}
       </p>
-      <nav className="mt-6 flex gap-4 text-sm" aria-label="Months">
+      <nav className="mt-7 flex flex-wrap items-center gap-2" aria-label="Month navigation">
         {canPrev ? (
-          <Link href={`/calendar/${prev.year}/${pad2(prev.month)}`} rel="prev" className="text-paper-dim hover:text-paper">
-            ← {monthLabel(prev.year, prev.month)}
+          <Link
+            href={`/calendar/${prev.year}/${pad2(prev.month)}`}
+            rel="prev"
+            className="button-secondary"
+          >
+            <Icon name="arrowLeft" /> {monthLabel(prev.year, prev.month)}
           </Link>
         ) : null}
+        <Link href="/calendar" className="button-secondary">This month</Link>
         {canNext ? (
-          <Link href={`/calendar/${next.year}/${pad2(next.month)}`} rel="next" className="ml-auto text-paper-dim hover:text-paper">
-            {monthLabel(next.year, next.month)} →
+          <Link
+            href={`/calendar/${next.year}/${pad2(next.month)}`}
+            rel="next"
+            className="button-secondary ml-auto"
+          >
+            {monthLabel(next.year, next.month)} <Icon name="arrow" />
           </Link>
         ) : null}
       </nav>
 
+      <section className="panel mt-5 overflow-hidden p-3 sm:p-6" aria-label={`${label} overview`}>
+        <nav className="grid grid-cols-6 gap-1 border-b border-line pb-4 sm:grid-cols-12" aria-label={`Months in ${ym.year}`}>
+          {Array.from({ length: 12 }, (_, i) => i + 1).map((month) => {
+            const name = new Date(Date.UTC(ym.year, month - 1, 1)).toLocaleDateString("en-US", { month: "short", timeZone: "UTC" });
+            return isPastMonth(ym.year, month) ? (
+              <span key={month} className="flex min-h-11 items-center justify-center text-sm text-muted/60">{name}</span>
+            ) : (
+              <Link key={month} href={`/calendar/${ym.year}/${pad2(month)}`} aria-current={month === ym.month ? "page" : undefined} className={`flex min-h-11 items-center justify-center rounded-xl text-sm font-medium transition-colors ${month === ym.month ? "bg-amber text-ink" : "text-paper-dim hover:bg-ink hover:text-paper"}`}>
+                {name}
+              </Link>
+            );
+          })}
+        </nav>
+        <table className="mt-4 w-full table-fixed border-separate border-spacing-0.5 text-center sm:border-spacing-1">
+          <caption className="sr-only">{label}. Select a date to see its upcoming events.</caption>
+          <thead>
+            <tr>{["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"].map((day) => <th key={day} scope="col" className="pb-2 text-xs font-medium text-muted">{day}</th>)}</tr>
+          </thead>
+          <tbody>
+            {Array.from({ length: weekCount }, (_, week) => (
+              <tr key={week}>
+                {Array.from({ length: 7 }, (_, weekday) => {
+                  const day = week * 7 + weekday - firstWeekday + 1;
+                  if (day < 1 || day > dayCount) return <td key={weekday} />;
+                  const date = `${ym.year}-${pad2(ym.month)}-${pad2(day)}`;
+                  const n = byDay.get(date)?.length ?? 0;
+                  const isToday = date === today;
+                  const content = <><span className={`text-sm font-semibold sm:text-lg ${isToday ? "text-amber" : ""}`}>{day}</span><span className="mt-1 flex h-4 items-center justify-center text-[10px] text-muted sm:text-xs">{n > 0 ? <><span className="h-1 w-1 rounded-full bg-amber sm:hidden" /><span className="hidden sm:inline">{n} {n === 1 ? "date" : "dates"}</span></> : null}</span></>;
+                  return <td key={weekday} className="p-0">
+                    {n > 0 ? (
+                      <a href={`#day-${date}`} aria-label={`${formatLongDate(date)}, ${n} upcoming ${n === 1 ? "event" : "events"}${isToday ? ", today" : ""}`} aria-current={isToday ? "date" : undefined} className={`flex min-h-14 flex-col items-center justify-center rounded-xl border transition-colors hover:border-amber/70 hover:bg-ink sm:min-h-20 ${isToday ? "border-amber/70 bg-amber/10" : "border-line bg-ink/40"}`}>{content}</a>
+                    ) : (
+                      <span aria-label={isToday ? `${formatLongDate(date)}, today, no upcoming events` : undefined} className={`flex min-h-14 flex-col items-center justify-center rounded-xl border border-transparent sm:min-h-20 ${date < today ? "text-muted/50" : "text-muted"} ${isToday ? "border-amber/70! bg-amber/10" : ""}`}>{content}</span>
+                    )}
+                  </td>;
+                })}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+        <p className="mt-3 px-1 text-xs text-muted">Select a highlighted day to explore its dates.</p>
+      </section>
+
+      {events.length === 0 ? <div className="empty-state mt-8"><Icon name="calendar" size={28} /><h2 className="section-heading mt-4">Room for something good</h2><p className="mt-2 text-paper-dim">Dates will appear here as they are announced.</p><Link href="/category" className="button-primary mt-5">Explore categories <Icon name="arrow" /></Link></div> : null}
+
       {Array.from(byDay.entries()).map(([day, list]) => (
-        <section key={day} className="mt-10">
-          <h2 className="font-serif text-xl text-paper">
+        <section key={day} id={`day-${day}`} className="mt-10 scroll-mt-28">
+          <h2 className="section-heading flex flex-wrap items-baseline gap-3">
             <time dateTime={day}>{formatLongDate(day)}</time>
+            <span className="text-sm font-normal text-muted">{list.length} {list.length === 1 ? "date" : "dates"}</span>
           </h2>
           <EventTable events={list} />
         </section>
@@ -128,7 +220,9 @@ export default async function CalendarMonthPage({ params }: Props) {
           monthTitle(ym.year, ym.month),
           `Upcoming dates in ${label}.`,
           path,
-          events.slice(0, 100).map((e) => ({ name: e.title, path: `/event/${e.slug}` })),
+          events
+            .slice(0, 100)
+            .map((e) => ({ name: e.title, path: `/event/${e.slug}` })),
         )}
       />
     </div>

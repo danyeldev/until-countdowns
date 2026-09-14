@@ -42,6 +42,7 @@ export const SOURCE_IDS = [
   "wikipedia-categories",
   "anniversaries",
   "espn",
+  "f1calendar",
 ] as const;
 
 /** `YYYY-MM-DD` or a UTC/offset instant `YYYY-MM-DDTHH:MM[:SS[.sss]](Z|±HH:MM)`. */

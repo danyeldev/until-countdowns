@@ -10,11 +10,14 @@
     "push": "node --env-file=.env.local scripts/push-catalog.mjs",
     "ingest": "tsx --conditions=react-server --env-file=.env.local scripts/ingest.ts",
     "db:types": "supabase gen types typescript --project-id zgtowuglxtylpcjmqkqw > src/lib/db/database.types.ts",
-    "typecheck": "tsc --noEmit",
-    "test": "vitest run"
+    "typecheck": "next typegen && tsc --noEmit",
+    "test": "vitest run",
+    "check": "npm run lint && npm run typecheck && npm test",
+    "test:sql": "node scripts/verify-catalog-sql.mjs"
   },
   "dependencies": {
     "@fontsource/fraunces": "^5.3.0",
+    "@fontsource/geist": "5.3.0",
     "@fontsource/geist-mono": "^5.3.0",
     "@supabase/supabase-js": "^2.116.0",
     "astronomy-engine": "^2.1.19",
@@ -40,5 +43,8 @@
     "tsx": "^4.23.13",
     "typescript": "^5",
     "vitest": "^5.0.0"
+  },
+  "engines": {
+    "node": "^22.12.0 || ^24.0.0 || >=26.0.0"
   }
 }

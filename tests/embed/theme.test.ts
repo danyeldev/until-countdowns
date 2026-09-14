@@ -52,7 +52,13 @@ describe("parseColor", () => {
 
 describe("parseBackground", () => {
   it("accepts the words that mean 'let the scene through'", () => {
-    for (const word of ["transparent", "none", "clear", "chroma", "TRANSPARENT"]) {
+    for (const word of [
+      "transparent",
+      "none",
+      "clear",
+      "chroma",
+      "TRANSPARENT",
+    ]) {
       expect(parseBackground(word)).toBe("transparent");
     }
   });
@@ -65,6 +71,29 @@ describe("parseBackground", () => {
 describe("parseEmbedTheme", () => {
   it("returns the default theme for an empty query", () => {
     expect(parse("")).toEqual(DEFAULT_EMBED_THEME);
+    expect(parse("")).toMatchObject({
+      accent: "#b7a6ff",
+      text: "#f4f5f8",
+      bg: "#14171f",
+      font: "sans",
+      separator: "none",
+      glow: false,
+    });
+  });
+
+  it("keeps an explicitly styled older widget portable", () => {
+    const legacy = parse(
+      "accent=f0a202&text=f3ece0&bg=161410&font=serif&sep=colon&glow=1",
+    );
+    expect(legacy).toMatchObject({
+      accent: "#f0a202",
+      text: "#f3ece0",
+      bg: "#161410",
+      font: "serif",
+      separator: "colon",
+      glow: true,
+    });
+    expect(parse(embedQuery(legacy))).toEqual(legacy);
   });
 
   it("starts from the named preset", () => {
@@ -83,7 +112,9 @@ describe("parseEmbedTheme", () => {
   });
 
   it("falls back to the preset for anything malformed", () => {
-    const theme = parse("accent=nonsense&layout=spiral&pos=mars&units=xyz&scale=abc&frame=neon");
+    const theme = parse(
+      "accent=nonsense&layout=spiral&pos=mars&units=xyz&scale=abc&frame=neon",
+    );
     expect(theme.accent).toBe(DEFAULT_EMBED_THEME.accent);
     expect(theme.layout).toBe(DEFAULT_EMBED_THEME.layout);
     expect(theme.position).toBe(DEFAULT_EMBED_THEME.position);
@@ -114,7 +145,9 @@ describe("parseEmbedTheme", () => {
   });
 
   it("collapses and clamps the finished message", () => {
-    expect(parse(`done=${encodeURIComponent("  Stream\n  starts  now  ")}`).done).toBe("Stream starts now");
+    expect(
+      parse(`done=${encodeURIComponent("  Stream\n  starts  now  ")}`).done,
+    ).toBe("Stream starts now");
     expect(parse(`done=${"x".repeat(200)}`).done).toHaveLength(DONE_MAX);
   });
 
@@ -130,7 +163,10 @@ describe("parseEmbedTheme", () => {
   });
 
   it("uses the caller's fallback when no preset is named", () => {
-    const theme = parseEmbedTheme(new URLSearchParams("scale=150"), STREAM_EMBED_THEME);
+    const theme = parseEmbedTheme(
+      new URLSearchParams("scale=150"),
+      STREAM_EMBED_THEME,
+    );
     expect(theme.bg).toBe("transparent");
     expect(theme.position).toBe("bottom-left");
     expect(theme.scale).toBe(150);
@@ -147,7 +183,12 @@ describe("embedQuery", () => {
   });
 
   it("only serialises what differs from the preset", () => {
-    const theme: EmbedTheme = { ...presetTheme("clear"), scale: 180, position: "bottom-right", brand: false };
+    const theme: EmbedTheme = {
+      ...presetTheme("clear"),
+      scale: 180,
+      position: "bottom-right",
+      brand: false,
+    };
     const usp = new URLSearchParams(embedQuery(theme));
     expect([...usp.keys()].sort()).toEqual(["brand", "pos", "preset", "scale"]);
     expect(usp.get("brand")).toBe("0");
@@ -199,7 +240,9 @@ describe("embedQuery", () => {
 
 describe("urls and snippets", () => {
   it("builds a bare path when the theme is the default", () => {
-    expect(embedPath("christmas", DEFAULT_EMBED_THEME)).toBe("/embed/christmas");
+    expect(embedPath("christmas", DEFAULT_EMBED_THEME)).toBe(
+      "/embed/christmas",
+    );
   });
 
   it("encodes the slug and appends the query", () => {
@@ -208,12 +251,17 @@ describe("urls and snippets", () => {
   });
 
   it("joins an origin without doubling the slash", () => {
-    expect(embedUrl("https://until.test/", "x", DEFAULT_EMBED_THEME)).toBe("https://until.test/embed/x");
+    expect(embedUrl("https://until.test/", "x", DEFAULT_EMBED_THEME)).toBe(
+      "https://until.test/embed/x",
+    );
   });
 
   it("gives the width a unit in the style and none in the attribute", () => {
     // `width:480` without a unit is an invalid declaration the browser drops on the floor.
-    const numeric = embedIframeSnippet("https://until.test/embed/x", "X", { width: 480, height: 220 });
+    const numeric = embedIframeSnippet("https://until.test/embed/x", "X", {
+      width: 480,
+      height: 220,
+    });
     expect(numeric).toContain('width="480"');
     expect(numeric).toContain("width:480px");
     const relative = embedIframeSnippet("https://until.test/embed/x", "X");
