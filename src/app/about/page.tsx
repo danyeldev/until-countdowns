@@ -70,7 +70,7 @@ export default async function AboutPage() {
           <h2 className="section-heading mt-5">Discover, then make it yours</h2>
           <div className="mt-4 space-y-4 leading-relaxed text-paper-dim">
             <p>Explore {Object.keys(CATEGORY_LABELS).length} categories, from public holidays and sport to astronomy, film and games. Save a countdown, add it to a calendar, or look through the years ahead.</p>
-            <p>Create a personal countdown for a birthday, trip or something only you understand. Your collection stays in this browser without an account. A share link carries the title, date and note so others can open the same countdown.</p>
+            <p>Create a personal countdown for a birthday, trip or something only you understand. Sign in to keep your collection with your account. A share link carries the title, date and note so others can open the same countdown.</p>
           </div>
         </section>
         <section className="panel p-6 sm:p-8">

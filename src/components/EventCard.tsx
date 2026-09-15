@@ -153,7 +153,7 @@ export function EventCard({
           <Icon name="arrow" size={14} aria-hidden="true" />
         </Link>
       ) : null}
-      <div className="absolute right-3 top-3">
+      <div className="absolute right-3 top-3 z-10">
         <SaveButton id={event.id} event={event} compact />
       </div>
     </article>

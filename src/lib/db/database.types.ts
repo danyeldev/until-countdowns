@@ -511,6 +511,30 @@ export type Database = {
         }
         Relationships: []
       }
+      profiles: {
+        Row: {
+          created_at: string
+          handle: string | null
+          id: string
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          handle?: string | null
+          id: string
+          name?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          handle?: string | null
+          id?: string
+          name?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       ingest_state: {
         Row: {
           backoff_until: string | null
@@ -700,6 +724,74 @@ export type Database = {
         }
         Relationships: []
       }
+      user_countdowns: {
+        Row: {
+          category: string
+          created_at: string
+          date: string
+          description: string
+          id: string
+          slug: string
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          category: string
+          created_at?: string
+          date: string
+          description?: string
+          id?: string
+          slug: string
+          title: string
+          updated_at?: string
+          user_id?: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          date?: string
+          description?: string
+          id?: string
+          slug?: string
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_countdowns_category_fkey"
+            columns: ["category"]
+            isOneToOne: false
+            referencedRelation: "categories"
+            referencedColumns: ["slug"]
+          },
+        ]
+      }
+      user_saved: {
+        Row: {
+          created_at: string
+          event_id: string
+          snapshot: Json | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          event_id: string
+          snapshot?: Json | null
+          updated_at?: string
+          user_id?: string
+        }
+        Update: {
+          created_at?: string
+          event_id?: string
+          snapshot?: Json | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       events_public: {
@@ -842,6 +934,18 @@ export type Database = {
           isSetofReturn: true
         }
       }
+      event_is_upcoming: {
+        Args: {
+          p_now?: string
+          p_period_end: string
+          p_precision: string
+          p_starts_at: string
+          p_starts_on: string
+          p_status: string
+        }
+        Returns: boolean
+      }
+      handle_available: { Args: { p_handle: string }; Returns: boolean }
       featured_upcoming: {
         Args: { p_limit?: number }
         Returns: {
@@ -1022,6 +1126,7 @@ export type Database = {
       }
       source_rank: { Args: { p_source: string }; Returns: number }
       tags_text: { Args: { p: string[] }; Returns: string }
+      title_initials: { Args: { p_title: string }; Returns: string }
       top_slugs: {
         Args: { p_limit?: number }
         Returns: {
@@ -1036,6 +1141,10 @@ export type Database = {
           unchanged: number
           updated: number
         }[]
+      }
+      words_all_present: {
+        Args: { p_haystack: string; p_words: string[] }
+        Returns: boolean
       }
     }
     Enums: {

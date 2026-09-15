@@ -2,6 +2,8 @@
 
 import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
+import { parseHandle } from "@/lib/auth/profile";
+import { AuthMenu } from "./AuthMenu";
 import { Icon, type IconName } from "./Icon";
 import { QuickSearch } from "./QuickSearch";
 
@@ -15,6 +17,22 @@ const EXPLORE: { href: string; label: string; icon: IconName }[] = [
   { href: "/days-until", label: "Recurring events", icon: "clock" },
   { href: "/country", label: "Around the world", icon: "globe" },
 ];
+
+function workspaceLabel(pathname: string, query: string | null): string {
+  if (pathname === "/") return query ? "Search" : "Explore";
+  if (pathname.startsWith("/login/complete")) return "Your profile";
+  if (pathname.startsWith("/login")) return "Sign in";
+  if (pathname.startsWith("/saved")) return "My space";
+  if (pathname.startsWith("/create")) return "Create a countdown";
+  if (pathname.startsWith("/calendar")) return "Calendar";
+  if (pathname.startsWith("/days-until")) return "Recurring events";
+  if (pathname.startsWith("/event")) return "Countdown";
+  if (pathname.startsWith("/country")) return "Around the world";
+  if (pathname.startsWith("/category")) return "Categories";
+  const handle = parseHandle(pathname.slice(1).split("/")[0] ?? "");
+  if (handle && pathname === `/${handle}`) return `@${handle}`;
+  return "Explore";
+}
 
 function Logo() {
   return (
@@ -39,26 +57,7 @@ export function Header() {
   const params = useSearchParams();
   const active = (href: string) =>
     href === "/" ? pathname === "/" : pathname.startsWith(href);
-  const pageLabel =
-    pathname === "/"
-      ? params.get("q")
-        ? "Search"
-        : "Explore"
-      : pathname.startsWith("/saved")
-        ? "My space"
-        : pathname.startsWith("/create")
-          ? "Create a countdown"
-          : pathname.startsWith("/calendar")
-            ? "Calendar"
-            : pathname.startsWith("/days-until")
-              ? "Recurring events"
-              : pathname.startsWith("/event")
-                ? "Countdown"
-                : pathname.startsWith("/country")
-                  ? "Around the world"
-                  : pathname.startsWith("/category")
-                    ? "Categories"
-                    : "Explore";
+  const pageLabel = workspaceLabel(pathname, params.get("q"));
   return (
     <>
       <aside className="fixed inset-y-0 left-0 z-40 hidden w-[216px] flex-col border-r border-white/[.055] bg-[#0c0e14] px-4 py-7 lg:flex">
@@ -115,7 +114,7 @@ export function Header() {
           </div>
           <div className="mt-5 flex items-center gap-2 px-2 text-[10px] text-muted">
             <span className="size-1.5 rounded-full bg-moss" />
-            Saved on this browser
+            Saved to your account
             <Link
               href="/about"
               aria-label="About Until"
@@ -144,6 +143,7 @@ export function Header() {
             <Icon name="plus" size={15} />
             New countdown
           </Link>
+          <AuthMenu />
         </div>
       </header>
       <nav

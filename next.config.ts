@@ -48,7 +48,7 @@ const nextConfig: NextConfig = {
     // Next passes the incoming query through to every redirect destination, so these land on
     // e.g. `/category/sports?category=sports`. The hubs are static (they never read
     // `searchParams`), the stray query is ignored and the page's canonical is the clean path;
-    // stripping it would need a `proxy.ts`, which is deliberately not part of this app yet.
+    // stripping it would need extra proxy rewrite logic beyond the auth session refresh.
     const page = "(?<n>[2-9]|[1-9][0-9]{1,3})";
     return [
       // The old category filter on the home page now has its own hub; free-text searches keep

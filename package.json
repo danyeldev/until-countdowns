@@ -19,6 +19,7 @@
     "@fontsource/fraunces": "^5.3.0",
     "@fontsource/geist": "5.3.0",
     "@fontsource/geist-mono": "^5.3.0",
+    "@supabase/ssr": "^0.12.7",
     "@supabase/supabase-js": "^2.116.0",
     "astronomy-engine": "^2.1.19",
     "date-holidays": "^3.36.1",

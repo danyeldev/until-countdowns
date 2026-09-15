@@ -61,6 +61,7 @@ describe("canonical and social metadata", () => {
   it("does not inherit an index directive for private or thin pages", () => {
     const metadata = buildMetadata({ title: "Personal countdown", description: "A shared date.", canonical: "/event/share-example", ogPath: "/og/default", noindex: true });
     expect(metadata.robots).toEqual({ index: false, follow: true });
+    expect(buildMetadata({ title: "Sign in", description: "Sign in to Until.", canonical: "/login", ogPath: "/og/default", noindex: true }).robots).toEqual({ index: false, follow: true });
     // Blocking HTML in robots.txt would keep a crawler from ever seeing the noindex tag.
     expect(robots().rules).toMatchObject({ disallow: ["/api/"] });
   });

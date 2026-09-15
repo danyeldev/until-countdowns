@@ -12,8 +12,7 @@ import { isCatalogEventId } from "@/lib/event-id";
 import { eventInstant, formatApproximate, formatCompactDate, isCoarsePrecision } from "@/lib/time";
 import { collectionEventPath, collectionPhase, type CollectionPhase } from "@/lib/personal-collection";
 import type { CountdownEvent } from "@/lib/types";
-import { cacheSavedEvents, removeMine } from "@/lib/user-events";
-import { useLocalStoreReady, useMine, useSavedEvents, useSavedIds } from "@/lib/use-local-store";
+import { useCollection } from "@/components/CollectionProvider";
 import { useNow } from "@/lib/use-now";
 
 type CollectionRow = { id: string; event?: CountdownEvent; personal: boolean };
@@ -50,10 +49,7 @@ const CollectionCard = memo(function CollectionCard({ row, loading, fetchError, 
 });
 
 export function SavedList() {
-  const mine = useMine();
-  const savedIds = useSavedIds();
-  const snapshots = useSavedEvents();
-  const ready = useLocalStoreReady();
+  const { ready, mine, savedIds, savedEvents: snapshots, removeMine, cacheSavedEvents } = useCollection();
   const now = useNow();
   const [fresh, setFresh] = useState<CountdownEvent[]>([]);
   const [resolvedKey, setResolvedKey] = useState("");
@@ -84,7 +80,7 @@ export function SavedList() {
         setFresh(items);
         setFetchError("");
         setResolvedKey(requestKey);
-        try { cacheSavedEvents(items); } catch { /* Fetched cards remain available when local caching is blocked. */ }
+        void cacheSavedEvents(items);
       } catch (error) {
         if (controller.signal.aborted) return;
         setResolvedKey(requestKey);
@@ -93,7 +89,7 @@ export function SavedList() {
     }
     void refresh();
     return () => controller.abort();
-  }, [requestKey, retry]);
+  }, [cacheSavedEvents, requestKey, retry]);
 
   const personalIds = useMemo(() => new Set(mine.map((event) => event.id)), [mine]);
   const records = useMemo(() => new Map([...snapshots, ...fresh].map((event) => [event.id, event])), [snapshots, fresh]);
@@ -123,9 +119,10 @@ export function SavedList() {
   const visibleCount = Object.values(grouped).reduce((total, rows) => total + rows.length, 0);
 
   const removePersonal = useCallback((id: string) => {
-    try { removeMine(id); setActionError(""); }
-    catch (error) { setActionError(error instanceof Error ? error.message : "Could not remove this countdown."); }
-  }, []);
+    void removeMine(id)
+      .then(() => setActionError(""))
+      .catch((error) => setActionError(error instanceof Error ? error.message : "Could not remove this countdown."));
+  }, [removeMine]);
 
   if (!ready || now === null) return <div role="status" className="panel p-12 text-center text-sm text-muted">Opening your collection…</div>;
 
@@ -135,7 +132,7 @@ export function SavedList() {
       {count === 0 ? (
         <div className="panel overflow-hidden">
           <div className="relative flex h-36 items-center justify-center overflow-hidden border-b border-line bg-gradient-to-br from-amber/20 via-ink-2 to-ink"><svg aria-hidden="true" className="text-amber" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.2"><path d="M6 3h12v18l-6-4-6 4V3Z" /><path d="M9 8h6m-3-3v6" /></svg></div>
-          <div className="px-6 py-10 text-center sm:py-14"><h2 className="text-2xl font-semibold tracking-tight sm:text-3xl">Start with something you love.</h2><p className="mx-auto mt-3 max-w-md text-sm leading-relaxed text-muted">Save a date that catches your eye, or create a countdown for a moment of your own. They will be waiting here.</p><div className="mt-7 flex flex-wrap justify-center gap-3"><Link href="/" className="button-primary">Explore dates <span aria-hidden="true">↗</span></Link><Link href="/create" className="button-secondary">Create a countdown</Link></div><p className="mt-7 text-xs text-muted">Kept in this browser · no account needed</p></div>
+          <div className="px-6 py-10 text-center sm:py-14"><h2 className="text-2xl font-semibold tracking-tight sm:text-3xl">Start with something you love.</h2><p className="mx-auto mt-3 max-w-md text-sm leading-relaxed text-muted">Save a date that catches your eye, or create a countdown for a moment of your own. They stay with your account.</p><div className="mt-7 flex flex-wrap justify-center gap-3"><Link href="/" className="button-primary">Explore dates <span aria-hidden="true">↗</span></Link><Link href="/create" className="button-secondary">Create a countdown</Link></div></div>
         </div>
       ) : <>
         <div className="panel mb-7 flex flex-wrap items-center justify-between gap-4 p-3">
@@ -150,7 +147,7 @@ export function SavedList() {
           const cards = <div className="mt-5 grid gap-5 sm:grid-cols-2 xl:grid-cols-3">{rows.map((row) => <CollectionCard key={row.id} row={row} loading={loading} fetchError={fetchError} onRemove={removePersonal} />)}</div>;
           return phase.value === "past" ? <details key={phase.value} className="border-t border-line pt-5" open={Boolean(query)}><summary className="cursor-pointer py-2 text-base font-medium text-paper-dim">Past dates <span className="ml-2 text-sm tabular-nums text-muted">{rows.length}</span></summary><p className="mt-1 text-sm text-muted">{phase.description}</p>{cards}</details> : <section key={phase.value} aria-label={phase.title}><div className="flex items-baseline gap-3"><h2 className="section-heading">{phase.title}</h2><span className="text-sm tabular-nums text-muted">{rows.length}</span></div><p className="mt-1 text-sm text-muted">{phase.description}</p>{cards}</section>;
         })}</div>
-        <p className="mt-8 text-xs leading-relaxed text-muted">Stored in this browser. {loading ? "Checking saved dates for updates…" : "Share a countdown to open it on another device."}</p>
+        <p className="mt-8 text-xs leading-relaxed text-muted">Saved to your account. {loading ? "Checking saved dates for updates…" : "Share a countdown so anyone can open it without signing in."}</p>
       </>}
     </div>
   );

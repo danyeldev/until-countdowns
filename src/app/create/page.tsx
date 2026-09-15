@@ -1,19 +1,19 @@
 import { CreateForm } from "@/components/CreateForm";
 import { MineList } from "@/components/MineList";
+import { requireAuth } from "@/lib/auth/server";
 import { buildMetadata, todayUtc } from "@/lib/seo";
 import { shiftDay } from "@/lib/time";
-import { connection } from "next/server";
 
 export const metadata = buildMetadata({
   title: "Create a free countdown",
   description:
-    "Make a personal countdown for a birthday, trip, launch or any date. Save it on this device, share a link and add it to your calendar.",
+    "Make a personal countdown for a birthday, trip, launch or any date. Sign in to save it, share a link and add it to your calendar.",
   canonical: "/create",
   ogPath: "/og/default",
 });
 
 export default async function CreatePage() {
-  await connection();
+  await requireAuth("/create");
   return (
     <div>
       <h1 className="page-heading">Make a little anticipation.</h1>

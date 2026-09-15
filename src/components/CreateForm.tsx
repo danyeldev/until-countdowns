@@ -11,7 +11,8 @@ import { CATEGORIES, type Category } from "@/lib/types";
 import { CATEGORY_LABELS } from "@/lib/labels";
 import { absoluteUrl, siteUrl } from "@/lib/seo";
 import { formatCompactDate } from "@/lib/time";
-import { encodeSharePayload, isPersonalDate, upsertMine, userEventFromDraft, USER_NOTE_MAX, USER_TITLE_MAX } from "@/lib/user-events";
+import { useCollection } from "@/components/CollectionProvider";
+import { encodeSharePayload, isPersonalDate, userEventFromDraft, USER_NOTE_MAX, USER_TITLE_MAX } from "@/lib/user-events";
 
 const EmbedStudio = dynamic(() => import("@/components/EmbedStudio").then((module) => module.EmbedStudio));
 const IDEAS = ["My next adventure", "Birthday weekend", "A fresh start"];
@@ -23,7 +24,9 @@ export function CreateForm({ defaultDate = "" }: { defaultDate?: string }) {
   const [category, setCategory] = useState<Category>("culture");
   const [savedSlug, setSavedSlug] = useState<string | null>(null);
   const [error, setError] = useState("");
+  const [pending, setPending] = useState(false);
   const [showEmbed, setShowEmbed] = useState(false);
+  const { ready, userId, upsertMine } = useCollection();
 
   const event = useMemo(() => userEventFromDraft({ title, date, description, category }), [title, date, description, category]);
   const payload = encodeSharePayload(event);
@@ -34,8 +37,11 @@ export function CreateForm({ defaultDate = "" }: { defaultDate?: string }) {
 
   function changed() { setSavedSlug(null); setError(""); }
   function onSave() {
-    try { upsertMine(event); setSavedSlug(event.slug); setError(""); }
-    catch (cause) { setError(cause instanceof Error ? cause.message : "Could not save this countdown."); }
+    setPending(true);
+    void upsertMine(event)
+      .then((saved) => { setSavedSlug(saved.slug); setError(""); })
+      .catch((cause) => setError(cause instanceof Error ? cause.message : "Could not save this countdown."))
+      .finally(() => setPending(false));
   }
 
   return (
@@ -62,13 +68,13 @@ export function CreateForm({ defaultDate = "" }: { defaultDate?: string }) {
           </div>
         </details>
         <div className="space-y-4 border-t border-line pt-6">
-          <button type="submit" className="button-primary w-full justify-center">
+          <button type="submit" disabled={pending || !ready || !userId} className="button-primary w-full justify-center">
             <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d={savedSlug ? "m5 12 4 4L19 6" : "M12 5v14M5 12h14"} /></svg>
-            {savedSlug ? "Saved to your collection" : "Save countdown"}
+            {pending ? "Saving…" : !ready ? "Opening your account…" : savedSlug ? "Saved to your collection" : "Save countdown"}
           </button>
           {error && <p role="alert" className="rounded-xl border border-line bg-ink p-4 text-sm leading-relaxed text-paper">{error}</p>}
           {savedSlug && <div role="status" className="rounded-xl border border-amber/25 bg-amber/10 p-4 text-sm text-paper"><p>Ready whenever you are.</p><div className="mt-2 flex flex-wrap gap-x-5 gap-y-2"><Link href={`/event/${savedSlug}`} className="text-amber underline underline-offset-4">Open countdown</Link><Link href="/saved" className="text-amber underline underline-offset-4">View collection</Link></div></div>}
-          <p className="text-xs leading-relaxed text-muted">Saved in this browser. No account needed. Share links include your title, date, category and note, so anyone with the link can read them.</p>
+          <p className="text-xs leading-relaxed text-muted">Saved to your account so you can open it on any device. Share links include your title, date, category and note, so anyone with the link can read them.</p>
         </div>
       </form>
 
