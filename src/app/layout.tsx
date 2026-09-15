@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { Suspense } from "react";
 import { CollectionProvider } from "@/components/CollectionProvider";
+import { NotificationsProvider } from "@/components/NotificationsProvider";
 import { Footer, FooterFallback } from "@/components/Footer";
 import { Header } from "@/components/Header";
 import {
@@ -69,16 +70,18 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           Skip to content
         </a>
         <CollectionProvider>
-          <Suspense fallback={<div className="h-[72px] border-b border-line" />}>
-            <Header />
-          </Suspense>
-          <main
-            id="main-content"
-            tabIndex={-1}
-            className="app-main focus:outline-none"
-          >
-            <div className="app-canvas">{children}</div>
-          </main>
+          <NotificationsProvider>
+            <Suspense fallback={<div className="h-[72px] border-b border-line" />}>
+              <Header />
+            </Suspense>
+            <main
+              id="main-content"
+              tabIndex={-1}
+              className="app-main focus:outline-none"
+            >
+              <div className="app-canvas">{children}</div>
+            </main>
+          </NotificationsProvider>
         </CollectionProvider>
         <Suspense fallback={<FooterFallback />}>
           <Footer />

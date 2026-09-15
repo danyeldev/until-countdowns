@@ -26,6 +26,7 @@ const paths = {
     "M9 18V5l12-2v13M9 18a3 3 0 1 1-6 0 3 3 0 0 1 6 0Zm12-2a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z",
   trophy:
     "M8 3h8v7a4 4 0 0 1-8 0V3Zm4 11v6m-5 1h10M8 5H4v3a4 4 0 0 0 4 4m8-7h4v3a4 4 0 0 1-4 4",
+  bell: "M6 8a6 6 0 1 1 12 0c0 7 3 9 3 9H3s3-2 3-9m4.3 13a1.94 1.94 0 0 0 3.4 0",
 } as const;
 
 export type IconName = keyof typeof paths;

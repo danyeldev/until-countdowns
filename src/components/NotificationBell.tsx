@@ -1,0 +1,31 @@
+"use client";
+
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { useCollection } from "@/components/CollectionProvider";
+import { useNotifications } from "@/components/NotificationsProvider";
+import { Icon } from "./Icon";
+
+export function NotificationBell() {
+  const pathname = usePathname();
+  const { userId } = useCollection();
+  const { unread } = useNotifications();
+  const current = pathname.startsWith("/notifications");
+  const label = userId && unread ? `${unread} unread notification${unread === 1 ? "" : "s"}` : "Notifications";
+
+  return (
+    <Link
+      href="/notifications"
+      aria-current={current ? "page" : undefined}
+      aria-label={label}
+      className="relative flex size-11 items-center justify-center rounded-xl border border-white/10 bg-white/[.04] text-paper-dim transition hover:border-amber/40 hover:text-paper"
+    >
+      <Icon name="bell" size={16} />
+      {unread > 0 ? (
+        <span className="absolute right-1.5 top-1.5 flex min-w-4 items-center justify-center rounded-full bg-amber px-1 text-[10px] font-medium leading-4 text-[#171222]">
+          {unread > 9 ? "9+" : unread}
+        </span>
+      ) : null}
+    </Link>
+  );
+}

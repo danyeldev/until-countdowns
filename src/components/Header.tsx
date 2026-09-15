@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
 import { parseHandle } from "@/lib/auth/profile";
 import { AuthMenu } from "./AuthMenu";
+import { NotificationBell } from "./NotificationBell";
 import { Icon, type IconName } from "./Icon";
 import { QuickSearch } from "./QuickSearch";
 
@@ -11,6 +12,7 @@ const MAIN: { href: string; label: string; icon: IconName }[] = [
   { href: "/", label: "Explore", icon: "compass" },
   { href: "/calendar", label: "Calendar", icon: "calendar" },
   { href: "/saved", label: "My space", icon: "bookmark" },
+  { href: "/notifications", label: "Notifications", icon: "bell" },
 ];
 const EXPLORE: { href: string; label: string; icon: IconName }[] = [
   { href: "/category", label: "Categories", icon: "grid" },
@@ -23,6 +25,7 @@ function workspaceLabel(pathname: string, query: string | null): string {
   if (pathname.startsWith("/login/complete")) return "Your profile";
   if (pathname.startsWith("/login")) return "Sign in";
   if (pathname.startsWith("/saved")) return "My space";
+  if (pathname.startsWith("/notifications")) return "Notifications";
   if (pathname.startsWith("/create")) return "Create a countdown";
   if (pathname.startsWith("/calendar")) return "Calendar";
   if (pathname.startsWith("/days-until")) return "Recurring events";
@@ -143,6 +146,7 @@ export function Header() {
             <Icon name="plus" size={15} />
             New countdown
           </Link>
+          <NotificationBell />
           <AuthMenu />
         </div>
       </header>
@@ -152,7 +156,7 @@ export function Header() {
         style={{ marginBottom: "env(safe-area-inset-bottom)" }}
       >
         {[
-          ...MAIN,
+          ...MAIN.filter((item) => item.href !== "/notifications"),
           { href: "/create", label: "Create", icon: "plus" as const },
         ].map((item) => (
           <Link
