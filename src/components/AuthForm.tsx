@@ -12,17 +12,8 @@ import { createAuthBrowserClient } from "@/lib/auth/browser";
 import { isAuthConfigured } from "@/lib/auth/env";
 import { AUTH_COPY, authErrorMessage } from "@/lib/auth/messages";
 import { loginHref, type AuthMode } from "@/lib/auth/paths";
-import {
-  HANDLE_MAX,
-  HANDLE_MIN,
-  NAME_MAX,
-  SIGNUP_PROFILE_KEY,
-  handleError,
-  nameError,
-  normalizeHandleInput,
-  parseHandle,
-  parseName,
-} from "@/lib/auth/profile";
+import { NAME_MAX, SIGNUP_PROFILE_KEY, handleError, nameError, parseHandle, parseName } from "@/lib/auth/profile";
+import { HandleField } from "./HandleField";
 
 function GoogleMark() {
   return (
@@ -190,28 +181,11 @@ export function AuthForm({
                 placeholder="Ada Lovelace"
               />
             </label>
-            <label className="block">
-              <span className="field-label">Handle</span>
-              <span className="relative mt-2 block">
-                <span className="pointer-events-none absolute inset-y-0 left-3 flex items-center text-muted">@</span>
-                <input
-                  name="handle"
-                  type="text"
-                  autoComplete="username"
-                  required
-                  minLength={HANDLE_MIN}
-                  maxLength={HANDLE_MAX}
-                  spellCheck={false}
-                  value={handle}
-                  onChange={(event) => setHandle(normalizeHandleInput(event.target.value))}
-                  className="field w-full pl-7"
-                  placeholder="ada"
-                />
-              </span>
-              <span className="mt-1.5 block text-xs text-muted">
-                {handle ? `Your public page will be /${handle}.` : "3–20 characters. This becomes your public page."}
-              </span>
-            </label>
+            <HandleField
+              value={handle}
+              onChange={setHandle}
+              hint={handle ? `Your public page will be /${handle}.` : "3–20 characters. This becomes your public page."}
+            />
           </div>
         )}
         {mode !== "reset" && (

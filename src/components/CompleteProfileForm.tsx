@@ -4,14 +4,8 @@ import { useState, useSyncExternalStore, type FormEvent } from "react";
 import { unstable_rethrow } from "next/navigation";
 import { completeProfileAction } from "@/lib/auth/actions";
 import { authErrorMessage } from "@/lib/auth/messages";
-import {
-  HANDLE_MAX,
-  HANDLE_MIN,
-  NAME_MAX,
-  SIGNUP_PROFILE_KEY,
-  normalizeHandleInput,
-  readSignupProfile,
-} from "@/lib/auth/profile";
+import { NAME_MAX, SIGNUP_PROFILE_KEY, readSignupProfile } from "@/lib/auth/profile";
+import { HandleField } from "./HandleField";
 
 function subscribeSignupProfile() {
   return () => undefined;
@@ -95,28 +89,11 @@ export function CompleteProfileForm({
             placeholder="Ada Lovelace"
           />
         </label>
-        <label className="block">
-          <span className="field-label">Handle</span>
-          <span className="relative mt-2 block">
-            <span className="pointer-events-none absolute inset-y-0 left-3 flex items-center text-muted">@</span>
-            <input
-              name="handle"
-              type="text"
-              autoComplete="username"
-              required
-              minLength={HANDLE_MIN}
-              maxLength={HANDLE_MAX}
-              spellCheck={false}
-              value={handle}
-              onChange={(event) => setHandleDraft(normalizeHandleInput(event.target.value))}
-              className="field w-full pl-7"
-              placeholder="ada"
-            />
-          </span>
-          <span className="mt-1.5 block text-xs text-muted">
-            {handle ? `Anyone can open /${handle}.` : "3–20 characters. Letters, numbers, and underscores."}
-          </span>
-        </label>
+        <HandleField
+          value={handle}
+          onChange={setHandleDraft}
+          hint={handle ? `Anyone can open /${handle}.` : "3–20 characters. Letters, numbers, and underscores."}
+        />
         <button type="submit" disabled={pending} className="button-primary w-full justify-center">
           {pending ? "Saving…" : "Save profile"}
         </button>
