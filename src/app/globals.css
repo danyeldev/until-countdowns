@@ -191,7 +191,8 @@ a.ticket:hover {
     border-color 0.15s,
     box-shadow 0.15s;
 }
-.field:focus {
+.field:focus,
+.field:focus-within {
   border-color: var(--amber);
   box-shadow: 0 0 0 3px #b7a6ff15;
 }

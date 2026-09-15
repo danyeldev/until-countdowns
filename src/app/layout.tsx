@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { Suspense } from "react";
+import { CollectionProvider } from "@/components/CollectionProvider";
 import { Footer, FooterFallback } from "@/components/Footer";
 import { Header } from "@/components/Header";
 import {
@@ -67,16 +68,18 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         <a className="skip-link" href="#main-content">
           Skip to content
         </a>
-        <Suspense fallback={<div className="h-[72px] border-b border-line" />}>
-          <Header />
-        </Suspense>
-        <main
-          id="main-content"
-          tabIndex={-1}
-          className="app-main focus:outline-none"
-        >
-          <div className="app-canvas">{children}</div>
-        </main>
+        <CollectionProvider>
+          <Suspense fallback={<div className="h-[72px] border-b border-line" />}>
+            <Header />
+          </Suspense>
+          <main
+            id="main-content"
+            tabIndex={-1}
+            className="app-main focus:outline-none"
+          >
+            <div className="app-canvas">{children}</div>
+          </main>
+        </CollectionProvider>
         <Suspense fallback={<FooterFallback />}>
           <Footer />
         </Suspense>

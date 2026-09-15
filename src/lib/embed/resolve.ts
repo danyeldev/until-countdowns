@@ -46,8 +46,7 @@ export async function resolveEmbedSubject(
     };
   }
 
-  // `mine-…` can never resolve here: it lives in one browser's localStorage, and a third-party
-  // iframe is storage-partitioned away from that anyway. Embedding one means sharing it first,
+  // `mine-…` is account-owned and not a public catalog slug. Embedding one means sharing it first,
   // which mints the self-contained `share-…` payload above.
   if (slug.startsWith("mine-")) return null;
 

@@ -1,16 +1,18 @@
 import Link from "next/link";
 import { SavedList } from "@/components/SavedList";
+import { requireAuth } from "@/lib/auth/server";
 import { buildMetadata } from "@/lib/seo";
 
 export const metadata = buildMetadata({
   title: "Your saved countdowns",
-  description: "Keep the dates you are looking forward to in one place. Your saved catalog dates and personal countdowns, stored on this device.",
+  description: "Keep the dates you are looking forward to in one place. Your saved catalog dates and personal countdowns, stored on your account.",
   canonical: "/saved",
   ogPath: "/og/default",
   noindex: true,
 });
 
-export default function SavedPage() {
+export default async function SavedPage() {
+  await requireAuth("/saved");
   return (
     <div>
       <div className="mb-8 flex flex-wrap items-end justify-between gap-5">

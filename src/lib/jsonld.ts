@@ -53,6 +53,25 @@ export function organization(): JsonLdObject {
 
 export type CollectionItem = { name: string; path: string };
 
+export function profilePage(name: string, handle: string): JsonLdObject {
+  const path = `/${handle}`;
+  return {
+    "@context": SCHEMA,
+    "@type": "ProfilePage",
+    "@id": absoluteUrl(`${path}#profile`),
+    name: `${name} (@${handle})`,
+    url: absoluteUrl(path),
+    inLanguage: "en",
+    isPartOf: { "@id": absoluteUrl("/#website") },
+    mainEntity: {
+      "@type": "Person",
+      name,
+      alternateName: `@${handle}`,
+      url: absoluteUrl(path),
+    },
+  };
+}
+
 export function collectionPage(name: string, description: string, path: string, items: CollectionItem[]): JsonLdObject {
   return {
     "@context": SCHEMA,

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { eventJsonLd, eventSeries, organization, webSite } from "@/lib/jsonld";
+import { eventJsonLd, eventSeries, organization, profilePage, webSite } from "@/lib/jsonld";
 import type { CountdownEvent, Series } from "@/lib/types";
 
 const event: CountdownEvent = {
@@ -59,5 +59,12 @@ describe("series and site entities", () => {
   it("links site entities and uses a square branded logo", () => {
     expect(webSite().publisher).toEqual({ "@id": organization()["@id"] });
     expect(organization().logo).toMatchObject({ "@type": "ImageObject", width: 512, height: 512 });
+  });
+
+  it("describes a public profile without leaking an account id", () => {
+    const data = profilePage("Ada Lovelace", "ada");
+    expect(data).toMatchObject({ "@type": "ProfilePage", url: expect.stringMatching(/\/ada$/) });
+    expect(data.mainEntity).toMatchObject({ "@type": "Person", name: "Ada Lovelace", alternateName: "@ada" });
+    expect(JSON.stringify(data)).not.toMatch(/[0-9a-f]{8}-[0-9a-f]{4}-/);
   });
 });

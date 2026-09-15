@@ -228,7 +228,7 @@ export default async function EventPage({
     .filter((o) => o.slug !== event.slug)
     .slice(0, OTHER_YEARS);
   // A shared personal countdown is reached at the payload URL it arrived on — the `mine-…` slug
-  // the payload decodes to only resolves in the browser that created it, so it is not shareable.
+  // the payload decodes to only resolves for the signed-in owner, so it is not shareable.
   const shared = slug.startsWith("share-");
   const sharePath = shared ? `/event/${slug}` : `/event/${event.slug}`;
   const coarse = isCoarsePrecision(event.datePrecision);
@@ -404,8 +404,7 @@ export default async function EventPage({
               Keep this countdown
             </h2>
             <p className="mt-2 text-sm leading-relaxed text-muted">
-              Save it to your collection on this browser, or share the link with
-              someone else.
+              Save it to your collection, or share the link with someone else.
             </p>
             <Link href="/saved" className="button-secondary mt-5">
               Open collection

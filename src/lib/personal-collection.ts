@@ -15,7 +15,7 @@ export function collectionPhase(event: CountdownEvent | undefined, now: number):
   return eventInstant(event.endDate ?? event.date, event.allDay).getTime() < now ? "past" : "upcoming";
 }
 
-/** A saved shared countdown must carry its content across browsers, unlike an owned local date. */
+/** A saved shared countdown must carry its content in the URL; owned dates use the account slug. */
 export function collectionEventPath(event: CountdownEvent, personal: boolean): string {
   if (event.source === "user" && !personal) {
     const payload = encodeSharePayload(event);
