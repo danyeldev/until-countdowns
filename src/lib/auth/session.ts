@@ -2,6 +2,7 @@ import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 import type { Database } from "@/lib/db/database.types";
 import { publicSupabaseEnv } from "./env";
+import { isStaleAuthSession } from "./messages";
 import { hasSupabaseAuthCookies } from "./paths";
 
 /**
@@ -32,7 +33,12 @@ export async function updateSession(request: NextRequest) {
   });
 
   // Must run immediately so a refresh can write cookies onto this response.
-  await supabase.auth.getClaims();
+  // getUser() also drops a cookie whose Auth user no longer exists (JWT can
+  // still verify after a delete until it expires).
+  const { error } = await supabase.auth.getUser();
+  if (isStaleAuthSession(error)) {
+    await supabase.auth.signOut({ scope: "local" });
+  }
 
   return response;
 }

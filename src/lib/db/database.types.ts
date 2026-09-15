@@ -535,6 +535,110 @@ export type Database = {
         }
         Relationships: []
       }
+      event_comments: {
+        Row: {
+          author_id: string
+          body: string
+          created_at: string
+          event_key: string
+          id: string
+          parent_id: string | null
+          updated_at: string
+          vote_count: number
+        }
+        Insert: {
+          author_id?: string
+          body: string
+          created_at?: string
+          event_key: string
+          id?: string
+          parent_id?: string | null
+          updated_at?: string
+          vote_count?: number
+        }
+        Update: {
+          author_id?: string
+          body?: string
+          created_at?: string
+          event_key?: string
+          id?: string
+          parent_id?: string | null
+          updated_at?: string
+          vote_count?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_comments_author_id_fkey"
+            columns: ["author_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "event_comments_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "event_comments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      event_comment_mentions: {
+        Row: {
+          comment_id: string
+          profile_id: string
+        }
+        Insert: {
+          comment_id: string
+          profile_id: string
+        }
+        Update: {
+          comment_id?: string
+          profile_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_comment_mentions_comment_id_fkey"
+            columns: ["comment_id"]
+            isOneToOne: false
+            referencedRelation: "event_comments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "event_comment_mentions_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      event_comment_votes: {
+        Row: {
+          comment_id: string
+          created_at: string
+          user_id: string
+        }
+        Insert: {
+          comment_id: string
+          created_at?: string
+          user_id?: string
+        }
+        Update: {
+          comment_id?: string
+          created_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_comment_votes_comment_id_fkey"
+            columns: ["comment_id"]
+            isOneToOne: false
+            referencedRelation: "event_comments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       ingest_state: {
         Row: {
           backoff_until: string | null

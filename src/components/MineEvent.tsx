@@ -8,6 +8,7 @@ import { useCollection } from "@/components/CollectionProvider";
 import { loginHref, safeNextPath } from "@/lib/auth/paths";
 import { encodeSharePayload } from "@/lib/user-events";
 import { CalendarButtons } from "./CalendarButtons";
+import { EventComments } from "./EventComments";
 import { Countdown } from "./Countdown";
 import { PersonalDateArtwork } from "./PersonalDateArtwork";
 import { ShareButton } from "./ShareButton";
@@ -51,6 +52,7 @@ export function MineEvent({ slug }: { slug: string }) {
           <p className="mt-5 max-w-2xl text-xs leading-relaxed text-muted">{payload ? "A share link carries this countdown with it. Anyone with the link can read your title, date, category and note, even without an account." : "This note is too long for a share link. Your countdown is still saved to your account."}</p>
         </div>
       </div>
+      <EventComments eventKey={event.slug} />
       {payload && <div className="mt-6"><button type="button" aria-expanded={showEmbed} aria-controls="personal-embed" onClick={() => setShowEmbed((value) => !value)} className="button-secondary">Embed this countdown <span aria-hidden="true">{showEmbed ? "−" : "+"}</span></button>{showEmbed && <div id="personal-embed" className="mt-4"><EmbedStudio slug={shareSlug} title={event.title} origin={siteUrl()} /></div>}</div>}
     </article>
   );
