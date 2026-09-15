@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { authErrorMessage } from "@/lib/auth/messages";
+import { authErrorMessage, isStaleAuthSession } from "@/lib/auth/messages";
 import { completeProfileHref, hasSupabaseAuthCookies, loginHref, parseAuthMode, safeNextPath } from "@/lib/auth/paths";
 import { handleError, normalizeHandleInput, parseHandle, parseName, parseProfileParam, profileHref, readSignupProfile } from "@/lib/auth/profile";
 
@@ -63,10 +63,22 @@ describe("authErrorMessage", () => {
     expect(authErrorMessage({ code: "23505", message: "duplicate key value violates unique constraint" })).toBe(
       "That handle is taken. Try another.",
     );
+    expect(authErrorMessage({ code: "23503", message: 'insert or update on table "profiles" violates foreign key constraint "profiles_id_fkey"' })).toBe(
+      "This sign-in is no longer valid. Sign in again.",
+    );
+  });
+
+  it("treats a JWT whose Auth user is gone as a stale session", () => {
+    expect(isStaleAuthSession({ message: "User from sub claim in JWT does not exist" })).toBe(true);
+    expect(isStaleAuthSession({ code: "user_not_found" })).toBe(true);
+    expect(isStaleAuthSession({ message: "Invalid login credentials" })).toBe(false);
   });
 
   it("does not echo URLs or empty internals", () => {
     expect(authErrorMessage({ message: "See https://evil.example/docs" })).toBe("Something went wrong. Try again.");
+    expect(authErrorMessage({ message: 'insert or update on table "profiles" violates foreign key constraint "profiles_id_fkey"' })).toBe(
+      "This sign-in is no longer valid. Sign in again.",
+    );
     expect(authErrorMessage(null)).toBe("Something went wrong. Try again.");
   });
 });

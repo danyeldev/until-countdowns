@@ -11,6 +11,7 @@ import { Icon } from "@/components/Icon";
 import { EmbedStudio } from "@/components/EmbedStudio";
 import { EventCard } from "@/components/EventCard";
 import { IntentAnswer } from "@/components/IntentAnswer";
+import { EventComments } from "@/components/EventComments";
 import { JsonLd } from "@/components/JsonLd";
 import { MineEvent } from "@/components/MineEvent";
 import { SaveButton } from "@/components/SaveButton";
@@ -412,6 +413,8 @@ export default async function EventPage({
           </aside>
         )}
       </div>
+
+      <EventComments eventKey={event.slug} />
 
       {canAddToCalendar(event) ? (
         <EmbedStudio

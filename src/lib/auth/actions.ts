@@ -5,7 +5,7 @@ import { authCallbackUrl } from "./origin";
 import { authErrorMessage } from "./messages";
 import { DEFAULT_AFTER_AUTH_PATH, UPDATE_PASSWORD_PATH, safeNextPath } from "./paths";
 import { handleError, nameError, parseHandle, parseName } from "./profile";
-import { createAuthServerClient, getAuthClaims } from "./server";
+import { createAuthServerClient } from "./server";
 import { isAuthConfigured } from "./env";
 
 const EMAIL_MAX = 254;
@@ -26,9 +26,8 @@ function readPassword(value: unknown): string | null {
 }
 
 function profileWriteError(error: { message?: string; code?: string } | null): string {
-  const message = authErrorMessage(error);
   if (error?.code === "23505") return "That handle is taken. Try another.";
-  return message;
+  return authErrorMessage(error);
 }
 
 async function assertHandleAvailable(handle: string, exceptUserId?: string): Promise<string | null> {
@@ -119,19 +118,22 @@ export async function updatePasswordAction(formData: FormData): Promise<{ error:
 
 export async function completeProfileAction(formData: FormData): Promise<{ error: string }> {
   if (!isAuthConfigured()) return { error: "Sign in is not configured yet." };
-  const claims = await getAuthClaims();
-  if (!claims?.sub || typeof claims.sub !== "string") return { error: "Sign in to finish your profile." };
+  const supabase = await createAuthServerClient();
+  const { data, error: userError } = await supabase.auth.getUser();
+  if (userError || !data.user) {
+    await supabase.auth.signOut({ scope: "local" });
+    return { error: "This sign-in is no longer valid. Sign in again." };
+  }
   const name = parseName(formData.get("name"));
   const handle = parseHandle(formData.get("handle"));
   const next = safeNextPath(formData.get("next"));
   if (!name) return { error: nameError(formData.get("name")) ?? "Enter your name." };
   if (!handle) return { error: handleError(formData.get("handle")) ?? "Choose a handle." };
-  const taken = await assertHandleAvailable(handle, claims.sub);
+  const taken = await assertHandleAvailable(handle, data.user.id);
   if (taken) return { error: taken };
 
-  const supabase = await createAuthServerClient();
   const { error } = await supabase.from("profiles").upsert(
-    { id: claims.sub, name, handle },
+    { id: data.user.id, name, handle },
     { onConflict: "id" },
   );
   if (error) return { error: profileWriteError(error) };
