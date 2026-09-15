@@ -23,6 +23,7 @@ const RESERVED_HANDLES = new Set([
   "manifest",
   "me",
   "mine",
+  "notifications",
   "og",
   "profile",
   "robots",

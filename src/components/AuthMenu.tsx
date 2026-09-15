@@ -101,7 +101,13 @@ export function AuthMenu() {
         <p className="mt-2 px-2 text-xs leading-relaxed text-muted">
           {account.handle ? "Your public page is your handle. Your collection stays private." : "Your collection stays with your account."}
         </p>
-        <form action={signOutAction} className="mt-3">
+        <Link
+          href="/notifications"
+          className="mt-3 flex min-h-11 items-center rounded-xl px-2 text-xs text-paper-dim hover:bg-surface-hover hover:text-paper"
+        >
+          Notifications
+        </Link>
+        <form action={signOutAction} className="mt-1">
           <button type="submit" className="button-secondary w-full justify-center !min-h-11 !text-xs">
             Sign out
           </button>

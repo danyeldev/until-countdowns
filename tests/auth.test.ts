@@ -94,6 +94,7 @@ describe("signup profile", () => {
     expect(parseHandle("attributions")).toBeNull();
     expect(parseHandle("tag")).toBeNull();
     expect(handleError("login")).toMatch(/reserved/);
+    expect(handleError("notifications")).toMatch(/reserved/);
     expect(normalizeHandleInput("Ada Lovelace!")).toBe("adalovelace");
     expect(readSignupProfile({ name: "Ada", handle: "ada" })).toEqual({ name: "Ada", handle: "ada" });
     expect(readSignupProfile({ name: "Ada", handle: "login" })).toBeNull();

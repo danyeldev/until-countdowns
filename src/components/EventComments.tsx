@@ -249,7 +249,10 @@ function CommentCard({
   children?: React.ReactNode;
 }) {
   return (
-    <article className="rounded-2xl border border-line bg-ink px-4 py-4 sm:px-5">
+    <article
+      id={`comment-${comment.id}`}
+      className="rounded-2xl border border-line bg-ink px-4 py-4 sm:px-5 target:border-amber/50"
+    >
       <div className="flex flex-wrap items-baseline justify-between gap-2">
         <p className="text-sm text-paper">
           <Link href={profileHref(comment.author.handle)} className="font-medium hover:text-amber">
@@ -322,6 +325,16 @@ export function EventComments({ eventKey }: { eventKey: string }) {
       cancelled = true;
     };
   }, [configured, key, userId]);
+
+  useEffect(() => {
+    if (!loaded) return;
+    const id = window.location.hash.replace(/^#/, "");
+    if (!id.startsWith("comment-")) return;
+    const frame = window.requestAnimationFrame(() => {
+      document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "center" });
+    });
+    return () => window.cancelAnimationFrame(frame);
+  }, [loaded, comments.length]);
 
   useEffect(() => {
     if (!configured || !userId) return;
