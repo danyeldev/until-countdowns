@@ -8,7 +8,9 @@ import {
   parseCollectionEventKey,
   parseCollectionSlug,
   parseCollectionTitle,
+  rememberPendingCollection,
   slugifyCollectionTitle,
+  takePendingCollection,
 } from "@/lib/collections";
 
 describe("public collections", () => {
@@ -60,5 +62,28 @@ describe("public collections", () => {
   it("maps limit errors without leaking internals", () => {
     expect(collectionErrorMessage({ code: "P0001", message: "collection_limit" })).toMatch(/20/);
     expect(collectionErrorMessage({ message: "permission denied for table" })).toMatch(/Could not update/);
+  });
+
+  it("remembers a collection add until it is taken once", () => {
+    if (typeof sessionStorage === "undefined") {
+      const data = new Map<string, string>();
+      Object.defineProperty(globalThis, "sessionStorage", {
+        configurable: true,
+        value: {
+          getItem: (key: string) => data.get(key) ?? null,
+          setItem: (key: string, value: string) => {
+            data.set(key, value);
+          },
+          removeItem: (key: string) => {
+            data.delete(key);
+          },
+        },
+      });
+    }
+    rememberPendingCollection("halloween-2026-10-31");
+    expect(takePendingCollection()).toBe("halloween-2026-10-31");
+    expect(takePendingCollection()).toBeNull();
+    rememberPendingCollection("");
+    expect(takePendingCollection()).toBeNull();
   });
 });

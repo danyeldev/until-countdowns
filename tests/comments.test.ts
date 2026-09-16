@@ -6,8 +6,14 @@ import {
   mentionQueryAtCaret,
   parseCommentBody,
   parseCommentEventKey,
+  formatCommentAge,
+  rememberPendingComment,
+  rememberPendingVote,
+  resolveCommentThreadId,
   sortCommentThreads,
   splitCommentBody,
+  takePendingComment,
+  takePendingVote,
   type EventComment,
 } from "@/lib/comments";
 
@@ -72,6 +78,17 @@ describe("mentions", () => {
   });
 });
 
+describe("formatCommentAge", () => {
+  it("uses compact relative time", () => {
+    const now = Date.parse("2026-09-16T12:00:00.000Z");
+    expect(formatCommentAge("2026-09-16T11:59:20.000Z", now)).toBe("just now");
+    expect(formatCommentAge("2026-09-16T11:49:00.000Z", now)).toBe("11m ago");
+    expect(formatCommentAge("2026-09-16T03:00:00.000Z", now)).toBe("9h ago");
+    expect(formatCommentAge("2026-09-14T12:00:00.000Z", now)).toBe("2d ago");
+    expect(formatCommentAge("2026-08-01T12:00:00.000Z", now)).toBe("Aug 1");
+  });
+});
+
 describe("sortCommentThreads", () => {
   it("sorts roots by votes, replies by time", () => {
     const threads = sortCommentThreads([
@@ -83,6 +100,23 @@ describe("sortCommentThreads", () => {
     expect(threads.map((thread) => thread.root.id)).toEqual(["b", "a"]);
     expect(threads[0]?.replies.map((reply) => reply.id)).toEqual(["d", "c"]);
   });
+
+  it("maps a reply back to its root thread", () => {
+    expect(resolveCommentThreadId([comment({ id: "a" }), comment({ id: "b", parentId: "a" })], "a")).toBe("a");
+    expect(resolveCommentThreadId([comment({ id: "a" }), comment({ id: "b", parentId: "a" })], "b")).toBe("a");
+    expect(resolveCommentThreadId([comment({ id: "a" })], "missing")).toBeNull();
+  });
+
+  it("can sort roots newest first", () => {
+    const threads = sortCommentThreads(
+      [
+        comment({ id: "a", voteCount: 1, createdAt: "2026-09-15T10:00:00.000Z" }),
+        comment({ id: "b", voteCount: 4, createdAt: "2026-09-15T09:00:00.000Z" }),
+      ],
+      "newest",
+    );
+    expect(threads.map((thread) => thread.root.id)).toEqual(["a", "b"]);
+  });
 });
 
 describe("commentErrorMessage", () => {
@@ -92,5 +126,35 @@ describe("commentErrorMessage", () => {
     );
     expect(commentErrorMessage({ message: "comment_limit" })).toMatch(/limit/);
     expect(commentErrorMessage({ code: "42501" })).toMatch(/Sign in/);
+  });
+});
+
+describe("pending comment", () => {
+  it("remembers an event until it is taken once", () => {
+    if (typeof sessionStorage === "undefined") {
+      const data = new Map<string, string>();
+      Object.defineProperty(globalThis, "sessionStorage", {
+        configurable: true,
+        value: {
+          getItem: (key: string) => data.get(key) ?? null,
+          setItem: (key: string, value: string) => {
+            data.set(key, value);
+          },
+          removeItem: (key: string) => {
+            data.delete(key);
+          },
+        },
+      });
+    }
+    rememberPendingComment("halloween-2026-10-31");
+    expect(takePendingComment()).toEqual({ eventKey: "halloween-2026-10-31", parentId: null });
+    rememberPendingComment("halloween-2026-10-31", "comment-1");
+    expect(takePendingComment()).toEqual({ eventKey: "halloween-2026-10-31", parentId: "comment-1" });
+    expect(takePendingComment()).toBeNull();
+    rememberPendingComment("");
+    expect(takePendingComment()).toBeNull();
+    rememberPendingVote("comment-1");
+    expect(takePendingVote()).toBe("comment-1");
+    expect(takePendingVote()).toBeNull();
   });
 });

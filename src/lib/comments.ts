@@ -103,7 +103,23 @@ export function splitCommentBody(body: string): CommentBodyPart[] {
   return parts.length ? parts : [{ type: "text", value: body }];
 }
 
-export function sortCommentThreads(comments: EventComment[]): CommentThread[] {
+export type CommentSort = "top" | "newest";
+
+export function formatCommentAge(value: string, now = Date.now()): string {
+  const date = new Date(value);
+  if (!Number.isFinite(date.getTime())) return "";
+  const delta = Math.max(0, now - date.getTime());
+  const minutes = Math.floor(delta / 60_000);
+  if (minutes < 1) return "just now";
+  if (minutes < 60) return `${minutes}m ago`;
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `${hours}h ago`;
+  const days = Math.floor(hours / 24);
+  if (days < 30) return `${days}d ago`;
+  return date.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+}
+
+export function sortCommentThreads(comments: EventComment[], order: CommentSort = "top"): CommentThread[] {
   const replies = new Map<string, EventComment[]>();
   const roots: EventComment[] = [];
   for (const comment of comments) {
@@ -116,6 +132,7 @@ export function sortCommentThreads(comments: EventComment[]): CommentThread[] {
     }
   }
   roots.sort((left, right) => {
+    if (order === "newest") return right.createdAt.localeCompare(left.createdAt);
     if (right.voteCount !== left.voteCount) return right.voteCount - left.voteCount;
     return right.createdAt.localeCompare(left.createdAt);
   });
@@ -123,6 +140,16 @@ export function sortCommentThreads(comments: EventComment[]): CommentThread[] {
     list.sort((left, right) => left.createdAt.localeCompare(right.createdAt));
   }
   return roots.map((root) => ({ root, replies: replies.get(root.id) ?? [] }));
+}
+
+/** One-level threads: a reply maps to its parent; a root maps to itself. */
+export function resolveCommentThreadId(
+  comments: readonly Pick<EventComment, "id" | "parentId">[],
+  commentId: string,
+): string | null {
+  const comment = comments.find((item) => item.id === commentId);
+  if (!comment) return null;
+  return comment.parentId ?? comment.id;
 }
 
 export function commentErrorMessage(error: { message?: string; code?: string } | string | null | undefined): string {
@@ -137,4 +164,79 @@ export function commentErrorMessage(error: { message?: string; code?: string } |
     return message;
   }
   return "Could not post that comment. Try again.";
+}
+
+const PENDING_COMMENT_KEY = "until:pending-comment";
+
+function sessionStore(): Storage | null {
+  try {
+    return typeof sessionStorage === "undefined" ? null : sessionStorage;
+  } catch {
+    return null;
+  }
+}
+
+export type PendingComment = {
+  eventKey: string;
+  parentId: string | null;
+};
+
+export function rememberPendingComment(eventKey: string, parentId?: string | null) {
+  const store = sessionStore();
+  if (!store || !eventKey) return;
+  try {
+    store.setItem(PENDING_COMMENT_KEY, JSON.stringify({ eventKey, parentId: parentId ?? null }));
+  } catch {
+    // Private mode and full quotas should not block the sign-in dialog.
+  }
+}
+
+export function takePendingComment(): PendingComment | null {
+  const store = sessionStore();
+  if (!store) return null;
+  try {
+    const raw = store.getItem(PENDING_COMMENT_KEY);
+    if (!raw) return null;
+    store.removeItem(PENDING_COMMENT_KEY);
+    try {
+      const parsed = JSON.parse(raw) as unknown;
+      if (typeof parsed === "string" && parsed) return { eventKey: parsed, parentId: null };
+      if (parsed && typeof parsed === "object" && !Array.isArray(parsed) && "eventKey" in parsed && typeof parsed.eventKey === "string" && parsed.eventKey) {
+        return {
+          eventKey: parsed.eventKey,
+          parentId: "parentId" in parsed && typeof parsed.parentId === "string" ? parsed.parentId : null,
+        };
+      }
+    } catch {
+      return { eventKey: raw, parentId: null };
+    }
+    return null;
+  } catch {
+    return null;
+  }
+}
+
+const PENDING_VOTE_KEY = "until:pending-vote";
+
+export function rememberPendingVote(commentId: string) {
+  const store = sessionStore();
+  if (!store || !commentId) return;
+  try {
+    store.setItem(PENDING_VOTE_KEY, commentId);
+  } catch {
+    // Private mode and full quotas should not block the sign-in dialog.
+  }
+}
+
+export function takePendingVote(): string | null {
+  const store = sessionStore();
+  if (!store) return null;
+  try {
+    const commentId = store.getItem(PENDING_VOTE_KEY);
+    if (!commentId) return null;
+    store.removeItem(PENDING_VOTE_KEY);
+    return commentId;
+  } catch {
+    return null;
+  }
 }

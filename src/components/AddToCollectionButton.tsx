@@ -5,7 +5,12 @@ import { usePathname } from "next/navigation";
 import { useEffect, useState, type FormEvent } from "react";
 import { useCollection } from "@/components/CollectionProvider";
 import { createAuthBrowserClient } from "@/lib/auth/browser";
-import { loginHref, safeNextPath } from "@/lib/auth/paths";
+import { safeNextPath } from "@/lib/auth/paths";
+import {
+  rememberPendingCollection,
+  takePendingCollection,
+  type CollectionSummary,
+} from "@/lib/collections";
 import {
   addEventToCollection,
   createEventCollection,
@@ -13,20 +18,31 @@ import {
   listOwnCollections,
   removeEventFromCollection,
 } from "@/lib/collections-client";
-import type { CollectionSummary } from "@/lib/collections";
 import type { CountdownEvent } from "@/lib/types";
+import { AuthDialog } from "./AuthDialog";
 import { Icon } from "./Icon";
 
 export function AddToCollectionButton({ event }: { event: CountdownEvent }) {
   const pathname = usePathname();
-  const { userId } = useCollection();
+  const { ready, userId } = useCollection();
   const [open, setOpen] = useState(false);
+  const [authOpen, setAuthOpen] = useState(false);
   const [collections, setCollections] = useState<CollectionSummary[]>([]);
   const [selected, setSelected] = useState<string[]>([]);
   const [title, setTitle] = useState("");
   const [error, setError] = useState("");
   const [pending, setPending] = useState(false);
-  const signInHref = loginHref(safeNextPath(pathname));
+
+  useEffect(() => {
+    if (!ready || !userId) return;
+    const pendingSlug = takePendingCollection();
+    if (!pendingSlug) return;
+    if (pendingSlug !== event.slug) {
+      rememberPendingCollection(pendingSlug);
+      return;
+    }
+    void Promise.resolve().then(() => setOpen(true));
+  }, [event.slug, ready, userId]);
 
   useEffect(() => {
     if (!userId) return;
@@ -86,12 +102,40 @@ export function AddToCollectionButton({ event }: { event: CountdownEvent }) {
     }
   }
 
+  if (!ready) {
+    return (
+      <span className="button-secondary pointer-events-none opacity-50">
+        <Icon name="list" size={16} />
+        Add to collection
+      </span>
+    );
+  }
+
   if (!userId) {
     return (
-      <Link href={signInHref} className="button-secondary">
-        <Icon name="list" size={16} />
-        Sign in to add to a collection
-      </Link>
+      <>
+        <button
+          type="button"
+          className="button-secondary"
+          aria-haspopup="dialog"
+          aria-expanded={authOpen}
+          onClick={() => {
+            rememberPendingCollection(event.slug);
+            setAuthOpen(true);
+          }}
+        >
+          <Icon name="list" size={16} />
+          Add to collection
+        </button>
+        {authOpen ? (
+          <AuthDialog
+            next={safeNextPath(pathname)}
+            heading="Sign in to add this."
+            subtitle="Use Google or your email. Then you can add this countdown to a collection."
+            onClose={() => setAuthOpen(false)}
+          />
+        ) : null}
+      </>
     );
   }
 

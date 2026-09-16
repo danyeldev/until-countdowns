@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { collectionErrorMessage, eventFromSnapshot, snapshotFromEvent } from "@/lib/collection";
+import { collectionErrorMessage, eventFromSnapshot, rememberPendingSave, snapshotFromEvent, takePendingSave } from "@/lib/collection";
 import {
   assertUserEvent,
   decodeSharePayload,
@@ -56,5 +56,28 @@ describe("saved catalog snapshots", () => {
   it("maps collection limit errors to a useful message", () => {
     expect(collectionErrorMessage({ code: "P0001", message: "collection_limit" })).toMatch(/200 items/);
     expect(collectionErrorMessage({ code: "42501", message: "permission denied" })).toMatch(/Sign in/);
+  });
+
+  it("remembers a countdown until it is taken once", () => {
+    if (typeof sessionStorage === "undefined") {
+      const data = new Map<string, string>();
+      Object.defineProperty(globalThis, "sessionStorage", {
+        configurable: true,
+        value: {
+          getItem: (key: string) => data.get(key) ?? null,
+          setItem: (key: string, value: string) => {
+            data.set(key, value);
+          },
+          removeItem: (key: string) => {
+            data.delete(key);
+          },
+        },
+      });
+    }
+    rememberPendingSave({ id: catalogEvent.id, event: catalogEvent });
+    expect(takePendingSave()).toMatchObject({ id: catalogEvent.id, event: { title: catalogEvent.title } });
+    expect(takePendingSave()).toBeNull();
+    rememberPendingSave({ id: "" });
+    expect(takePendingSave()).toBeNull();
   });
 });

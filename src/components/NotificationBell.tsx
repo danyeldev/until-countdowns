@@ -11,7 +11,8 @@ export function NotificationBell() {
   const { userId } = useCollection();
   const { unread } = useNotifications();
   const current = pathname.startsWith("/notifications");
-  const label = userId && unread ? `${unread} unread notification${unread === 1 ? "" : "s"}` : "Notifications";
+  if (!userId) return null;
+  const label = unread ? `${unread} unread notification${unread === 1 ? "" : "s"}` : "Notifications";
 
   return (
     <Link

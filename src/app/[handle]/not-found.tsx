@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { Icon } from "@/components/Icon";
-import { loginHref } from "@/lib/auth/paths";
+import { SignInButton } from "@/components/SignInButton";
 
 export default function ProfileNotFound() {
   return (
@@ -14,9 +14,9 @@ export default function ProfileNotFound() {
         <Link href="/" className="button-primary">
           Explore countdowns <Icon name="arrow" size={16} />
         </Link>
-        <Link href={loginHref("/", { mode: "signup" })} className="button-secondary">
+        <SignInButton className="button-secondary" next="/" initialMode="signup">
           Create an account
-        </Link>
+        </SignInButton>
       </div>
     </section>
   );

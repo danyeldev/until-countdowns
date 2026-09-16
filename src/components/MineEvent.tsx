@@ -2,12 +2,11 @@
 
 import Link from "next/link";
 import dynamic from "next/dynamic";
-import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { useCollection } from "@/components/CollectionProvider";
-import { loginHref, safeNextPath } from "@/lib/auth/paths";
 import { encodeSharePayload } from "@/lib/user-events";
 import { AddToCollectionButton } from "./AddToCollectionButton";
+import { AuthGateLink, SignInButton } from "./SignInButton";
 import { CalendarButtons } from "./CalendarButtons";
 import { EventComments } from "./EventComments";
 import { Countdown } from "./Countdown";
@@ -20,15 +19,13 @@ import { formatRange } from "@/lib/time";
 const EmbedStudio = dynamic(() => import("./EmbedStudio").then((module) => module.EmbedStudio));
 
 export function MineEvent({ slug }: { slug: string }) {
-  const pathname = usePathname();
   const { ready, userId, mine } = useCollection();
   const [showEmbed, setShowEmbed] = useState(false);
   const event = mine.find((item) => item.slug === slug);
-  const signInHref = loginHref(safeNextPath(pathname));
 
   if (!ready) return <div role="status" className="panel p-12 text-center text-sm text-muted">Opening your countdown…</div>;
   if (!userId) return (
-    <div className="empty-state"><span className="pill">Personal countdown</span><h1 className="mt-5 text-3xl font-semibold tracking-tight text-paper sm:text-4xl">Sign in to open this countdown.</h1><p className="mx-auto mt-4 max-w-lg text-sm leading-relaxed text-paper-dim">Personal countdowns live on your Until account. Sign in on this device, or ask for a shareable link if someone sent you this page.</p><div className="mt-7 flex flex-wrap justify-center gap-3"><Link href={signInHref} className="button-primary">Sign in</Link><Link href="/create" className="button-secondary">Create a countdown</Link></div></div>
+    <div className="empty-state"><span className="pill">Personal countdown</span><h1 className="mt-5 text-3xl font-semibold tracking-tight text-paper sm:text-4xl">Sign in to open this countdown.</h1><p className="mx-auto mt-4 max-w-lg text-sm leading-relaxed text-paper-dim">Personal countdowns live on your Until account. Sign in on this device, or ask for a shareable link if someone sent you this page.</p><div className="mt-7 flex flex-wrap justify-center gap-3"><SignInButton className="button-primary" heading="Sign in to open this." subtitle="Personal countdowns live on your Until account.">Sign in</SignInButton><AuthGateLink href="/create" className="button-secondary">Create a countdown</AuthGateLink></div></div>
   );
   if (!event) return (
     <div className="empty-state"><span className="pill">Personal countdown</span><h1 className="mt-5 text-3xl font-semibold tracking-tight text-paper sm:text-4xl">This countdown is not in your collection.</h1><p className="mx-auto mt-4 max-w-lg text-sm leading-relaxed text-paper-dim">It may belong to another account, or it was removed. Create a new one, or open a share link if you were sent one.</p><div className="mt-7 flex flex-wrap justify-center gap-3"><Link href="/create" className="button-primary">Create a countdown</Link><Link href="/saved" className="button-secondary">Your collection</Link></div></div>

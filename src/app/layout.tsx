@@ -81,11 +81,11 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
             >
               <div className="app-canvas">{children}</div>
             </main>
+            <Suspense fallback={<FooterFallback />}>
+              <Footer />
+            </Suspense>
           </NotificationsProvider>
         </CollectionProvider>
-        <Suspense fallback={<FooterFallback />}>
-          <Footer />
-        </Suspense>
       </body>
     </html>
   );

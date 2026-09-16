@@ -1,13 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { signOutAction } from "@/lib/auth/actions";
 import { createAuthBrowserClient } from "@/lib/auth/browser";
 import { isAuthConfigured } from "@/lib/auth/env";
-import { loginHref, safeNextPath } from "@/lib/auth/paths";
 import { profileHref } from "@/lib/auth/profile";
+import { SignInButton } from "./SignInButton";
 
 type Account = { email: string; label: string; handle: string | null };
 
@@ -28,12 +27,8 @@ function initialFor(account: Account): string {
 }
 
 export function AuthMenu() {
-  const pathname = usePathname();
-  const params = useSearchParams();
   const configured = isAuthConfigured();
   const [account, setAccount] = useState<Account | null | undefined>(configured ? undefined : null);
-  const next = safeNextPath(`${pathname}${params.toString() ? `?${params}` : ""}`);
-  const href = loginHref(next);
 
   useEffect(() => {
     if (!configured) return;
@@ -67,12 +62,9 @@ export function AuthMenu() {
 
   if (!account) {
     return (
-      <Link
-        href={href}
-        className="flex min-h-11 items-center rounded-xl border border-white/10 bg-white/[.04] px-3.5 py-2.5 text-xs text-paper-dim transition hover:border-amber/40 hover:text-paper"
-      >
+      <SignInButton className="flex min-h-11 items-center rounded-xl border border-white/10 bg-white/[.04] px-3.5 py-2.5 text-xs text-paper-dim transition hover:border-amber/40 hover:text-paper">
         Sign in
-      </Link>
+      </SignInButton>
     );
   }
 

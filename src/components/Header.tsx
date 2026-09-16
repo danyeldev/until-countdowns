@@ -2,18 +2,19 @@
 
 import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
+import { useCollection } from "@/components/CollectionProvider";
 import { parseHandle } from "@/lib/auth/profile";
 import { AuthMenu } from "./AuthMenu";
 import { NotificationBell } from "./NotificationBell";
 import { Icon, type IconName } from "./Icon";
 import { QuickSearch } from "./QuickSearch";
+import { AuthGateLink } from "./SignInButton";
 
 const MAIN: { href: string; label: string; icon: IconName }[] = [
   { href: "/", label: "Explore", icon: "compass" },
   { href: "/calendar", label: "Calendar", icon: "calendar" },
   { href: "/saved", label: "My space", icon: "bookmark" },
   { href: "/collections", label: "Collections", icon: "list" },
-  { href: "/notifications", label: "Notifications", icon: "bell" },
 ];
 const EXPLORE: { href: string; label: string; icon: IconName }[] = [
   { href: "/category", label: "Categories", icon: "grid" },
@@ -61,6 +62,13 @@ function Logo() {
 export function Header() {
   const pathname = usePathname();
   const params = useSearchParams();
+  const { userId } = useCollection();
+  const signedIn = Boolean(userId);
+  const mainItems = MAIN.filter((item) => item.href !== "/saved" || signedIn);
+  const mobileItems = [
+    ...mainItems.filter((item) => item.href !== "/collections"),
+    { href: "/create", label: "Create", icon: "plus" as const },
+  ];
   const active = (href: string) =>
     href === "/" ? pathname === "/" : pathname.startsWith(href);
   const pageLabel = workspaceLabel(pathname, params.get("q"));
@@ -71,11 +79,11 @@ export function Header() {
           <Logo />
         </div>
         <nav aria-label="Main navigation" className="mt-10 space-y-1">
-          {MAIN.map((item) => (
-            <Link
+          {mainItems.map((item) => (
+            <AuthGateLink
               key={item.href}
               href={item.href}
-              aria-current={active(item.href) ? "page" : undefined}
+              ariaCurrent={active(item.href) ? "page" : undefined}
               className="nav-item"
             >
               <Icon name={item.icon} size={19} />
@@ -83,7 +91,7 @@ export function Header() {
               {active(item.href) && (
                 <span className="ml-auto size-1.5 rounded-full bg-amber" />
               )}
-            </Link>
+            </AuthGateLink>
           ))}
         </nav>
         <p className="mb-3 mt-8 px-3 text-[10px] font-medium uppercase tracking-[.12em] text-muted/80">
@@ -111,12 +119,12 @@ export function Header() {
             <p className="mt-1 text-[11px] leading-relaxed text-muted">
               Give a personal moment its own countdown.
             </p>
-            <Link
+            <AuthGateLink
               href="/create"
               className="button-primary mt-4 w-full !min-h-11 !px-2 !py-2 !text-xs"
             >
               Create countdown <Icon name="arrow" size={14} />
-            </Link>
+            </AuthGateLink>
           </div>
           <div className="mt-5 flex items-center gap-2 px-2 text-[10px] text-muted">
             <span className="size-1.5 rounded-full bg-moss" />
@@ -142,35 +150,32 @@ export function Header() {
         </div>
         <div className="flex items-center gap-3">
           <QuickSearch />
-          <Link
+          <AuthGateLink
             href="/create"
             className="hidden min-h-11 items-center gap-2 rounded-xl border border-white/10 bg-white/[.04] px-3.5 py-2.5 text-xs text-paper-dim transition hover:border-amber/40 hover:text-paper sm:flex"
           >
             <Icon name="plus" size={15} />
             New countdown
-          </Link>
+          </AuthGateLink>
           <NotificationBell />
           <AuthMenu />
         </div>
       </header>
       <nav
         aria-label="Mobile navigation"
-        className="fixed inset-x-4 bottom-3 z-40 mx-auto grid max-w-lg grid-cols-4 rounded-2xl border border-white/10 bg-[#171a24]/95 p-1.5 shadow-[0_8px_40px_#0009] backdrop-blur-xl lg:hidden"
+        className={`fixed inset-x-4 bottom-3 z-40 mx-auto grid max-w-lg rounded-2xl border border-white/10 bg-[#171a24]/95 p-1.5 shadow-[0_8px_40px_#0009] backdrop-blur-xl lg:hidden ${mobileItems.length === 4 ? "grid-cols-4" : "grid-cols-3"}`}
         style={{ marginBottom: "env(safe-area-inset-bottom)" }}
       >
-        {[
-          ...MAIN.filter((item) => item.href !== "/notifications" && item.href !== "/collections"),
-          { href: "/create", label: "Create", icon: "plus" as const },
-        ].map((item) => (
-          <Link
+        {mobileItems.map((item) => (
+          <AuthGateLink
             key={item.href}
             href={item.href}
-            aria-current={active(item.href) ? "page" : undefined}
+            ariaCurrent={active(item.href) ? "page" : undefined}
             className={`flex min-h-[50px] flex-col items-center justify-center gap-1.5 rounded-xl text-[10px] ${active(item.href) ? "bg-amber/12 text-amber" : "text-muted hover:text-paper"}`}
           >
             <Icon name={item.icon} size={20} />
             {item.label === "My space" ? "Saved" : item.label}
-          </Link>
+          </AuthGateLink>
         ))}
       </nav>
     </>
