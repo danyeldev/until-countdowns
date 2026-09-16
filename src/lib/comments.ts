@@ -103,7 +103,23 @@ export function splitCommentBody(body: string): CommentBodyPart[] {
   return parts.length ? parts : [{ type: "text", value: body }];
 }
 
-export function sortCommentThreads(comments: EventComment[]): CommentThread[] {
+export type CommentSort = "top" | "newest";
+
+export function formatCommentAge(value: string, now = Date.now()): string {
+  const date = new Date(value);
+  if (!Number.isFinite(date.getTime())) return "";
+  const delta = Math.max(0, now - date.getTime());
+  const minutes = Math.floor(delta / 60_000);
+  if (minutes < 1) return "just now";
+  if (minutes < 60) return `${minutes}m ago`;
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `${hours}h ago`;
+  const days = Math.floor(hours / 24);
+  if (days < 30) return `${days}d ago`;
+  return date.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+}
+
+export function sortCommentThreads(comments: EventComment[], order: CommentSort = "top"): CommentThread[] {
   const replies = new Map<string, EventComment[]>();
   const roots: EventComment[] = [];
   for (const comment of comments) {
@@ -116,6 +132,7 @@ export function sortCommentThreads(comments: EventComment[]): CommentThread[] {
     }
   }
   roots.sort((left, right) => {
+    if (order === "newest") return right.createdAt.localeCompare(left.createdAt);
     if (right.voteCount !== left.voteCount) return right.voteCount - left.voteCount;
     return right.createdAt.localeCompare(left.createdAt);
   });

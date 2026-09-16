@@ -2,17 +2,20 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useMemo, useRef, useState, type FormEvent, type KeyboardEvent } from "react";
+import { useEffect, useMemo, useRef, useState, type FormEvent, type KeyboardEvent, type ReactNode } from "react";
 import { useCollection } from "@/components/CollectionProvider";
+import { Icon } from "@/components/Icon";
 import { createAuthBrowserClient } from "@/lib/auth/browser";
 import { isAuthConfigured } from "@/lib/auth/env";
 import { completeProfileHref, loginHref, safeNextPath } from "@/lib/auth/paths";
 import { profileHref } from "@/lib/auth/profile";
 import {
   COMMENT_BODY_MAX,
+  type CommentSort,
   type EventComment,
   type HandleSuggestion,
   applyMention,
+  formatCommentAge,
   mentionQueryAtCaret,
   parseCommentEventKey,
   sortCommentThreads,
@@ -25,10 +28,30 @@ import {
   toggleEventCommentVote,
 } from "@/lib/comments-client";
 
-function formatCommentTime(value: string): string {
-  const date = new Date(value);
-  if (!Number.isFinite(date.getTime())) return "";
-  return date.toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" });
+const AVATAR_TONES = [
+  "bg-[#2a3d36] text-moss",
+  "bg-[#2f2a45] text-amber",
+  "bg-[#3d2c2a] text-ember",
+  "bg-[#243044] text-[#9ec5ff]",
+  "bg-[#3a2f24] text-[#f0c48a]",
+] as const;
+
+function avatarTone(handle: string): string {
+  let hash = 0;
+  for (const char of handle) hash = (hash * 31 + char.charCodeAt(0)) | 0;
+  return AVATAR_TONES[Math.abs(hash) % AVATAR_TONES.length] ?? AVATAR_TONES[0];
+}
+
+function CommentAvatar({ name, handle }: { name: string; handle: string }) {
+  const initial = (name.trim()[0] || handle[0] || "?").toLocaleUpperCase();
+  return (
+    <span
+      aria-hidden="true"
+      className={`mt-0.5 flex size-8 shrink-0 items-center justify-center rounded-full text-xs font-medium ${avatarTone(handle)}`}
+    >
+      {initial}
+    </span>
+  );
 }
 
 function CommentText({ body }: { body: string }) {
@@ -47,34 +70,59 @@ function CommentText({ body }: { body: string }) {
   );
 }
 
-function VoteButton({
+function VoteControl({
   comment,
+  signedIn,
+  loginHrefValue,
   disabled,
   onToggle,
 }: {
   comment: EventComment;
+  signedIn: boolean;
+  loginHrefValue: string;
   disabled: boolean;
   onToggle: (comment: EventComment) => void;
 }) {
+  const className = `inline-flex min-h-11 items-center gap-1.5 px-1 text-xs ${
+    comment.voted ? "text-amber" : "text-muted hover:text-paper"
+  }`;
+  const inner = (
+    <>
+      <Icon name="heart" size={15} fill={comment.voted ? "currentColor" : "none"} />
+      <span className="tabular">{comment.voteCount}</span>
+    </>
+  );
+  if (!signedIn) {
+    return (
+      <Link href={loginHrefValue} className={className} aria-label={`Sign in to upvote ${comment.author.handle}'s comment`}>
+        {inner}
+      </Link>
+    );
+  }
   return (
     <button
       type="button"
-      className={`inline-flex min-h-11 items-center gap-1.5 rounded-xl border px-3 text-xs transition-colors ${
-        comment.voted
-          ? "border-amber/50 text-amber"
-          : "border-line text-paper-dim hover:border-amber/40 hover:text-amber"
-      }`}
+      className={className}
       aria-pressed={comment.voted}
       aria-label={`${comment.voted ? "Remove upvote from" : "Upvote"} ${comment.author.handle}'s comment`}
       disabled={disabled}
       onClick={() => onToggle(comment)}
     >
-      <svg aria-hidden="true" width="13" height="13" viewBox="0 0 24 24" fill={comment.voted ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2">
-        <path d="m6 14 6-8 6 8" />
-      </svg>
-      {comment.voteCount}
+      {inner}
     </button>
   );
+}
+
+function fitComposer(area: HTMLTextAreaElement) {
+  area.style.height = "0px";
+  area.style.height = `${Math.min(Math.max(area.scrollHeight, 24), 160)}px`;
+}
+
+function readCommentHash(): string | null {
+  if (typeof window === "undefined") return null;
+  const id = window.location.hash.replace(/^#/, "");
+  if (!id.startsWith("comment-")) return null;
+  return id.slice("comment-".length);
 }
 
 function Composer({
@@ -98,9 +146,11 @@ function Composer({
   const [mention, setMention] = useState<{ query: string; start: number } | null>(null);
   const areaRef = useRef<HTMLTextAreaElement>(null);
   const searchTimer = useRef<number | null>(null);
+  const remaining = COMMENT_BODY_MAX - body.length;
 
   function rememberCaret(target: HTMLTextAreaElement) {
     setCaret(target.selectionStart);
+    fitComposer(target);
   }
 
   function updateMentions(nextBody: string, nextCaret: number) {
@@ -131,6 +181,7 @@ function Composer({
       if (!area) return;
       area.focus();
       area.setSelectionRange(next.caret, next.caret);
+      fitComposer(area);
     });
   }
 
@@ -148,6 +199,7 @@ function Composer({
       setSuggestions([]);
       setMention(null);
       onPosted(comment);
+      if (areaRef.current) fitComposer(areaRef.current);
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : "Could not post that comment. Try again.");
     } finally {
@@ -165,29 +217,40 @@ function Composer({
 
   return (
     <form onSubmit={onSubmit} className="relative">
-      <label className="block">
-        <span className="sr-only">{placeholder}</span>
-        <textarea
-          ref={areaRef}
-          className="field min-h-28 resize-y"
-          maxLength={COMMENT_BODY_MAX}
-          placeholder={placeholder}
-          value={body}
-          onChange={(event) => {
-            setBody(event.target.value);
-            rememberCaret(event.target);
-            updateMentions(event.target.value, event.target.selectionStart);
-          }}
-          onSelect={(event) => rememberCaret(event.currentTarget)}
-          onKeyUp={(event) => rememberCaret(event.currentTarget)}
-          onKeyDown={onKeyDown}
-        />
-      </label>
+      <div className="flex items-end gap-2 rounded-full border border-line px-2 py-1.5 focus-within:border-amber/50">
+        <label className="min-w-0 flex-1">
+          <span className="sr-only">{placeholder}</span>
+          <textarea
+            ref={areaRef}
+            rows={1}
+            className="block max-h-40 min-h-10 w-full resize-none bg-transparent px-2 py-2 text-sm leading-relaxed text-paper outline-none"
+            maxLength={COMMENT_BODY_MAX}
+            placeholder={placeholder}
+            value={body}
+            onChange={(event) => {
+              setBody(event.target.value);
+              rememberCaret(event.target);
+              updateMentions(event.target.value, event.target.selectionStart);
+            }}
+            onSelect={(event) => rememberCaret(event.currentTarget)}
+            onKeyUp={(event) => rememberCaret(event.currentTarget)}
+            onKeyDown={onKeyDown}
+          />
+        </label>
+        <button
+          type="submit"
+          className="mb-0.5 flex size-11 shrink-0 items-center justify-center rounded-full bg-amber text-[#171222] disabled:bg-white/10 disabled:text-muted"
+          disabled={pending || !body.trim()}
+          aria-label={parentId ? "Post reply" : "Post comment"}
+        >
+          <Icon name="send" size={16} />
+        </button>
+      </div>
       {suggestions.length ? (
         <ul
           role="listbox"
           aria-label="Mention someone"
-          className="absolute z-20 mt-1 w-full overflow-hidden rounded-xl border border-line bg-ink shadow-lg"
+          className="absolute z-20 mt-2 w-full overflow-hidden rounded-2xl border border-line bg-ink"
         >
           {suggestions.map((item) => (
             <li key={item.id}>
@@ -205,23 +268,16 @@ function Composer({
           ))}
         </ul>
       ) : null}
-      <div className="mt-3 flex flex-wrap items-center justify-between gap-3">
-        <p className="text-xs text-muted">
-          {body.length}/{COMMENT_BODY_MAX}. Type @ to tag someone.
-        </p>
-        <div className="flex flex-wrap gap-2">
-          {onCancel ? (
-            <button type="button" className="button-secondary" onClick={onCancel}>
-              Cancel
-            </button>
-          ) : null}
-          <button type="submit" className="button-primary" disabled={pending || !body.trim()}>
-            {parentId ? "Reply" : "Post comment"}
+      <div className="flex flex-wrap items-center gap-x-3 px-1">
+        {remaining < 200 ? <p className="pt-2 text-xs text-muted">{remaining} left</p> : null}
+        {onCancel ? (
+          <button type="button" className="min-h-11 text-xs text-muted hover:text-paper" onClick={onCancel}>
+            Cancel
           </button>
-        </div>
+        ) : null}
       </div>
       {error ? (
-        <p role="alert" className="mt-3 rounded-lg border border-line bg-ink px-3 py-2 text-xs leading-relaxed text-paper">
+        <p role="alert" className="mt-2 px-1 text-xs leading-relaxed text-ember">
           {error}
         </p>
       ) : null}
@@ -229,7 +285,52 @@ function Composer({
   );
 }
 
-function CommentCard({
+function ComposerGate({
+  ready,
+  userId,
+  handle,
+  signInHref,
+  completeHref,
+  children,
+}: {
+  ready: boolean;
+  userId: string | null;
+  handle: string | null;
+  signInHref: string;
+  completeHref: string;
+  children: ReactNode;
+}) {
+  if (!ready) {
+    return (
+      <p className="flex min-h-12 items-center rounded-full border border-line px-4 text-sm text-muted">
+        Opening comments…
+      </p>
+    );
+  }
+  if (!userId) {
+    return (
+      <Link
+        href={signInHref}
+        className="flex min-h-12 items-center rounded-full border border-line px-4 text-sm text-muted hover:border-amber/40 hover:text-paper"
+      >
+        Sign in to add a comment
+      </Link>
+    );
+  }
+  if (!handle) {
+    return (
+      <Link
+        href={completeHref}
+        className="flex min-h-12 items-center rounded-full border border-line px-4 text-sm text-muted hover:border-amber/40 hover:text-paper"
+      >
+        Add a handle to join
+      </Link>
+    );
+  }
+  return children;
+}
+
+function CommentItem({
   comment,
   canWrite,
   signedIn,
@@ -246,44 +347,41 @@ function CommentCard({
   pendingVote: string | null;
   onVote: (comment: EventComment) => void;
   onReply?: () => void;
-  children?: React.ReactNode;
+  children?: ReactNode;
 }) {
   return (
-    <article
-      id={`comment-${comment.id}`}
-      className="rounded-2xl border border-line bg-ink px-4 py-4 sm:px-5 target:border-amber/50"
-    >
-      <div className="flex flex-wrap items-baseline justify-between gap-2">
-        <p className="text-sm text-paper">
-          <Link href={profileHref(comment.author.handle)} className="font-medium hover:text-amber">
-            {comment.author.name}
-          </Link>{" "}
-          <Link href={profileHref(comment.author.handle)} className="text-muted hover:text-amber">
-            @{comment.author.handle}
-          </Link>
-        </p>
-        <time className="text-xs text-muted" dateTime={comment.createdAt}>
-          {formatCommentTime(comment.createdAt)}
-        </time>
+    <article id={`comment-${comment.id}`} className="scroll-mt-24 rounded-xl py-1 target:bg-amber/[.06]">
+      <div className="flex gap-3">
+        <CommentAvatar name={comment.author.name} handle={comment.author.handle} />
+        <div className="min-w-0 flex-1">
+          <p className="flex flex-wrap items-baseline gap-x-2 text-sm">
+            <Link href={profileHref(comment.author.handle)} className="font-medium text-paper hover:text-amber">
+              {comment.author.handle}
+            </Link>
+            <time className="text-xs text-muted" dateTime={comment.createdAt}>
+              {formatCommentAge(comment.createdAt)}
+            </time>
+          </p>
+          <div className="mt-1">
+            <CommentText body={comment.body} />
+          </div>
+          <div className="mt-0.5 flex flex-wrap items-center">
+            <VoteControl
+              comment={comment}
+              signedIn={signedIn}
+              loginHrefValue={loginHrefValue}
+              disabled={pendingVote === comment.id}
+              onToggle={onVote}
+            />
+            {canWrite && onReply ? (
+              <button type="button" className="min-h-11 px-2 text-xs text-muted hover:text-paper" onClick={onReply}>
+                Reply
+              </button>
+            ) : null}
+          </div>
+          {children}
+        </div>
       </div>
-      <div className="mt-3">
-        <CommentText body={comment.body} />
-      </div>
-      <div className="mt-3 flex flex-wrap items-center gap-2">
-        {signedIn ? (
-          <VoteButton comment={comment} disabled={pendingVote === comment.id} onToggle={onVote} />
-        ) : (
-          <Link href={loginHrefValue} className="button-secondary !min-h-11 !px-3 !text-xs">
-            Sign in to upvote
-          </Link>
-        )}
-        {canWrite && onReply ? (
-          <button type="button" className="button-secondary !min-h-11 !px-3 !text-xs" onClick={onReply}>
-            Reply
-          </button>
-        ) : null}
-      </div>
-      {children}
     </article>
   );
 }
@@ -304,6 +402,10 @@ export function EventComments({ eventKey }: { eventKey: string }) {
   const [replyTo, setReplyTo] = useState<string | null>(null);
   const [pendingVote, setPendingVote] = useState<string | null>(null);
   const [voteError, setVoteError] = useState("");
+  const [order, setOrder] = useState<CommentSort>("newest");
+  const [openReplies, setOpenReplies] = useState<ReadonlySet<string>>(() => new Set());
+  const [closedReplies, setClosedReplies] = useState<ReadonlySet<string>>(() => new Set());
+  const [hashId] = useState(readCommentHash);
   const handle = userId ? profileHandle : null;
 
   useEffect(() => {
@@ -327,14 +429,12 @@ export function EventComments({ eventKey }: { eventKey: string }) {
   }, [configured, key, userId]);
 
   useEffect(() => {
-    if (!loaded) return;
-    const id = window.location.hash.replace(/^#/, "");
-    if (!id.startsWith("comment-")) return;
+    if (!loaded || !hashId) return;
     const frame = window.requestAnimationFrame(() => {
-      document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "center" });
+      document.getElementById(`comment-${hashId}`)?.scrollIntoView({ behavior: "smooth", block: "center" });
     });
     return () => window.cancelAnimationFrame(frame);
-  }, [loaded, comments.length]);
+  }, [loaded, hashId]);
 
   useEffect(() => {
     if (!configured || !userId) return;
@@ -352,12 +452,59 @@ export function EventComments({ eventKey }: { eventKey: string }) {
     };
   }, [configured, userId]);
 
-  const threads = useMemo(() => sortCommentThreads(comments), [comments]);
+  const threads = useMemo(() => sortCommentThreads(comments, order), [comments, order]);
+  const hashThreadId = useMemo(() => {
+    if (!hashId) return null;
+    return comments.find((item) => item.id === hashId)?.parentId ?? null;
+  }, [comments, hashId]);
   const canWrite = Boolean(userId && handle);
+
+  function repliesOpen(id: string): boolean {
+    if (closedReplies.has(id)) return false;
+    return openReplies.has(id) || replyTo === id || hashThreadId === id;
+  }
 
   function addComment(comment: EventComment) {
     setComments((current) => [...current.filter((item) => item.id !== comment.id), comment]);
     setReplyTo(null);
+    if (comment.parentId) {
+      const threadId = comment.parentId;
+      setOpenReplies((current) => new Set(current).add(threadId));
+      setClosedReplies((current) => {
+        const next = new Set(current);
+        next.delete(threadId);
+        return next;
+      });
+    }
+  }
+
+  function startReply(id: string) {
+    setReplyTo(id);
+    setOpenReplies((current) => new Set(current).add(id));
+    setClosedReplies((current) => {
+      const next = new Set(current);
+      next.delete(id);
+      return next;
+    });
+  }
+
+  function toggleReplies(id: string) {
+    if (repliesOpen(id)) {
+      setClosedReplies((current) => new Set(current).add(id));
+      setOpenReplies((current) => {
+        const next = new Set(current);
+        next.delete(id);
+        return next;
+      });
+      if (replyTo === id) setReplyTo(null);
+      return;
+    }
+    setOpenReplies((current) => new Set(current).add(id));
+    setClosedReplies((current) => {
+      const next = new Set(current);
+      next.delete(id);
+      return next;
+    });
   }
 
   async function onVote(comment: EventComment) {
@@ -376,97 +523,114 @@ export function EventComments({ eventKey }: { eventKey: string }) {
   if (!key || !configured) return null;
 
   return (
-    <section className="mt-10" aria-labelledby="event-comments-heading">
-      <div className="flex flex-wrap items-end justify-between gap-3">
-        <div>
-          <h2 id="event-comments-heading" className="section-heading">
-            Conversation
-          </h2>
-          <p className="mt-1 text-sm text-muted">
-            {loaded ? `${comments.length} comment${comments.length === 1 ? "" : "s"}` : "Loading comments…"}
-          </p>
-        </div>
-      </div>
+    <section className="mt-12 max-w-3xl" aria-labelledby="event-comments-heading">
+      <h2 id="event-comments-heading" className="text-sm font-medium text-paper">
+        Comments
+        {loaded ? <span className="text-muted"> ({comments.length.toLocaleString()})</span> : null}
+      </h2>
 
-      <div className="panel mt-5 rounded-2xl border border-line bg-ink-2 p-5 sm:p-6">
-        {!ready ? (
-          <p className="text-sm text-muted">Opening comments…</p>
-        ) : !userId ? (
-          <p className="text-sm leading-relaxed text-paper-dim">
-            <Link href={signInHref} className="text-amber hover:underline">
-              Sign in
-            </Link>{" "}
-            to comment, reply, tag someone, or upvote.
-          </p>
-        ) : !handle ? (
-          <p className="text-sm leading-relaxed text-paper-dim">
-            <Link href={completeHref} className="text-amber hover:underline">
-              Add a handle
-            </Link>{" "}
-            to join the conversation.
-          </p>
-        ) : (
-          <Composer eventKey={key} placeholder="Share a thought, or tag someone with @handle." onPosted={addComment} />
-        )}
+      <div className="mt-4">
+        <ComposerGate
+          ready={ready}
+          userId={userId}
+          handle={handle}
+          signInHref={signInHref}
+          completeHref={completeHref}
+        >
+          <Composer eventKey={key} placeholder="Add a comment..." onPosted={addComment} />
+        </ComposerGate>
       </div>
 
       {loadError ? (
-        <p role="alert" className="mt-4 rounded-xl border border-line bg-ink-2 px-4 py-3 text-sm text-paper">
+        <p role="alert" className="mt-4 text-sm text-ember">
           {loadError}
         </p>
       ) : null}
       {voteError ? (
-        <p role="alert" className="mt-4 rounded-xl border border-line bg-ink-2 px-4 py-3 text-sm text-paper">
+        <p role="alert" className="mt-4 text-sm text-ember">
           {voteError}
         </p>
       ) : null}
 
-      {loaded && !threads.length && !loadError ? (
-        <p className="mt-5 text-sm text-muted">No comments yet. Be the first.</p>
+      {loaded && threads.length ? (
+        <div className="relative mt-2 inline-flex items-center">
+          <label className="sr-only" htmlFor="comment-sort">
+            Sort comments
+          </label>
+          <select
+            id="comment-sort"
+            className="min-h-11 appearance-none bg-transparent py-2 pr-7 text-sm text-muted"
+            value={order}
+            onChange={(event) => setOrder(event.target.value as CommentSort)}
+          >
+            <option value="newest">Newest</option>
+            <option value="top">Top</option>
+          </select>
+          <Icon name="chevron" size={14} className="pointer-events-none absolute right-0 text-muted" />
+        </div>
       ) : null}
 
-      <ol className="mt-5 space-y-4">
-        {threads.map(({ root, replies }) => (
-          <li key={root.id}>
-            <CommentCard
-              comment={root}
-              canWrite={canWrite}
-              signedIn={Boolean(userId)}
-              loginHrefValue={signInHref}
-              pendingVote={pendingVote}
-              onVote={onVote}
-              onReply={canWrite ? () => setReplyTo(root.id) : undefined}
-            >
-              {replyTo === root.id && canWrite ? (
-                <div className="mt-4 border-t border-line pt-4">
-                  <Composer
-                    eventKey={key}
-                    parentId={root.id}
-                    placeholder={`Reply to @${root.author.handle}`}
-                    onPosted={addComment}
-                    onCancel={() => setReplyTo(null)}
-                  />
-                </div>
-              ) : null}
-            </CommentCard>
-            {replies.length ? (
-              <ol className="mt-3 space-y-3 border-l border-line pl-4 sm:ml-4">
-                {replies.map((reply) => (
-                  <li key={reply.id}>
-                    <CommentCard
-                      comment={reply}
-                      canWrite={canWrite}
-                      signedIn={Boolean(userId)}
-                      loginHrefValue={signInHref}
-                      pendingVote={pendingVote}
-                      onVote={onVote}
+      {loaded && !threads.length && !loadError ? (
+        <p className="mt-6 text-sm text-muted">No comments yet.</p>
+      ) : null}
+
+      <ol className="mt-2">
+        {threads.map(({ root, replies }) => {
+          const open = repliesOpen(root.id);
+          const replyLabel = replies.length === 1 ? "1 reply" : `${replies.length} replies`;
+          return (
+            <li key={root.id} className="py-4">
+              <CommentItem
+                comment={root}
+                canWrite={canWrite}
+                signedIn={Boolean(userId)}
+                loginHrefValue={signInHref}
+                pendingVote={pendingVote}
+                onVote={onVote}
+                onReply={canWrite ? () => startReply(root.id) : undefined}
+              >
+                {replies.length ? (
+                  <button
+                    type="button"
+                    className="inline-flex min-h-11 items-center gap-1 text-xs text-muted hover:text-paper"
+                    aria-expanded={open}
+                    onClick={() => toggleReplies(root.id)}
+                  >
+                    {replyLabel}
+                    <Icon name="chevron" size={14} className={open ? "rotate-180" : ""} />
+                  </button>
+                ) : null}
+                {open && replies.length ? (
+                  <ol className="mt-3 space-y-4">
+                    {replies.map((reply) => (
+                      <li key={reply.id}>
+                        <CommentItem
+                          comment={reply}
+                          canWrite={canWrite}
+                          signedIn={Boolean(userId)}
+                          loginHrefValue={signInHref}
+                          pendingVote={pendingVote}
+                          onVote={onVote}
+                        />
+                      </li>
+                    ))}
+                  </ol>
+                ) : null}
+                {replyTo === root.id && canWrite ? (
+                  <div className="mt-3">
+                    <Composer
+                      eventKey={key}
+                      parentId={root.id}
+                      placeholder={`Reply to @${root.author.handle}`}
+                      onPosted={addComment}
+                      onCancel={() => setReplyTo(null)}
                     />
-                  </li>
-                ))}
-              </ol>
-            ) : null}
-          </li>
-        ))}
+                  </div>
+                ) : null}
+              </CommentItem>
+            </li>
+          );
+        })}
       </ol>
     </section>
   );

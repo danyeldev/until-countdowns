@@ -6,6 +6,7 @@ import {
   mentionQueryAtCaret,
   parseCommentBody,
   parseCommentEventKey,
+  formatCommentAge,
   sortCommentThreads,
   splitCommentBody,
   type EventComment,
@@ -72,6 +73,17 @@ describe("mentions", () => {
   });
 });
 
+describe("formatCommentAge", () => {
+  it("uses compact relative time", () => {
+    const now = Date.parse("2026-09-16T12:00:00.000Z");
+    expect(formatCommentAge("2026-09-16T11:59:20.000Z", now)).toBe("just now");
+    expect(formatCommentAge("2026-09-16T11:49:00.000Z", now)).toBe("11m ago");
+    expect(formatCommentAge("2026-09-16T03:00:00.000Z", now)).toBe("9h ago");
+    expect(formatCommentAge("2026-09-14T12:00:00.000Z", now)).toBe("2d ago");
+    expect(formatCommentAge("2026-08-01T12:00:00.000Z", now)).toBe("Aug 1");
+  });
+});
+
 describe("sortCommentThreads", () => {
   it("sorts roots by votes, replies by time", () => {
     const threads = sortCommentThreads([
@@ -82,6 +94,17 @@ describe("sortCommentThreads", () => {
     ]);
     expect(threads.map((thread) => thread.root.id)).toEqual(["b", "a"]);
     expect(threads[0]?.replies.map((reply) => reply.id)).toEqual(["d", "c"]);
+  });
+
+  it("can sort roots newest first", () => {
+    const threads = sortCommentThreads(
+      [
+        comment({ id: "a", voteCount: 1, createdAt: "2026-09-15T10:00:00.000Z" }),
+        comment({ id: "b", voteCount: 4, createdAt: "2026-09-15T09:00:00.000Z" }),
+      ],
+      "newest",
+    );
+    expect(threads.map((thread) => thread.root.id)).toEqual(["a", "b"]);
   });
 });
 
