@@ -1,6 +1,6 @@
 "use client";
 
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 import { useState, type FormEvent, type ReactNode } from "react";
 import { unstable_rethrow } from "next/navigation";
 import {

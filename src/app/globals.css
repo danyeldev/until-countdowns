@@ -23,8 +23,32 @@
   --color-amber: var(--amber);
   --color-ember: var(--ember);
   --color-moss: var(--moss);
-  --font-sans: var(--font-geist-sans);
-  --font-serif: var(--font-geist-sans);
+  --font-sans: var(
+    --font-noto-ar,
+    var(
+      --font-noto-he,
+      var(
+        --font-noto-hi,
+        var(
+          --font-noto-th,
+          var(
+            --font-noto-jp,
+            var(
+              --font-noto-kr,
+              var(
+                --font-noto-sc,
+                var(
+                  --font-noto-tc,
+                  var(--font-noto, var(--font-geist-sans))
+                )
+              )
+            )
+          )
+        )
+      )
+    )
+  );
+  --font-serif: var(--font-sans);
   --font-mono: var(--font-geist-mono);
 }
 html {
@@ -37,7 +61,7 @@ body {
   min-height: 100%;
   margin: 0;
   background: var(--ink);
-  font-family: var(--font-geist-sans), sans-serif;
+  font-family: var(--font-sans), sans-serif;
 }
 ::selection {
   background: #b7a6ff;

@@ -1,3 +1,5 @@
+import { LOCALE_HANDLE_RESERVATIONS } from "@/i18n/locales";
+
 export const NAME_MAX = 80;
 export const HANDLE_MIN = 3;
 export const HANDLE_MAX = 20;
@@ -38,6 +40,7 @@ const RESERVED_HANDLES = new Set([
   "user",
   "users",
   "www",
+  ...LOCALE_HANDLE_RESERVATIONS,
 ]);
 
 export function parseName(value: unknown): string | null {

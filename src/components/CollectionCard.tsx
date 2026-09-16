@@ -1,5 +1,5 @@
 import Image from "next/image";
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 import { collectionCover, collectionHref, collectionImageUrl, type CollectionSummary } from "@/lib/collections";
 import { Icon } from "./Icon";
 

@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 import Image from "next/image";
 import type { CountdownEvent } from "@/lib/types";
 import { CATEGORY_LABELS } from "@/lib/labels";

@@ -1,3 +1,4 @@
+import { DEFAULT_LOCALE, localeBcp47 } from "@/i18n/locales";
 import type { DatePrecision } from "./types";
 
 /**
@@ -94,10 +95,12 @@ export function formatWhen(
   date: string,
   allDay = true,
   timezone?: string,
+  locale = DEFAULT_LOCALE,
 ): string {
+  const intlLocale = locale === DEFAULT_LOCALE ? "en" : localeBcp47(locale);
   if (!isValidDate(date)) return "Pick a date";
   if (allDay && !date.includes("T")) {
-    return new Intl.DateTimeFormat("en", {
+    return new Intl.DateTimeFormat(intlLocale, {
       weekday: "long",
       year: "numeric",
       month: "long",
@@ -105,7 +108,7 @@ export function formatWhen(
       timeZone: "UTC",
     }).format(utcParts(date));
   }
-  return new Intl.DateTimeFormat("en", {
+  return new Intl.DateTimeFormat(intlLocale, {
     weekday: "long",
     year: "numeric",
     month: "long",
@@ -120,10 +123,11 @@ export function formatWhen(
 export function formatCompactDate(
   date: string,
   timezone?: string | null,
+  locale = DEFAULT_LOCALE,
 ): string {
   if (!isValidDate(date)) return "—";
   // Rendered from the catalog day, so a listing never contradicts the day the row is filed under.
-  return new Intl.DateTimeFormat("en", {
+  return new Intl.DateTimeFormat(locale === DEFAULT_LOCALE ? "en" : localeBcp47(locale), {
     year: "numeric",
     month: "short",
     day: "numeric",
@@ -262,19 +266,26 @@ export function isCoarsePrecision(precision?: DatePrecision | null): boolean {
 export function formatApproximate(
   date: string,
   precision?: DatePrecision | null,
+  locale = DEFAULT_LOCALE,
 ): string {
   if (!isValidDate(date)) return "date to be announced";
   const year = Number(date.slice(0, 4));
   const month = Number(date.slice(5, 7)) || 1;
+  const monthName =
+    locale === DEFAULT_LOCALE
+      ? MONTHS[Math.min(11, Math.max(0, month - 1))]
+      : new Intl.DateTimeFormat(localeBcp47(locale), { month: "long", timeZone: "UTC" }).format(
+          new Date(Date.UTC(year, Math.min(11, Math.max(0, month - 1)), 1)),
+        );
   switch (precision) {
     case "month":
-      return `expected ${MONTHS[Math.min(11, Math.max(0, month - 1))]} ${year}`;
+      return `expected ${monthName} ${year}`;
     case "quarter":
       return `expected Q${Math.min(4, Math.max(1, Math.ceil(month / 3)))} ${year}`;
     case "year":
     case "decade":
       return `expected ${year}`;
     default:
-      return formatWhen(date);
+      return formatWhen(date, true, undefined, locale);
   }
 }

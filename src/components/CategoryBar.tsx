@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 import type { Category } from "@/lib/types";
 import { CATEGORIES, DEFAULT_EVENT_SORT } from "@/lib/types";
 import { CATEGORY_LABELS } from "@/lib/labels";

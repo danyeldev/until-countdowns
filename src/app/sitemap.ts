@@ -11,7 +11,7 @@ import { collectionHref } from "@/lib/collections";
 import { listPublicCollections } from "@/lib/collections-server";
 import { featuredCollectionHref, listFeaturedCollections } from "@/lib/featured-collections";
 import { COUNTRY_NAMES } from "@/lib/regions";
-import { absoluteUrl, CALENDAR_MAX_YEAR, nextMonth, pad2, todayUtc, yearMonthOf } from "@/lib/seo";
+import { absoluteUrl, CALENDAR_MAX_YEAR, languageAlternates, nextMonth, pad2, todayUtc, yearMonthOf } from "@/lib/seo";
 import { CATEGORIES } from "@/lib/types";
 
 export const revalidate = 3600;
@@ -29,7 +29,10 @@ export async function generateSitemaps(): Promise<{ id: string }[]> {
 }
 
 function entry(path: string, lastModified?: string): MetadataRoute.Sitemap[number] {
-  const item: MetadataRoute.Sitemap[number] = { url: absoluteUrl(path) };
+  const item: MetadataRoute.Sitemap[number] = {
+    url: absoluteUrl(path),
+    alternates: { languages: languageAlternates(path) },
+  };
   if (lastModified) item.lastModified = lastModified;
   return item;
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 import { memo, useCallback, useEffect, useMemo, useState } from "react";
 import { Countdown } from "@/components/Countdown";
 import { SaveButton } from "@/components/SaveButton";
