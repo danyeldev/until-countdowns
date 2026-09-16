@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 import { EventCard } from "./EventCard";
 import { CategoryBar } from "./CategoryBar";
 import { CollectionSearchHits } from "./CollectionSearchHits";

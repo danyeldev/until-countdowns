@@ -1,4 +1,6 @@
 import type { NextConfig } from "next";
+import createNextIntlPlugin from "next-intl/plugin";
+import { PREFIXED_LOCALE_PATTERN } from "./src/i18n/locales";
 
 /** Host of the Supabase project serving re-hosted event images (derived at config time). */
 function supabaseImageHost(): string {
@@ -76,6 +78,7 @@ const nextConfig: NextConfig = {
     // `searchParams`), the stray query is ignored and the page's canonical is the clean path;
     // stripping it would need extra proxy rewrite logic beyond the auth session refresh.
     const page = "(?<n>[2-9]|[1-9][0-9]{1,3})";
+    const locale = `:locale(${PREFIXED_LOCALE_PATTERN})`;
     return [
       // The old category filter on the home page now has its own hub; free-text searches keep
       // using the home page, so the rule only fires when there is no `q`.
@@ -99,9 +102,30 @@ const nextConfig: NextConfig = {
         destination: "/tag/:t/page/:n",
         permanent: true,
       },
+      {
+        source: `/${locale}`,
+        has: [{ type: "query", key: "category", value: "(?<c>[a-z]+)" }],
+        missing: [{ type: "query", key: "q" }],
+        destination: `/${locale}/category/:c`,
+        permanent: true,
+      },
+      {
+        source: `/${locale}/category/:c`,
+        has: [{ type: "query", key: "page", value: page }],
+        destination: `/${locale}/category/:c/page/:n`,
+        permanent: true,
+      },
+      {
+        source: `/${locale}/tag/:t`,
+        has: [{ type: "query", key: "page", value: page }],
+        destination: `/${locale}/tag/:t/page/:n`,
+        permanent: true,
+      },
       // (`?page=1` is left alone: a redirect to the bare path would carry the query along and loop.)
     ];
   },
 };
 
-export default nextConfig;
+const withNextIntl = createNextIntlPlugin("./src/i18n/request.ts");
+
+export default withNextIntl(nextConfig);

@@ -1,6 +1,6 @@
 "use client";
 
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 import { useCollection } from "@/components/CollectionProvider";
 import { useNotifications } from "@/components/NotificationsProvider";
 import { notificationCopy, notificationHref, unreadNotificationCount, type UserNotification } from "@/lib/notifications";

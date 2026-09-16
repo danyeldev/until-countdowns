@@ -7,6 +7,14 @@
  * and calendar navigation; date formatting itself is deterministic.
  */
 import type { Metadata } from "next";
+import {
+  DEFAULT_LOCALE,
+  LOCALES,
+  localeBcp47,
+  localeHreflang,
+  localeOg,
+  localizePath,
+} from "@/i18n/locales";
 import { CATEGORY_LABELS } from "./labels";
 import { catalogDay, formatApproximate, isCoarsePrecision, isValidDate } from "./time";
 import type { Category, CountdownEvent, DatePrecision, Series } from "./types";
@@ -64,8 +72,13 @@ export function prevMonth(year: number, month: number): { year: number; month: n
   return month <= 1 ? { year: year - 1, month: 12 } : { year, month: month - 1 };
 }
 
-export function monthLabel(year: number, month: number): string {
-  return `${MONTH_NAMES[Math.min(11, Math.max(0, month - 1))]} ${year}`;
+export function monthLabel(year: number, month: number, locale: string = DEFAULT_LOCALE): string {
+  if (locale === DEFAULT_LOCALE) {
+    return `${MONTH_NAMES[Math.min(11, Math.max(0, month - 1))]} ${year}`;
+  }
+  const utc = new Date(Date.UTC(year, Math.min(11, Math.max(0, month - 1)), 1));
+  const monthName = new Intl.DateTimeFormat(localeBcp47(locale), { month: "long", timeZone: "UTC" }).format(utc);
+  return `${monthName} ${year}`;
 }
 
 export function pad2(n: number): string {
@@ -73,19 +86,37 @@ export function pad2(n: number): string {
 }
 
 /** "Friday, 25 December 2026", using a timed event's local calendar day when known. */
-export function formatLongDate(date: string, timezone?: string | null): string {
+export function formatLongDate(date: string, timezone?: string | null, locale: string = DEFAULT_LOCALE): string {
   if (!isValidDate(date)) return "a date to be announced";
   const [y, m, d] = catalogDay(date, timezone).split("-").map(Number);
   const utc = new Date(Date.UTC(y, (m || 1) - 1, d || 1));
-  return `${WEEKDAY_NAMES[utc.getUTCDay()]}, ${utc.getUTCDate()} ${MONTH_NAMES[utc.getUTCMonth()]} ${utc.getUTCFullYear()}`;
+  if (locale === DEFAULT_LOCALE) {
+    return `${WEEKDAY_NAMES[utc.getUTCDay()]}, ${utc.getUTCDate()} ${MONTH_NAMES[utc.getUTCMonth()]} ${utc.getUTCFullYear()}`;
+  }
+  return new Intl.DateTimeFormat(localeBcp47(locale), {
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+    timeZone: "UTC",
+  }).format(utc);
 }
 
 /** "Fri, 25 Dec 2026". */
-export function formatShortDate(date: string, timezone?: string | null): string {
+export function formatShortDate(date: string, timezone?: string | null, locale: string = DEFAULT_LOCALE): string {
   if (!isValidDate(date)) return "TBA";
   const [y, m, d] = catalogDay(date, timezone).split("-").map(Number);
   const utc = new Date(Date.UTC(y, (m || 1) - 1, d || 1));
-  return `${WEEKDAY_NAMES[utc.getUTCDay()].slice(0, 3)}, ${utc.getUTCDate()} ${MONTH_NAMES[utc.getUTCMonth()].slice(0, 3)} ${utc.getUTCFullYear()}`;
+  if (locale === DEFAULT_LOCALE) {
+    return `${WEEKDAY_NAMES[utc.getUTCDay()].slice(0, 3)}, ${utc.getUTCDate()} ${MONTH_NAMES[utc.getUTCMonth()].slice(0, 3)} ${utc.getUTCFullYear()}`;
+  }
+  return new Intl.DateTimeFormat(localeBcp47(locale), {
+    weekday: "short",
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+    timeZone: "UTC",
+  }).format(utc);
 }
 
 /** "expected June 2027" style label for coarse precisions, without the leading verb. */
@@ -102,14 +133,15 @@ export function truncate(text: string, max = DESCRIPTION_MAX): string {
 }
 
 /** "That is 107 days away." / "That is today." / "It was 3 days ago." */
-export function daysSentence(days: number | undefined | null): string {
+export function daysSentence(days: number | undefined | null, locale = DEFAULT_LOCALE): string {
   if (days === null || days === undefined || !Number.isFinite(days)) return "";
   const n = Math.trunc(days);
+  const count = Math.abs(n).toLocaleString(localeBcp47(locale));
   if (n === 0) return "That is today.";
   if (n === 1) return "That is tomorrow.";
   if (n === -1) return "That was yesterday.";
-  if (n < 0) return `That was ${Math.abs(n).toLocaleString("en-US")} days ago.`;
-  return `That is ${n.toLocaleString("en-US")} days away.`;
+  if (n < 0) return `That was ${count} days ago.`;
+  return `That is ${count} days away.`;
 }
 
 // ---------------------------------------------------------------------------
@@ -267,30 +299,52 @@ export function oembedDiscoveryUrl(canonical: string): string {
 export type BuildMetadataInput = {
   title: string;
   description: string;
-  /** Path (or absolute URL) of the canonical page. */
+  /** Unprefixed path (or absolute URL) of the canonical page. */
   canonical: string;
   /** Path (or absolute URL) of the 1200×630 OG image. */
   ogPath: string;
   noindex?: boolean;
   type?: "website" | "article";
   ogAlt?: string;
+  locale?: string;
 };
 
-export function buildMetadata({ title, description, canonical, ogPath, noindex, type, ogAlt }: BuildMetadataInput): Metadata {
-  const url = absoluteUrl(canonical);
+/** Metadata helper that stamps the active request locale onto canonicals and hreflang. */
+export async function localizedMetadata(input: Omit<BuildMetadataInput, "locale"> & { locale?: string }): Promise<Metadata> {
+  const { getLocale } = await import("next-intl/server");
+  const locale = input.locale ?? (await getLocale());
+  return buildMetadata({ ...input, locale });
+}
+
+export function languageAlternates(path: string): Record<string, string> {
+  const languages: Record<string, string> = {};
+  for (const locale of LOCALES) {
+    languages[localeHreflang(locale)] = absoluteUrl(localizePath(path, locale));
+  }
+  languages["x-default"] = absoluteUrl(localizePath(path, DEFAULT_LOCALE));
+  return languages;
+}
+
+export function buildMetadata({ title, description, canonical, ogPath, noindex, type, ogAlt, locale = DEFAULT_LOCALE }: BuildMetadataInput): Metadata {
+  const localized = /^https?:\/\//.test(canonical) ? canonical : localizePath(canonical, locale);
+  const url = absoluteUrl(localized);
   const image = absoluteUrl(ogPath);
   const desc = truncate(description);
+  const alternates = /^https?:\/\//.test(canonical)
+    ? { canonical: url }
+    : { canonical: url, languages: languageAlternates(canonical) };
   return {
     title,
     description: desc,
-    alternates: { canonical: url },
+    alternates,
     openGraph: {
       title,
       description: desc,
       url,
       siteName: SITE_NAME,
       type: type ?? "website",
-      locale: "en_US",
+      locale: localeOg(locale),
+      alternateLocale: LOCALES.filter((item) => item !== locale).map(localeOg),
       images: [{ url: image, width: 1200, height: 630, alt: ogAlt ?? title, type: "image/png" }],
     },
     twitter: {

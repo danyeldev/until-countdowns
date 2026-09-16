@@ -4,6 +4,7 @@
  * Event only for rows the finalize job marked `jsonld_eligible` (attendable events with a place).
  * No FAQPage and no SearchAction: neither earns a rich result any more.
  */
+import { DEFAULT_LOCALE, localeBcp47, localizePath } from "@/i18n/locales";
 import { absoluteUrl, eventDescription, SITE_DESCRIPTION, SITE_NAME } from "./seo";
 import { isCoarsePrecision, isValidDate } from "./time";
 import type { CountdownEvent, Series } from "./types";
@@ -27,14 +28,15 @@ export function breadcrumbList(items: Crumb[]): JsonLdObject {
   };
 }
 
-export function webSite(): JsonLdObject {
+export function webSite(locale = DEFAULT_LOCALE): JsonLdObject {
+  const path = localizePath("/", locale);
   return {
     "@context": SCHEMA,
     "@type": "WebSite",
-    "@id": absoluteUrl("/#website"),
+    "@id": absoluteUrl(`${path === "/" ? "" : path}/#website`.replace("//#", "/#")),
     name: SITE_NAME,
-    url: absoluteUrl("/"),
-    inLanguage: "en",
+    url: absoluteUrl(path),
+    inLanguage: localeBcp47(locale),
     description: SITE_DESCRIPTION,
     publisher: { "@id": absoluteUrl("/#organization") },
   };
@@ -53,15 +55,15 @@ export function organization(): JsonLdObject {
 
 export type CollectionItem = { name: string; path: string };
 
-export function profilePage(name: string, handle: string): JsonLdObject {
-  const path = `/${handle}`;
+export function profilePage(name: string, handle: string, locale = DEFAULT_LOCALE): JsonLdObject {
+  const path = localizePath(`/${handle}`, locale);
   return {
     "@context": SCHEMA,
     "@type": "ProfilePage",
     "@id": absoluteUrl(`${path}#profile`),
     name: `${name} (@${handle})`,
     url: absoluteUrl(path),
-    inLanguage: "en",
+    inLanguage: localeBcp47(locale),
     isPartOf: { "@id": absoluteUrl("/#website") },
     mainEntity: {
       "@type": "Person",
@@ -72,16 +74,23 @@ export function profilePage(name: string, handle: string): JsonLdObject {
   };
 }
 
-export function collectionPage(name: string, description: string, path: string, items: CollectionItem[]): JsonLdObject {
+export function collectionPage(
+  name: string,
+  description: string,
+  path: string,
+  items: CollectionItem[],
+  locale = DEFAULT_LOCALE,
+): JsonLdObject {
+  const localized = localizePath(path, locale);
   return {
     "@context": SCHEMA,
     "@type": "CollectionPage",
-    "@id": absoluteUrl(`${path}#collection`),
+    "@id": absoluteUrl(`${localized}#collection`),
     name,
     description,
-    url: absoluteUrl(path),
-    inLanguage: "en",
-    isPartOf: { "@id": absoluteUrl("/#website") },
+    url: absoluteUrl(localized),
+    inLanguage: localeBcp47(locale),
+    isPartOf: { "@id": absoluteUrl(`${localizePath("/", locale) === "/" ? "" : localizePath("/", locale)}/#website`.replace("//#", "/#")) },
     mainEntity: {
       "@type": "ItemList",
       numberOfItems: items.length,
@@ -89,7 +98,7 @@ export function collectionPage(name: string, description: string, path: string, 
         "@type": "ListItem",
         position: i + 1,
         name: item.name,
-        url: absoluteUrl(item.path),
+        url: absoluteUrl(localizePath(item.path, locale)),
       })),
     },
   };

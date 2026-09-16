@@ -10,13 +10,13 @@ import { hasSupabaseAuthCookies } from "./paths";
  * cacheable for signed-out visitors: with no `sb-*` cookie this is a no-op and
  * does not write Cache-Control or Set-Cookie.
  */
-export async function updateSession(request: NextRequest) {
+export async function updateSession(request: NextRequest, response = NextResponse.next({ request })) {
   if (!publicSupabaseEnv() || !hasSupabaseAuthCookies(request.cookies.getAll())) {
-    return NextResponse.next({ request });
+    return response;
   }
 
   const env = publicSupabaseEnv()!;
-  let response = NextResponse.next({ request });
+  const nextResponse = response;
 
   const supabase = createServerClient<Database>(env.url, env.key, {
     cookies: {
@@ -25,9 +25,8 @@ export async function updateSession(request: NextRequest) {
       },
       setAll(cookiesToSet, headers) {
         cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value));
-        response = NextResponse.next({ request });
-        cookiesToSet.forEach(({ name, value, options }) => response.cookies.set(name, value, options));
-        Object.entries(headers).forEach(([key, value]) => response.headers.set(key, value));
+        cookiesToSet.forEach(({ name, value, options }) => nextResponse.cookies.set(name, value, options));
+        Object.entries(headers).forEach(([key, value]) => nextResponse.headers.set(key, value));
       },
     },
   });
@@ -40,5 +39,5 @@ export async function updateSession(request: NextRequest) {
     await supabase.auth.signOut({ scope: "local" });
   }
 
-  return response;
+  return nextResponse;
 }

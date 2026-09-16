@@ -1,3 +1,5 @@
+import { pathnameWithoutLocale } from "@/i18n/locales";
+
 export const LOGIN_PATH = "/login";
 export const UPDATE_PASSWORD_PATH = "/login/update-password";
 export const COMPLETE_PROFILE_PATH = "/login/complete";
@@ -58,7 +60,7 @@ export function hasSupabaseAuthCookies(cookies: { name: string }[]): boolean {
 
 /** Paths that stay behind a session. The public collections directory is open. */
 export function isAuthGatedPath(href: string) {
-  const path = href.split("?")[0] ?? href;
+  const path = pathnameWithoutLocale(href).split("?")[0] ?? href;
   return (
     path === "/saved" ||
     path === "/create" ||

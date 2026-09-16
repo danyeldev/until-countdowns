@@ -1,6 +1,8 @@
 "use client";
 
-import Link from "next/link";
+import { useLocale, useTranslations } from "next-intl";
+import { localizePath } from "@/i18n/locales";
+import { Link } from "@/i18n/navigation";
 import { usePathname } from "next/navigation";
 import { useState, type ReactNode } from "react";
 import { useCollection } from "@/components/CollectionProvider";
@@ -82,6 +84,8 @@ export function AuthGateLink({
 }) {
   const { ready, userId } = useCollection();
   const [open, setOpen] = useState(false);
+  const locale = useLocale();
+  const t = useTranslations("auth");
   const gated = isAuthGatedPath(href);
 
   return (
@@ -101,9 +105,9 @@ export function AuthGateLink({
       </Link>
       {open ? (
         <AuthDialog
-          next={safeNextPath(href)}
-          heading={heading ?? "Sign in to continue."}
-          subtitle={subtitle ?? "Use Google or your email to open your space."}
+          next={safeNextPath(localizePath(href, locale))}
+          heading={heading ?? t("signIn")}
+          subtitle={subtitle}
           onClose={() => setOpen(false)}
         />
       ) : null}

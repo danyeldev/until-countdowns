@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 import type { CountdownEvent, SeriesOccurrencePreview } from "@/lib/types";
 import { regionSummary } from "@/lib/regions";
 import { isShareAlike } from "@/lib/images";

@@ -1,13 +1,17 @@
-import Link from "next/link";
+import { getLocale, getTranslations } from "next-intl/server";
 import { JsonLd } from "./JsonLd";
 import { breadcrumbList, type Crumb } from "@/lib/jsonld";
+import { localizePath } from "@/i18n/locales";
+import { Link } from "@/i18n/navigation";
 
 /** Visible breadcrumb trail plus its BreadcrumbList JSON-LD. The last item is the current page. */
-export function Breadcrumbs({ items }: { items: Crumb[] }) {
+export async function Breadcrumbs({ items }: { items: Crumb[] }) {
   if (items.length === 0) return null;
+  const t = await getTranslations("common");
+  const locale = await getLocale();
   return (
     <>
-      <nav aria-label="Breadcrumb" className="text-xs text-muted sm:text-sm">
+      <nav aria-label={t("breadcrumb")} className="text-xs text-muted sm:text-sm">
         <ol className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-0.5">
           {items.map((item, i) => {
             const last = i === items.length - 1;
@@ -41,7 +45,9 @@ export function Breadcrumbs({ items }: { items: Crumb[] }) {
           })}
         </ol>
       </nav>
-      <JsonLd data={breadcrumbList(items)} />
+      <JsonLd
+        data={breadcrumbList(items.map((item) => ({ ...item, path: localizePath(item.path, locale) })))}
+      />
     </>
   );
 }

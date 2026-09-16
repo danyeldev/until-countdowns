@@ -1,5 +1,6 @@
 "use client";
 
+import { useLocale, useTranslations } from "next-intl";
 import {
   formatApproximate,
   isCoarsePrecision,
@@ -50,6 +51,8 @@ export function Countdown({
 }) {
   const now = useNow();
   const huge = size === "hero";
+  const locale = useLocale();
+  const t = useTranslations("countdown");
 
   if (
     status === "cancelled" ||
@@ -62,12 +65,12 @@ export function Countdown({
         className={`font-medium tracking-tight text-muted ${huge ? "text-3xl" : "text-lg"}`}
       >
         {status === "cancelled"
-          ? "Event cancelled"
+          ? t("cancelled")
           : status === "postponed"
-            ? "Date postponed"
+            ? t("postponed")
             : status === "retired"
-              ? "No longer scheduled"
-              : "This event has passed"}
+              ? t("retired")
+              : t("passed")}
       </p>
     );
   }
@@ -77,7 +80,7 @@ export function Countdown({
       <p
         className={`font-medium tracking-tight text-amber ${huge ? "text-3xl sm:text-4xl" : "text-lg"}`}
       >
-        {formatApproximate(date, precision)}
+        {formatApproximate(date, precision, locale)}
       </p>
     );
   }
@@ -99,7 +102,7 @@ export function Countdown({
         className={`font-medium tracking-tight text-amber ${huge ? "text-4xl sm:text-5xl" : "text-xl"}`}
         data-live={live ? "true" : "false"}
       >
-        Today
+        {t("today")}
       </p>
     );
   }
@@ -113,7 +116,7 @@ export function Countdown({
       <p
         className={`font-medium tracking-tight text-muted ${huge ? "text-2xl" : "text-sm"}`}
       >
-        This event has passed
+        {t("passed")}
       </p>
     );
   }
@@ -132,17 +135,17 @@ export function Countdown({
     >
       <div className="timer-days">
         <span className="timer-major">{daysText}</span>
-        <span className="timer-days-label">{days === 1 ? "day" : "days"}</span>
+        <span className="timer-days-label">{t("day", { count: days ?? 0 })}</span>
       </div>
       <div
         className="timer-clock"
         role="group"
-        aria-label={`${hours} hours, ${minutes} minutes, ${seconds} seconds`}
+        aria-label={t("clockAria", { hours, minutes, seconds })}
       >
         {[
-          [hours, "hours"],
-          [minutes, "minutes"],
-          [seconds, "seconds"],
+          [hours, t("hours")],
+          [minutes, t("minutes")],
+          [seconds, t("seconds")],
         ].map(([value, label], index) => (
           <div key={label} className="flex items-start gap-1">
             {!huge && index > 0 && (
