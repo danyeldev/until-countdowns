@@ -69,6 +69,14 @@ describe("variant naming", () => {
     expect(imageUrl(image, "hero")).toBe(image.url);
   });
 
+  it("rewrites stored Supabase object URLs onto the R2 public host", () => {
+    vi.stubEnv("NEXT_PUBLIC_R2_PUBLIC_URL", "https://images.until.day");
+    const image = { url: `https://ref.supabase.co/storage/v1/object/public/event-images/${SHA}/hero.webp`, width: 1600, height: 900 };
+    expect(imageUrl(image, "card")).toBe(`https://images.until.day/${SHA}/card.webp`);
+    expect(imageUrl(image, "hero")).toBe(`https://images.until.day/${SHA}/hero.webp`);
+    vi.unstubAllEnvs();
+  });
+
   it("leaves an unrecognised url untouched", () => {
     const image = { url: "https://example.com/curated.jpg", width: 1200, height: 800 };
     expect(imageUrl(image, "card")).toBe("https://example.com/curated.jpg");

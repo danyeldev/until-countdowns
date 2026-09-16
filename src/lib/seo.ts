@@ -11,7 +11,7 @@ import { CATEGORY_LABELS } from "./labels";
 import { catalogDay, formatApproximate, isCoarsePrecision, isValidDate } from "./time";
 import type { Category, CountdownEvent, DatePrecision, Series } from "./types";
 
-const DEFAULT_SITE_URL = "https://until-inky.vercel.app";
+const DEFAULT_SITE_URL = "https://until.day";
 export const SITE_NAME = "Until";
 /** Root layout default title and the home page's absolute title (kept identical on purpose). */
 export const HOME_TITLE = "Until — something to look forward to";

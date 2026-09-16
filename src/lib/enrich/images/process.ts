@@ -1,6 +1,6 @@
 /**
- * Download → validate → derive → store. The only place in the app that writes to Supabase
- * Storage.
+ * Download → validate → derive → store. The only place in the app that writes catalog
+ * image bytes (Cloudflare R2 when configured, otherwise the injected storage client).
  *
  * Nothing is hotlinked: every accepted file is fetched once with the shared descriptive
  * User-Agent (12 MB cap, `image/*` only, 15 s), validated with sharp (it must decode and be at
@@ -26,6 +26,21 @@ import type { Db } from "@/lib/ingest/db";
 import { userAgent } from "@/lib/ingest/http";
 import { isShareAlike } from "@/lib/images";
 import { creditLine, evaluateNamedLicense, isRehostableFileUrl, type LicensedImage } from "./license";
+
+function r2WriteConfigured(): boolean {
+  return Boolean(
+    process.env.R2_ACCOUNT_ID?.trim() &&
+      process.env.R2_ACCESS_KEY_ID?.trim() &&
+      process.env.R2_SECRET_ACCESS_KEY?.trim() &&
+      process.env.NEXT_PUBLIC_R2_PUBLIC_URL?.trim(),
+  );
+}
+
+async function resolveImageStorage(db: Db): Promise<StorageLike> {
+  if (!r2WriteConfigured()) return db.storage as unknown as StorageLike;
+  const { r2StorageLike } = await import("@/lib/r2");
+  return r2StorageLike();
+}
 
 export const DEFAULT_BUCKET = "event-images";
 /** Hard download cap; a bigger file is a scan or a panorama, not an event photo. */
@@ -217,7 +232,7 @@ export async function buildDerivatives(source: Buffer, options: { includeOg?: bo
 // Storage + database
 // ---------------------------------------------------------------------------
 
-/** Minimal surface of the Supabase storage client, so the tests can pass a stub. */
+/** Minimal surface of the object store, so the tests can pass a stub. */
 export type StorageLike = {
   from: (bucket: string) => {
     upload: (
@@ -226,6 +241,7 @@ export type StorageLike = {
       options: { upsert: boolean; cacheControl: string; contentType: string },
     ) => Promise<{ error: { message: string } | null }>;
     getPublicUrl: (path: string) => { data: { publicUrl: string } };
+    remove?: (paths: string[]) => Promise<{ error: { message: string } | null }>;
   };
 };
 
@@ -283,7 +299,7 @@ export async function storeLicensedImage(db: Db, candidate: LicensedImage): Prom
 
   // ShareAlike sources get no `og.jpg`: the OG route falls back to the gradient for them.
   const derivatives = await buildDerivatives(source, { includeOg: !isShareAlike(candidate.license) });
-  const publicUrl = await uploadVariants(db.storage as unknown as StorageLike, sha256, derivatives);
+  const publicUrl = await uploadVariants(await resolveImageStorage(db), sha256, derivatives);
 
   const row = {
     sha256,

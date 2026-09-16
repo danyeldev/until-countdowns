@@ -16,6 +16,18 @@ function supabaseImageHost(): string {
   return "*.supabase.co";
 }
 
+function r2ImageHost(): string | null {
+  const url = process.env.NEXT_PUBLIC_R2_PUBLIC_URL;
+  if (!url) return "images.until.day";
+  try {
+    return new URL(url).hostname || null;
+  } catch {
+    return null;
+  }
+}
+
+const r2Host = r2ImageHost();
+
 /** Fonts read at runtime by the `/og/*` handlers (src/lib/og.tsx); traced explicitly so Vercel ships them. */
 const OG_FONT_FILES = [
   "node_modules/@fontsource/geist/files/geist-latin-600-normal.woff",
@@ -30,6 +42,15 @@ const nextConfig: NextConfig = {
   },
   images: {
     remotePatterns: [
+      ...(r2Host
+        ? [
+            {
+              protocol: "https" as const,
+              hostname: r2Host,
+              pathname: "/**",
+            },
+          ]
+        : []),
       {
         protocol: "https",
         hostname: supabaseImageHost(),

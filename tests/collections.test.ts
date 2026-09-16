@@ -1,8 +1,9 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import {
   collectionErrorMessage,
   collectionEventFromSnapshot,
   collectionHref,
+  collectionImageUrl,
   nextCollectionSlug,
   parseCollectionDescription,
   parseCollectionEventKey,
@@ -40,6 +41,12 @@ describe("public collections", () => {
 
   it("builds a public collection path from handle and slug", () => {
     expect(collectionHref("ada", "autumn-nights")).toBe("/ada/autumn-nights");
+  });
+
+  it("serves collection photos from the R2 public host when configured", () => {
+    vi.stubEnv("NEXT_PUBLIC_R2_PUBLIC_URL", "https://images.until.day");
+    expect(collectionImageUrl("user/col/one.jpg")).toBe("https://images.until.day/user/col/one.jpg");
+    vi.unstubAllEnvs();
   });
 
   it("rehydrates catalog and personal snapshots", () => {

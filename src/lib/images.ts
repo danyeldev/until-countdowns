@@ -8,6 +8,7 @@
  *
  * Client-safe: no server imports, no network.
  */
+import { hostedMediaUrl } from "./image-host";
 import type { EventImage } from "./types";
 
 export const IMAGE_VARIANTS = {
@@ -25,7 +26,7 @@ const VARIANT_FILES: ReadonlySet<string> = new Set(Object.values(IMAGE_VARIANTS)
  * image stored before the pipeline existed) is returned untouched.
  */
 export function imageUrl(image: Pick<EventImage, "url">, variant: ImageVariant = "hero"): string {
-  const url = image.url;
+  const url = hostedMediaUrl(image.url);
   const cut = url.lastIndexOf("/");
   if (cut < 0) return url;
   const [name] = url.slice(cut + 1).split("?");

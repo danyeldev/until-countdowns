@@ -13,7 +13,7 @@ import type { EventImage as EventImageType } from "@/lib/types";
  * One re-hosted event photo.
  *
  * The derivatives are already the exact widths the layouts ask for (640 for a card, 1600 for a
- * hero), so `unoptimized` sends them straight from Supabase Storage instead of round-tripping
+ * hero), so `unoptimized` sends them straight from Cloudflare R2 instead of round-tripping
  * through the optimizer — they are content-addressed and cached for a year.
  *
  * The box always has a known aspect ratio before the bytes arrive (16:9 for cards, the image's

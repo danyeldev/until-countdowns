@@ -22,7 +22,25 @@ import type { EnrichContext } from "./context";
 import type { Db } from "@/lib/ingest/db";
 import { CommonsVerifier, fileTitleFromUrl } from "./images/commons";
 import { creditLine } from "./images/license";
-import { bucketName, VARIANT_NAMES, variantPath } from "./images/process";
+import { bucketName, VARIANT_NAMES, variantPath, type StorageLike } from "./images/process";
+
+async function removeStoredObjects(
+  db: Db,
+  paths: string[],
+): Promise<{ error: { message: string } | null }> {
+  const r2Ready = Boolean(
+    process.env.R2_ACCOUNT_ID?.trim() &&
+      process.env.R2_ACCESS_KEY_ID?.trim() &&
+      process.env.R2_SECRET_ACCESS_KEY?.trim() &&
+      process.env.NEXT_PUBLIC_R2_PUBLIC_URL?.trim(),
+  );
+  const storage: StorageLike = r2Ready
+    ? (await import("@/lib/r2")).r2StorageLike()
+    : (db.storage as unknown as StorageLike);
+  const bucket = storage.from(bucketName());
+  if (!bucket.remove) return { error: { message: "storage client cannot remove objects" } };
+  return bucket.remove(paths);
+}
 
 /** Small daily slices revisit the oldest checks without a monthly backlog. */
 export const RECHECK_LIMIT = 25;
@@ -75,7 +93,7 @@ async function dropImage(db: Db, row: RecheckRow, reason: string, summary: Reche
   if (eventError) throw new Error(`events image_status update failed: ${eventError.message}`);
 
   const paths = VARIANT_NAMES.map((name) => variantPath(row.sha256, name));
-  const { error: storageError } = await db.storage.from(bucketName()).remove(paths);
+  const { error: storageError } = await removeStoredObjects(db, paths);
   if (storageError) summary.errors.push(`storage remove ${row.sha256}: ${storageError.message}`);
 
   const { error: deleteError } = await db.from("images").delete().eq("id", row.id);
