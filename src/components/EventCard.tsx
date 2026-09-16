@@ -21,19 +21,24 @@ export function EventCard({
   live = true,
   showSeriesLink = false,
   futureOccurrences,
+  href,
+  showSave = true,
 }: {
   event: CountdownEvent;
   live?: boolean;
   showSeriesLink?: boolean;
   futureOccurrences?: SeriesOccurrencePreview[];
+  href?: string;
+  showSave?: boolean;
 }) {
   const coarse = isCoarsePrecision(event.datePrecision);
   const hasSeriesLink = showSeriesLink && Boolean(event.seriesSlug);
   const laterDates = (futureOccurrences ?? []).slice(0, 4);
+  const path = href ?? `/event/${event.slug}`;
   return (
     <article className="event-card group relative flex min-w-0 flex-col">
       <Link
-        href={`/event/${event.slug}`}
+        href={path}
         className={`flex ${hasSeriesLink ? "flex-1" : "h-full"} flex-col focus-visible:outline-offset-[-3px]`}
       >
         {event.image && !isShareAlike(event.image.license) ? (
@@ -153,9 +158,11 @@ export function EventCard({
           <Icon name="arrow" size={14} aria-hidden="true" />
         </Link>
       ) : null}
-      <div className="absolute right-3 top-3 z-10">
-        <SaveButton id={event.id} event={event} compact />
-      </div>
+      {showSave ? (
+        <div className="absolute right-3 top-3 z-10">
+          <SaveButton id={event.id} event={event} compact />
+        </div>
+      ) : null}
     </article>
   );
 }

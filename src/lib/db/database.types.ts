@@ -694,6 +694,108 @@ export type Database = {
           },
         ]
       }
+      event_collections: {
+        Row: {
+          created_at: string
+          description: string
+          id: string
+          owner_id: string
+          slug: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string
+          id?: string
+          owner_id?: string
+          slug: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string
+          id?: string
+          owner_id?: string
+          slug?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_collections_owner_id_fkey"
+            columns: ["owner_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      event_collection_items: {
+        Row: {
+          added_at: string
+          collection_id: string
+          event_key: string
+          position: number
+          snapshot: Json
+        }
+        Insert: {
+          added_at?: string
+          collection_id: string
+          event_key: string
+          position?: number
+          snapshot: Json
+        }
+        Update: {
+          added_at?: string
+          collection_id?: string
+          event_key?: string
+          position?: number
+          snapshot?: Json
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_collection_items_collection_id_fkey"
+            columns: ["collection_id"]
+            isOneToOne: false
+            referencedRelation: "event_collections"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      event_collection_images: {
+        Row: {
+          collection_id: string
+          created_at: string
+          id: string
+          path: string
+          position: number
+        }
+        Insert: {
+          collection_id: string
+          created_at?: string
+          id?: string
+          path: string
+          position?: number
+        }
+        Update: {
+          collection_id?: string
+          created_at?: string
+          id?: string
+          path?: string
+          position?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_collection_images_collection_id_fkey"
+            columns: ["collection_id"]
+            isOneToOne: false
+            referencedRelation: "event_collections"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       ingest_state: {
         Row: {
           backoff_until: string | null

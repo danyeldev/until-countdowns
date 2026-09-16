@@ -17,7 +17,10 @@ export default async function SavedPage() {
     <div>
       <div className="mb-8 flex flex-wrap items-end justify-between gap-5">
         <div><h1 className="page-heading">Your collection</h1><p className="page-subtitle mt-3 max-w-xl">Good things ahead. Keep your favorite dates and your own moments together.</p></div>
-        <Link href="/create" className="button-primary"><span aria-hidden="true">+</span> Create countdown</Link>
+        <div className="flex flex-wrap gap-3">
+          <Link href="/collections" className="button-secondary">Collections</Link>
+          <Link href="/create" className="button-primary"><span aria-hidden="true">+</span> Create countdown</Link>
+        </div>
       </div>
       <SavedList />
     </div>

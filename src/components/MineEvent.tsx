@@ -7,6 +7,7 @@ import { useState } from "react";
 import { useCollection } from "@/components/CollectionProvider";
 import { loginHref, safeNextPath } from "@/lib/auth/paths";
 import { encodeSharePayload } from "@/lib/user-events";
+import { AddToCollectionButton } from "./AddToCollectionButton";
 import { CalendarButtons } from "./CalendarButtons";
 import { EventComments } from "./EventComments";
 import { Countdown } from "./Countdown";
@@ -48,7 +49,7 @@ export function MineEvent({ slug }: { slug: string }) {
           <p className="mt-4 text-base text-paper-dim">{formatRange(event.date, event.endDate)}</p>
           <div className="my-8 border-y border-line py-8 sm:py-10"><Countdown date={event.date} allDay={event.allDay} size="hero" /></div>
           {event.description && <p className="mb-7 max-w-2xl whitespace-pre-wrap break-words text-base leading-relaxed text-paper-dim">{event.description}</p>}
-          <div className="flex flex-wrap items-start gap-3">{payload && <ShareButton title={event.title} path={sharePath} />}<CalendarButtons event={event} url={payload ? absoluteUrl(sharePath) : undefined} /></div>
+          <div className="flex flex-wrap items-start gap-3"><AddToCollectionButton event={event} />{payload && <ShareButton title={event.title} path={sharePath} />}<CalendarButtons event={event} url={payload ? absoluteUrl(sharePath) : undefined} /></div>
           <p className="mt-5 max-w-2xl text-xs leading-relaxed text-muted">{payload ? "A share link carries this countdown with it. Anyone with the link can read your title, date, category and note, even without an account." : "This note is too long for a share link. Your countdown is still saved to your account."}</p>
         </div>
       </div>

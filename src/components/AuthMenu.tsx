@@ -99,11 +99,19 @@ export function AuthMenu() {
           <p className="mt-0.5 truncate px-2 text-xs text-muted">{account.email}</p>
         )}
         <p className="mt-2 px-2 text-xs leading-relaxed text-muted">
-          {account.handle ? "Your public page is your handle. Your collection stays private." : "Your collection stays with your account."}
+          {account.handle
+            ? "Your public page is your handle. Saved dates stay private; collections you publish are public."
+            : "Your saved dates stay with your account."}
         </p>
         <Link
-          href="/notifications"
+          href="/collections"
           className="mt-3 flex min-h-11 items-center rounded-xl px-2 text-xs text-paper-dim hover:bg-surface-hover hover:text-paper"
+        >
+          Collections
+        </Link>
+        <Link
+          href="/notifications"
+          className="flex min-h-11 items-center rounded-xl px-2 text-xs text-paper-dim hover:bg-surface-hover hover:text-paper"
         >
           Notifications
         </Link>

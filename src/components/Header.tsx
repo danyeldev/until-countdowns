@@ -12,6 +12,7 @@ const MAIN: { href: string; label: string; icon: IconName }[] = [
   { href: "/", label: "Explore", icon: "compass" },
   { href: "/calendar", label: "Calendar", icon: "calendar" },
   { href: "/saved", label: "My space", icon: "bookmark" },
+  { href: "/collections", label: "Collections", icon: "list" },
   { href: "/notifications", label: "Notifications", icon: "bell" },
 ];
 const EXPLORE: { href: string; label: string; icon: IconName }[] = [
@@ -25,6 +26,7 @@ function workspaceLabel(pathname: string, query: string | null): string {
   if (pathname.startsWith("/login/complete")) return "Your profile";
   if (pathname.startsWith("/login")) return "Sign in";
   if (pathname.startsWith("/saved")) return "My space";
+  if (pathname.startsWith("/collections")) return "Collections";
   if (pathname.startsWith("/notifications")) return "Notifications";
   if (pathname.startsWith("/create")) return "Create a countdown";
   if (pathname.startsWith("/calendar")) return "Calendar";
@@ -34,6 +36,7 @@ function workspaceLabel(pathname: string, query: string | null): string {
   if (pathname.startsWith("/category")) return "Categories";
   const handle = parseHandle(pathname.slice(1).split("/")[0] ?? "");
   if (handle && pathname === `/${handle}`) return `@${handle}`;
+  if (handle && pathname.startsWith(`/${handle}/`)) return "Collection";
   return "Explore";
 }
 
@@ -156,7 +159,7 @@ export function Header() {
         style={{ marginBottom: "env(safe-area-inset-bottom)" }}
       >
         {[
-          ...MAIN.filter((item) => item.href !== "/notifications"),
+          ...MAIN.filter((item) => item.href !== "/notifications" && item.href !== "/collections"),
           { href: "/create", label: "Create", icon: "plus" as const },
         ].map((item) => (
           <Link

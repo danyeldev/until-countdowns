@@ -11,6 +11,7 @@ const RESERVED_HANDLES = new Set([
   "auth",
   "calendar",
   "category",
+  "collections",
   "complete",
   "country",
   "create",

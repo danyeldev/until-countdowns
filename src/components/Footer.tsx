@@ -25,6 +25,9 @@ export function Footer() {
           <Link href="/saved" className="hover:text-paper">
             Your space
           </Link>
+          <Link href="/collections" className="hover:text-paper">
+            Collections
+          </Link>
           <Link href="/notifications" className="hover:text-paper">
             Notifications
           </Link>

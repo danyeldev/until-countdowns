@@ -14,6 +14,7 @@ import { IntentAnswer } from "@/components/IntentAnswer";
 import { EventComments } from "@/components/EventComments";
 import { JsonLd } from "@/components/JsonLd";
 import { MineEvent } from "@/components/MineEvent";
+import { AddToCollectionButton } from "@/components/AddToCollectionButton";
 import { SaveButton } from "@/components/SaveButton";
 import { ShareButton } from "@/components/ShareButton";
 import {
@@ -277,6 +278,7 @@ export default async function EventPage({
         actions={
           <>
             <SaveButton id={event.id} event={event} />
+            {!isUser ? <AddToCollectionButton event={event} /> : null}
             <CalendarButtons event={event} url={absoluteUrl(sharePath)} />
             <ShareButton title={event.title} path={sharePath} />
           </>
