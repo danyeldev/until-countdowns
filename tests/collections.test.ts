@@ -1,0 +1,64 @@
+import { describe, expect, it } from "vitest";
+import {
+  collectionErrorMessage,
+  collectionEventFromSnapshot,
+  collectionHref,
+  nextCollectionSlug,
+  parseCollectionDescription,
+  parseCollectionEventKey,
+  parseCollectionSlug,
+  parseCollectionTitle,
+  slugifyCollectionTitle,
+} from "@/lib/collections";
+
+describe("public collections", () => {
+  it("parses title, description, and slugs", () => {
+    expect(parseCollectionTitle("  Autumn nights  ")).toBe("Autumn nights");
+    expect(parseCollectionTitle("")).toBeNull();
+    expect(parseCollectionDescription("A short list.")).toBe("A short list.");
+    expect(parseCollectionDescription("x".repeat(501))).toBeNull();
+    expect(slugifyCollectionTitle("Autumn nights!")).toBe("autumn-nights");
+    expect(parseCollectionSlug("autumn-nights")).toBe("autumn-nights");
+    expect(parseCollectionSlug("new")).toBeNull();
+    expect(parseCollectionSlug("1autumn")).toBeNull();
+    expect(nextCollectionSlug("Autumn nights", ["autumn-nights"])).toBe("autumn-nights-2");
+  });
+
+  it("accepts catalog and personal event keys, not share payloads", () => {
+    expect(parseCollectionEventKey("halloween-2026-10-31")).toBe("halloween-2026-10-31");
+    expect(parseCollectionEventKey("mine-trip-2026-10-31")).toBe("mine-trip-2026-10-31");
+    expect(parseCollectionEventKey("share-abc")).toBeNull();
+  });
+
+  it("builds a public collection path from handle and slug", () => {
+    expect(collectionHref("ada", "autumn-nights")).toBe("/ada/autumn-nights");
+  });
+
+  it("rehydrates catalog and personal snapshots", () => {
+    const catalog = collectionEventFromSnapshot("halloween-2026-10-31", {
+      id: "halloween-2026-10-31",
+      slug: "halloween-2026-10-31",
+      title: "Halloween",
+      date: "2026-10-31",
+      description: "Candy.",
+      allDay: true,
+      category: "culture",
+      source: "catalog",
+    });
+    expect(catalog?.title).toBe("Halloween");
+    const personal = collectionEventFromSnapshot("mine-trip-2026-11-01", {
+      title: "Trip",
+      date: "2026-11-01",
+      description: "Go.",
+      category: "culture",
+      source: "user",
+    });
+    expect(personal?.slug).toBe("mine-trip-2026-11-01");
+    expect(personal?.source).toBe("user");
+  });
+
+  it("maps limit errors without leaking internals", () => {
+    expect(collectionErrorMessage({ code: "P0001", message: "collection_limit" })).toMatch(/20/);
+    expect(collectionErrorMessage({ message: "permission denied for table" })).toMatch(/Could not update/);
+  });
+});

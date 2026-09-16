@@ -2,11 +2,13 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound, permanentRedirect } from "next/navigation";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
+import { CollectionCard } from "@/components/CollectionCard";
 import { Icon } from "@/components/Icon";
 import { JsonLd } from "@/components/JsonLd";
 import { getOwnProfile } from "@/lib/auth/server";
 import { parseProfileParam, profileHref } from "@/lib/auth/profile";
 import { getPublicProfile } from "@/lib/auth/public-profile";
+import { listPublicCollectionsServer } from "@/lib/collections-server";
 import { profilePage } from "@/lib/jsonld";
 import { buildMetadata, truncate } from "@/lib/seo";
 
@@ -40,6 +42,7 @@ export default async function PublicProfilePage({ params }: PageProps<"/[handle]
   const own = await getOwnProfile();
   const isOwn = own?.handle === profile.handle;
   const initial = profile.name.slice(0, 1).toLocaleUpperCase();
+  const collections = await listPublicCollectionsServer(profile.handle);
 
   return (
     <article>
@@ -57,17 +60,17 @@ export default async function PublicProfilePage({ params }: PageProps<"/[handle]
       </div>
       <p className="page-subtitle mt-6 max-w-xl">
         {isOwn
-          ? "This is your public page. Your collection stays with your account; share a countdown when you want someone else to see it."
-          : `${profile.name} is counting down on Until. Collections stay private unless someone shares a link.`}
+          ? "This is your public page. Saved dates stay with your account. Collections you publish appear here."
+          : `${profile.name} is counting down on Until. Public collections appear below.`}
       </p>
       <div className="mt-7 flex flex-wrap gap-3">
         {isOwn ? (
           <>
-            <Link href="/create" className="button-primary">
-              Create a countdown <Icon name="arrow" />
+            <Link href="/collections/new" className="button-primary">
+              New collection <Icon name="arrow" />
             </Link>
             <Link href="/saved" className="button-secondary">
-              Your collection
+              Your space
             </Link>
           </>
         ) : (
@@ -76,6 +79,20 @@ export default async function PublicProfilePage({ params }: PageProps<"/[handle]
           </Link>
         )}
       </div>
+      <section className="mt-10">
+        <h2 className="section-heading">Collections</h2>
+        {collections.length ? (
+          <div className="mt-5 grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
+            {collections.map((collection) => (
+              <CollectionCard key={collection.id} collection={collection} />
+            ))}
+          </div>
+        ) : (
+          <p className="mt-5 text-sm text-paper-dim">
+            {isOwn ? "Publish a collection to share a list of countdowns." : `${profile.name} has not published a collection yet.`}
+          </p>
+        )}
+      </section>
     </article>
   );
 }

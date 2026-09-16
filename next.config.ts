@@ -35,6 +35,11 @@ const nextConfig: NextConfig = {
         hostname: supabaseImageHost(),
         pathname: "/storage/v1/object/public/event-images/**",
       },
+      {
+        protocol: "https",
+        hostname: supabaseImageHost(),
+        pathname: "/storage/v1/object/public/collection-images/**",
+      },
     ],
     // Re-hosted derivatives are content-addressed (sha256 paths): cache them for 31 days.
     minimumCacheTTL: 2678400,
