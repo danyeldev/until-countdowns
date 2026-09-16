@@ -55,3 +55,15 @@ export function parseAuthMode(value: unknown): AuthMode {
 export function hasSupabaseAuthCookies(cookies: { name: string }[]): boolean {
   return cookies.some((cookie) => cookie.name.startsWith("sb-"));
 }
+
+/** Paths that stay behind a session. The public collections directory is open. */
+export function isAuthGatedPath(href: string) {
+  const path = href.split("?")[0] ?? href;
+  return (
+    path === "/saved" ||
+    path === "/create" ||
+    path === "/notifications" ||
+    path === "/collections/new" ||
+    /^\/collections\/[^/]+\/edit$/.test(path)
+  );
+}

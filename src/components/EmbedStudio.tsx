@@ -302,7 +302,7 @@ function ColorField({
             if (parsed) onChange(parsed);
           }}
           onBlur={() => setDraft(null)}
-          className="w-full rounded-xl border border-line bg-ink-2 px-3 py-2 font-mono text-sm text-paper outline-none placeholder:text-muted focus:border-amber/60 disabled:opacity-40"
+          className="w-full rounded-full border border-line bg-ink-2 px-3 py-2 font-mono text-sm text-paper outline-none placeholder:text-muted focus:border-amber/60 disabled:opacity-40"
         />
       </div>
     </div>
@@ -752,7 +752,7 @@ export function EmbedStudio({
                     value={snippet}
                     onFocus={(e) => e.currentTarget.select()}
                     aria-label="Embed code"
-                    className="mt-2 w-full rounded-xl border border-line bg-ink-2 px-4 py-3 font-mono text-xs text-paper-dim outline-none focus:border-amber/60"
+                    className="field mt-2 w-full font-mono text-xs text-paper-dim"
                   />
                 </div>
                 <div className="flex flex-wrap gap-3">

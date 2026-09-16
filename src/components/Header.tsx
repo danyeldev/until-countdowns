@@ -66,7 +66,7 @@ export function Header() {
   const signedIn = Boolean(userId);
   const mainItems = MAIN.filter((item) => item.href !== "/saved" || signedIn);
   const mobileItems = [
-    ...mainItems.filter((item) => item.href !== "/collections"),
+    ...mainItems,
     { href: "/create", label: "Create", icon: "plus" as const },
   ];
   const active = (href: string) =>
@@ -143,11 +143,7 @@ export function Header() {
         <div className="lg:hidden">
           <Logo />
         </div>
-        <div className="hidden items-center gap-2 text-xs lg:flex">
-          <span className="text-muted">Workspace</span>
-          <span className="px-2 text-muted/40">/</span>
-          <span className="text-paper-dim">{pageLabel}</span>
-        </div>
+        <div className="hidden text-xs text-paper-dim lg:block">{pageLabel}</div>
         <div className="flex items-center gap-3">
           <QuickSearch />
           <AuthGateLink
@@ -163,7 +159,7 @@ export function Header() {
       </header>
       <nav
         aria-label="Mobile navigation"
-        className={`fixed inset-x-4 bottom-3 z-40 mx-auto grid max-w-lg rounded-2xl border border-white/10 bg-[#171a24]/95 p-1.5 shadow-[0_8px_40px_#0009] backdrop-blur-xl lg:hidden ${mobileItems.length === 4 ? "grid-cols-4" : "grid-cols-3"}`}
+        className={`fixed inset-x-4 bottom-3 z-40 mx-auto grid max-w-lg rounded-2xl border border-white/10 bg-[#171a24]/95 p-1.5 shadow-[0_8px_40px_#0009] backdrop-blur-xl lg:hidden ${mobileItems.length >= 5 ? "grid-cols-5" : mobileItems.length === 4 ? "grid-cols-4" : "grid-cols-3"}`}
         style={{ marginBottom: "env(safe-area-inset-bottom)" }}
       >
         {mobileItems.map((item) => (

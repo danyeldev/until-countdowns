@@ -7,6 +7,9 @@ import {
   sitemapShardIds,
   tagsWithAtLeast,
 } from "@/lib/catalog";
+import { collectionHref } from "@/lib/collections";
+import { listPublicCollections } from "@/lib/collections-server";
+import { featuredCollectionHref, listFeaturedCollections } from "@/lib/featured-collections";
 import { COUNTRY_NAMES } from "@/lib/regions";
 import { absoluteUrl, CALENDAR_MAX_YEAR, nextMonth, pad2, todayUtc, yearMonthOf } from "@/lib/seo";
 import { CATEGORIES } from "@/lib/types";
@@ -32,8 +35,27 @@ function entry(path: string, lastModified?: string): MetadataRoute.Sitemap[numbe
 }
 
 async function hubs(): Promise<MetadataRoute.Sitemap> {
-  const out: MetadataRoute.Sitemap = [entry("/"), entry("/days-until"), entry("/category"), entry("/country"), entry("/create"), entry("/about"), entry("/attributions")];
-  // Empty categories render `noindex` (thin pages); they join the sitemap once they have rows.
+  const out: MetadataRoute.Sitemap = [
+    entry("/"),
+    entry("/days-until"),
+    entry("/category"),
+    entry("/country"),
+    entry("/create"),
+    entry("/about"),
+    entry("/attributions"),
+    entry("/collections"),
+  ];
+  // Empty lists stay reachable but noindex, like empty category hubs.
+  const featured = await listFeaturedCollections();
+  for (const item of featured) {
+    if (item.itemCount > 0) out.push(entry(featuredCollectionHref(item.meta.slug)));
+  }
+  const published = await listPublicCollections(200);
+  for (const collection of published) {
+    if (collection.itemCount > 0) {
+      out.push(entry(collectionHref(collection.owner.handle, collection.slug), collection.updatedAt));
+    }
+  }
   const byCategory = await categoryCounts();
   for (const c of CATEGORIES) if ((byCategory[c] ?? 0) > 0) out.push(entry(`/category/${c}`));
 

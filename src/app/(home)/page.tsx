@@ -17,6 +17,7 @@ import {
   topSeries,
 } from "@/lib/catalog";
 import { organization, webSite } from "@/lib/jsonld";
+import { searchCollections } from "@/lib/search-collections-server";
 import { CATEGORY_LABELS } from "@/lib/labels";
 import {
   buildMetadata,
@@ -93,7 +94,7 @@ export async function generateMetadata({
 export default async function Home({ searchParams }: PageProps<"/">) {
   const { q, category, sort, page, hub } = parseQuery(await searchParams);
 
-  const [highlights, result, counts, next7, popular] = await Promise.all([
+  const [highlights, result, counts, next7, popular, collections] = await Promise.all([
     hub ? featuredUpcoming(4) : [],
     searchEvents({ q, category, sort, page, pageSize: 12 }),
     categoryCounts(),
@@ -106,6 +107,7 @@ export default async function Home({ searchParams }: PageProps<"/">) {
         })
       : [],
     hub ? topSeries(12) : [],
+    q && page === 1 ? searchCollections(q, 6) : Promise.resolve([]),
   ]);
   const featured = highlights[0];
   const futureOccurrences = await futureOccurrencesForEvents(result.items);
@@ -240,6 +242,7 @@ export default async function Home({ searchParams }: PageProps<"/">) {
         category={category}
         sort={sort}
         counts={counts}
+        collections={collections}
       />
       {hub && (
         <>
@@ -259,15 +262,15 @@ export default async function Home({ searchParams }: PageProps<"/">) {
               </p>
               <EventTable events={next7} showCategory={false} />
             </div>
-            <div className="relative isolate flex min-h-[300px] flex-col justify-end overflow-hidden rounded-3xl border border-white/10 bg-[#1b1730] p-7">
+            <div className="relative isolate flex flex-col self-start overflow-hidden rounded-3xl border border-white/10 bg-[#1b1730] p-7">
               <div
                 aria-hidden="true"
                 className="absolute -right-12 -top-12 -z-10 size-64 rounded-full bg-amber/10 blur-3xl"
               />
-              <span className="mb-auto flex size-12 items-center justify-center rounded-2xl border border-amber/20 bg-amber/10 text-amber">
+              <span className="flex size-12 items-center justify-center rounded-2xl border border-amber/20 bg-amber/10 text-amber">
                 <Icon name="plus" size={24} />
               </span>
-              <h2 className="mt-8 max-w-xs text-2xl font-semibold leading-tight tracking-tight">
+              <h2 className="mt-6 max-w-xs text-2xl font-semibold leading-tight tracking-tight">
                 Your life has big dates, too.
               </h2>
               <p className="mt-3 max-w-xs text-sm leading-relaxed text-paper-dim">

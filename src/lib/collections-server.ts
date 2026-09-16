@@ -1,7 +1,23 @@
 import "server-only";
+import { publicSupabaseEnv } from "@/lib/auth/env";
 import { createAuthServerClient, getAuthClaims } from "@/lib/auth/server";
-import { getOwnCollection, getPublicCollection, listOwnCollections, listPublicCollectionsForHandle } from "@/lib/collections-client";
+import {
+  getOwnCollection,
+  getPublicCollection,
+  listOwnCollections,
+  listPublicCollections as listPublicCollectionsClient,
+  listPublicCollectionsForHandle,
+} from "@/lib/collections-client";
 import type { CollectionDetail, CollectionSummary } from "@/lib/collections";
+
+export async function listPublicCollections(limit = 48): Promise<CollectionSummary[]> {
+  if (!publicSupabaseEnv()) return [];
+  try {
+    return await listPublicCollectionsClient(await createAuthServerClient(), limit);
+  } catch {
+    return [];
+  }
+}
 
 export async function listOwnCollectionsServer(): Promise<CollectionSummary[]> {
   const claims = await getAuthClaims();

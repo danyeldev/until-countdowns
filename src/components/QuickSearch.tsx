@@ -8,6 +8,10 @@ import {
   formatCompactDate,
   isCoarsePrecision,
 } from "@/lib/time";
+import {
+  matchFeaturedCollections,
+  type CollectionSearchHit,
+} from "@/lib/search-collections";
 import type { CountdownEvent } from "@/lib/types";
 
 export function QuickSearch() {
@@ -16,6 +20,7 @@ export function QuickSearch() {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<CountdownEvent[]>([]);
+  const [collections, setCollections] = useState<CollectionSearchHit[]>([]);
   const [loading, setLoading] = useState(false);
   const [failed, setFailed] = useState(false);
 
@@ -51,7 +56,10 @@ export function QuickSearch() {
         );
         if (!response.ok) throw new Error("Search unavailable");
         const data = await response.json();
-        if (!controller.signal.aborted) setResults(data.items ?? []);
+        if (!controller.signal.aborted) {
+          setResults(data.items ?? []);
+          setCollections(data.collections ?? matchFeaturedCollections(query.trim()));
+        }
       } catch {
         if (!controller.signal.aborted) {
           setFailed(true);
@@ -122,7 +130,7 @@ export function QuickSearch() {
         <form
           action="/"
           onSubmit={() => setOpen(false)}
-          className="flex items-center gap-3 border-b border-line px-5 py-4"
+          className="flex items-center gap-3 border-b border-line px-5"
         >
           <Icon name="search" size={21} className="shrink-0 text-amber" />
           <input
@@ -133,19 +141,21 @@ export function QuickSearch() {
             maxLength={80}
             value={query}
             onChange={(event) => {
-              setQuery(event.target.value);
+              const value = event.target.value;
+              setQuery(value);
               setResults([]);
-              setLoading(event.target.value.trim().length >= 2);
+              setCollections(matchFeaturedCollections(value.trim()));
+              setLoading(value.trim().length >= 2);
               setFailed(false);
             }}
-            placeholder="An event, a holiday, a year…"
+            placeholder="An event, a holiday, a list…"
             aria-label="Search countdowns"
-            className="min-w-0 flex-1 bg-transparent py-2 text-base outline-none"
+            className="min-h-14 min-w-0 flex-1 bg-transparent text-base outline-none placeholder:text-muted"
           />
           <button
             type="button"
             onClick={() => setOpen(false)}
-            className="flex size-11 shrink-0 items-center justify-center rounded-lg text-muted hover:bg-white/5 hover:text-paper"
+            className="flex size-11 shrink-0 items-center justify-center rounded-full text-muted hover:bg-white/5 hover:text-paper"
             aria-label="Close search"
           >
             <Icon name="close" size={18} />
@@ -179,12 +189,34 @@ export function QuickSearch() {
               <p role="status" className="px-3 pb-2 pt-1 text-xs text-muted">
                 {loading
                   ? "Finding moments…"
-                  : failed
+                  : failed && !collections.length
                     ? "Search is taking a break. Try again in a moment."
-                    : results.length
-                      ? "Matching moments"
+                    : results.length || collections.length
+                      ? "Matching lists and moments"
                       : "No matches yet. Try another name or year."}
               </p>
+              {collections.map((collection) => (
+                <Link
+                  key={collection.id}
+                  href={collection.href}
+                  data-search-result
+                  onClick={() => setOpen(false)}
+                  className="command-result"
+                >
+                  <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-amber/10 text-amber">
+                    <Icon name="list" size={19} />
+                  </span>
+                  <span className="min-w-0 flex-1">
+                    <span className="block truncate text-sm font-medium">
+                      {collection.title}
+                    </span>
+                    <span className="mt-1 block truncate text-xs text-muted">
+                      {collection.byline}
+                    </span>
+                  </span>
+                  <Icon name="arrow" size={16} className="text-muted" />
+                </Link>
+              ))}
               {results.map((event) => (
                 <Link
                   key={event.id}

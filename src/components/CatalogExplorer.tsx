@@ -1,8 +1,10 @@
 import Link from "next/link";
 import { EventCard } from "./EventCard";
 import { CategoryBar } from "./CategoryBar";
+import { CollectionSearchHits } from "./CollectionSearchHits";
 import { Icon } from "./Icon";
 import { CATEGORY_LABELS } from "@/lib/labels";
+import type { CollectionSearchHit } from "@/lib/search-collections";
 import type {
   Category,
   CountdownEvent,
@@ -88,6 +90,7 @@ export function CatalogExplorer({
   counts,
   showSearch = true,
   futureOccurrences = {},
+  collections = [],
 }: {
   events: CountdownEvent[];
   total: number;
@@ -99,6 +102,7 @@ export function CatalogExplorer({
   counts: Partial<Record<Category, number>>;
   showSearch?: boolean;
   futureOccurrences?: Record<string, SeriesOccurrencePreview[]>;
+  collections?: CollectionSearchHit[];
 }) {
   const pages = Math.max(1, Math.ceil(total / pageSize));
 
@@ -128,14 +132,22 @@ export function CatalogExplorer({
             {q ? "Matching countdowns" : "Discover countdowns"}
           </h2>
           <p className="mt-1 text-sm text-muted">
-            {total.toLocaleString("en-US")}{" "}
-            {q
-              ? total === 1
-                ? "result"
-                : "results"
-              : total === 1
-                ? "upcoming date"
-                : "upcoming dates"}
+            {q && collections.length && total === 0 ? (
+              <>
+                {collections.length} collection{collections.length === 1 ? "" : "s"}
+              </>
+            ) : (
+              <>
+                {total.toLocaleString("en-US")}{" "}
+                {q
+                  ? total === 1
+                    ? "result"
+                    : "results"
+                  : total === 1
+                    ? "upcoming date"
+                    : "upcoming dates"}
+              </>
+            )}
             {category && category !== "all" ? (
               <>
                 {" in "}
@@ -175,7 +187,7 @@ export function CatalogExplorer({
       {showSearch && (
         <form
           action="/"
-          className="mt-6 flex items-center gap-3 rounded-xl border border-line bg-ink-2 p-2 pl-4"
+          className="mt-6 flex items-center gap-3 rounded-full border border-line bg-ink-2 p-2 pl-4"
         >
           <Icon name="search" className="text-muted" />
           <label htmlFor="catalog-search" className="sr-only">
@@ -189,10 +201,10 @@ export function CatalogExplorer({
             maxLength={80}
             defaultValue={q}
             placeholder="Search the whole catalog…"
-            className="min-w-0 flex-1 bg-transparent py-2 text-sm outline-none"
+            className="min-w-0 flex-1 bg-transparent py-2 text-sm tracking-normal outline-none placeholder:text-muted"
           />
           {category && <input type="hidden" name="category" value={category} />}
-          <button className="button-primary" type="submit">
+          <button className="button-primary !rounded-full" type="submit">
             Search
           </button>
         </form>
@@ -218,8 +230,14 @@ export function CatalogExplorer({
           </p>
         )}
 
+      {q && collections.length ? (
+        <div className="mt-6">
+          <CollectionSearchHits hits={collections} />
+        </div>
+      ) : null}
+
       {events.length === 0 ? (
-        <EmptyResult q={q} counts={counts} />
+        collections.length ? null : <EmptyResult q={q} counts={counts} />
       ) : (
         <div className="mt-6 grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
           {events.map((event) => (

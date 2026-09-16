@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { authErrorMessage, isStaleAuthSession } from "@/lib/auth/messages";
-import { completeProfileHref, hasSupabaseAuthCookies, loginHref, parseAuthMode, safeNextPath } from "@/lib/auth/paths";
+import { completeProfileHref, hasSupabaseAuthCookies, isAuthGatedPath, loginHref, parseAuthMode, safeNextPath } from "@/lib/auth/paths";
 import { handleError, normalizeHandleInput, parseHandle, parseName, parseProfileParam, profileHref, readSignupProfile } from "@/lib/auth/profile";
 
 describe("safeNextPath", () => {
@@ -52,6 +52,14 @@ describe("login helpers", () => {
   it("detects supabase auth cookies without treating other cookies as a session", () => {
     expect(hasSupabaseAuthCookies([{ name: "sb-zgtowuglxtylpcjmqkqw-auth-token" }])).toBe(true);
     expect(hasSupabaseAuthCookies([{ name: "theme" }])).toBe(false);
+  });
+
+  it("keeps the collections directory public and gates create and edit", () => {
+    expect(isAuthGatedPath("/collections")).toBe(false);
+    expect(isAuthGatedPath("/collections/featured/get-drunk-this-week")).toBe(false);
+    expect(isAuthGatedPath("/collections/new")).toBe(true);
+    expect(isAuthGatedPath("/collections/aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee/edit")).toBe(true);
+    expect(isAuthGatedPath("/saved")).toBe(true);
   });
 });
 

@@ -90,6 +90,22 @@ export async function listOwnCollections(client: CollectionClient, ownerId: stri
   });
 }
 
+export async function listPublicCollections(
+  client: CollectionClient,
+  limit = 48,
+): Promise<CollectionSummary[]> {
+  const { data, error } = await client
+    .from("event_collections")
+    .select(COLLECTION_SELECT)
+    .order("updated_at", { ascending: false })
+    .limit(limit);
+  if (error) throw new Error(collectionErrorMessage(error));
+  return ((data ?? []) as CollectionRow[]).flatMap((row) => {
+    const item = summaryFromRow(row);
+    return item ? [item] : [];
+  });
+}
+
 export async function listPublicCollectionsForHandle(
   client: CollectionClient,
   handle: string,

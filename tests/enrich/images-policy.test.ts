@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import { heroAspectRatio, isShareAlike, MIN_HERO_ASPECT, ogBackgroundUrl, shortCredit } from "@/lib/images";
+import { firstOgBackground, heroAspectRatio, isShareAlike, MIN_HERO_ASPECT, ogBackgroundUrl, shortCredit } from "@/lib/images";
 import type { EventImage } from "@/lib/types";
 import type { Db } from "@/lib/ingest/db";
 import { dueForRecheck, recheckFileTitle, runRecheck } from "@/lib/enrich/recheck";
@@ -35,6 +35,10 @@ describe("ShareAlike gate", () => {
     expect(ogBackgroundUrl(IMAGE)).toBe(
       "https://ref.supabase.co/storage/v1/object/public/event-images/abc/og.jpg",
     );
+    expect(firstOgBackground([{ image: { ...IMAGE, license: "CC BY-SA 4.0" } }, { image: IMAGE }])).toEqual({
+      imageUrl: "https://ref.supabase.co/storage/v1/object/public/event-images/abc/og.jpg",
+      imageCredit: "Photo: Krzysztof Golik · CC BY 4.0",
+    });
   });
 });
 
