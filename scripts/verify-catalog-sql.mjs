@@ -38,8 +38,32 @@ try {
   if (!ready) throw new Error("Disposable PostgreSQL did not become ready");
 
   const psqlFor = (database) => ["exec", "-i", container, "psql", "-U", "supabase_admin", "-d", database, "-v", "ON_ERROR_STOP=1", "-q", "-A", "-t"];
-  // The Supabase storage service initializes storage.buckets/objects separately.
-  // No storage schema changes are part of these catalog regression checks.
+  // The Storage API creates storage.buckets/objects. This image does not, so stub
+  // the objects catalog migrations expect before any project SQL runs.
+  docker(
+    psqlFor("until_verify"),
+    `
+    create schema if not exists storage;
+    create table if not exists storage.buckets (
+      id text primary key,
+      name text not null,
+      public boolean not null default false,
+      file_size_limit bigint,
+      allowed_mime_types text[]
+    );
+    create table if not exists storage.objects (
+      id uuid primary key default gen_random_uuid(),
+      bucket_id text,
+      name text
+    );
+    create or replace function storage.foldername(object_name text)
+    returns text[]
+    language sql
+    immutable
+    as $$ select coalesce(string_to_array(object_name, '/'), array[]::text[]); $$;
+    `,
+  );
+  // Dedicated storage-only migrations still stay out of these catalog checks.
   const migrations = readdirSync(new URL("supabase/migrations/", root)).filter((file) => file.endsWith(".sql") && file !== "0003_storage.sql").sort();
   // The search fix also ships independently of the three earlier pending migrations.
   // Verify the actual deployed-core + search path in a separate empty database.
