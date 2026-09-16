@@ -19,6 +19,7 @@ import {
   parseCollectionTitle,
   snapshotForCollection,
 } from "./collections";
+import { r2PublicBase } from "./image-host";
 
 type CollectionClient = SupabaseClient<Database>;
 
@@ -244,9 +245,29 @@ export async function updateEventCollection(
   if (error) throw new Error(collectionErrorMessage(error));
 }
 
+async function removeCollectionObjects(client: CollectionClient, paths: string[]): Promise<void> {
+  if (!paths.length) return;
+  if (r2PublicBase()) {
+    const res = await fetch("/api/collections/images", {
+      method: "DELETE",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ paths }),
+    });
+    if (!res.ok) {
+      const body = (await res.json().catch(() => null)) as { error?: string } | null;
+      throw new Error(body?.error || "Could not remove those photos.");
+    }
+    return;
+  }
+  await client.storage.from(COLLECTION_IMAGE_BUCKET).remove(paths);
+}
+
 export async function deleteEventCollection(client: CollectionClient, collection: CollectionSummary): Promise<void> {
   if (collection.images.length) {
-    await client.storage.from(COLLECTION_IMAGE_BUCKET).remove(collection.images.map((image) => image.path));
+    await removeCollectionObjects(
+      client,
+      collection.images.map((image) => image.path),
+    );
   }
   const { error } = await client.from("event_collections").delete().eq("id", collection.id);
   if (error) throw new Error(collectionErrorMessage(error));
@@ -316,6 +337,18 @@ export async function uploadCollectionImages(
   for (const file of files) {
     assertCollectionImageFile(file);
     position += 1;
+    if (r2PublicBase()) {
+      const body = new FormData();
+      body.set("collectionId", collection.id);
+      body.set("position", String(position));
+      body.set("file", file);
+      const res = await fetch("/api/collections/images", { method: "POST", body });
+      if (!res.ok) {
+        const payload = (await res.json().catch(() => null)) as { error?: string } | null;
+        throw new Error(payload?.error || "Could not upload that photo.");
+      }
+      continue;
+    }
     const path = `${collection.owner.id}/${collection.id}/${crypto.randomUUID()}.${imageExtension(file)}`;
     const { error: uploadError } = await client.storage.from(COLLECTION_IMAGE_BUCKET).upload(path, file, {
       cacheControl: "3600",
@@ -336,6 +369,18 @@ export async function deleteCollectionImage(
   client: CollectionClient,
   image: CollectionImage,
 ): Promise<void> {
+  if (r2PublicBase()) {
+    const res = await fetch("/api/collections/images", {
+      method: "DELETE",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id: image.id }),
+    });
+    if (!res.ok) {
+      const body = (await res.json().catch(() => null)) as { error?: string } | null;
+      throw new Error(body?.error || "Could not remove that photo.");
+    }
+    return;
+  }
   await client.storage.from(COLLECTION_IMAGE_BUCKET).remove([image.path]);
   const { error } = await client.from("event_collection_images").delete().eq("id", image.id);
   if (error) throw new Error(collectionErrorMessage(error));

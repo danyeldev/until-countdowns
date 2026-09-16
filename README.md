@@ -215,7 +215,7 @@ The curated adapter syncs `public.series` / `series_aliases` at the start of eac
 
 ### Environment
 
-`CRON_SECRET`, `INGEST_ENABLED=true`, `INGEST_BUDGET_MS=240000`, `INGEST_USER_AGENT="UntilCountdowns/2.0 (https://…; contact)"` (Wikimedia rejects requests without a descriptive UA), plus the Supabase variables. Optional: `REVALIDATE_URL` for the CLI, `ENRICH_BUDGET_MS` (falls back to `INGEST_BUDGET_MS`), `SUPABASE_STORAGE_BUCKET` (default `event-images`).
+`CRON_SECRET`, `INGEST_ENABLED=true`, `INGEST_BUDGET_MS=240000`, `INGEST_USER_AGENT="UntilCountdowns/2.0 (https://…; contact)"` (Wikimedia rejects requests without a descriptive UA), plus the Supabase variables. Optional: `REVALIDATE_URL` for the CLI, `ENRICH_BUDGET_MS` (falls back to `INGEST_BUDGET_MS`). Catalog and collection photos are served from Cloudflare R2 (`NEXT_PUBLIC_R2_PUBLIC_URL`, `R2_ACCOUNT_ID`, `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY`, `R2_BUCKET`).
 
 ## Develop
 
@@ -259,7 +259,7 @@ Both halves are re-checked inside `storeLicensedImage()` itself, the one place t
 
 ### Storage
 
-Accepted files are downloaded once with the shared UA (12 MB cap, `image/*`, 15 s), validated with sharp (must decode, ≥ 800 px wide), hashed, and stored under a content-addressed prefix in the public `event-images` bucket:
+Accepted files are downloaded once with the shared UA (12 MB cap, `image/*`, 15 s), validated with sharp (must decode, ≥ 800 px wide), hashed, and stored under a content-addressed prefix on Cloudflare R2 (`https://images.until.day/<sha256>/…`):
 
 | object | size | used by |
 |---|---|---|

@@ -1,4 +1,5 @@
 import { publicSupabaseEnv } from "@/lib/auth/env";
+import { r2ObjectUrl } from "@/lib/image-host";
 import { profileHref } from "@/lib/auth/profile";
 import { eventFromSnapshot, snapshotFromEvent, type SavedSnapshot } from "@/lib/collection";
 import { isCatalogEventId } from "@/lib/event-id";
@@ -108,8 +109,11 @@ export function collectionCover(images: CollectionImage[]): CollectionImage | nu
 }
 
 export function collectionImageUrl(path: string): string {
+  if (!path) return "";
+  const hosted = r2ObjectUrl(path);
+  if (hosted) return hosted;
   const env = publicSupabaseEnv();
-  if (!env || !path) return "";
+  if (!env) return "";
   return `${env.url}/storage/v1/object/public/${COLLECTION_IMAGE_BUCKET}/${path}`;
 }
 
