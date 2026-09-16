@@ -103,6 +103,17 @@ export function shortCredit(
   return image.credit?.trim() || null;
 }
 
+/** First catalog photo that is legal to crop onto an OG card. */
+export function firstOgBackground(
+  events: Array<{ image?: Pick<EventImage, "url" | "license" | "author" | "credit"> | null }>,
+): { imageUrl: string; imageCredit: string | null } | null {
+  for (const event of events) {
+    const imageUrl = ogBackgroundUrl(event.image);
+    if (imageUrl && event.image) return { imageUrl, imageCredit: shortCredit(event.image) };
+  }
+  return null;
+}
+
 /**
  * Alt text. The photo illustrates the event rather than depicting a specific thing we can
  * describe, so the event title is the honest description.

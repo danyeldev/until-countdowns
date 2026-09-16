@@ -10,7 +10,7 @@ import { parseProfileParam, profileHref } from "@/lib/auth/profile";
 import { parseCollectionSlug, collectionHref, collectionImageUrl, collectionItemHref } from "@/lib/collections";
 import { getPublicCollectionServer } from "@/lib/collections-server";
 import { collectionPage } from "@/lib/jsonld";
-import { buildMetadata, truncate } from "@/lib/seo";
+import { buildMetadata, collectionListDescription } from "@/lib/seo";
 
 export const revalidate = 60;
 
@@ -24,12 +24,14 @@ export async function generateMetadata({
   if (!collection) return { title: "Collection", robots: { index: false, follow: true } };
   return buildMetadata({
     title: `${collection.title} · @${collection.owner.handle}`,
-    description: truncate(
+    description: collectionListDescription(
       collection.description || `${collection.title} — a public countdown collection by ${collection.owner.name}.`,
+      collection.items.length,
     ),
     canonical: collectionHref(collection.owner.handle, collection.slug),
-    ogPath: "/og/default",
+    ogPath: `/og/collection/${collection.owner.handle}/${collection.slug}`,
     ogAlt: collection.title,
+    noindex: collection.items.length === 0,
   });
 }
 

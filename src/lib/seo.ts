@@ -225,6 +225,27 @@ export function tagTitle(tag: string): string {
   return `${tag.replace(/-/g, " ")} — upcoming dates and countdowns`;
 }
 
+export function collectionHubDescription(featuredCount: number, publicCount: number): string {
+  const featured =
+    featuredCount > 0
+      ? `${featuredCount} editorial list${featuredCount === 1 ? "" : "s"}`
+      : "Editorial lists";
+  const published =
+    publicCount > 0
+      ? ` and ${publicCount} public collection${publicCount === 1 ? "" : "s"} people share`
+      : " and public lists people share";
+  return truncate(`${featured}${published}. Live countdowns, calendar links, and shareable lists.`);
+}
+
+/** Description for a featured Until list or a public user collection. */
+export function collectionListDescription(lead: string, count: number): string {
+  const body = lead.trim();
+  if (count <= 0) return truncate(body);
+  return truncate(
+    `${body} ${count} countdown${count === 1 ? "" : "s"} with live dates and calendar links.`,
+  );
+}
+
 /** Dated OG-image path for an event or series (the date makes social scrapers refetch daily). */
 export function ogDatedPath(kind: "event" | "series", slug: string, today: string): string {
   return `/og/${kind}/${encodeURIComponent(slug)}/${today}.png`;

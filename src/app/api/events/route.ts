@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { queryEvents } from "@/lib/catalog";
+import { searchCollections } from "@/lib/search-collections-server";
 import { CATEGORIES, type Category } from "@/lib/types";
 
 const SORTS = ["soonest", "popular", "latest"] as const;
@@ -18,7 +19,10 @@ export async function GET(req: NextRequest) {
   const page = Number(url.searchParams.get("page") || 1);
   const pageSize = Number(url.searchParams.get("pageSize") || 24);
 
-  const result = await queryEvents({ q, category, tag, region, sort, featured, page, pageSize });
+  const [result, collections] = await Promise.all([
+    queryEvents({ q, category, tag, region, sort, featured, page, pageSize }),
+    q ? searchCollections(q, 5) : Promise.resolve([]),
+  ]);
 
   // `summary` is Wikipedia prose under CC BY-SA 4.0. The event page carries its attribution
   // ("Summary from Wikipedia (CC BY-SA 4.0)" linking the article); a JSON payload a third party
@@ -30,7 +34,7 @@ export async function GET(req: NextRequest) {
     return rest;
   });
 
-  return NextResponse.json({ ...result, items }, {
+  return NextResponse.json({ ...result, items, collections }, {
     headers: {
       "Cache-Control": "public, s-maxage=300, stale-while-revalidate=3600",
     },

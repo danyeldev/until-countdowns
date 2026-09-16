@@ -1,5 +1,14 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { absoluteUrl, buildMetadata, eventDescription, eventTitle, formatLongDate, siteUrl } from "@/lib/seo";
+import {
+  absoluteUrl,
+  buildMetadata,
+  collectionHubDescription,
+  collectionListDescription,
+  eventDescription,
+  eventTitle,
+  formatLongDate,
+  siteUrl,
+} from "@/lib/seo";
 import robots from "@/app/robots";
 import manifest from "@/app/manifest";
 import type { CountdownEvent } from "@/lib/types";
@@ -56,6 +65,35 @@ describe("canonical and social metadata", () => {
     expect(metadata.openGraph).toMatchObject({ url: "https://until.example/event/example", images: [{ type: "image/png", width: 1200, height: 630, alt: "An event on Until" }] });
     expect(metadata.twitter).toMatchObject({ card: "summary_large_image", images: [{ alt: "An event on Until" }] });
     expect(metadata.robots).toMatchObject({ index: true, googleBot: { "max-image-preview": "large" } });
+  });
+
+  it("gives collection pages count-aware descriptions and unique social cards", () => {
+    expect(collectionHubDescription(6, 2)).toContain("6 editorial lists");
+    expect(collectionHubDescription(6, 2)).toContain("2 public collections");
+    expect(collectionListDescription("Premieres, Halloween, and whatever will make you check the closet.", 4)).toContain(
+      "4 countdowns",
+    );
+    expect(collectionListDescription("Empty list.", 0)).toBe("Empty list.");
+    const metadata = buildMetadata({
+      title: "The best horror this month · Collections",
+      description: collectionListDescription("Premieres and Halloween.", 4),
+      canonical: "/collections/featured/scream-this-month",
+      ogPath: "/og/featured/scream-this-month",
+      ogAlt: "The best horror this month",
+    });
+    expect(metadata.alternates?.canonical).toContain("/collections/featured/scream-this-month");
+    expect(metadata.openGraph).toMatchObject({
+      images: [{ type: "image/png", width: 1200, height: 630, alt: "The best horror this month" }],
+    });
+    expect(
+      buildMetadata({
+        title: "Empty list · Collections",
+        description: "Nothing here.",
+        canonical: "/collections/featured/empty",
+        ogPath: "/og/featured/empty",
+        noindex: true,
+      }).robots,
+    ).toEqual({ index: false, follow: true });
   });
 
   it("does not inherit an index directive for private or thin pages", () => {

@@ -247,7 +247,7 @@ function Composer({
 
   return (
     <form onSubmit={onSubmit} className="relative">
-      <div className="flex items-end gap-2 rounded-full border border-line px-2 py-1.5 focus-within:border-amber/50">
+      <div className="flex items-end gap-2 rounded-2xl border border-line px-2 py-1.5 focus-within:border-amber/50">
         <label className="min-w-0 flex-1">
           <span className="sr-only">{placeholder}</span>
           <textarea

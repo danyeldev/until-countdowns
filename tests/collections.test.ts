@@ -12,6 +12,12 @@ import {
   slugifyCollectionTitle,
   takePendingCollection,
 } from "@/lib/collections";
+import {
+  FEATURED_COLLECTION_SLUGS,
+  featuredCollectionHref,
+  parseFeaturedCollectionSlug,
+} from "@/lib/featured-collections";
+import { matchFeaturedCollections } from "@/lib/search-collections";
 
 describe("public collections", () => {
   it("parses title, description, and slugs", () => {
@@ -85,5 +91,31 @@ describe("public collections", () => {
     expect(takePendingCollection()).toBeNull();
     rememberPendingCollection("");
     expect(takePendingCollection()).toBeNull();
+  });
+});
+
+describe("featured collections", () => {
+  it("accepts the editorial slugs and builds public paths", () => {
+    expect(FEATURED_COLLECTION_SLUGS).toContain("scream-this-month");
+    expect(parseFeaturedCollectionSlug("get-drunk-this-week")).toBe("get-drunk-this-week");
+    expect(parseFeaturedCollectionSlug("sports")).toBeNull();
+    expect(parseFeaturedCollectionSlug("new")).toBeNull();
+    expect(featuredCollectionHref("get-drunk-this-week")).toBe(
+      "/collections/featured/get-drunk-this-week",
+    );
+  });
+
+  it("matches editorial lists from search queries", () => {
+    expect(matchFeaturedCollections("horror").map((hit) => hit.href)).toContain(
+      "/collections/featured/scream-this-month",
+    );
+    expect(matchFeaturedCollections("drunk").map((hit) => hit.title)).toContain(
+      "Festivals to get drunk this week",
+    );
+    expect(matchFeaturedCollections("pirate")[0]?.href).toBe(
+      "/collections/featured/holidays-nobody-asked-for",
+    );
+    expect(matchFeaturedCollections("sports")).toEqual([]);
+    expect(matchFeaturedCollections("h")).toEqual([]);
   });
 });

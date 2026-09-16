@@ -32,9 +32,9 @@ export function Footer() {
               Your space
             </AuthGateLink>
           ) : null}
-          <AuthGateLink href="/collections" className="hover:text-paper">
+          <Link href="/collections" className="hover:text-paper">
             Collections
-          </AuthGateLink>
+          </Link>
           {userId ? (
             <AuthGateLink href="/notifications" className="hover:text-paper">
               Notifications

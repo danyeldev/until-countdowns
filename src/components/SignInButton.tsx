@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 import { useState, type ReactNode } from "react";
 import { useCollection } from "@/components/CollectionProvider";
 import type { AuthMode } from "@/lib/auth/paths";
-import { safeNextPath } from "@/lib/auth/paths";
+import { isAuthGatedPath, safeNextPath } from "@/lib/auth/paths";
 import { AuthDialog } from "./AuthDialog";
 
 export function SignInButton({
@@ -61,16 +61,7 @@ export function SignInButton({
   );
 }
 
-export function isAuthGatedPath(href: string) {
-  const path = href.split("?")[0] ?? href;
-  return (
-    path === "/saved" ||
-    path === "/create" ||
-    path === "/notifications" ||
-    path === "/collections" ||
-    path.startsWith("/collections/")
-  );
-}
+export { isAuthGatedPath };
 
 export function AuthGateLink({
   href,
@@ -78,42 +69,41 @@ export function AuthGateLink({
   children,
   ariaLabel,
   ariaCurrent,
+  heading,
+  subtitle,
 }: {
   href: string;
   className?: string;
   children: ReactNode;
   ariaLabel?: string;
   ariaCurrent?: "page";
+  heading?: string;
+  subtitle?: string;
 }) {
   const { ready, userId } = useCollection();
   const [open, setOpen] = useState(false);
   const gated = isAuthGatedPath(href);
 
-  if (!gated || !ready || userId) {
-    return (
-      <Link href={href} className={className} aria-label={ariaLabel} aria-current={ariaCurrent}>
-        {children}
-      </Link>
-    );
-  }
-
   return (
     <>
-      <button
-        type="button"
+      <Link
+        href={href}
         className={className}
         aria-label={ariaLabel}
-        aria-haspopup="dialog"
-        aria-expanded={open}
-        onClick={() => setOpen(true)}
+        aria-current={ariaCurrent}
+        onClick={(event) => {
+          if (!gated || !ready || userId) return;
+          event.preventDefault();
+          setOpen(true);
+        }}
       >
         {children}
-      </button>
+      </Link>
       {open ? (
         <AuthDialog
           next={safeNextPath(href)}
-          heading="Sign in to continue."
-          subtitle="Use Google or your email to open your space."
+          heading={heading ?? "Sign in to continue."}
+          subtitle={subtitle ?? "Use Google or your email to open your space."}
           onClose={() => setOpen(false)}
         />
       ) : null}

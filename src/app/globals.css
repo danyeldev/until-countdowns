@@ -70,16 +70,34 @@ input,
 textarea,
 select {
   color-scheme: dark;
+  letter-spacing: normal;
+  word-spacing: normal;
 }
 button,
 input,
 select,
 textarea {
   font: inherit;
+  letter-spacing: normal;
+  word-spacing: normal;
 }
 input::placeholder,
 textarea::placeholder {
   color: #858c9d;
+  letter-spacing: normal;
+  word-spacing: normal;
+  opacity: 1;
+}
+input[type="search"] {
+  -webkit-appearance: none;
+  appearance: none;
+}
+input[type="search"]::-webkit-search-decoration,
+input[type="search"]::-webkit-search-cancel-button,
+input[type="search"]::-webkit-search-results-button,
+input[type="search"]::-webkit-search-results-decoration {
+  display: none;
+  appearance: none;
 }
 .tabular {
   font-variant-numeric: tabular-nums;
@@ -181,15 +199,32 @@ a.ticket:hover {
   width: 100%;
   min-height: 48px;
   border: 1px solid var(--line);
-  border-radius: 12px;
+  border-radius: 999px;
   background: #0e1118;
-  padding: 0.8rem 1rem;
+  padding: 0.8rem 1.15rem;
   font-size: 0.9rem;
   color: var(--paper);
+  letter-spacing: normal;
+  word-spacing: normal;
   outline: none;
   transition:
     border-color 0.15s,
     box-shadow 0.15s;
+}
+.field input,
+.field textarea,
+.field select {
+  border-radius: 0;
+  letter-spacing: normal;
+  word-spacing: normal;
+}
+textarea.field {
+  border-radius: 16px;
+  padding: 0.85rem 1.05rem;
+}
+input[type="date"].field,
+select.field {
+  padding-right: 1.15rem;
 }
 .field:focus,
 .field:focus-within {
