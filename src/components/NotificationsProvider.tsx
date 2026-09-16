@@ -38,16 +38,22 @@ export function NotificationsProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (!configured || !userId) return;
     let cancelled = false;
-    void load(userId).catch(() => {
-      if (!cancelled) {
+    const id = userId;
+    void listUserNotifications(createAuthBrowserClient())
+      .then((rows) => {
+        if (cancelled) return;
+        setItems(rows);
+        setLoadedFor(id);
+      })
+      .catch(() => {
+        if (cancelled) return;
         setItems([]);
-        setLoadedFor(userId);
-      }
-    });
+        setLoadedFor(id);
+      });
     return () => {
       cancelled = true;
     };
-  }, [configured, load, userId]);
+  }, [configured, userId]);
 
   useEffect(() => {
     if (userId) return;
