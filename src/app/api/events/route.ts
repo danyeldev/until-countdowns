@@ -1,10 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { queryEvents } from "@/lib/catalog";
 import { searchCollections } from "@/lib/search-collections-server";
-import { CATEGORIES, type Category } from "@/lib/types";
-
-const SORTS = ["soonest", "popular", "latest"] as const;
-type Sort = (typeof SORTS)[number];
+import { CATEGORIES, isEventSort, type Category } from "@/lib/types";
 
 export async function GET(req: NextRequest) {
   const url = req.nextUrl;
@@ -14,7 +11,7 @@ export async function GET(req: NextRequest) {
   const tag = url.searchParams.get("tag")?.trim() || undefined;
   const region = url.searchParams.get("region")?.trim() || undefined;
   const sortRaw = url.searchParams.get("sort") ?? "soonest";
-  const sort: Sort = SORTS.includes(sortRaw as Sort) ? (sortRaw as Sort) : "soonest";
+  const sort = isEventSort(sortRaw) ? sortRaw : "soonest";
   const featured = url.searchParams.get("featured") === "1" || url.searchParams.get("featured") === "true";
   const page = Number(url.searchParams.get("page") || 1);
   const pageSize = Number(url.searchParams.get("pageSize") || 24);

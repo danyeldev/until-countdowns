@@ -25,6 +25,7 @@ export function DetailHero({
   precision,
   status,
   image,
+  hype,
   actions,
 }: {
   title: string;
@@ -37,6 +38,7 @@ export function DetailHero({
   precision?: DatePrecision;
   status?: EventStatus;
   image?: EventArtwork;
+  hype?: ReactNode;
   actions: ReactNode;
 }) {
   const coarse = isCoarsePrecision(precision);
@@ -117,6 +119,7 @@ export function DetailHero({
               </p>
             </div>
           )}
+          {hype}
         </div>
 
         <div className="flex flex-wrap items-start gap-2.5">{actions}</div>

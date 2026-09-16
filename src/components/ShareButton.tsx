@@ -1,8 +1,17 @@
 "use client";
 
 import { useState } from "react";
+import { recordHype } from "@/lib/hype-client";
 
-export function ShareButton({ title, path }: { title: string; path: string }) {
+export function ShareButton({
+  title,
+  path,
+  hypeKey,
+}: {
+  title: string;
+  path: string;
+  hypeKey?: string | null;
+}) {
   const [result, setResult] = useState({ path: "", feedback: "", fallbackUrl: "" });
   const [busy, setBusy] = useState(false);
   const feedback = result.path === path ? result.feedback : "";
@@ -16,6 +25,7 @@ export function ShareButton({ title, path }: { title: string; path: string }) {
       if (navigator.share) {
         try {
           await navigator.share({ title, url });
+          if (hypeKey) void recordHype(hypeKey, "share");
           setResult({ path, feedback: "Shared.", fallbackUrl: "" });
           return;
         } catch (error) {
@@ -25,6 +35,7 @@ export function ShareButton({ title, path }: { title: string; path: string }) {
       }
       if (!navigator.clipboard?.writeText) throw new Error("Clipboard unavailable");
       await navigator.clipboard.writeText(url);
+      if (hypeKey) void recordHype(hypeKey, "share");
       setResult({ path, feedback: "Link copied.", fallbackUrl: "" });
     } catch {
       setResult({ path, feedback: "Select and copy this link to share it.", fallbackUrl: url });

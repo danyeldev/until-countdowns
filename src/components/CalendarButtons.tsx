@@ -8,16 +8,22 @@ import {
   googleCalendarUrl,
   outlookCalendarUrl,
 } from "@/lib/calendar";
+import { recordHype } from "@/lib/hype-client";
 import { Icon } from "./Icon";
 
 /** Caller-provided URLs preserve the portable share or evergreen series destination. */
 export function CalendarButtons({
   event,
   url,
+  hypeKey,
 }: {
   event: CountdownEvent;
   url?: string;
+  hypeKey?: string | null;
 }) {
+  function award() {
+    if (hypeKey) void recordHype(hypeKey, "calendar");
+  }
   const details = useRef<HTMLDetailsElement>(null);
   const [open, setOpen] = useState(false);
   const [error, setError] = useState("");
@@ -63,6 +69,7 @@ export function CalendarButtons({
           href={googleCalendarUrl(event, url)}
           target="_blank"
           rel="noreferrer"
+          onClick={award}
           className="flex min-h-11 items-center justify-between rounded-xl px-3 text-sm text-paper hover:bg-amber/10 hover:text-amber"
         >
           Google Calendar <Icon name="arrow" size={15} />
@@ -71,6 +78,7 @@ export function CalendarButtons({
           href={outlookCalendarUrl(event, url)}
           target="_blank"
           rel="noreferrer"
+          onClick={award}
           className="flex min-h-11 items-center justify-between rounded-xl px-3 text-sm text-paper hover:bg-amber/10 hover:text-amber"
         >
           Outlook <Icon name="arrow" size={15} />
@@ -81,6 +89,7 @@ export function CalendarButtons({
           onClick={() => {
             try {
               downloadIcs(event, url);
+              award();
               setError("");
             } catch {
               setError(

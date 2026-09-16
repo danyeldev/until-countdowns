@@ -639,6 +639,57 @@ export type Database = {
           },
         ]
       }
+      event_hype: {
+        Row: {
+          event_key: string
+          last_kind: string | null
+          last_points: number | null
+          points: number
+          updated_at: string
+        }
+        Insert: {
+          event_key: string
+          last_kind?: string | null
+          last_points?: number | null
+          points?: number
+          updated_at?: string
+        }
+        Update: {
+          event_key?: string
+          last_kind?: string | null
+          last_points?: number | null
+          points?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      event_hype_actions: {
+        Row: {
+          created_at: string
+          event_key: string
+          id: string
+          kind: string
+          points: number
+          visitor_id: string
+        }
+        Insert: {
+          created_at?: string
+          event_key: string
+          id?: string
+          kind: string
+          points: number
+          visitor_id: string
+        }
+        Update: {
+          created_at?: string
+          event_key?: string
+          id?: string
+          kind?: string
+          points?: number
+          visitor_id?: string
+        }
+        Relationships: []
+      }
       event_reports: {
         Row: {
           body: string
@@ -1262,6 +1313,10 @@ export type Database = {
         Returns: boolean
       }
       handle_available: { Args: { p_handle: string }; Returns: boolean }
+      record_event_hype: {
+        Args: { p_event_key: string; p_kind: string; p_visitor_id: string }
+        Returns: Json
+      }
       featured_upcoming: {
         Args: { p_limit?: number }
         Returns: {

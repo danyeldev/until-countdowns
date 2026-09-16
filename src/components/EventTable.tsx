@@ -9,6 +9,7 @@ import {
 } from "@/lib/time";
 import type { CountdownEvent } from "@/lib/types";
 import { Icon } from "./Icon";
+import { HypeLabel } from "./HypeLabel";
 import { StatusBadge } from "./StatusBadge";
 
 /** Responsive dated rows. All navigation is server rendered; the list never ticks. */
@@ -74,6 +75,7 @@ export function EventTable({
                     <time dateTime={event.date}>{dateLabel}</time>
                   )}
                   <StatusBadge status={event.status} />
+                  <HypeLabel points={event.hype} />
                 </span>
               </span>
               {counting ? (

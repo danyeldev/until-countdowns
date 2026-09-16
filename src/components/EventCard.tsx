@@ -15,6 +15,7 @@ import { FallbackCard } from "./FallbackCard";
 import { StatusBadge } from "./StatusBadge";
 import { SaveButton } from "./SaveButton";
 import { Icon } from "./Icon";
+import { CardHype } from "./CardHype";
 
 export function EventCard({
   event,
@@ -158,6 +159,9 @@ export function EventCard({
           <Icon name="arrow" size={14} aria-hidden="true" />
         </Link>
       ) : null}
+      <div className="pointer-events-none absolute left-3 top-3 z-10">
+        <CardHype event={event} points={event.hype} />
+      </div>
       {showSave ? (
         <div className="absolute right-3 top-3 z-10">
           <SaveButton id={event.id} event={event} compact />

@@ -59,6 +59,17 @@ begin
   select count(*) into n from public.search_events(p_page => 2, p_page_size => 2) where total = 6;
   if n <> 2 then raise exception 'pagination totals regressed'; end if;
 
+  if public.event_heat(50, false, 6, 0) <= public.event_heat(50, false, 90, 0) then
+    raise exception 'event_heat does not prefer sooner dates';
+  end if;
+  insert into public.event_hype (event_key, points) values ('verify-gta', 40);
+  if (select event->>'id' from public.search_events(p_sort => 'hype', p_page_size => 1)) <> 'verify-gta' then
+    raise exception 'hype sort did not surface the scored event';
+  end if;
+  if (select (event->>'hype')::int from public.search_events(p_q => 'gta vi')) <> 40 then
+    raise exception 'search payload dropped live hype';
+  end if;
+
   select count(*) into n from public.featured_upcoming(100);
   if n <> 6 then raise exception 'featured listing disagrees with browse'; end if;
   select count(*) into n from public.soonest_upcoming(100);

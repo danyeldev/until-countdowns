@@ -11,6 +11,8 @@ import {
   isPersonalCollectionEvent,
   snapshotFromEvent,
 } from "@/lib/collection";
+import { recordHype } from "@/lib/hype-client";
+import { hypeEventKey } from "@/lib/hype";
 import type { CountdownEvent } from "@/lib/types";
 import { assertUserEvent } from "@/lib/user-events";
 
@@ -129,6 +131,8 @@ export function CollectionProvider({ children }: { children: ReactNode }) {
       }
       if (!event) throw new Error("This countdown cannot be saved.");
       await upsertMine(event);
+      const key = hypeEventKey(event);
+      if (key) void recordHype(key, "save");
       return;
     }
     const removing = savedIds.includes(id);

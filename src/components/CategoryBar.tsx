@@ -1,6 +1,6 @@
 import Link from "next/link";
 import type { Category } from "@/lib/types";
-import { CATEGORIES } from "@/lib/types";
+import { CATEGORIES, DEFAULT_EVENT_SORT } from "@/lib/types";
 import { CATEGORY_LABELS } from "@/lib/labels";
 
 export function CategoryBar({
@@ -16,7 +16,7 @@ export function CategoryBar({
 }) {
   const base = new URLSearchParams();
   if (q) base.set("q", q);
-  if (sort) base.set("sort", sort);
+  if (sort && sort !== DEFAULT_EVENT_SORT) base.set("sort", sort);
 
   // Without a free-text query the category filter is a hub page of its own (`/?category=x`
   // 308s there anyway); with a query it narrows the search on the home page.

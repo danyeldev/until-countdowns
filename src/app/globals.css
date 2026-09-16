@@ -506,6 +506,61 @@ select.field {
     transform: translateY(0);
   }
 }
+.hype-chip {
+  flex-shrink: 0;
+  color: var(--amber);
+  font-variant-numeric: tabular-nums;
+}
+.hype-card-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  min-height: 28px;
+  padding: 0.2rem 0.65rem;
+  border-radius: 999px;
+  background: #111019cc;
+  border: 1px solid #ffffff22;
+  color: var(--amber);
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  backdrop-filter: blur(10px);
+}
+.hype-tick {
+  animation: hype-tick 0.45s ease-out;
+}
+.hype-pop {
+  animation: hype-float 2.2s ease-out both;
+}
+@keyframes hype-tick {
+  0% {
+    transform: scale(1);
+  }
+  40% {
+    transform: scale(1.12);
+    color: var(--moss);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+@keyframes hype-float {
+  0% {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  15% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  70% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+}
 @keyframes pop-in {
   from {
     opacity: 0;

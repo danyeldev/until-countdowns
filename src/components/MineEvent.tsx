@@ -4,12 +4,14 @@ import Link from "next/link";
 import dynamic from "next/dynamic";
 import { useState } from "react";
 import { useCollection } from "@/components/CollectionProvider";
+import { hypeEventKey } from "@/lib/hype";
 import { encodeSharePayload } from "@/lib/user-events";
 import { AddToCollectionButton } from "./AddToCollectionButton";
 import { AuthGateLink, SignInButton } from "./SignInButton";
 import { CalendarButtons } from "./CalendarButtons";
 import { EventComments } from "./EventComments";
 import { Countdown } from "./Countdown";
+import { HypeMeter } from "./HypeMeter";
 import { PersonalDateArtwork } from "./PersonalDateArtwork";
 import { ShareButton } from "./ShareButton";
 import { CATEGORY_LABELS } from "@/lib/labels";
@@ -34,6 +36,7 @@ export function MineEvent({ slug }: { slug: string }) {
   const payload = encodeSharePayload(event);
   const shareSlug = `share-${payload}`;
   const sharePath = `/event/${shareSlug}`;
+  const hypeKey = hypeEventKey(event);
 
   return (
     <article>
@@ -44,9 +47,12 @@ export function MineEvent({ slug }: { slug: string }) {
           <div className="flex flex-wrap items-center gap-3"><span className="pill">{CATEGORY_LABELS[event.category]}</span><span className="flex items-center gap-1.5 text-xs text-muted"><svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><rect x="5" y="3" width="14" height="18" rx="3" /><path d="M10 17h4" /></svg>Saved to your account</span></div>
           <h1 className="mt-5 max-w-4xl break-words text-4xl font-semibold leading-[1.1] tracking-tight text-paper sm:text-5xl xl:text-6xl">{event.title}</h1>
           <p className="mt-4 text-base text-paper-dim">{formatRange(event.date, event.endDate)}</p>
-          <div className="my-8 border-y border-line py-8 sm:py-10"><Countdown date={event.date} allDay={event.allDay} size="hero" /></div>
+          <div className="my-8 border-y border-line py-8 sm:py-10">
+            <Countdown date={event.date} allDay={event.allDay} size="hero" />
+            {hypeKey ? <HypeMeter eventKey={hypeKey} /> : null}
+          </div>
           {event.description && <p className="mb-7 max-w-2xl whitespace-pre-wrap break-words text-base leading-relaxed text-paper-dim">{event.description}</p>}
-          <div className="flex flex-wrap items-start gap-3"><AddToCollectionButton event={event} />{payload && <ShareButton title={event.title} path={sharePath} />}<CalendarButtons event={event} url={payload ? absoluteUrl(sharePath) : undefined} /></div>
+          <div className="flex flex-wrap items-start gap-3"><AddToCollectionButton event={event} />{payload && <ShareButton title={event.title} path={sharePath} hypeKey={hypeKey} />}<CalendarButtons event={event} url={payload ? absoluteUrl(sharePath) : undefined} hypeKey={hypeKey} /></div>
           <p className="mt-5 max-w-2xl text-xs leading-relaxed text-muted">{payload ? "A share link carries this countdown with it. Anyone with the link can read your title, date, category and note, even without an account." : "This note is too long for a share link. Your countdown is still saved to your account."}</p>
         </div>
       </div>

@@ -12,6 +12,7 @@ import { ImageCredit } from "./ImageCredit";
 import { StatusBadge } from "./StatusBadge";
 import { SaveButton } from "./SaveButton";
 import { Icon } from "./Icon";
+import { HypeLabel } from "./HypeLabel";
 import { imageUrl, isShareAlike } from "@/lib/images";
 
 export function FeaturedHero({ event }: { event: CountdownEvent }) {
@@ -34,15 +35,22 @@ export function FeaturedHero({ event }: { event: CountdownEvent }) {
       <div className="absolute inset-0 -z-10 bg-linear-to-r from-[#111019]/95 via-[#111019]/80 to-[#111019]/10" />
       <div className="flex items-center justify-between gap-3">
         <span className="pill !border-white/15 !bg-black/15 !text-white/90">
-          <Icon name="spark" size={13} /> In the spotlight
+          <Icon name="spark" size={13} />{" "}
+          {event.hype ? "Heating up" : "In the spotlight"}
         </span>
         <StatusBadge status={event.status} />
       </div>
       <div className="my-auto py-6">
-        <p className="mb-3 text-xs text-paper-dim">
-          {CATEGORY_LABELS[event.category]}
-          <span className="mx-2 text-muted">·</span>
+        <p className="mb-3 flex flex-wrap items-center gap-x-2 text-xs text-paper-dim">
+          <span>{CATEGORY_LABELS[event.category]}</span>
+          <span className="text-muted">·</span>
           <time dateTime={event.date}>{when}</time>
+          {event.hype ? (
+            <>
+              <span className="text-muted">·</span>
+              <HypeLabel points={event.hype} className="!text-amber" />
+            </>
+          ) : null}
         </p>
         <h2 className="max-w-xl text-[clamp(1.65rem,3vw,2.6rem)] font-semibold leading-[1.08] tracking-[-.055em]">
           <Link href={`/event/${event.slug}`} className="hover:text-amber">
