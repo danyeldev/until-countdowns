@@ -25,6 +25,7 @@ export function HypeMeter({ eventKey }: { eventKey: string }) {
 
   useEffect(() => {
     if (!key || !isAuthConfigured()) return;
+    const eventKey = key;
     let active = true;
     const client = createAuthBrowserClient();
 
@@ -43,7 +44,7 @@ export function HypeMeter({ eventKey }: { eventKey: string }) {
     }
 
     async function load() {
-      const total = await fetchHype(key);
+      const total = await fetchHype(eventKey);
       if (!active) return;
       if (total >= seen.current) {
         seen.current = total;
@@ -54,10 +55,10 @@ export function HypeMeter({ eventKey }: { eventKey: string }) {
     void load();
 
     const channel = client
-      .channel(`hype:${key}`)
+      .channel(`hype:${eventKey}`)
       .on(
         "postgres_changes",
-        { event: "*", schema: "public", table: "event_hype", filter: `event_key=eq.${key}` },
+        { event: "*", schema: "public", table: "event_hype", filter: `event_key=eq.${eventKey}` },
         (payload) => {
           const row = payload.new as { points?: unknown; last_kind?: unknown; last_points?: unknown };
           const total = typeof row.points === "number" ? row.points : null;
@@ -74,7 +75,7 @@ export function HypeMeter({ eventKey }: { eventKey: string }) {
 
     const visitTimer = window.setTimeout(() => {
       if (document.visibilityState !== "visible") return;
-      void recordHype(key, "visit").then((snapshot) => {
+      void recordHype(eventKey, "visit").then((snapshot) => {
         if (!active || !snapshot) return;
         if (snapshot.points > seen.current) {
           seen.current = snapshot.points;
