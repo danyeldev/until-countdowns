@@ -93,3 +93,49 @@ export function countdownFromRow(row: {
     category: CATEGORIES.includes(row.category as Category) ? row.category as Category : "culture",
   });
 }
+
+const PENDING_SAVE_KEY = "until:pending-save";
+
+export type PendingSave = {
+  id: string;
+  event?: CountdownEvent;
+};
+
+function sessionStore(): Storage | null {
+  try {
+    return typeof sessionStorage === "undefined" ? null : sessionStorage;
+  } catch {
+    return null;
+  }
+}
+
+export function rememberPendingSave(value: PendingSave) {
+  const store = sessionStore();
+  if (!store || !value.id) return;
+  try {
+    store.setItem(PENDING_SAVE_KEY, JSON.stringify({ id: value.id, event: value.event }));
+  } catch {
+    // Private mode and full quotas should not block the sign-in dialog.
+  }
+}
+
+export function takePendingSave(): PendingSave | null {
+  const store = sessionStore();
+  if (!store) return null;
+  try {
+    const raw = store.getItem(PENDING_SAVE_KEY);
+    if (!raw) return null;
+    store.removeItem(PENDING_SAVE_KEY);
+    const parsed = JSON.parse(raw) as unknown;
+    if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) return null;
+    const id = "id" in parsed ? parsed.id : null;
+    if (typeof id !== "string" || !id) return null;
+    const event = "event" in parsed ? parsed.event : undefined;
+    return {
+      id,
+      event: event && typeof event === "object" && !Array.isArray(event) ? (event as CountdownEvent) : undefined,
+    };
+  } catch {
+    return null;
+  }
+}

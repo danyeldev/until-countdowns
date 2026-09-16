@@ -162,3 +162,36 @@ export function collectionErrorMessage(error: { message?: string; code?: string 
   }
   return "Could not update that collection. Try again.";
 }
+
+const PENDING_COLLECTION_KEY = "until:pending-collection";
+
+function sessionStore(): Storage | null {
+  try {
+    return typeof sessionStorage === "undefined" ? null : sessionStorage;
+  } catch {
+    return null;
+  }
+}
+
+export function rememberPendingCollection(slug: string) {
+  const store = sessionStore();
+  if (!store || !slug) return;
+  try {
+    store.setItem(PENDING_COLLECTION_KEY, slug);
+  } catch {
+    // Private mode and full quotas should not block the sign-in dialog.
+  }
+}
+
+export function takePendingCollection(): string | null {
+  const store = sessionStore();
+  if (!store) return null;
+  try {
+    const slug = store.getItem(PENDING_COLLECTION_KEY);
+    if (!slug) return null;
+    store.removeItem(PENDING_COLLECTION_KEY);
+    return slug;
+  } catch {
+    return null;
+  }
+}

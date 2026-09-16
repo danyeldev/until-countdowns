@@ -1,6 +1,11 @@
+"use client";
+
 import Link from "next/link";
+import { useCollection } from "@/components/CollectionProvider";
+import { AuthGateLink } from "./SignInButton";
 
 export function Footer() {
+  const { userId } = useCollection();
   return (
     <footer className="app-footer">
       <div className="mx-auto flex max-w-[1440px] flex-wrap items-center justify-between gap-4 border-t border-line/60 pt-5 text-xs text-muted">
@@ -22,15 +27,19 @@ export function Footer() {
           <Link href="/attributions" className="hover:text-paper">
             Attributions
           </Link>
-          <Link href="/saved" className="hover:text-paper">
-            Your space
-          </Link>
-          <Link href="/collections" className="hover:text-paper">
+          {userId ? (
+            <AuthGateLink href="/saved" className="hover:text-paper">
+              Your space
+            </AuthGateLink>
+          ) : null}
+          <AuthGateLink href="/collections" className="hover:text-paper">
             Collections
-          </Link>
-          <Link href="/notifications" className="hover:text-paper">
-            Notifications
-          </Link>
+          </AuthGateLink>
+          {userId ? (
+            <AuthGateLink href="/notifications" className="hover:text-paper">
+              Notifications
+            </AuthGateLink>
+          ) : null}
         </nav>
       </div>
     </footer>

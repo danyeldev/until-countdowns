@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState, type FormEvent } from "react";
+import { useState, type FormEvent, type ReactNode } from "react";
 import { unstable_rethrow } from "next/navigation";
 import {
   resetPasswordAction,
@@ -49,14 +49,31 @@ export function AuthForm({
   next,
   initialError = "",
   initialMessage = "",
+  layout = "page",
+  headingId,
+  dialogHeading,
+  dialogSubtitle,
+  onModeChange,
 }: {
   mode: AuthMode;
   next: string;
   initialError?: string;
   initialMessage?: string;
+  layout?: "page" | "dialog";
+  headingId?: string;
+  dialogHeading?: string;
+  dialogSubtitle?: string;
+  onModeChange?: (mode: AuthMode) => void;
 }) {
   const configured = isAuthConfigured();
-  const copy = TITLES[mode];
+  const copy = layout === "dialog" && mode === "signin"
+    ? {
+        heading: dialogHeading ?? "Sign in to continue.",
+        subtitle: dialogSubtitle ?? "Use Google or your email.",
+        submit: TITLES.signin.submit,
+      }
+    : TITLES[mode];
+  const Heading = layout === "dialog" ? "h2" : "h1";
   const [error, setError] = useState(initialError);
   const [message, setMessage] = useState(initialMessage);
   const [pending, setPending] = useState<"google" | "email" | null>(null);
@@ -156,10 +173,14 @@ export function AuthForm({
   }
 
   return (
-    <div className="mx-auto w-full max-w-md">
-      <h1 className="page-heading">{copy.heading}</h1>
-      <p className="page-subtitle mt-3">{copy.subtitle}</p>
-      <div className="panel mt-8 space-y-6 p-5 sm:p-7">
+    <div className={layout === "dialog" ? "w-full" : "mx-auto w-full max-w-md"}>
+      <Heading id={headingId} className={layout === "dialog" ? "pr-10 text-2xl font-semibold tracking-tight text-pretty" : "page-heading"}>
+        {copy.heading}
+      </Heading>
+      <p className={layout === "dialog" ? "mt-2 text-sm leading-relaxed text-muted" : "page-subtitle mt-3"}>
+        {copy.subtitle}
+      </p>
+      <div className={layout === "dialog" ? "mt-6 space-y-5" : "panel mt-8 space-y-6 p-5 sm:p-7"}>
         {!configured && (
           <p role="status" className="rounded-xl border border-line bg-ink p-4 text-sm leading-relaxed text-paper">
             {AUTH_COPY.unavailable}
@@ -279,20 +300,57 @@ export function AuthForm({
         <div className="flex flex-wrap items-center justify-between gap-3 border-t border-line pt-5 text-sm">
           {mode === "signin" ? (
             <>
-              <Link href={loginHref(next, { mode: "signup" })} className="text-paper-dim hover:text-amber">
+              <AuthModeLink
+                href={loginHref(next, { mode: "signup" })}
+                className="text-paper-dim hover:text-amber"
+                onSelect={onModeChange ? () => onModeChange("signup") : undefined}
+              >
                 Create an account
-              </Link>
-              <Link href={loginHref(next, { mode: "reset" })} className="text-muted hover:text-paper">
+              </AuthModeLink>
+              <AuthModeLink
+                href={loginHref(next, { mode: "reset" })}
+                className="text-muted hover:text-paper"
+                onSelect={onModeChange ? () => onModeChange("reset") : undefined}
+              >
                 Forgot password
-              </Link>
+              </AuthModeLink>
             </>
           ) : (
-            <Link href={loginHref(next)} className="text-paper-dim hover:text-amber">
+            <AuthModeLink
+              href={loginHref(next)}
+              className="text-paper-dim hover:text-amber"
+              onSelect={onModeChange ? () => onModeChange("signin") : undefined}
+            >
               Back to sign in
-            </Link>
+            </AuthModeLink>
           )}
         </div>
       </div>
     </div>
+  );
+}
+
+function AuthModeLink({
+  href,
+  className,
+  onSelect,
+  children,
+}: {
+  href: string;
+  className: string;
+  onSelect?: () => void;
+  children: ReactNode;
+}) {
+  if (onSelect) {
+    return (
+      <button type="button" className={className} onClick={onSelect}>
+        {children}
+      </button>
+    );
+  }
+  return (
+    <Link href={href} className={className}>
+      {children}
+    </Link>
   );
 }

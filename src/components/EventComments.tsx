@@ -5,9 +5,10 @@ import { usePathname } from "next/navigation";
 import { useEffect, useMemo, useRef, useState, type FormEvent, type KeyboardEvent, type ReactNode } from "react";
 import { useCollection } from "@/components/CollectionProvider";
 import { Icon } from "@/components/Icon";
+import { SignInButton } from "@/components/SignInButton";
 import { createAuthBrowserClient } from "@/lib/auth/browser";
 import { isAuthConfigured } from "@/lib/auth/env";
-import { completeProfileHref, loginHref, safeNextPath } from "@/lib/auth/paths";
+import { completeProfileHref, safeNextPath } from "@/lib/auth/paths";
 import { profileHref } from "@/lib/auth/profile";
 import {
   COMMENT_BODY_MAX,
@@ -18,6 +19,11 @@ import {
   formatCommentAge,
   mentionQueryAtCaret,
   parseCommentEventKey,
+  rememberPendingComment,
+  rememberPendingVote,
+  resolveCommentThreadId,
+  takePendingComment,
+  takePendingVote,
   sortCommentThreads,
   splitCommentBody,
 } from "@/lib/comments";
@@ -70,17 +76,32 @@ function CommentText({ body }: { body: string }) {
   );
 }
 
+const COMMENT_AUTH = {
+  heading: "Sign in to comment.",
+  subtitle: "Use Google or your email. Then you can join this conversation.",
+} as const;
+
+const REPLY_AUTH = {
+  heading: "Sign in to reply.",
+  subtitle: "Use Google or your email. Then you can reply to this comment.",
+} as const;
+
+const VOTE_AUTH = {
+  heading: "Sign in to upvote.",
+  subtitle: "Use Google or your email. Then we’ll save your upvote.",
+} as const;
+
 function VoteControl({
   comment,
   signedIn,
-  loginHrefValue,
   disabled,
+  next,
   onToggle,
 }: {
   comment: EventComment;
   signedIn: boolean;
-  loginHrefValue: string;
   disabled: boolean;
+  next: string;
   onToggle: (comment: EventComment) => void;
 }) {
   const className = `inline-flex min-h-11 items-center gap-1.5 px-1 text-xs ${
@@ -94,9 +115,16 @@ function VoteControl({
   );
   if (!signedIn) {
     return (
-      <Link href={loginHrefValue} className={className} aria-label={`Sign in to upvote ${comment.author.handle}'s comment`}>
+      <SignInButton
+        next={`${next}#comment-${comment.id}`}
+        className={className}
+        ariaLabel={`Upvote ${comment.author.handle}'s comment`}
+        heading={VOTE_AUTH.heading}
+        subtitle={VOTE_AUTH.subtitle}
+        onOpen={() => rememberPendingVote(comment.id)}
+      >
         {inner}
-      </Link>
+      </SignInButton>
     );
   }
   return (
@@ -131,12 +159,14 @@ function Composer({
   placeholder,
   onPosted,
   onCancel,
+  autoFocus = false,
 }: {
   eventKey: string;
   parentId?: string | null;
   placeholder: string;
   onPosted: (comment: EventComment) => void;
   onCancel?: () => void;
+  autoFocus?: boolean;
 }) {
   const [body, setBody] = useState("");
   const [caret, setCaret] = useState(0);
@@ -226,6 +256,7 @@ function Composer({
             className="block max-h-40 min-h-10 w-full resize-none bg-transparent px-2 py-2 text-sm leading-relaxed text-paper outline-none"
             maxLength={COMMENT_BODY_MAX}
             placeholder={placeholder}
+            autoFocus={autoFocus}
             value={body}
             onChange={(event) => {
               setBody(event.target.value);
@@ -289,14 +320,16 @@ function ComposerGate({
   ready,
   userId,
   handle,
-  signInHref,
+  eventKey,
+  next,
   completeHref,
   children,
 }: {
   ready: boolean;
   userId: string | null;
   handle: string | null;
-  signInHref: string;
+  eventKey: string;
+  next: string;
   completeHref: string;
   children: ReactNode;
 }) {
@@ -309,12 +342,15 @@ function ComposerGate({
   }
   if (!userId) {
     return (
-      <Link
-        href={signInHref}
-        className="flex min-h-12 items-center rounded-full border border-line px-4 text-sm text-muted hover:border-amber/40 hover:text-paper"
+      <SignInButton
+        next={next}
+        className="flex min-h-12 w-full items-center rounded-full border border-line px-4 text-sm text-muted hover:border-amber/40 hover:text-paper"
+        heading={COMMENT_AUTH.heading}
+        subtitle={COMMENT_AUTH.subtitle}
+        onOpen={() => rememberPendingComment(eventKey)}
       >
-        Sign in to add a comment
-      </Link>
+        Add a comment...
+      </SignInButton>
     );
   }
   if (!handle) {
@@ -332,19 +368,19 @@ function ComposerGate({
 
 function CommentItem({
   comment,
-  canWrite,
+  eventKey,
   signedIn,
-  loginHrefValue,
   pendingVote,
+  next,
   onVote,
   onReply,
   children,
 }: {
   comment: EventComment;
-  canWrite: boolean;
+  eventKey: string;
   signedIn: boolean;
-  loginHrefValue: string;
   pendingVote: string | null;
+  next: string;
   onVote: (comment: EventComment) => void;
   onReply?: () => void;
   children?: ReactNode;
@@ -369,11 +405,21 @@ function CommentItem({
             <VoteControl
               comment={comment}
               signedIn={signedIn}
-              loginHrefValue={loginHrefValue}
               disabled={pendingVote === comment.id}
+              next={next}
               onToggle={onVote}
             />
-            {canWrite && onReply ? (
+            {!signedIn ? (
+              <SignInButton
+                next={`${next}#comment-${comment.parentId ?? comment.id}`}
+                className="min-h-11 px-2 text-xs text-muted hover:text-paper"
+                heading={REPLY_AUTH.heading}
+                subtitle={REPLY_AUTH.subtitle}
+                onOpen={() => rememberPendingComment(eventKey, comment.parentId ?? comment.id)}
+              >
+                Reply
+              </SignInButton>
+            ) : onReply ? (
               <button type="button" className="min-h-11 px-2 text-xs text-muted hover:text-paper" onClick={onReply}>
                 Reply
               </button>
@@ -392,7 +438,6 @@ export function EventComments({ eventKey }: { eventKey: string }) {
   const { ready, userId } = useCollection();
   const key = parseCommentEventKey(eventKey);
   const next = safeNextPath(pathname);
-  const signInHref = loginHref(next);
   const completeHref = completeProfileHref(next);
 
   const [comments, setComments] = useState<EventComment[]>([]);
@@ -406,6 +451,7 @@ export function EventComments({ eventKey }: { eventKey: string }) {
   const [openReplies, setOpenReplies] = useState<ReadonlySet<string>>(() => new Set());
   const [closedReplies, setClosedReplies] = useState<ReadonlySet<string>>(() => new Set());
   const [hashId] = useState(readCommentHash);
+  const [focusComposer, setFocusComposer] = useState(false);
   const handle = userId ? profileHandle : null;
 
   useEffect(() => {
@@ -435,6 +481,54 @@ export function EventComments({ eventKey }: { eventKey: string }) {
     });
     return () => window.cancelAnimationFrame(frame);
   }, [loaded, hashId]);
+
+  useEffect(() => {
+    if (!ready || !userId || !key || !loaded || !handle) return;
+    const pending = takePendingComment();
+    if (!pending) return;
+    if (pending.eventKey !== key) {
+      rememberPendingComment(pending.eventKey, pending.parentId);
+      return;
+    }
+    const threadId = pending.parentId ? resolveCommentThreadId(comments, pending.parentId) : null;
+    if (pending.parentId && !threadId) return;
+    void Promise.resolve().then(() => {
+      if (!threadId) {
+        setFocusComposer(true);
+        return;
+      }
+      setReplyTo(threadId);
+      setOpenReplies((current) => new Set(current).add(threadId));
+      setClosedReplies((current) => {
+        const nextClosed = new Set(current);
+        nextClosed.delete(threadId);
+        return nextClosed;
+      });
+      window.requestAnimationFrame(() => {
+        document.getElementById(`comment-${threadId}`)?.scrollIntoView({ behavior: "smooth", block: "center" });
+      });
+    });
+  }, [comments, handle, key, loaded, ready, userId]);
+
+  useEffect(() => {
+    if (!ready || !userId || !loaded) return;
+    const id = takePendingVote();
+    if (!id) return;
+    const comment = comments.find((item) => item.id === id);
+    if (!comment || comment.voted) return;
+    void Promise.resolve().then(() => {
+      setPendingVote(comment.id);
+      setVoteError("");
+      void toggleEventCommentVote(createAuthBrowserClient(), comment)
+        .then((nextComment) => {
+          setComments((current) => current.map((item) => (item.id === nextComment.id ? nextComment : item)));
+        })
+        .catch((cause) => {
+          setVoteError(cause instanceof Error ? cause.message : "Could not save that vote.");
+        })
+        .finally(() => setPendingVote(null));
+    });
+  }, [comments, loaded, ready, userId]);
 
   useEffect(() => {
     if (!configured || !userId) return;
@@ -534,10 +628,11 @@ export function EventComments({ eventKey }: { eventKey: string }) {
           ready={ready}
           userId={userId}
           handle={handle}
-          signInHref={signInHref}
+          eventKey={key}
+          next={next}
           completeHref={completeHref}
         >
-          <Composer eventKey={key} placeholder="Add a comment..." onPosted={addComment} />
+          <Composer eventKey={key} placeholder="Add a comment..." autoFocus={focusComposer} onPosted={addComment} />
         </ComposerGate>
       </div>
 
@@ -582,10 +677,10 @@ export function EventComments({ eventKey }: { eventKey: string }) {
             <li key={root.id} className="py-4">
               <CommentItem
                 comment={root}
-                canWrite={canWrite}
+                eventKey={key}
                 signedIn={Boolean(userId)}
-                loginHrefValue={signInHref}
                 pendingVote={pendingVote}
+                next={next}
                 onVote={onVote}
                 onReply={canWrite ? () => startReply(root.id) : undefined}
               >
@@ -606,11 +701,12 @@ export function EventComments({ eventKey }: { eventKey: string }) {
                       <li key={reply.id}>
                         <CommentItem
                           comment={reply}
-                          canWrite={canWrite}
+                          eventKey={key}
                           signedIn={Boolean(userId)}
-                          loginHrefValue={signInHref}
                           pendingVote={pendingVote}
+                          next={next}
                           onVote={onVote}
+                          onReply={canWrite ? () => startReply(root.id) : undefined}
                         />
                       </li>
                     ))}
@@ -622,6 +718,7 @@ export function EventComments({ eventKey }: { eventKey: string }) {
                       eventKey={key}
                       parentId={root.id}
                       placeholder={`Reply to @${root.author.handle}`}
+                      autoFocus
                       onPosted={addComment}
                       onCancel={() => setReplyTo(null)}
                     />

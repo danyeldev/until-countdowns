@@ -7,6 +7,7 @@ describe("safeNextPath", () => {
   it("keeps in-app paths and query strings", () => {
     expect(safeNextPath("/saved")).toBe("/saved");
     expect(safeNextPath("/event/halloween-2027?from=search")).toBe("/event/halloween-2027?from=search");
+    expect(safeNextPath("/event/halloween-2027#comment-1")).toBe("/event/halloween-2027#comment-1");
     expect(safeNextPath("/login/update-password")).toBe("/login/update-password");
   });
 

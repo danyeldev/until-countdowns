@@ -234,6 +234,7 @@ a.ticket:hover {
 }
 .nav-item {
   display: flex;
+  width: 100%;
   align-items: center;
   gap: 12px;
   min-height: 44px;
@@ -272,6 +273,26 @@ a.ticket:hover {
   backdrop-filter: blur(8px);
 }
 .command-dialog[open] {
+  animation: pop-in 0.18s ease-out;
+}
+.auth-dialog {
+  position: relative;
+  width: min(440px, calc(100vw - 32px));
+  max-height: min(720px, 86dvh);
+  overflow: auto;
+  padding: 28px 24px 22px;
+  border: 1px solid #36364a;
+  border-radius: 22px;
+  background: #14151e;
+  color: var(--paper);
+  box-shadow: 0 30px 120px #000a;
+  margin: auto;
+}
+.auth-dialog::backdrop {
+  background: #020308b3;
+  backdrop-filter: blur(8px);
+}
+.auth-dialog[open] {
   animation: pop-in 0.18s ease-out;
 }
 .command-result {
@@ -489,7 +510,8 @@ a.ticket:hover {
   }
 }
 @media (prefers-reduced-transparency: reduce) {
-  .command-dialog::backdrop {
+  .command-dialog::backdrop,
+  .auth-dialog::backdrop {
     background: #080910f5;
     backdrop-filter: none;
   }

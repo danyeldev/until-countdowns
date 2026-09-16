@@ -7,8 +7,13 @@ import {
   parseCommentBody,
   parseCommentEventKey,
   formatCommentAge,
+  rememberPendingComment,
+  rememberPendingVote,
+  resolveCommentThreadId,
   sortCommentThreads,
   splitCommentBody,
+  takePendingComment,
+  takePendingVote,
   type EventComment,
 } from "@/lib/comments";
 
@@ -96,6 +101,12 @@ describe("sortCommentThreads", () => {
     expect(threads[0]?.replies.map((reply) => reply.id)).toEqual(["d", "c"]);
   });
 
+  it("maps a reply back to its root thread", () => {
+    expect(resolveCommentThreadId([comment({ id: "a" }), comment({ id: "b", parentId: "a" })], "a")).toBe("a");
+    expect(resolveCommentThreadId([comment({ id: "a" }), comment({ id: "b", parentId: "a" })], "b")).toBe("a");
+    expect(resolveCommentThreadId([comment({ id: "a" })], "missing")).toBeNull();
+  });
+
   it("can sort roots newest first", () => {
     const threads = sortCommentThreads(
       [
@@ -115,5 +126,35 @@ describe("commentErrorMessage", () => {
     );
     expect(commentErrorMessage({ message: "comment_limit" })).toMatch(/limit/);
     expect(commentErrorMessage({ code: "42501" })).toMatch(/Sign in/);
+  });
+});
+
+describe("pending comment", () => {
+  it("remembers an event until it is taken once", () => {
+    if (typeof sessionStorage === "undefined") {
+      const data = new Map<string, string>();
+      Object.defineProperty(globalThis, "sessionStorage", {
+        configurable: true,
+        value: {
+          getItem: (key: string) => data.get(key) ?? null,
+          setItem: (key: string, value: string) => {
+            data.set(key, value);
+          },
+          removeItem: (key: string) => {
+            data.delete(key);
+          },
+        },
+      });
+    }
+    rememberPendingComment("halloween-2026-10-31");
+    expect(takePendingComment()).toEqual({ eventKey: "halloween-2026-10-31", parentId: null });
+    rememberPendingComment("halloween-2026-10-31", "comment-1");
+    expect(takePendingComment()).toEqual({ eventKey: "halloween-2026-10-31", parentId: "comment-1" });
+    expect(takePendingComment()).toBeNull();
+    rememberPendingComment("");
+    expect(takePendingComment()).toBeNull();
+    rememberPendingVote("comment-1");
+    expect(takePendingVote()).toBe("comment-1");
+    expect(takePendingVote()).toBeNull();
   });
 });
