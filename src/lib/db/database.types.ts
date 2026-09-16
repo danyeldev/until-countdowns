@@ -639,6 +639,61 @@ export type Database = {
           },
         ]
       }
+      event_reports: {
+        Row: {
+          body: string
+          created_at: string
+          event_id: string
+          event_key: string
+          id: string
+          kind: string
+          reporter_id: string
+          status: string
+        }
+        Insert: {
+          body: string
+          created_at?: string
+          event_id: string
+          event_key: string
+          id?: string
+          kind: string
+          reporter_id?: string
+          status?: string
+        }
+        Update: {
+          body?: string
+          created_at?: string
+          event_id?: string
+          event_key?: string
+          id?: string
+          kind?: string
+          reporter_id?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_reports_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "event_reports_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events_public"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "event_reports_reporter_id_fkey"
+            columns: ["reporter_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       notifications: {
         Row: {
           actor_id: string

@@ -15,6 +15,7 @@ import { EventComments } from "@/components/EventComments";
 import { JsonLd } from "@/components/JsonLd";
 import { MineEvent } from "@/components/MineEvent";
 import { AddToCollectionButton } from "@/components/AddToCollectionButton";
+import { ReportEventButton } from "@/components/ReportEventButton";
 import { SaveButton } from "@/components/SaveButton";
 import { ShareButton } from "@/components/ShareButton";
 import {
@@ -149,6 +150,10 @@ function Provenance({ event }: { event: CountdownEvent }) {
       >
         Sources and attributions
       </Link>
+      <p className="mt-5 text-xs leading-relaxed text-muted">
+        This is a public listing. If the date or details look wrong, tell us.
+      </p>
+      <ReportEventButton eventId={event.id} eventKey={event.slug} title={event.title} />
     </section>
   );
 }
