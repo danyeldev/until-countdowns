@@ -113,7 +113,10 @@ export function rowToEvent(row: EventRow): CountdownEvent {
   };
 }
 
-/** `search_events` returns `event jsonb` — the same columns as `events_public`. */
+/** `search_events` returns `event jsonb` — `events_public` columns plus optional `hype`. */
 export function jsonToEvent(value: Json): CountdownEvent {
-  return rowToEvent((isRecord(value) ? value : {}) as unknown as EventRow);
+  const event = rowToEvent((isRecord(value) ? value : {}) as unknown as EventRow);
+  if (!isRecord(value)) return event;
+  const hype = num(value.hype);
+  return hype === undefined ? event : { ...event, hype: Math.max(0, Math.trunc(hype)) };
 }

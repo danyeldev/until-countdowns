@@ -104,6 +104,8 @@ export type CountdownEvent = {
   sourceUrl?: string;
   featured: boolean;
   popularity: number;
+  /** Live attention points from `event_hype`, when the read path attached them. */
+  hype?: number;
   /** Optional fields populated from `events_public`. Personal countdowns leave them undefined. */
   status?: EventStatus;
   datePrecision?: DatePrecision;
@@ -188,12 +190,21 @@ export type SourceInfo = {
   attribution?: string;
 };
 
+export const EVENT_SORTS = ["soonest", "hot", "hype", "popular", "latest"] as const;
+export type EventSort = (typeof EVENT_SORTS)[number];
+/** Home / explore default: blend soonness, quality, and live hype. */
+export const DEFAULT_EVENT_SORT: EventSort = "hot";
+
+export function isEventSort(value: string | null | undefined): value is EventSort {
+  return !!value && (EVENT_SORTS as readonly string[]).includes(value);
+}
+
 export type SearchParams = {
   q?: string;
   category?: Category | "all";
   tag?: string;
   region?: string;
-  sort?: "soonest" | "latest" | "popular";
+  sort?: EventSort;
   featured?: boolean;
   minPopularity?: number;
   page?: number;

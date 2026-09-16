@@ -5,10 +5,11 @@ import { CollectionSearchHits } from "./CollectionSearchHits";
 import { Icon } from "./Icon";
 import { CATEGORY_LABELS } from "@/lib/labels";
 import type { CollectionSearchHit } from "@/lib/search-collections";
-import type {
-  Category,
-  CountdownEvent,
-  SeriesOccurrencePreview,
+import {
+  DEFAULT_EVENT_SORT,
+  type Category,
+  type CountdownEvent,
+  type SeriesOccurrencePreview,
 } from "@/lib/types";
 
 /**
@@ -110,7 +111,7 @@ export function CatalogExplorer({
     const p = new URLSearchParams();
     if (q) p.set("q", q);
     if (category && category !== "all") p.set("category", category);
-    if (sort) p.set("sort", sort);
+    if (sort && sort !== DEFAULT_EVENT_SORT) p.set("sort", sort);
     if (next > 1) p.set("page", String(next));
     const s = p.toString();
     return s ? `/?${s}#explore` : "/#explore";
@@ -120,7 +121,7 @@ export function CatalogExplorer({
     const p = new URLSearchParams();
     if (q) p.set("q", q);
     if (category && category !== "all") p.set("category", category);
-    if (next !== "soonest") p.set("sort", next);
+    if (next !== DEFAULT_EVENT_SORT) p.set("sort", next);
     return `/${p.size ? `?${p}` : ""}#explore`;
   }
 
@@ -132,9 +133,15 @@ export function CatalogExplorer({
             {q ? "Matching countdowns" : "Discover countdowns"}
           </h2>
           <p className="mt-1 text-sm text-muted">
+            {!q && (sort || DEFAULT_EVENT_SORT) === "hot"
+              ? "A blend of soon, well-known, and live hype. "
+              : !q && sort === "hype"
+                ? "Live attention first. "
+                : ""}
             {q && collections.length && total === 0 ? (
               <>
-                {collections.length} collection{collections.length === 1 ? "" : "s"}
+                {collections.length} collection
+                {collections.length === 1 ? "" : "s"}
               </>
             ) : (
               <>
@@ -162,18 +169,19 @@ export function CatalogExplorer({
             .
           </p>
         </div>
-        <div className="flex shrink-0 gap-1 rounded-xl border border-line bg-ink-2 p-1 text-xs">
+        <div className="flex shrink-0 flex-wrap gap-1 rounded-xl border border-line bg-ink-2 p-1 text-xs">
           {[
             ["soonest", "Soonest"],
-            ["popular", "Popular"],
+            ["hot", "Hot"],
+            ["hype", "Hype"],
             ["latest", "Furthest"],
           ].map(([value, label]) => (
             <Link
               key={value}
               href={sortHref(value)}
-              aria-current={(sort || "soonest") === value ? "true" : undefined}
+              aria-current={(sort || DEFAULT_EVENT_SORT) === value ? "true" : undefined}
               className={`inline-flex min-h-10 items-center rounded-lg px-3 py-2 ${
-                (sort || "soonest") === value
+                (sort || DEFAULT_EVENT_SORT) === value
                   ? "bg-amber/15 text-amber"
                   : "text-paper-dim hover:text-amber"
               }`}

@@ -45,7 +45,9 @@ function subscribe(notify: () => void): () => void {
 }
 
 function getSnapshot(): number {
-  if (now === 0) now = Date.now();
+  // Must not call Date.now() here. React reads this during hydration to compare
+  // with getServerSnapshot; stamping a live clock would paint hours/minutes over
+  // the server `--` placeholders and abort the ticker.
   return now;
 }
 
@@ -55,5 +57,6 @@ function getServerSnapshot(): null {
 
 /** Current epoch milliseconds on the client, `null` during SSR and hydration. */
 export function useNow(): number | null {
-  return useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
+  const value = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
+  return value === 0 ? null : value;
 }

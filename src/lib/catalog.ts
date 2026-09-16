@@ -29,12 +29,14 @@ import {
 } from "./ingest/recurrence";
 import { regionCodesMatching } from "./regions";
 import { groupFutureOccurrences } from "./series-previews";
+import { pickHomeHighlights, pickHottestFamilies } from "./heat";
 import type {
   CatalogMeta,
   Category,
   CountdownEvent,
   DateChange,
   DatePrecision,
+  EventSort,
   SearchParams,
   SearchResult,
   Series,
@@ -43,7 +45,7 @@ import type {
   SeriesOccurrencePreview,
   SourceInfo,
 } from "./types";
-import { CATEGORIES } from "./types";
+import { CATEGORIES, isEventSort } from "./types";
 
 export { COUNTRY_NAMES, regionLabel, regionSummary } from "./regions";
 
@@ -170,7 +172,7 @@ type SearchArgs = {
   tag?: string;
   region?: string;
   featured?: boolean;
-  sort: "soonest" | "latest" | "popular";
+  sort: EventSort;
   minPopularity: number;
   page: number;
   pageSize: number;
@@ -187,7 +189,7 @@ function normalizeParams(params: SearchParams): SearchArgs {
     tag: params.tag?.trim() || undefined,
     region: params.region?.trim() || undefined,
     featured: params.featured ? true : undefined,
-    sort: params.sort ?? "soonest",
+    sort: isEventSort(params.sort) ? params.sort : "soonest",
     minPopularity: params.minPopularity ?? 0,
     page: Math.max(1, Math.floor(params.page ?? 1) || 1),
     pageSize: Math.min(
@@ -285,9 +287,47 @@ export async function searchEventsLive(
 export async function searchEvents(
   params: SearchParams = {},
 ): Promise<SearchResult> {
-  return params.q && params.q.trim()
-    ? searchEventsLive(params)
-    : listEvents(params);
+  const sort = params.sort ?? "soonest";
+  // Hot/hype read live attention; a one-hour list cache would freeze the mix.
+  if ((params.q && params.q.trim()) || sort === "hot" || sort === "hype") {
+    return searchEventsLive(params);
+  }
+  return listEvents(params);
+}
+
+async function loadHypePoints(keys: string[]): Promise<Map<string, number>> {
+  const unique = [...new Set(keys.filter(Boolean))].slice(0, 200);
+  if (unique.length === 0) return new Map();
+  const rows =
+    unwrap(
+      await anonClient()
+        .from("event_hype")
+        .select("event_key, points")
+        .in("event_key", unique),
+    ) ?? [];
+  return new Map(rows.map((row) => [row.event_key, row.points]));
+}
+
+/** Attach live hype totals (id + slug keys, summed when they differ). */
+export async function attachHype<T extends Pick<CountdownEvent, "id" | "slug"> & { hype?: number }>(
+  events: T[],
+): Promise<(T & { hype: number })[]> {
+  if (events.length === 0) return [];
+  return safe(
+    "attachHype",
+    async () => {
+      const points = await loadHypePoints(
+        events.flatMap((event) => [event.id, event.slug]),
+      );
+      return events.map((event) => {
+        const hype =
+          (points.get(event.id) ?? 0) +
+          (event.slug !== event.id ? (points.get(event.slug) ?? 0) : 0);
+        return { ...event, hype };
+      });
+    },
+    events.map((event) => ({ ...event, hype: event.hype ?? 0 })),
+  );
 }
 
 /** Uncached query for `/api/events` (the route sets its own CDN cache headers). */
@@ -514,11 +554,62 @@ const featuredUpcomingCached = cached(
       []
     ).map(rowToEvent),
   ["catalog", "featured-upcoming"],
-  { tags: [TAG_EVENTS], revalidate: REVALIDATE_EVENTS },
+  { tags: [TAG_EVENTS], revalidate: 60 },
 );
 
+/** Next seven days, mixing editorial strength with live hype, one row per title. */
+export async function eventsThisWeek(limit = 10): Promise<CountdownEvent[]> {
+  return safe(
+    "eventsThisWeek",
+    async () => {
+      const [popular, hypeRows] = await Promise.all([
+        eventsWithinDays({
+          minDays: 0,
+          maxDays: 7,
+          sort: "popular",
+          limit: 40,
+        }),
+        unwrap(
+          await anonClient()
+            .from("event_hype")
+            .select("event_key")
+            .order("points", { ascending: false })
+            .limit(40),
+        ) ?? [],
+      ]);
+      const extra = await eventsByIds(hypeRows.map((row) => row.event_key));
+      const inWindow = extra.filter(
+        (event) =>
+          typeof event.daysUntil === "number" &&
+          event.daysUntil >= 0 &&
+          event.daysUntil <= 7,
+      );
+      const seen = new Set<string>();
+      const pool: CountdownEvent[] = [];
+      for (const event of [...popular, ...inWindow]) {
+        if (seen.has(event.id)) continue;
+        seen.add(event.id);
+        pool.push(event);
+      }
+      return pickHottestFamilies(await attachHype(pool), limit).sort(
+        (a, b) => a.date.localeCompare(b.date) || (b.hype ?? 0) - (a.hype ?? 0),
+      );
+    },
+    [],
+  );
+}
+
 export async function featuredUpcoming(limit = 1): Promise<CountdownEvent[]> {
-  return safe("featuredUpcoming", () => featuredUpcomingCached(limit), []);
+  const poolSize = Math.min(64, Math.max(limit * 4, 16));
+  return safe(
+    "featuredUpcoming",
+    async () =>
+      pickHomeHighlights(
+        await attachHype(await featuredUpcomingCached(poolSize)),
+        limit,
+      ),
+    [],
+  );
 }
 
 const soonestUpcomingCached = cached(

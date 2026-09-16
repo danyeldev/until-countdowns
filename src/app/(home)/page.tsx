@@ -9,7 +9,7 @@ import { FeaturedHero } from "@/components/FeaturedHero";
 import { JsonLd } from "@/components/JsonLd";
 import {
   categoryCounts,
-  eventsWithinDays,
+  eventsThisWeek,
   featuredUpcoming,
   futureOccurrencesForEvents,
   logSearch,
@@ -29,10 +29,13 @@ import {
   yearMonthOf,
 } from "@/lib/seo";
 import { humanDays } from "@/lib/time";
-import { CATEGORIES, type Category } from "@/lib/types";
-
-const SORTS = ["soonest", "popular", "latest"] as const;
-type Sort = (typeof SORTS)[number];
+import {
+  CATEGORIES,
+  DEFAULT_EVENT_SORT,
+  isEventSort,
+  type Category,
+  type EventSort,
+} from "@/lib/types";
 
 function first(value: string | string[] | undefined): string | undefined {
   return Array.isArray(value) ? value[0] : value;
@@ -41,7 +44,7 @@ function first(value: string | string[] | undefined): string | undefined {
 type HomeQuery = {
   q?: string;
   category?: Category;
-  sort: Sort;
+  sort: EventSort;
   page: number;
   hub: boolean;
   filtered: boolean;
@@ -56,9 +59,7 @@ function parseQuery(
     ? (categoryRaw as Category)
     : undefined;
   const sortRaw = first(sp.sort);
-  const sort: Sort = SORTS.includes(sortRaw as Sort)
-    ? (sortRaw as Sort)
-    : "soonest";
+  const sort: EventSort = isEventSort(sortRaw) ? sortRaw : DEFAULT_EVENT_SORT;
   const page = Math.min(
     1000,
     Math.max(1, Math.floor(Number(first(sp.page))) || 1),
@@ -98,24 +99,14 @@ export default async function Home({ searchParams }: PageProps<"/">) {
     hub ? featuredUpcoming(4) : [],
     searchEvents({ q, category, sort, page, pageSize: 12 }),
     categoryCounts(),
-    hub
-      ? eventsWithinDays({
-          minDays: 0,
-          maxDays: 7,
-          sort: "popular",
-          limit: 10,
-        })
-      : [],
+    hub ? eventsThisWeek(10) : [],
     hub ? topSeries(12) : [],
     q && page === 1 ? searchCollections(q, 6) : Promise.resolve([]),
   ]);
   const featured = highlights[0];
   const futureOccurrences = await futureOccurrencesForEvents(result.items);
   const more = highlights.slice(1, 4);
-  // Popularity picks the ten rows; the table promises a day-by-day view, so render them in date order.
-  next7.sort(
-    (a, b) => a.date.localeCompare(b.date) || b.popularity - a.popularity,
-  );
+  const week = next7;
 
   // Past the end of the result window (a stale deep link, or the catalog shrank): the RPC returns
   // no rows and therefore no total, which would strip the pagination UI. Send the visitor to page 1
@@ -124,7 +115,7 @@ export default async function Home({ searchParams }: PageProps<"/">) {
     const p = new URLSearchParams();
     if (q) p.set("q", q);
     if (category) p.set("category", category);
-    if (sort !== "soonest") p.set("sort", sort);
+    if (sort !== DEFAULT_EVENT_SORT) p.set("sort", sort);
     const qs = p.toString();
     redirect(qs ? `/?${qs}` : "/");
   }
@@ -150,7 +141,7 @@ export default async function Home({ searchParams }: PageProps<"/">) {
           {!q && (
             <p className="page-subtitle">
               {hub
-                ? "Big moments. Little milestones. Keep your next one close."
+                ? "Soon, worth watching, and getting attention — mixed so the next one feels right."
                 : "Find your next event, holiday or favorite tradition."}
             </p>
           )}
@@ -170,12 +161,14 @@ export default async function Home({ searchParams }: PageProps<"/">) {
             <FeaturedHero event={featured} />
             <section className="panel flex min-w-0 flex-col p-5 sm:p-6">
               <div className="flex items-center justify-between">
-                <h2 className="section-heading">On the horizon</h2>
+                <h2 className="section-heading">Also heating up</h2>
                 <span className="flex size-8 items-center justify-center rounded-full bg-amber/10 text-amber">
                   <Icon name="bolt" size={15} />
                 </span>
               </div>
-              <p className="mt-1 text-xs text-muted">A few more worth saving</p>
+              <p className="mt-1 text-xs text-muted">
+                Hype, quality, and how close they are
+              </p>
               <div className="my-3 flex flex-1 flex-col divide-y divide-line/60">
                 {more.map((event) => (
                   <Link
@@ -206,6 +199,7 @@ export default async function Home({ searchParams }: PageProps<"/">) {
                         {event.daysUntil != null
                           ? humanDays(event.daysUntil)
                           : formatShortDate(event.date, event.timezone)}
+                        {event.hype ? ` · ${event.hype.toLocaleString("en-US")} hype` : ""}
                       </p>
                     </div>
                     <Icon name="arrow" size={15} className="text-muted" />
@@ -213,10 +207,10 @@ export default async function Home({ searchParams }: PageProps<"/">) {
                 ))}
               </div>
               <Link
-                href="/?sort=popular#explore"
+                href="/#explore"
                 className="button-secondary w-full"
               >
-                Explore popular <Icon name="arrow" size={15} />
+                See the mix <Icon name="arrow" size={15} />
               </Link>
             </section>
           </div>
@@ -258,9 +252,9 @@ export default async function Home({ searchParams }: PageProps<"/">) {
                 </Link>
               </div>
               <p className="mt-1 text-sm text-muted">
-                Highlights from the next seven days.
+                The next seven days, weighted toward what people are saving and sharing.
               </p>
-              <EventTable events={next7} showCategory={false} />
+              <EventTable events={week} showCategory={false} />
             </div>
             <div className="relative isolate flex flex-col self-start overflow-hidden rounded-3xl border border-white/10 bg-[#1b1730] p-7">
               <div

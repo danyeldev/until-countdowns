@@ -16,6 +16,7 @@ import { JsonLd } from "@/components/JsonLd";
 import { MineEvent } from "@/components/MineEvent";
 import { AddToCollectionButton } from "@/components/AddToCollectionButton";
 import { ReportEventButton } from "@/components/ReportEventButton";
+import { HypeMeter } from "@/components/HypeMeter";
 import { SaveButton } from "@/components/SaveButton";
 import { ShareButton } from "@/components/ShareButton";
 import {
@@ -44,6 +45,7 @@ import {
 } from "@/lib/seo";
 import { formatCompactDate, isCoarsePrecision } from "@/lib/time";
 import type { CountdownEvent } from "@/lib/types";
+import { hypeEventKey } from "@/lib/hype";
 import { decodeSharePayload } from "@/lib/user-events";
 
 export const revalidate = 3600;
@@ -238,6 +240,7 @@ export default async function EventPage({
   // the payload decodes to only resolves for the signed-in owner, so it is not shareable.
   const shared = slug.startsWith("share-");
   const sharePath = shared ? `/event/${slug}` : `/event/${event.slug}`;
+  const hypeKey = hypeEventKey(event);
   const coarse = isCoarsePrecision(event.datePrecision);
   const shownRegions = event.regions.filter((r) => r !== "GLOBAL");
   const previousDate = event.dateHistory?.at(-1)?.date;
@@ -280,12 +283,13 @@ export default async function EventPage({
         precision={event.datePrecision}
         status={event.status}
         image={isUser ? undefined : event.image}
+        hype={hypeKey ? <HypeMeter eventKey={hypeKey} /> : null}
         actions={
           <>
             <SaveButton id={event.id} event={event} />
             {!isUser ? <AddToCollectionButton event={event} /> : null}
-            <CalendarButtons event={event} url={absoluteUrl(sharePath)} />
-            <ShareButton title={event.title} path={sharePath} />
+            <CalendarButtons event={event} url={absoluteUrl(sharePath)} hypeKey={hypeKey} />
+            <ShareButton title={event.title} path={sharePath} hypeKey={hypeKey} />
           </>
         }
       />
