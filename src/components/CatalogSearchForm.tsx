@@ -13,7 +13,7 @@ export function CatalogSearchForm({
   return (
     <form
       action="/"
-      className="mt-6 flex items-center gap-3 rounded-full border border-line bg-ink-2 p-2 pl-4"
+      className="field mt-6 flex items-center gap-3 !py-1.5 !ps-4 !pe-1.5"
       onSubmit={(event) => {
         const query = String(new FormData(event.currentTarget).get("q") ?? "").trim();
         if (query) capture("search_submitted", { query, source: "catalog" });
@@ -31,10 +31,10 @@ export function CatalogSearchForm({
         maxLength={80}
         defaultValue={q}
         placeholder="Search the whole catalog…"
-        className="min-w-0 flex-1 bg-transparent py-2 text-sm tracking-normal outline-none placeholder:text-muted"
+        className="min-w-0 flex-1 bg-transparent py-2 text-sm tracking-normal outline-none"
       />
       {category && <input type="hidden" name="category" value={category} />}
-      <button className="button-primary !rounded-full" type="submit">
+      <button className="button-primary !min-h-10 !rounded-[10px] !px-4" type="submit">
         Search
       </button>
     </form>

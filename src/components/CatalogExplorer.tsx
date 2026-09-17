@@ -45,18 +45,16 @@ function EmptyResult({
       </p>
       {busiest.length > 0 && (
         <>
-          <p className="mt-8 text-xs uppercase tracking-[0.16em] text-muted">
-            Busiest categories
-          </p>
+          <p className="eyebrow mt-8">Busiest categories</p>
           <ul className="mt-3 flex flex-wrap gap-2">
             {busiest.map(([c, n]) => (
               <li key={c}>
                 <Link
                   href={`/category/${c}`}
-                  className="inline-flex items-baseline gap-1.5 rounded-full border border-line px-3 py-1.5 text-sm text-paper-dim hover:border-amber/50 hover:text-paper"
+                  className="chip bg-surface"
                 >
                   {CATEGORY_LABELS[c]}
-                  <span className="tabular font-mono text-[10px] text-muted">
+                  <span className="tabular text-[11px] text-muted">
                     {n.toLocaleString("en-US")}
                   </span>
                 </Link>
@@ -170,7 +168,7 @@ export function CatalogExplorer({
             .
           </p>
         </div>
-        <div className="flex shrink-0 flex-wrap gap-1 rounded-xl border border-line bg-ink-2 p-1 text-xs">
+        <div className="segmented shrink-0">
           {[
             ["soonest", "Soonest"],
             ["hot", "Hot"],
@@ -181,11 +179,6 @@ export function CatalogExplorer({
               key={value}
               href={sortHref(value)}
               aria-current={(sort || DEFAULT_EVENT_SORT) === value ? "true" : undefined}
-              className={`inline-flex min-h-10 items-center rounded-lg px-3 py-2 ${
-                (sort || DEFAULT_EVENT_SORT) === value
-                  ? "bg-amber/15 text-amber"
-                  : "text-paper-dim hover:text-amber"
-              }`}
             >
               {label}
             </Link>
@@ -197,7 +190,7 @@ export function CatalogExplorer({
       {(q || category) && (
         <Link
           href="/#explore"
-          className="mt-3 inline-flex items-center gap-1 text-xs text-amber"
+          className="mt-3 inline-flex min-h-10 items-center gap-1 text-sm text-amber hover:text-paper"
         >
           <Icon name="close" size={13} />
           Clear filters
@@ -224,7 +217,7 @@ export function CatalogExplorer({
       {events.length === 0 ? (
         collections.length ? null : <EmptyResult q={q} counts={counts} />
       ) : (
-        <div className="mt-6 grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
+        <div className="mt-8 grid gap-x-6 gap-y-10 sm:grid-cols-2 xl:grid-cols-3">
           {events.map((event) => (
             <EventCard
               key={event.id}
@@ -240,7 +233,7 @@ export function CatalogExplorer({
         <div
           role="navigation"
           aria-label="Search pagination"
-          className="mt-8 flex items-center justify-between border-t border-line pt-6 text-sm text-paper-dim"
+          className="hairline mt-12 flex items-center justify-between pt-6 text-sm text-paper-dim"
         >
           <span>
             Page {page} of {pages}

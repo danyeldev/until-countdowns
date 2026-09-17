@@ -82,15 +82,13 @@ export function QuickSearch() {
         type="button"
         onClick={() => setOpen(true)}
         aria-label="Search events (Control or Command K)"
-        className="flex h-11 w-11 items-center justify-center gap-3 rounded-xl border border-line bg-white/[.025] text-muted transition hover:border-amber/40 hover:text-paper sm:w-[min(340px,32vw)] sm:justify-start sm:px-3.5"
+        className="flex h-11 w-11 items-center justify-center gap-3 rounded-xl bg-surface text-muted transition hover:bg-surface-hover hover:text-paper sm:w-[min(320px,30vw)] sm:justify-start sm:px-3.5"
       >
         <Icon name="search" size={17} />
         <span className="hidden text-[13px] sm:inline">
           Search anything coming up…
         </span>
-        <kbd className="ml-auto hidden rounded border border-white/10 px-1.5 py-0.5 text-[10px] sm:inline">
-          ⌘ K
-        </kbd>
+        <kbd className="ml-auto hidden text-[11px] text-muted/80 sm:inline">⌘K</kbd>
       </button>
       <dialog
         ref={dialog}
@@ -135,7 +133,7 @@ export function QuickSearch() {
             if (q) capture("search_submitted", { query: q, source: "command" });
             setOpen(false);
           }}
-          className="flex items-center gap-3 border-b border-line px-5"
+          className="flex items-center gap-3 px-5"
         >
           <Icon name="search" size={21} className="shrink-0 text-amber" />
           <input
@@ -160,13 +158,13 @@ export function QuickSearch() {
           <button
             type="button"
             onClick={() => setOpen(false)}
-            className="flex size-11 shrink-0 items-center justify-center rounded-full text-muted hover:bg-white/5 hover:text-paper"
+            className="icon-button shrink-0 !rounded-full text-muted"
             aria-label="Close search"
           >
             <Icon name="close" size={18} />
           </button>
         </form>
-        <div className="max-h-[55dvh] overflow-y-auto p-3">
+        <div className="hairline max-h-[55dvh] overflow-y-auto p-3">
           {query.trim().length < 2 ? (
             <div className="p-3">
               <p className="eyebrow mb-4">A little inspiration</p>
@@ -180,7 +178,7 @@ export function QuickSearch() {
                         capture("search_submitted", { query: term, source: "command_suggestion" });
                         setOpen(false);
                       }}
-                      className="button-secondary !min-h-11 !px-3 !py-1.5 !text-xs"
+                      className="chip bg-surface"
                     >
                       <Icon name="search" size={13} />
                       {term}
@@ -211,7 +209,7 @@ export function QuickSearch() {
                   onClick={() => setOpen(false)}
                   className="command-result"
                 >
-                  <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-amber/10 text-amber">
+                  <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-surface text-amber">
                     <Icon name="list" size={19} />
                   </span>
                   <span className="min-w-0 flex-1">
@@ -233,7 +231,7 @@ export function QuickSearch() {
                   onClick={() => setOpen(false)}
                   className="command-result"
                 >
-                  <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-amber/10 text-amber">
+                  <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-surface text-amber">
                     <Icon name="calendar" size={19} />
                   </span>
                   <span className="min-w-0 flex-1">
@@ -252,14 +250,14 @@ export function QuickSearch() {
               <Link
                 href={`/?q=${encodeURIComponent(query.trim())}`}
                 onClick={() => setOpen(false)}
-                className="mt-2 flex items-center justify-between rounded-xl bg-amber/10 px-4 py-3 text-sm text-amber"
+                className="mt-2 flex min-h-11 items-center justify-between rounded-xl px-3 text-sm text-amber hover:bg-surface"
               >
                 See all results <Icon name="arrow" size={16} />
               </Link>
             </>
           )}
         </div>
-        <div className="flex justify-between border-t border-line px-5 py-3 text-[11px] text-muted">
+        <div className="hairline flex justify-between px-5 py-3 text-[11px] text-muted">
           <span>Type a year to jump ahead.</span>
           <span>Esc to close</span>
         </div>

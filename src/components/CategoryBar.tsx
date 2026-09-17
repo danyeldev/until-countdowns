@@ -28,17 +28,10 @@ export function CategoryBar({
     return s ? `/?${s}` : "/";
   }
 
+  const allActive = !active || active === "all";
   return (
-    <div className="flex gap-2 overflow-x-auto pb-2 [scrollbar-width:thin]">
-      <Link
-        href={href()}
-        aria-current={!active || active === "all" ? "true" : undefined}
-        className={`shrink-0 inline-flex min-h-11 items-center rounded-full px-4 py-2 text-xs ${
-          !active || active === "all"
-            ? "border border-amber/40 bg-amber/15 text-amber"
-            : "border border-line bg-ink-2 text-paper-dim hover:border-amber hover:text-amber"
-        }`}
-      >
+    <div className="-mx-1 flex gap-1 overflow-x-auto px-1 pb-1 [scrollbar-width:none]">
+      <Link href={href()} aria-current={allActive ? "true" : undefined} className="chip shrink-0">
         All
       </Link>
       {CATEGORIES.filter((c) => (counts[c] ?? 0) > 0).map((c) => (
@@ -46,15 +39,11 @@ export function CategoryBar({
           key={c}
           href={href(c)}
           aria-current={active === c ? "true" : undefined}
-          className={`shrink-0 inline-flex min-h-11 items-center rounded-full px-4 py-2 text-xs ${
-            active === c
-              ? "border border-amber/40 bg-amber/15 text-amber"
-              : "border border-line bg-ink-2 text-paper-dim hover:border-amber hover:text-amber"
-          }`}
+          className="chip shrink-0"
         >
           {CATEGORY_LABELS[c]}
           {!q && (
-            <span className="ml-2 font-mono text-[10px]">
+            <span className={`tabular text-[11px] ${active === c ? "text-ink/60" : "text-muted"}`}>
               {counts[c]?.toLocaleString("en-US")}
             </span>
           )}

@@ -37,7 +37,7 @@ export default async function LocaleLayout({
           <CollectionProvider>
             <PostHogIdentify />
             <NotificationsProvider>
-              <Suspense fallback={<div className="h-[72px] border-b border-line" />}>
+              <Suspense fallback={<div className="h-16" />}>
                 <Header />
               </Suspense>
               <main id="main-content" tabIndex={-1} className="app-main focus:outline-none">

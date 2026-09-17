@@ -19,7 +19,7 @@ export function Pager({ page, total, pageSize, basePath }: { page: number; total
   const pages = Math.max(1, Math.ceil(total / pageSize));
   if (pages <= 1) return null;
   return (
-    <nav className="mt-6 flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-line bg-ink-2 px-4 py-3 text-sm text-paper-dim" aria-label={t("pagination")}>
+    <nav className="hairline mt-10 flex flex-wrap items-center justify-between gap-4 pt-6 text-sm text-paper-dim" aria-label={t("pagination")}>
       {page > 1 ? <link rel="prev" href={localizePath(pageHref(basePath, page - 1), locale)} /> : null}
       {page < pages ? <link rel="next" href={localizePath(pageHref(basePath, page + 1), locale)} /> : null}
       <span className="tabular" aria-live="polite">

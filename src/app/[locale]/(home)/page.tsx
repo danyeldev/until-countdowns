@@ -134,7 +134,7 @@ export default async function Home({ params, searchParams }: PageProps<"/[locale
   const nav = await getTranslations("nav");
   return (
     <div className="reveal">
-      <div className="mb-7 flex items-end justify-between gap-5">
+      <div className="mb-8 flex items-end justify-between gap-5">
         <div>
           <h1 className="page-heading">
             {hub ? t("heading") : q ? t("resultsFor", { query: q }) : nav("explore")}
@@ -148,36 +148,28 @@ export default async function Home({ params, searchParams }: PageProps<"/[locale
           )}
         </div>
         {hub && (
-          <time
-            dateTime={today}
-            className="hidden shrink-0 rounded-full border border-line px-4 py-2.5 text-xs text-paper-dim xl:block"
-          >
+          <time dateTime={today} className="hidden shrink-0 text-sm text-muted xl:block">
             {formatShortDate(today)}
           </time>
         )}
       </div>
       {hub &&
         (featured ? (
-          <div className="grid gap-5 xl:grid-cols-[1.85fr_1fr]">
+          <div className="grid gap-8 xl:grid-cols-[1.85fr_1fr] xl:gap-10">
             <FeaturedHero event={featured} />
-            <section className="panel flex min-w-0 flex-col p-5 sm:p-6">
-              <div className="flex items-center justify-between">
-                <h2 className="section-heading">Also heating up</h2>
-                <span className="flex size-8 items-center justify-center rounded-full bg-amber/10 text-amber">
-                  <Icon name="bolt" size={15} />
-                </span>
-              </div>
-              <p className="mt-1 text-xs text-muted">
+            <section className="flex min-w-0 flex-col">
+              <h2 className="section-heading">Also heating up</h2>
+              <p className="mt-1 text-sm text-muted">
                 Hype, quality, and how close they are
               </p>
-              <div className="my-3 flex flex-1 flex-col divide-y divide-line/60">
+              <div className="mt-2 flex flex-1 flex-col divide-y divide-line">
                 {more.map((event) => (
                   <Link
                     key={event.id}
                     href={`/event/${event.slug}`}
-                    className="group flex flex-1 items-center gap-3 py-5"
+                    className="group flex flex-1 items-center gap-4 py-4"
                   >
-                    <div className="flex size-12 shrink-0 flex-col items-center justify-center rounded-xl bg-white/5 text-amber">
+                    <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-surface text-amber">
                       <Icon
                         name={
                           event.category === "sports"
@@ -186,14 +178,14 @@ export default async function Home({ params, searchParams }: PageProps<"/[locale
                               ? "spark"
                               : "calendar"
                         }
-                        size={22}
+                        size={18}
                       />
-                    </div>
+                    </span>
                     <div className="min-w-0 flex-1">
-                      <p className="text-[10px] text-muted">
+                      <p className="text-xs text-muted">
                         {CATEGORY_LABELS[event.category]}
                       </p>
-                      <h3 className="mt-1 line-clamp-2 text-sm font-medium leading-snug group-hover:text-amber">
+                      <h3 className="mt-0.5 line-clamp-2 text-[15px] font-medium leading-snug group-hover:text-amber">
                         {event.title}
                       </h3>
                       <p className="mt-1 text-xs text-paper-dim">
@@ -203,20 +195,20 @@ export default async function Home({ params, searchParams }: PageProps<"/[locale
                         {event.hype ? ` · ${event.hype.toLocaleString("en-US")} hype` : ""}
                       </p>
                     </div>
-                    <Icon name="arrow" size={15} className="text-muted" />
+                    <Icon name="arrow" size={15} className="text-muted/60 group-hover:text-amber" />
                   </Link>
                 ))}
               </div>
               <Link
                 href="/#explore"
-                className="button-secondary w-full"
+                className="mt-2 inline-flex min-h-11 items-center gap-2 self-start text-sm text-amber hover:text-paper"
               >
                 See the mix <Icon name="arrow" size={15} />
               </Link>
             </section>
           </div>
         ) : (
-          <section className="panel p-8">
+          <section className="py-8">
             <h2 className="section-heading">Make room for your next moment.</h2>
             <p className="page-subtitle">
               The catalog is taking a moment to load. Create a countdown for a
@@ -241,13 +233,13 @@ export default async function Home({ params, searchParams }: PageProps<"/[locale
       />
       {hub && (
         <>
-          <section className="mt-12 grid gap-7 xl:grid-cols-[1.7fr_1fr]">
+          <section className="mt-20 grid gap-12 xl:grid-cols-[1.7fr_1fr] xl:gap-16">
             <div className="min-w-0">
               <div className="flex items-center justify-between gap-4">
                 <h2 className="section-heading">This week</h2>
                 <Link
                   href={`/calendar/${thisMonth.year}/${pad2(thisMonth.month)}`}
-                  className="inline-flex min-h-11 items-center gap-2 text-xs text-amber"
+                  className="inline-flex min-h-11 items-center gap-2 text-sm text-amber hover:text-paper"
                 >
                   Open calendar <Icon name="arrow" size={14} />
                 </Link>
@@ -257,33 +249,29 @@ export default async function Home({ params, searchParams }: PageProps<"/[locale
               </p>
               <EventTable events={week} showCategory={false} />
             </div>
-            <div className="relative isolate flex flex-col self-start overflow-hidden rounded-3xl border border-white/10 bg-[#1b1730] p-7">
-              <div
-                aria-hidden="true"
-                className="absolute -right-12 -top-12 -z-10 size-64 rounded-full bg-amber/10 blur-3xl"
-              />
-              <span className="flex size-12 items-center justify-center rounded-2xl border border-amber/20 bg-amber/10 text-amber">
-                <Icon name="plus" size={24} />
+            <div className="self-start xl:pt-1">
+              <span className="flex size-10 items-center justify-center rounded-full bg-amber/15 text-amber">
+                <Icon name="plus" size={20} />
               </span>
-              <h2 className="mt-6 max-w-xs text-2xl font-semibold leading-tight tracking-tight">
+              <h2 className="mt-5 max-w-xs text-2xl font-semibold leading-tight tracking-tight">
                 Your life has big dates, too.
               </h2>
-              <p className="mt-3 max-w-xs text-sm leading-relaxed text-paper-dim">
+              <p className="mt-3 max-w-xs text-sm leading-relaxed text-muted">
                 The trip. The birthday. The fresh start. Give it a countdown of
                 its own.
               </p>
-              <Link href="/create" className="button-primary mt-6 self-start">
+              <Link href="/create" className="button-primary mt-6">
                 Make it yours <Icon name="arrow" size={16} />
               </Link>
             </div>
           </section>
           {popular.length > 0 && (
-            <section className="mt-12">
+            <section className="mt-20">
               <div className="flex items-center justify-between gap-4">
                 <h2 className="section-heading">Good things come around</h2>
                 <Link
                   href="/days-until"
-                  className="inline-flex min-h-11 items-center gap-2 text-xs text-amber"
+                  className="inline-flex min-h-11 items-center gap-2 text-sm text-amber hover:text-paper"
                 >
                   Every year <Icon name="arrow" size={14} />
                 </Link>
@@ -291,17 +279,17 @@ export default async function Home({ params, searchParams }: PageProps<"/[locale
               <p className="mt-1 text-sm text-muted">
                 Follow the next date. Explore the years ahead.
               </p>
-              <ul className="mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+              <ul className="mt-4 grid gap-x-8 sm:grid-cols-2 xl:grid-cols-3">
                 {popular.slice(0, 6).map((series) => (
-                  <li key={series.slug}>
+                  <li key={series.slug} className="border-t border-line">
                     <Link
                       href={`/days-until/${series.slug}`}
-                      className="flex min-h-[76px] items-center justify-between gap-3 rounded-2xl border border-line bg-ink-2 px-5 py-4 hover:border-amber/40"
+                      className="group flex min-h-[64px] items-center justify-between gap-3 py-4"
                     >
-                      <span className="text-sm font-medium">
+                      <span className="text-[15px] font-medium group-hover:text-amber">
                         {series.title}
                       </span>
-                      <span className="shrink-0 text-xs text-amber">
+                      <span className="shrink-0 text-sm text-muted">
                         {series.nextDate
                           ? typeof series.daysUntil === "number"
                             ? humanDays(series.daysUntil)

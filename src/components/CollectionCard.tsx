@@ -20,16 +20,16 @@ export function CollectionCard({
   const stored = collectionCover(collection.images);
   const src = coverUrl || (stored ? collectionImageUrl(stored.path) : "");
   return (
-    <article className="panel overflow-hidden">
-      <Link href={path} className="block">
-        <div className="relative aspect-16/9 bg-ink-2">
+    <article className="group">
+      <Link href={path} className="block rounded-2xl">
+        <div className="relative aspect-16/9 overflow-hidden rounded-2xl bg-ink-2">
           {src ? (
             <Image
               src={src}
               alt=""
               fill
               unoptimized
-              className="object-cover"
+              className="object-cover transition-transform duration-500 group-hover:scale-[1.03]"
               sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
             />
           ) : (
@@ -38,20 +38,20 @@ export function CollectionCard({
             </div>
           )}
         </div>
-        <div className="p-5">
-          <h3 className="text-[17px] font-semibold tracking-[-.025em] text-paper">{collection.title}</h3>
+        <div className="pt-4">
+          <h3 className="text-[17px] font-semibold tracking-[-.02em] text-paper group-hover:text-amber">{collection.title}</h3>
           {collection.description ? (
-            <p className="mt-2 line-clamp-2 text-sm leading-relaxed text-paper-dim">{collection.description}</p>
+            <p className="mt-1.5 line-clamp-2 text-sm leading-relaxed text-paper-dim">{collection.description}</p>
           ) : null}
-          <p className="mt-3 text-xs text-muted">
+          <p className="mt-2 text-xs text-muted">
             {collection.itemCount} countdown{collection.itemCount === 1 ? "" : "s"}
             {byline ? ` · ${byline}` : ""}
           </p>
         </div>
       </Link>
       {manageHref ? (
-        <div className="border-t border-line px-5 py-3">
-          <Link href={manageHref} className="text-xs text-amber hover:underline">
+        <div className="pt-2">
+          <Link href={manageHref} className="inline-flex min-h-9 items-center text-xs text-amber hover:text-paper">
             Edit collection
           </Link>
         </div>

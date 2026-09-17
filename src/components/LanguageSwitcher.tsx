@@ -17,7 +17,7 @@ export function LanguageSwitcher({ compact = false }: { compact?: boolean }) {
       <select
         value={locale}
         aria-label={t("language")}
-        className="max-w-[11rem] rounded-lg border border-white/10 bg-ink/80 px-2 py-1.5 text-paper-dim hover:border-amber/40"
+        className="max-w-[11rem] rounded-lg bg-transparent px-2 py-1.5 text-paper-dim hover:bg-surface hover:text-paper"
         onChange={(event) => {
           const next = event.target.value as Locale;
           capture("language_changed", { from: locale, to: next });

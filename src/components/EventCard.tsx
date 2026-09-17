@@ -36,12 +36,10 @@ export function EventCard({
   const hasSeriesLink = showSeriesLink && Boolean(event.seriesSlug);
   const laterDates = (futureOccurrences ?? []).slice(0, 4);
   const path = href ?? `/event/${event.slug}`;
+  const regions = regionSummary(event.regions);
   return (
-    <article className="event-card group relative flex min-w-0 flex-col">
-      <Link
-        href={path}
-        className={`flex ${hasSeriesLink ? "flex-1" : "h-full"} flex-col focus-visible:outline-offset-[-3px]`}
-      >
+    <article className="event-card group flex min-w-0 flex-col">
+      <Link href={path} className="flex flex-1 flex-col rounded-2xl">
         {event.image && !isShareAlike(event.image.license) ? (
           <EventImage
             image={event.image}
@@ -56,23 +54,21 @@ export function EventCard({
             category={event.category}
           />
         )}
-        <div className="flex flex-1 flex-col p-5">
-          <div className="flex flex-wrap items-center gap-2 pr-10 text-[10px] font-medium uppercase tracking-[.1em] text-muted">
-            {CATEGORY_LABELS[event.category]}
-            <StatusBadge status={event.status} />
-          </div>
-          <h3 className="mt-2 line-clamp-2 min-h-[2.75rem] text-[17px] font-semibold leading-[1.3] tracking-[-.025em] text-paper group-hover:text-amber">
-            {event.title}
-          </h3>
-          <p className="mt-2 flex items-center gap-1.5 text-xs text-muted">
-            <Icon name="calendar" size={13} />
+        <div className="flex flex-1 flex-col pt-4">
+          <p className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-muted">
+            <span>{CATEGORY_LABELS[event.category]}</span>
+            <span aria-hidden="true">·</span>
             <time dateTime={event.date}>
               {coarse
                 ? formatApproximate(event.date, event.datePrecision)
                 : formatCompactDate(event.date, event.timezone)}
             </time>
+            <StatusBadge status={event.status} />
           </p>
-          <div className="mt-auto pt-5">
+          <h3 className="mt-1.5 line-clamp-2 text-[17px] font-semibold leading-[1.3] tracking-[-.02em] text-paper group-hover:text-amber">
+            {event.title}
+          </h3>
+          <div className="mt-auto flex items-end justify-between gap-3 pt-4">
             {live ? (
               <Countdown
                 date={event.date}
@@ -90,31 +86,28 @@ export function EventCard({
               </p>
             )}
           </div>
-          <div className="mt-4 flex items-center justify-between gap-2 border-t border-line pt-3">
-            <p className="truncate text-[10px] text-muted">
-              {regionSummary(event.regions)}
-            </p>
-            <Icon name="arrow" size={14} className="shrink-0 text-amber" />
-          </div>
+          {regions ? (
+            <p className="mt-2 truncate text-xs text-muted">{regions}</p>
+          ) : null}
         </div>
       </Link>
       {hasSeriesLink && laterDates.length > 0 ? (
-        <details className="group/years border-t border-line/60 bg-ink/25">
+        <details className="group/years mt-2">
           <summary
             aria-label={`More years for ${event.seriesTitle || event.title}`}
-            className="flex cursor-pointer list-none items-center justify-between gap-3 px-5 py-3 text-sm text-amber hover:bg-ink focus-visible:outline-offset-[-3px] [&::-webkit-details-marker]:hidden"
+            className="inline-flex min-h-10 cursor-pointer list-none items-center gap-1.5 rounded-lg text-sm text-amber hover:text-paper [&::-webkit-details-marker]:hidden"
           >
             <span>More years</span>
             <Icon
-              name="plus"
+              name="chevron"
               size={14}
-              className="transition-transform group-open/years:rotate-45"
+              className="transition-transform group-open/years:rotate-180"
               aria-hidden="true"
             />
           </summary>
-          <div className="px-5 pb-4">
+          <div className="pb-1 pt-1">
             <ul
-              className="flex flex-wrap gap-2"
+              className="flex flex-wrap gap-1.5"
               aria-label={`Later dates for ${event.seriesTitle || event.title}`}
             >
               {laterDates.map((occurrence) => {
@@ -127,7 +120,7 @@ export function EventCard({
                     <Link
                       href={`/event/${occurrence.slug}`}
                       aria-label={`${occurrence.title} — ${label}`}
-                      className="inline-flex rounded-lg border border-line bg-ink-2 px-3 py-3 font-mono text-xs text-paper-dim hover:border-amber hover:text-amber"
+                      className="chip bg-surface !min-h-9 !px-3 font-mono text-xs"
                     >
                       {approximate ? (
                         <span>{label}</span>
@@ -142,7 +135,7 @@ export function EventCard({
             <Link
               href={`/days-until/${event.seriesSlug}`}
               aria-label={`All dates for ${event.seriesTitle || event.title}`}
-              className="mt-3 inline-flex items-center gap-2 text-sm text-amber hover:underline"
+              className="mt-3 inline-flex min-h-10 items-center gap-1.5 text-sm text-paper-dim hover:text-paper"
             >
               All dates
               <Icon name="arrow" size={14} aria-hidden="true" />
@@ -153,17 +146,17 @@ export function EventCard({
         <Link
           href={`/days-until/${event.seriesSlug}`}
           aria-label={`All dates for ${event.seriesTitle || event.title}`}
-          className="flex items-center justify-between gap-3 border-t border-line bg-ink/40 px-5 py-3 text-sm text-amber hover:bg-ink focus-visible:outline-offset-[-3px]"
+          className="mt-2 inline-flex min-h-10 items-center gap-1.5 text-sm text-amber hover:text-paper"
         >
           <span>All dates</span>
           <Icon name="arrow" size={14} aria-hidden="true" />
         </Link>
       ) : null}
-      <div className="pointer-events-none absolute left-3 top-3 z-10">
+      <div className="pointer-events-none absolute start-3 top-3 z-10">
         <CardHype event={event} points={event.hype} />
       </div>
       {showSave ? (
-        <div className="absolute right-3 top-3 z-10">
+        <div className="absolute end-3 top-3 z-10">
           <SaveButton id={event.id} event={event} compact />
         </div>
       ) : null}

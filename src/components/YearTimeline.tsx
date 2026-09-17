@@ -19,7 +19,7 @@ export function YearTimeline({
 }) {
   if (!events.length) return null;
   return (
-    <ul className="mt-5 grid grid-cols-2 gap-2.5 sm:grid-cols-3 xl:grid-cols-4">
+    <ul className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-3 xl:grid-cols-4">
       {events.map((event) => {
         const current = event.slug === currentSlug;
         const coarse = isCoarsePrecision(event.datePrecision);
@@ -32,7 +32,7 @@ export function YearTimeline({
               href={`/event/${event.slug}`}
               aria-label={`${event.title}, ${label}`}
               aria-current={current ? "page" : undefined}
-              className={`group flex h-full flex-col rounded-2xl border p-4 transition-colors ${current ? "border-amber/50 bg-amber/10" : "border-line bg-ink-2 hover:border-amber/50 hover:bg-amber/5"}`}
+              className={`group flex h-full flex-col rounded-2xl p-4 transition-colors ${current ? "bg-amber/15" : "hover:bg-surface"}`}
             >
               <span className="flex items-center justify-between gap-2">
                 <span
