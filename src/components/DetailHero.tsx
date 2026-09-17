@@ -46,13 +46,13 @@ export function DetailHero({
   const paused =
     status === "cancelled" || status === "postponed" || status === "retired";
   return (
-    <section className="panel relative isolate mt-5 rounded-[28px] border border-line bg-ink-2">
+    <section className="relative isolate mt-4 overflow-hidden rounded-3xl">
       <div
         className="pointer-events-none absolute inset-0 -z-10 overflow-hidden rounded-[inherit]"
         aria-hidden="true"
       >
         {image && !separateArtwork ? (
-          <div className="absolute inset-y-0 right-0 w-full opacity-45 lg:w-3/4 [&>div]:h-full [&>div]:!aspect-auto [&_img]:h-full [&_img]:object-cover">
+          <div className="absolute inset-y-0 end-0 w-full opacity-60 lg:w-3/4 [&>div]:h-full [&>div]:!aspect-auto [&>div]:!rounded-none [&_img]:h-full [&_img]:object-cover">
             <EventImage
               image={image}
               alt=""
@@ -62,7 +62,7 @@ export function DetailHero({
             />
           </div>
         ) : (
-          <div className="absolute inset-0 opacity-55">
+          <div className="absolute inset-0 opacity-60">
             <Image
               src="/art/until-sculpture.png"
               alt=""
@@ -73,16 +73,16 @@ export function DetailHero({
             />
           </div>
         )}
-        <div className="absolute inset-0 bg-linear-to-r from-ink-2 via-ink-2/90 to-ink-2/40" />
-        <div className="absolute inset-0 bg-linear-to-t from-ink-2 via-transparent to-transparent" />
+        <div className="absolute inset-0 bg-linear-to-r from-ink via-ink/85 to-ink/30" />
+        <div className="absolute inset-0 bg-linear-to-t from-ink via-ink/20 to-transparent" />
       </div>
 
-      <div className="px-5 py-7 sm:px-9 sm:py-9 lg:px-11 lg:py-11">
+      <div className="px-1 py-8 sm:px-2 sm:py-10 lg:py-12">
         <div className="flex flex-wrap items-center gap-3 text-sm font-medium text-amber">
           {kicker}
           <StatusBadge status={status} />
         </div>
-        <h1 className="mt-4 max-w-4xl text-[clamp(2rem,5vw,3.75rem)] leading-[1.06] font-semibold tracking-[-0.045em] text-paper [overflow-wrap:anywhere]">
+        <h1 className="mt-4 max-w-4xl text-[clamp(2rem,5vw,3.75rem)] leading-[1.06] font-semibold tracking-[-0.04em] text-paper [overflow-wrap:anywhere]">
           {title}
         </h1>
         {date ? (
@@ -109,7 +109,7 @@ export function DetailHero({
               status={status}
             />
           ) : (
-            <div className="max-w-xl rounded-2xl border border-line bg-ink/60 px-5 py-6">
+            <div className="max-w-xl">
               <p className="text-2xl font-medium tracking-tight text-paper">
                 A new date is on the horizon.
               </p>
@@ -134,7 +134,7 @@ export function DetailHero({
         ) : null}
       </div>
       {image ? (
-        <figure className="rounded-b-[28px] border-t border-line/60 bg-ink-2 px-5 py-3 sm:px-9 lg:px-11">
+        <figure className="px-1 pb-2 sm:px-2">
           {separateArtwork ? (
             <details className="group/photo">
               <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between gap-3 text-sm text-paper-dim hover:text-paper [&::-webkit-details-marker]:hidden">
@@ -150,6 +150,7 @@ export function DetailHero({
                   image={image}
                   alt={title}
                   variant="hero"
+                  className="rounded-2xl"
                   sizes="(max-width: 1024px) 100vw, 1000px"
                 />
               </div>

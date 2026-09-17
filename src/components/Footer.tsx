@@ -11,13 +11,13 @@ export function Footer() {
   const { userId } = useCollection();
   return (
     <footer className="app-footer">
-      <div className="mx-auto flex max-w-[1440px] flex-wrap items-center justify-between gap-4 border-t border-line/60 pt-5 text-xs text-muted">
+      <div className="mx-auto flex max-w-[1280px] flex-wrap items-center justify-between gap-4 text-xs text-muted">
         <p>
           <span className="font-medium text-paper-dim">until</span>
-          <span className="mx-2 text-line">/</span>
+          <span className="mx-2">·</span>
           {t("tagline")}
         </p>
-        <nav aria-label={t("about")} className="flex flex-wrap items-center gap-5">
+        <nav aria-label={t("about")} className="flex flex-wrap items-center gap-x-5 gap-y-2">
           <Link href="/category" className="hover:text-paper">
             {t("categories")}
           </Link>

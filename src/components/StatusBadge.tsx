@@ -5,20 +5,20 @@ const BADGES: Partial<
 > = {
   tentative: {
     label: "Tentative",
-    className: "border-amber/35 bg-amber/10 text-amber",
+    className: "bg-amber/15 text-amber",
   },
   postponed: {
     label: "Postponed",
-    className: "border-ember/40 bg-ember/10 text-ember",
+    className: "bg-ember/15 text-ember",
   },
   cancelled: {
     label: "Cancelled",
-    className: "border-ember/40 bg-ember/10 text-ember",
+    className: "bg-ember/15 text-ember",
   },
-  done: { label: "Happened", className: "border-line bg-ink text-paper-dim" },
+  done: { label: "Happened", className: "bg-surface text-paper-dim" },
   retired: {
     label: "Archived",
-    className: "border-line bg-ink text-paper-dim",
+    className: "bg-surface text-paper-dim",
   },
 };
 
@@ -34,7 +34,7 @@ export function StatusBadge({
   if (!badge) return null;
   return (
     <span
-      className={`inline-flex items-center rounded-md border px-2 py-1 text-xs leading-none font-medium ${badge.className} ${className}`}
+      className={`inline-flex items-center rounded-full px-2 py-1 text-[11px] leading-none font-medium ${badge.className} ${className}`}
     >
       {badge.label}
     </span>

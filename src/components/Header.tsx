@@ -12,6 +12,17 @@ import { QuickSearch } from "./QuickSearch";
 import { AuthGateLink } from "./SignInButton";
 import { Link, usePathname } from "@/i18n/navigation";
 
+function Wordmark({ label }: { label: string }) {
+  return (
+    <Link href="/" aria-label={label} className="inline-flex items-center gap-2 rounded-lg">
+      <span className="flex size-7 items-center justify-center rounded-full bg-amber text-[#171222]">
+        <Icon name="clock" size={17} strokeWidth={2.2} />
+      </span>
+      <span className="text-[22px] font-semibold tracking-[-.05em]">until</span>
+    </Link>
+  );
+}
+
 export function Header() {
   const t = useTranslations("nav");
   const pathname = usePathname();
@@ -60,19 +71,11 @@ export function Header() {
 
   return (
     <>
-      <aside className="fixed inset-y-0 start-0 z-40 hidden w-[216px] flex-col border-e border-white/[.055] bg-[#0c0e14] px-4 py-7 lg:flex">
+      <aside className="fixed inset-y-0 start-0 z-40 hidden w-[232px] flex-col px-5 py-7 lg:flex">
         <div className="px-3">
-          <Link href="/" aria-label={t("homeAria")} className="inline-flex items-center gap-2.5">
-            <span className="relative flex size-9 items-center justify-center overflow-hidden rounded-xl bg-amber text-[#171222]">
-              <Icon name="clock" size={23} strokeWidth={2} />
-              <span className="absolute -end-1 -top-1 size-4 rounded-full bg-white/30" />
-            </span>
-            <span className="text-[26px] font-semibold tracking-[-.07em]">
-              until<span className="text-amber">.</span>
-            </span>
-          </Link>
+          <Wordmark label={t("homeAria")} />
         </div>
-        <nav aria-label={t("main")} className="mt-10 space-y-1">
+        <nav aria-label={t("main")} className="mt-9 space-y-0.5">
           {mainItems.map((item) => (
             <AuthGateLink
               key={item.href}
@@ -80,16 +83,13 @@ export function Header() {
               ariaCurrent={active(item.href) ? "page" : undefined}
               className="nav-item"
             >
-              <Icon name={item.icon} size={19} />
+              <Icon name={item.icon} size={18} />
               {item.label}
-              {active(item.href) && <span className="ms-auto size-1.5 rounded-full bg-amber" />}
             </AuthGateLink>
           ))}
         </nav>
-        <p className="mb-3 mt-8 px-3 text-[10px] font-medium uppercase tracking-[.12em] text-muted/80">
-          {t("discoverMore")}
-        </p>
-        <nav aria-label={t("browse")} className="space-y-1">
+        <p className="eyebrow mb-2 mt-8 px-3">{t("discoverMore")}</p>
+        <nav aria-label={t("browse")} className="space-y-0.5">
           {EXPLORE.map((item) => (
             <Link
               key={item.href}
@@ -102,57 +102,39 @@ export function Header() {
             </Link>
           ))}
         </nav>
-        <div className="mt-auto">
-          <div className="rounded-2xl border border-white/[.07] bg-linear-to-br from-amber/[.08] to-transparent p-4">
-            <span className="flex size-8 items-center justify-center rounded-lg bg-amber/10 text-amber">
-              <Icon name="plus" size={17} />
-            </span>
-            <p className="mt-3 text-[13px] font-medium">{t("yourNextBigThing")}</p>
-            <p className="mt-1 text-[11px] leading-relaxed text-muted">{t("personalMoment")}</p>
-            <AuthGateLink href="/create" className="button-primary mt-4 w-full !min-h-11 !px-2 !py-2 !text-xs">
-              {t("createCountdown")} <Icon name="arrow" size={14} />
-            </AuthGateLink>
-          </div>
-          <div className="mt-5 flex items-center gap-2 px-2 text-[10px] text-muted">
-            <span className="size-1.5 rounded-full bg-moss" />
-            {t("savedToAccount")}
-            <Link href="/about" aria-label={t("aboutUntil")} className="ms-auto rounded-md px-2 py-1 hover:text-paper">
-              ↗
-            </Link>
-          </div>
-          <div className="mt-4 px-2">
+        <div className="mt-auto space-y-5 px-1">
+          <AuthGateLink href="/create" className="button-primary w-full">
+            <Icon name="plus" size={16} />
+            {t("createCountdown")}
+          </AuthGateLink>
+          <div className="flex items-center justify-between gap-2 px-2">
             <LanguageSwitcher compact />
+            <Link href="/about" className="text-xs text-muted hover:text-paper">
+              {t("aboutUntil")}
+            </Link>
           </div>
         </div>
       </aside>
-      <header className="sticky top-0 z-30 flex h-[72px] items-center justify-between gap-4 border-b border-white/[.06] bg-ink/85 px-5 backdrop-blur-xl sm:px-7 lg:ms-[216px] lg:px-9">
+      <header className="sticky top-0 z-30 flex h-16 items-center justify-between gap-4 bg-ink/80 px-5 backdrop-blur-xl sm:px-8 lg:ms-[232px] lg:px-11">
         <div className="lg:hidden">
-          <Link href="/" aria-label={t("homeAria")} className="inline-flex items-center gap-2.5">
-            <span className="relative flex size-9 items-center justify-center overflow-hidden rounded-xl bg-amber text-[#171222]">
-              <Icon name="clock" size={23} strokeWidth={2} />
-            </span>
-            <span className="text-[26px] font-semibold tracking-[-.07em]">
-              until<span className="text-amber">.</span>
-            </span>
-          </Link>
+          <Wordmark label={t("homeAria")} />
         </div>
-        <div className="hidden text-xs text-paper-dim lg:block">{pageLabel}</div>
-        <div className="flex items-center gap-3">
+        <p className="hidden text-sm text-muted lg:block">{pageLabel}</p>
+        <div className="flex items-center gap-1.5 sm:gap-2">
           <QuickSearch />
-          <AuthGateLink
-            href="/create"
-            className="hidden min-h-11 items-center gap-2 rounded-xl border border-white/10 bg-white/[.04] px-3.5 py-2.5 text-xs text-paper-dim transition hover:border-amber/40 hover:text-paper sm:flex"
-          >
-            <Icon name="plus" size={15} />
-            {t("newCountdown")}
-          </AuthGateLink>
+          <span className="hidden sm:block">
+            <AuthGateLink href="/create" className="button-ghost !px-3">
+              <Icon name="plus" size={16} />
+              {t("newCountdown")}
+            </AuthGateLink>
+          </span>
           <NotificationBell />
           <AuthMenu />
         </div>
       </header>
       <nav
         aria-label={t("mobile")}
-        className={`fixed inset-x-4 bottom-3 z-40 mx-auto grid max-w-lg rounded-2xl border border-white/10 bg-[#171a24]/95 p-1.5 shadow-[0_8px_40px_#0009] backdrop-blur-xl lg:hidden ${mobileItems.length >= 5 ? "grid-cols-5" : mobileItems.length === 4 ? "grid-cols-4" : "grid-cols-3"}`}
+        className={`fixed inset-x-4 bottom-3 z-40 mx-auto grid max-w-lg rounded-2xl bg-[#171a22]/95 p-1.5 shadow-[0_0_0_1px_#ffffff0a,0_12px_40px_#0009] backdrop-blur-xl lg:hidden ${mobileItems.length >= 5 ? "grid-cols-5" : mobileItems.length === 4 ? "grid-cols-4" : "grid-cols-3"}`}
         style={{ marginBottom: "env(safe-area-inset-bottom)" }}
       >
         {mobileItems.map((item) => (
@@ -160,9 +142,9 @@ export function Header() {
             key={item.href}
             href={item.href}
             ariaCurrent={active(item.href) ? "page" : undefined}
-            className={`flex min-h-[50px] flex-col items-center justify-center gap-1.5 rounded-xl text-[10px] ${active(item.href) ? "bg-amber/12 text-amber" : "text-muted hover:text-paper"}`}
+            className={`flex min-h-[52px] flex-col items-center justify-center gap-1 rounded-xl text-[10px] ${active(item.href) ? "text-paper" : "text-muted hover:text-paper"}`}
           >
-            <Icon name={item.icon} size={20} />
+            <Icon name={item.icon} size={20} className={active(item.href) ? "text-amber" : undefined} />
             {item.label === t("mySpace") ? t("saved") : item.label}
           </AuthGateLink>
         ))}

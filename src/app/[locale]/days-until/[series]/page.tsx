@@ -135,9 +135,7 @@ export default async function SeriesPage({
             >
               {CATEGORY_LABELS[series.category]}
             </Link>
-            <span className="rounded-md border border-line bg-ink/60 px-2 py-1 text-xs text-paper-dim">
-              Recurring countdown
-            </span>
+            <span className="pill">Recurring countdown</span>
           </>
         }
         date={series.nextDate}
@@ -165,7 +163,7 @@ export default async function SeriesPage({
         }
       />
 
-      <section className="mt-8" aria-labelledby="upcoming-dates-heading">
+      <section className="mt-12" aria-labelledby="upcoming-dates-heading">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
             <h2 id="upcoming-dates-heading" className="section-heading">
@@ -176,7 +174,7 @@ export default async function SeriesPage({
             </p>
           </div>
           {occurrences.length ? (
-            <span className="rounded-lg border border-line bg-ink-2 px-3 py-2 text-sm text-paper-dim tabular-nums">
+            <span className="text-sm text-muted tabular-nums">
               {occurrences.length} {occurrences.length === 1 ? "date" : "dates"}
             </span>
           ) : null}
@@ -184,29 +182,29 @@ export default async function SeriesPage({
         {occurrences.length ? (
           <YearTimeline events={occurrences.slice(0, 8)} />
         ) : (
-          <p className="empty-state mt-5 text-sm text-muted">
+          <p className="empty-state mt-5 text-sm">
             No future dates yet. Check back after the next refresh.
           </p>
         )}
         {occurrences.length > 8 ? (
-          <details className="group/dates mt-4 rounded-2xl border border-line bg-ink-2 px-4 sm:px-5">
-            <summary className="flex min-h-14 cursor-pointer list-none items-center justify-between gap-3 text-sm font-medium text-paper [&::-webkit-details-marker]:hidden">
+          <details className="group/dates mt-4">
+            <summary className="inline-flex min-h-11 cursor-pointer list-none items-center gap-2 text-sm font-medium text-amber hover:text-paper [&::-webkit-details-marker]:hidden">
               Show {occurrences.length - 8} later dates
               <Icon
-                name="plus"
-                size={17}
-                className="text-muted transition-transform group-open/dates:rotate-45"
+                name="chevron"
+                size={16}
+                className="transition-transform group-open/dates:rotate-180"
               />
             </summary>
-            <div className="pb-5">
+            <div className="pb-2">
               <EventTable events={occurrences.slice(8)} showCategory={false} />
             </div>
           </details>
         ) : null}
       </section>
 
-      <div className="mt-8 grid items-start gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(260px,0.48fr)]">
-        <section className="panel min-w-0 rounded-2xl border border-line bg-ink-2 p-5 sm:p-6">
+      <div className="hairline mt-12 grid items-start gap-10 pt-10 lg:grid-cols-[minmax(0,1fr)_minmax(260px,0.42fr)] lg:gap-12">
+        <section className="min-w-0">
           <h2 className="section-heading">About {series.title}</h2>
           {series.nextDate ? (
             <IntentAnswer
@@ -224,7 +222,7 @@ export default async function SeriesPage({
               {series.description}
             </p>
           ) : null}
-          <p className="mt-5 flex items-start gap-2 border-t border-line pt-5 text-sm text-muted">
+          <p className="mt-6 flex items-start gap-2 text-sm text-muted">
             <Icon name="globe" size={17} className="mt-0.5 shrink-0" />
             {regions}
           </p>
@@ -234,7 +232,7 @@ export default async function SeriesPage({
                 <Link
                   key={tag}
                   href={`/tag/${encodeURIComponent(tag)}`}
-                  className="inline-flex min-h-11 items-center rounded-xl border border-line bg-ink px-3 text-xs text-paper-dim hover:border-amber/40 hover:text-amber"
+                  className="chip bg-surface !min-h-10 !px-3.5 text-xs"
                 >
                   {tag}
                 </Link>
@@ -242,7 +240,7 @@ export default async function SeriesPage({
             </div>
           ) : null}
         </section>
-        <aside className="panel rounded-2xl border border-line bg-ink-2 p-5 sm:p-6">
+        <aside className="lg:border-s lg:border-line lg:ps-8">
           <div className="flex items-center gap-2 text-amber">
             <Icon name="calendar" size={17} />
             <h2 className="text-sm font-medium text-paper">
@@ -254,7 +252,7 @@ export default async function SeriesPage({
             open that exact occurrence.
           </p>
           {next ? (
-            <div className="mt-5 border-t border-line pt-4">
+            <div className="mt-6">
               <p className="text-xs text-muted">Next date provided by</p>
               <p className="mt-2 text-sm text-paper-dim">
                 {next.sourceUrl ? (
@@ -301,7 +299,7 @@ export default async function SeriesPage({
       ) : null}
 
       {variants.length ? (
-        <section className="mt-10">
+        <section className="mt-16">
           <h2 className="section-heading">Regional dates</h2>
           <p className="mt-2 max-w-2xl text-sm text-muted">
             Related observances on different days in some countries. These are
@@ -315,11 +313,11 @@ export default async function SeriesPage({
       ) : null}
 
       {series.faq.length ? (
-        <section className="mt-10">
+        <section className="mt-16">
           <h2 className="section-heading">Good to know</h2>
-          <div className="mt-5 divide-y divide-line overflow-hidden rounded-2xl border border-line bg-ink-2">
+          <div className="mt-4 divide-y divide-line">
             {series.faq.map((item) => (
-              <details key={item.question} className="group/faq px-5 sm:px-6">
+              <details key={item.question} className="group/faq">
                 <summary className="flex min-h-16 cursor-pointer list-none items-center justify-between gap-4 py-4 text-sm font-medium text-paper [&::-webkit-details-marker]:hidden">
                   {item.question}
                   <Icon
@@ -338,7 +336,7 @@ export default async function SeriesPage({
       ) : null}
 
       {related.length ? (
-        <section className="mt-10">
+        <section className="mt-16">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <h2 className="section-heading">More recurring moments</h2>
             <Link
@@ -349,18 +347,18 @@ export default async function SeriesPage({
               <Icon name="arrow" size={16} />
             </Link>
           </div>
-          <ul className="mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+          <ul className="mt-4 grid gap-x-8 sm:grid-cols-2 xl:grid-cols-3">
             {related.map((s) => (
-              <li key={s.slug}>
+              <li key={s.slug} className="border-t border-line">
                 <Link
                   href={`/days-until/${s.slug}`}
-                  className="group flex h-full items-center justify-between gap-3 rounded-2xl border border-line bg-ink-2 p-5 transition-colors hover:border-amber/40"
+                  className="group flex h-full items-center justify-between gap-3 py-4"
                 >
                   <span className="min-w-0">
-                    <span className="block text-sm font-medium text-paper group-hover:text-amber">
+                    <span className="block text-[15px] font-medium text-paper group-hover:text-amber">
                       {s.title}
                     </span>
-                    <span className="mt-2 block text-xs text-muted">
+                    <span className="mt-1 block text-xs text-muted">
                       {s.nextDate
                         ? isCoarsePrecision(s.nextPrecision)
                           ? formatApproximate(s.nextDate, s.nextPrecision)
@@ -373,7 +371,7 @@ export default async function SeriesPage({
                   <Icon
                     name="arrow"
                     size={17}
-                    className="shrink-0 text-muted group-hover:text-amber"
+                    className="shrink-0 text-muted/60 group-hover:text-amber"
                   />
                 </Link>
               </li>

@@ -114,8 +114,8 @@ export function CollectionEditor({ initial }: { initial?: CollectionDetail }) {
   }
 
   return (
-    <form onSubmit={onSubmit} className="space-y-8">
-      <div className="panel p-5 sm:p-7">
+    <form onSubmit={onSubmit} className="max-w-2xl space-y-12">
+      <div>
         <label className="block">
           <span className="field-label">Title</span>
           <input
@@ -140,7 +140,7 @@ export function CollectionEditor({ initial }: { initial?: CollectionDetail }) {
         </label>
       </div>
 
-      <div className="panel p-5 sm:p-7">
+      <div>
         <h2 className="section-heading">Images</h2>
         <p className="mt-2 text-sm text-paper-dim">
           Add up to {COLLECTION_IMAGES_MAX} photos. The first one becomes the cover.
@@ -148,13 +148,13 @@ export function CollectionEditor({ initial }: { initial?: CollectionDetail }) {
         {images.length ? (
           <ul className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-3">
             {images.map((image) => (
-              <li key={image.id} className="overflow-hidden rounded-2xl border border-line">
-                <div className="relative aspect-4/3">
+              <li key={image.id}>
+                <div className="relative aspect-4/3 overflow-hidden rounded-2xl bg-surface">
                   <Image src={collectionImageUrl(image.path)} alt="" fill unoptimized className="object-cover" />
                 </div>
                 <button
                   type="button"
-                  className="w-full px-3 py-2 text-xs text-paper-dim hover:text-paper"
+                  className="mt-1 inline-flex min-h-9 items-center text-xs text-paper-dim hover:text-paper"
                   disabled={pending}
                   onClick={() => void onRemoveImage(image.id)}
                 >
@@ -180,21 +180,21 @@ export function CollectionEditor({ initial }: { initial?: CollectionDetail }) {
       </div>
 
       {initial ? (
-        <div className="panel p-5 sm:p-7">
+        <div>
           <h2 className="section-heading">Countdowns</h2>
           <p className="mt-2 text-sm text-paper-dim">
             Add more from any countdown page with <span className="text-paper">Add to collection</span>.
           </p>
           {items.length ? (
-            <ul className="mt-5 space-y-3">
+            <ul className="mt-4 divide-y divide-line">
               {items.map((item) => (
-                <li key={item.slug} className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-line px-4 py-3">
+                <li key={item.slug} className="flex flex-wrap items-center justify-between gap-3 py-3">
                   <Link href={collectionItemHref(item)} className="text-sm text-paper hover:text-amber">
                     {item.title}
                   </Link>
                   <button
                     type="button"
-                    className="text-xs text-paper-dim hover:text-paper"
+                    className="button-ghost !min-h-9 !px-2.5 text-xs"
                     disabled={pending}
                     onClick={() => void onRemoveItem(item.slug)}
                   >
@@ -210,7 +210,7 @@ export function CollectionEditor({ initial }: { initial?: CollectionDetail }) {
       ) : null}
 
       {error ? (
-        <p role="alert" className="rounded-xl border border-line bg-ink px-4 py-3 text-sm text-paper">
+        <p role="alert" className="notice">
           {error}
         </p>
       ) : null}
@@ -223,7 +223,7 @@ export function CollectionEditor({ initial }: { initial?: CollectionDetail }) {
           Cancel
         </Link>
         {initial ? (
-          <button type="button" className="button-secondary" disabled={pending} onClick={() => void onDelete()}>
+          <button type="button" className="button-ghost text-ember hover:!text-ember" disabled={pending} onClick={() => void onDelete()}>
             Delete
           </button>
         ) : null}

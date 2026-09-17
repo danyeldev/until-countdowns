@@ -159,20 +159,20 @@ export default async function CalendarMonthPage({ params }: Props) {
         ) : null}
       </nav>
 
-      <section className="panel mt-5 overflow-hidden p-3 sm:p-6" aria-label={`${label} overview`}>
-        <nav className="grid grid-cols-6 gap-1 border-b border-line pb-4 sm:grid-cols-12" aria-label={`Months in ${ym.year}`}>
+      <section className="mt-8" aria-label={`${label} overview`}>
+        <nav className="grid grid-cols-6 gap-1 sm:grid-cols-12" aria-label={`Months in ${ym.year}`}>
           {Array.from({ length: 12 }, (_, i) => i + 1).map((month) => {
             const name = new Date(Date.UTC(ym.year, month - 1, 1)).toLocaleDateString("en-US", { month: "short", timeZone: "UTC" });
             return isPastMonth(ym.year, month) ? (
               <span key={month} className="flex min-h-11 items-center justify-center text-sm text-muted/60">{name}</span>
             ) : (
-              <Link key={month} href={`/calendar/${ym.year}/${pad2(month)}`} aria-current={month === ym.month ? "page" : undefined} className={`flex min-h-11 items-center justify-center rounded-xl text-sm font-medium transition-colors ${month === ym.month ? "bg-amber text-ink" : "text-paper-dim hover:bg-ink hover:text-paper"}`}>
+              <Link key={month} href={`/calendar/${ym.year}/${pad2(month)}`} aria-current={month === ym.month ? "page" : undefined} className={`flex min-h-10 items-center justify-center rounded-lg text-sm transition-colors ${month === ym.month ? "bg-paper font-medium text-ink" : "text-paper-dim hover:bg-surface hover:text-paper"}`}>
                 {name}
               </Link>
             );
           })}
         </nav>
-        <table className="mt-4 w-full table-fixed border-separate border-spacing-0.5 text-center sm:border-spacing-1">
+        <table className="mt-6 w-full table-fixed border-separate border-spacing-0.5 text-center sm:border-spacing-1">
           <caption className="sr-only">{label}. Select a date to see its upcoming events.</caption>
           <thead>
             <tr>{["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"].map((day) => <th key={day} scope="col" className="pb-2 text-xs font-medium text-muted">{day}</th>)}</tr>
@@ -189,9 +189,9 @@ export default async function CalendarMonthPage({ params }: Props) {
                   const content = <><span className={`text-sm font-semibold sm:text-lg ${isToday ? "text-amber" : ""}`}>{day}</span><span className="mt-1 flex h-4 items-center justify-center text-[10px] text-muted sm:text-xs">{n > 0 ? <><span className="h-1 w-1 rounded-full bg-amber sm:hidden" /><span className="hidden sm:inline">{n} {n === 1 ? "date" : "dates"}</span></> : null}</span></>;
                   return <td key={weekday} className="p-0">
                     {n > 0 ? (
-                      <a href={`#day-${date}`} aria-label={`${formatLongDate(date)}, ${n} upcoming ${n === 1 ? "event" : "events"}${isToday ? ", today" : ""}`} aria-current={isToday ? "date" : undefined} className={`flex min-h-14 flex-col items-center justify-center rounded-xl border transition-colors hover:border-amber/70 hover:bg-ink sm:min-h-20 ${isToday ? "border-amber/70 bg-amber/10" : "border-line bg-ink/40"}`}>{content}</a>
+                      <a href={`#day-${date}`} aria-label={`${formatLongDate(date)}, ${n} upcoming ${n === 1 ? "event" : "events"}${isToday ? ", today" : ""}`} aria-current={isToday ? "date" : undefined} className={`flex min-h-14 flex-col items-center justify-center rounded-xl transition-colors hover:bg-surface-hover sm:min-h-20 ${isToday ? "bg-amber/15" : "bg-surface"}`}>{content}</a>
                     ) : (
-                      <span aria-label={isToday ? `${formatLongDate(date)}, today, no upcoming events` : undefined} className={`flex min-h-14 flex-col items-center justify-center rounded-xl border border-transparent sm:min-h-20 ${date < today ? "text-muted/50" : "text-muted"} ${isToday ? "border-amber/70! bg-amber/10" : ""}`}>{content}</span>
+                      <span aria-label={isToday ? `${formatLongDate(date)}, today, no upcoming events` : undefined} className={`flex min-h-14 flex-col items-center justify-center rounded-xl sm:min-h-20 ${date < today ? "text-muted/50" : "text-muted"} ${isToday ? "bg-amber/15" : ""}`}>{content}</span>
                     )}
                   </td>;
                 })}
@@ -199,13 +199,13 @@ export default async function CalendarMonthPage({ params }: Props) {
             ))}
           </tbody>
         </table>
-        <p className="mt-3 px-1 text-xs text-muted">Select a highlighted day to explore its dates.</p>
+        <p className="mt-3 text-xs text-muted">Select a highlighted day to explore its dates.</p>
       </section>
 
       {events.length === 0 ? <div className="empty-state mt-8"><Icon name="calendar" size={28} /><h2 className="section-heading mt-4">Room for something good</h2><p className="mt-2 text-paper-dim">Dates will appear here as they are announced.</p><Link href="/category" className="button-primary mt-5">Explore categories <Icon name="arrow" /></Link></div> : null}
 
       {Array.from(byDay.entries()).map(([day, list]) => (
-        <section key={day} id={`day-${day}`} className="mt-10 scroll-mt-28">
+        <section key={day} id={`day-${day}`} className="mt-14 scroll-mt-28">
           <h2 className="section-heading flex flex-wrap items-baseline gap-3">
             <time dateTime={day}>{formatLongDate(day)}</time>
             <span className="text-sm font-normal text-muted">{list.length} {list.length === 1 ? "date" : "dates"}</span>

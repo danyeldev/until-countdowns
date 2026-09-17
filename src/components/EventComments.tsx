@@ -247,7 +247,7 @@ function Composer({
 
   return (
     <form onSubmit={onSubmit} className="relative">
-      <div className="flex items-end gap-2 rounded-2xl border border-line px-2 py-1.5 focus-within:border-amber/50">
+      <div className="field flex items-end gap-2 !px-2 !py-1.5">
         <label className="min-w-0 flex-1">
           <span className="sr-only">{placeholder}</span>
           <textarea
@@ -270,7 +270,7 @@ function Composer({
         </label>
         <button
           type="submit"
-          className="mb-0.5 flex size-11 shrink-0 items-center justify-center rounded-full bg-amber text-[#171222] disabled:bg-white/10 disabled:text-muted"
+          className="mb-0.5 flex size-10 shrink-0 items-center justify-center rounded-full bg-amber text-[#171222] disabled:bg-surface-hover disabled:text-muted"
           disabled={pending || !body.trim()}
           aria-label={parentId ? "Post reply" : "Post comment"}
         >
@@ -281,7 +281,7 @@ function Composer({
         <ul
           role="listbox"
           aria-label="Mention someone"
-          className="absolute z-20 mt-2 w-full overflow-hidden rounded-2xl border border-line bg-ink"
+          className="menu absolute z-20 mt-2 w-full overflow-hidden"
         >
           {suggestions.map((item) => (
             <li key={item.id}>
@@ -289,7 +289,7 @@ function Composer({
                 type="button"
                 role="option"
                 aria-selected="false"
-                className="flex w-full items-center justify-between gap-3 px-3 py-2.5 text-left text-sm hover:bg-surface-hover"
+                className="menu-item justify-between"
                 onClick={() => chooseMention(item.handle)}
               >
                 <span className="text-paper">{item.name}</span>
@@ -335,7 +335,7 @@ function ComposerGate({
 }) {
   if (!ready) {
     return (
-      <p className="flex min-h-12 items-center rounded-full border border-line px-4 text-sm text-muted">
+      <p className="field flex items-center text-sm text-muted">
         Opening comments…
       </p>
     );
@@ -344,7 +344,7 @@ function ComposerGate({
     return (
       <SignInButton
         next={next}
-        className="flex min-h-12 w-full items-center rounded-full border border-line px-4 text-sm text-muted hover:border-amber/40 hover:text-paper"
+        className="field flex items-center text-start text-sm text-muted hover:text-paper"
         heading={COMMENT_AUTH.heading}
         subtitle={COMMENT_AUTH.subtitle}
         onOpen={() => rememberPendingComment(eventKey)}
@@ -357,7 +357,7 @@ function ComposerGate({
     return (
       <Link
         href={completeHref}
-        className="flex min-h-12 items-center rounded-full border border-line px-4 text-sm text-muted hover:border-amber/40 hover:text-paper"
+        className="field flex items-center text-sm text-muted hover:text-paper"
       >
         Add a handle to join
       </Link>
@@ -617,8 +617,8 @@ export function EventComments({ eventKey }: { eventKey: string }) {
   if (!key || !configured) return null;
 
   return (
-    <section className="mt-12 max-w-3xl" aria-labelledby="event-comments-heading">
-      <h2 id="event-comments-heading" className="text-sm font-medium text-paper">
+    <section className="hairline mt-12 max-w-3xl pt-10" aria-labelledby="event-comments-heading">
+      <h2 id="event-comments-heading" className="section-heading">
         Comments
         {loaded ? <span className="text-muted"> ({comments.length.toLocaleString()})</span> : null}
       </h2>

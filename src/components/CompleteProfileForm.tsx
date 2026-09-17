@@ -74,7 +74,7 @@ export function CompleteProfileForm({
     <div className="mx-auto w-full max-w-md">
       <h1 className="page-heading">Who should we call you?</h1>
       <p className="page-subtitle mt-3">Pick a name and a unique handle. Your public page will be /{handle || "yourname"}.</p>
-      <form aria-label="Complete your profile" className="panel mt-8 space-y-5 p-5 sm:p-7" onSubmit={(event) => void onSubmit(event)}>
+      <form aria-label="Complete your profile" className="mt-8 space-y-5" onSubmit={(event) => void onSubmit(event)}>
         <label className="block">
           <span className="field-label">Name</span>
           <input
@@ -98,7 +98,7 @@ export function CompleteProfileForm({
           {pending ? "Saving…" : "Save profile"}
         </button>
         {error && (
-          <p role="alert" className="rounded-xl border border-line bg-ink p-4 text-sm leading-relaxed text-paper">
+          <p role="alert" className="notice">
             {error}
           </p>
         )}

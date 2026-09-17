@@ -32,9 +32,9 @@ export default async function AttributionsPage() {
       {sources.length === 0 ? (
         <p className="mt-10 text-sm text-muted">Source list unavailable right now.</p>
       ) : (
-        <ul className="mt-8 grid gap-4 sm:grid-cols-2">
+        <ul className="mt-8 grid gap-x-10 sm:grid-cols-2">
           {sources.map((s) => (
-            <li key={s.id} className="panel p-5 sm:p-6">
+            <li key={s.id} className="border-t border-line py-5">
               <p className="flex flex-wrap items-center gap-3 text-lg font-semibold text-paper">
                 {s.homepage ? (
                   <a href={s.homepage} className="inline-flex min-h-11 items-center underline decoration-line underline-offset-4 hover:text-amber" target="_blank" rel="noreferrer">
@@ -43,7 +43,7 @@ export default async function AttributionsPage() {
                 ) : (
                   s.label
                 )}
-                {s.license ? <span className="rounded-md border border-line bg-ink px-2 py-1 text-xs font-normal text-muted">{s.license}</span> : null}
+                {s.license ? <span className="pill">{s.license}</span> : null}
               </p>
               {s.attribution ? <p className="mt-3 text-sm leading-relaxed text-paper-dim">{s.attribution}</p> : null}
             </li>
@@ -73,12 +73,12 @@ export default async function AttributionsPage() {
           <p className="mt-4 text-sm text-muted">
             {images.toLocaleString("en-US")} image{images === 1 ? "" : "s"} in the library today:
           </p>
-          <ul className="mt-4 divide-y divide-line/60">
+          <ul className="mt-4 divide-y divide-line">
             {licenses.map((row) => (
               <li key={`${row.provider}:${row.license}`} className="flex items-baseline justify-between gap-4 py-2">
                 <span className="text-paper-dim">
                   {providerLabel(row.provider)}
-                  <span className="rounded-md border border-line bg-ink px-2 py-1 text-xs font-normal text-muted">{row.license}</span>
+                  <span className="pill ms-2">{row.license}</span>
                 </span>
                 <span className="tabular font-mono text-xs text-muted">{row.count.toLocaleString("en-US")}</span>
               </li>

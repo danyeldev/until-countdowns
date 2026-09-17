@@ -25,7 +25,7 @@ export function MineEvent({ slug }: { slug: string }) {
   const [showEmbed, setShowEmbed] = useState(false);
   const event = mine.find((item) => item.slug === slug);
 
-  if (!ready) return <div role="status" className="panel p-12 text-center text-sm text-muted">Opening your countdown…</div>;
+  if (!ready) return <div role="status" className="empty-state text-sm">Opening your countdown…</div>;
   if (!userId) return (
     <div className="empty-state"><span className="pill">Personal countdown</span><h1 className="mt-5 text-3xl font-semibold tracking-tight text-paper sm:text-4xl">Sign in to open this countdown.</h1><p className="mx-auto mt-4 max-w-lg text-sm leading-relaxed text-paper-dim">Personal countdowns live on your Until account. Sign in on this device, or ask for a shareable link if someone sent you this page.</p><div className="mt-7 flex flex-wrap justify-center gap-3"><SignInButton className="button-primary" heading="Sign in to open this." subtitle="Personal countdowns live on your Until account.">Sign in</SignInButton><AuthGateLink href="/create" className="button-secondary">Create a countdown</AuthGateLink></div></div>
   );
@@ -41,13 +41,13 @@ export function MineEvent({ slug }: { slug: string }) {
   return (
     <article>
       <Link href="/saved" className="mb-6 inline-flex min-h-11 items-center gap-2 text-sm text-muted hover:text-paper"><span aria-hidden="true">←</span>Your collection</Link>
-      <div className="panel overflow-hidden">
+      <div>
         <PersonalDateArtwork date={event.date} />
-        <div className="p-6 sm:p-9">
+        <div className="pt-8 sm:pt-10">
           <div className="flex flex-wrap items-center gap-3"><span className="pill">{CATEGORY_LABELS[event.category]}</span><span className="flex items-center gap-1.5 text-xs text-muted"><svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><rect x="5" y="3" width="14" height="18" rx="3" /><path d="M10 17h4" /></svg>Saved to your account</span></div>
           <h1 className="mt-5 max-w-4xl break-words text-4xl font-semibold leading-[1.1] tracking-tight text-paper sm:text-5xl xl:text-6xl">{event.title}</h1>
           <p className="mt-4 text-base text-paper-dim">{formatRange(event.date, event.endDate)}</p>
-          <div className="my-8 border-y border-line py-8 sm:py-10">
+          <div className="my-8 sm:my-10">
             <Countdown date={event.date} allDay={event.allDay} size="hero" />
             {hypeKey ? <HypeMeter eventKey={hypeKey} /> : null}
           </div>

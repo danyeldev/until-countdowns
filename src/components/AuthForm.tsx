@@ -180,9 +180,9 @@ export function AuthForm({
       <p className={layout === "dialog" ? "mt-2 text-sm leading-relaxed text-muted" : "page-subtitle mt-3"}>
         {copy.subtitle}
       </p>
-      <div className={layout === "dialog" ? "mt-6 space-y-5" : "panel mt-8 space-y-6 p-5 sm:p-7"}>
+      <div className={layout === "dialog" ? "mt-6 space-y-5" : "mt-8 space-y-6"}>
         {!configured && (
-          <p role="status" className="rounded-xl border border-line bg-ink p-4 text-sm leading-relaxed text-paper">
+          <p role="status" className="notice">
             {AUTH_COPY.unavailable}
           </p>
         )}
@@ -288,16 +288,16 @@ export function AuthForm({
           </button>
         </form>
         {error && (
-          <p role="alert" className="rounded-xl border border-line bg-ink p-4 text-sm leading-relaxed text-paper">
+          <p role="alert" className="notice">
             {error}
           </p>
         )}
         {message && (
-          <p role="status" className="rounded-xl border border-amber/25 bg-amber/10 p-4 text-sm leading-relaxed text-paper">
+          <p role="status" className="rounded-xl bg-amber/10 p-4 text-sm leading-relaxed text-paper">
             {message}
           </p>
         )}
-        <div className="flex flex-wrap items-center justify-between gap-3 border-t border-line pt-5 text-sm">
+        <div className="flex flex-wrap items-center justify-between gap-3 pt-2 text-sm">
           {mode === "signin" ? (
             <>
               <AuthModeLink

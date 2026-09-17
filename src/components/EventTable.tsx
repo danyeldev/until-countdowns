@@ -23,9 +23,9 @@ export function EventTable({
   emptyText?: string;
 }) {
   if (!events.length)
-    return <p className="empty-state mt-4 text-sm text-muted">{emptyText}</p>;
+    return <p className="empty-state mt-4 text-sm">{emptyText}</p>;
   return (
-    <ul className="mt-5 divide-y divide-line overflow-hidden rounded-2xl border border-line bg-ink-2">
+    <ul className="mt-4 divide-y divide-line">
       {events.map((event) => {
         const coarse = isCoarsePrecision(event.datePrecision);
         const dateLabel = coarse
@@ -36,36 +36,30 @@ export function EventTable({
           !["cancelled", "postponed", "retired"].includes(event.status ?? "");
         const day = catalogDay(event.date, event.timezone);
         return (
-          <li
-            key={event.id}
-            className="group flex items-center gap-2 px-4 transition-colors hover:bg-amber/5 sm:px-5"
-          >
+          <li key={event.id} className="group flex items-center gap-2">
             <Link
               href={`/event/${event.slug}`}
-              className="grid min-w-0 flex-1 grid-cols-[3.25rem_minmax(0,1fr)] items-center gap-3 py-4 sm:grid-cols-[3.25rem_minmax(0,1fr)_auto] sm:gap-4"
+              className="grid min-w-0 flex-1 grid-cols-[3.5rem_minmax(0,1fr)] items-center gap-3 py-4 sm:grid-cols-[3.5rem_minmax(0,1fr)_auto] sm:gap-5"
             >
-              <span
-                aria-hidden="true"
-                className="flex h-14 flex-col items-center justify-center rounded-xl border border-line bg-ink text-paper"
-              >
+              <span aria-hidden="true" className="flex flex-col leading-tight">
                 {coarse ? (
                   <Icon name="calendar" size={20} className="text-muted" />
                 ) : (
                   <>
-                    <span className="text-[11px] font-medium text-muted">
+                    <span className="text-[11px] font-medium uppercase text-muted">
                       {new Intl.DateTimeFormat("en", {
                         month: "short",
                         timeZone: "UTC",
                       }).format(new Date(`${day}T00:00:00Z`))}
                     </span>
-                    <span className="text-xl leading-tight font-semibold tabular-nums">
+                    <span className="text-2xl font-semibold tabular-nums tracking-tight text-paper">
                       {Number(day.slice(8, 10))}
                     </span>
                   </>
                 )}
               </span>
               <span className="min-w-0">
-                <span className="block text-sm font-medium text-paper group-hover:text-amber sm:text-base">
+                <span className="block truncate text-[15px] font-medium text-paper group-hover:text-amber">
                   {event.title}
                 </span>
                 <span className="mt-1 flex flex-wrap items-center gap-2 text-xs text-muted">
@@ -79,7 +73,7 @@ export function EventTable({
                 </span>
               </span>
               {counting ? (
-                <span className="hidden text-sm whitespace-nowrap text-paper-dim tabular-nums sm:block">
+                <span className="hidden whitespace-nowrap text-sm text-paper-dim tabular-nums sm:block">
                   {humanDays(event.daysUntil)}
                 </span>
               ) : null}
@@ -87,7 +81,7 @@ export function EventTable({
             {showCategory ? (
               <Link
                 href={`/category/${event.category}`}
-                className="inline-flex min-h-11 max-w-24 shrink-0 items-center rounded-lg px-2 text-xs text-muted hover:text-amber sm:px-3"
+                className="hidden min-h-11 max-w-28 shrink-0 items-center truncate rounded-lg px-2 text-xs text-muted hover:text-paper sm:inline-flex"
               >
                 {CATEGORY_LABELS[event.category]}
               </Link>
@@ -95,7 +89,7 @@ export function EventTable({
             <Icon
               name="arrow"
               size={16}
-              className="shrink-0 text-muted group-hover:text-amber"
+              className="shrink-0 text-muted/60 transition group-hover:text-amber"
             />
           </li>
         );

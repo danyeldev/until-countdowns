@@ -97,7 +97,7 @@ export function FallbackCard({
         }}
       />
       <div className="absolute inset-0 bg-linear-to-r from-black/40 to-transparent" />
-      <span className="absolute bottom-4 left-4 z-10 flex size-9 items-center justify-center rounded-xl border border-white/15 bg-black/25 text-white/80 backdrop-blur-sm">
+      <span className="absolute bottom-3 start-3 z-10 flex size-9 items-center justify-center rounded-full bg-black/30 text-white/80 backdrop-blur-sm">
         <Icon name={CATEGORY_ICON[category] ?? "spark"} size={18} />
       </span>
     </div>

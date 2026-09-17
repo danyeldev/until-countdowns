@@ -126,7 +126,7 @@ export function ReportEventButton({
         >
           <button
             type="button"
-            className="absolute right-3 top-3 flex size-10 items-center justify-center rounded-xl text-muted transition hover:bg-white/5 hover:text-paper"
+            className="icon-button absolute end-3 top-3 !size-10 text-muted"
             aria-label="Close"
             onClick={close}
           >
@@ -158,7 +158,7 @@ export function ReportEventButton({
                   {REPORT_KINDS.map((option) => (
                     <label
                       key={option.id}
-                      className="flex min-h-11 cursor-pointer items-center gap-3 rounded-xl px-1 hover:bg-white/[.04]"
+                      className="flex min-h-11 cursor-pointer items-center gap-3 rounded-xl px-2 hover:bg-surface"
                     >
                       <input
                         type="radio"

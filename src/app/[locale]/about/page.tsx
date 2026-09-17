@@ -41,8 +41,8 @@ export default async function AboutPage() {
         <Link href="/create" className="button-secondary"><Icon name="plus" /> Make your own</Link>
       </div>
 
-      <dl className="mt-12 grid gap-6 sm:grid-cols-3">
-        <div className="ticket rounded-2xl p-5">
+      <dl className="mt-14 grid gap-8 sm:grid-cols-3">
+        <div className="border-t border-line pt-4">
           <dt className="text-sm text-muted">
             Dates
           </dt>
@@ -50,7 +50,7 @@ export default async function AboutPage() {
             {meta.count.toLocaleString()}
           </dd>
         </div>
-        <div className="ticket rounded-2xl p-5">
+        <div className="border-t border-line pt-4">
           <dt className="text-sm text-muted">
             Featured
           </dt>
@@ -58,7 +58,7 @@ export default async function AboutPage() {
             {meta.stats.featured.toLocaleString()}
           </dd>
         </div>
-        <div className="ticket rounded-2xl p-5">
+        <div className="border-t border-line pt-4">
           <dt className="text-sm text-muted">
             Updated
           </dt>
@@ -66,8 +66,8 @@ export default async function AboutPage() {
         </div>
       </dl>
 
-      <div className="mt-10 grid gap-5 lg:grid-cols-2">
-        <section className="panel p-6 sm:p-8">
+      <div className="mt-16 grid gap-12 lg:grid-cols-2 lg:gap-16">
+        <section>
           <Icon name="compass" className="text-amber" size={26} />
           <h2 className="section-heading mt-5">Discover, then make it yours</h2>
           <div className="mt-4 space-y-4 leading-relaxed text-paper-dim">
@@ -75,7 +75,7 @@ export default async function AboutPage() {
             <p>Create a personal countdown for a birthday, trip or something only you understand. Sign in to keep your collection with your account. A share link carries the title, date and note so others can open the same countdown.</p>
           </div>
         </section>
-        <section className="panel p-6 sm:p-8">
+        <section>
           <Icon name="check" className="text-amber" size={26} />
           <h2 className="section-heading mt-5">Dates with a source</h2>
           <div className="mt-4 space-y-4 leading-relaxed text-paper-dim">
@@ -85,19 +85,19 @@ export default async function AboutPage() {
           <Link href="/attributions" className="button-secondary mt-5">Meet the sources <Icon name="arrow" /></Link>
         </section>
       </div>
-      <div className="mt-10 grid gap-5 lg:grid-cols-2">
-        <section className="panel p-6 sm:p-8">
+      <div className="mt-16 grid gap-12 lg:grid-cols-2 lg:gap-16">
+        <section>
           <h2 className="section-heading">Inside the catalog</h2>
           {cats.length === 0 ? <p className="mt-4 text-muted">Category totals will appear as dates are added.</p> : (
-            <ul className="mt-5 divide-y divide-line text-sm">
+            <ul className="mt-4 divide-y divide-line text-sm">
               {cats.map(([name, n]) => <li key={name}><Link href={`/category/${name}`} className="flex min-h-11 items-center justify-between gap-3 py-3 text-paper-dim hover:text-amber"><span>{CATEGORY_LABELS[name as Category] ?? name}</span><span className="tabular text-muted">{n.toLocaleString("en-US")}</span></Link></li>)}
             </ul>
           )}
         </section>
-        <section className="panel p-6 sm:p-8">
+        <section>
           <h2 className="section-heading">Built on open data</h2>
           {srcs.length === 0 ? <p className="mt-4 text-muted">Source totals will appear as dates are added.</p> : (
-            <ul className="mt-5 divide-y divide-line text-sm">
+            <ul className="mt-4 divide-y divide-line text-sm">
               {srcs.map(([name, n]) => <li key={name} className="flex min-h-11 items-center justify-between gap-3 py-3"><span className="text-paper-dim">{sourceLabel(name, meta.sourceLabels)}</span><span className="tabular text-muted">{n.toLocaleString("en-US")}</span></li>)}
             </ul>
           )}

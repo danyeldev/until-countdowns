@@ -18,7 +18,7 @@ export function SaveButton({ id, event, compact = false }: { id: string; event?:
   const [error, setError] = useState("");
   const [pending, setPending] = useState(false);
   const [authOpen, setAuthOpen] = useState(false);
-  const compactClass = `flex size-11 shrink-0 items-center justify-center rounded-xl border bg-ink transition-colors ${saved ? "border-amber/50 text-amber" : "border-line text-paper-dim hover:border-amber/50 hover:text-amber"}`;
+  const compactClass = `flex size-10 shrink-0 items-center justify-center rounded-full bg-ink/70 backdrop-blur-md transition-colors ${saved ? "text-amber" : "text-paper hover:text-amber"}`;
   const icon = (
     <svg aria-hidden="true" width="17" height="17" viewBox="0 0 24 24" fill={saved ? "currentColor" : "none"} stroke="currentColor" strokeWidth="1.7">
       <path d="M6 4h12v17l-6-4-6 4V4Z" />
@@ -41,7 +41,7 @@ export function SaveButton({ id, event, compact = false }: { id: string; event?:
 
   if (!ready) {
     return compact
-      ? <span className="size-11 rounded-xl border border-line bg-ink" aria-hidden="true" />
+      ? <span className="block size-10 rounded-full bg-ink/70" aria-hidden="true" />
       : <span className="button-secondary pointer-events-none opacity-50">{icon}Save</span>;
   }
 
@@ -72,7 +72,7 @@ export function SaveButton({ id, event, compact = false }: { id: string; event?:
         {icon}
         {!compact && (saved ? "Saved" : "Save")}
       </button>
-      {error && <p role="alert" className="max-w-xs rounded-lg border border-line bg-ink px-3 py-2 text-xs leading-relaxed text-paper">{error}</p>}
+      {error && <p role="alert" className="notice max-w-xs !text-xs">{error}</p>}
       {authOpen ? (
         <AuthDialog
           next={safeNextPath(pathname)}

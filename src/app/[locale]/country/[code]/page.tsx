@@ -98,7 +98,7 @@ export default async function CountryPage({ params }: Props) {
         Country
       </p>
       <h1 className="page-heading mt-3 flex items-center gap-4">
-        <span className="hidden h-16 w-20 shrink-0 items-center justify-center rounded-2xl border border-line bg-ink-2 text-2xl tracking-normal text-amber sm:flex" aria-hidden="true">{country.cc}</span>
+        <span className="hidden shrink-0 text-2xl font-medium tracking-normal text-amber sm:inline" aria-hidden="true">{country.cc}</span>
         {country.name}
       </h1>
       <p className="page-subtitle mt-3 max-w-2xl">
@@ -107,10 +107,10 @@ export default async function CountryPage({ params }: Props) {
         separately below.
       </p>
 
-      {byMonth.size > 0 ? <nav className="mt-7 flex gap-2 overflow-x-auto p-1 pb-3" aria-label={`Jump to a month in ${country.name}`}>
+      {byMonth.size > 0 ? <nav className="-mx-1 mt-7 flex gap-1 overflow-x-auto px-1 pb-2 [scrollbar-width:none]" aria-label={`Jump to a month in ${country.name}`}>
         {Array.from(byMonth.entries()).map(([key, list]) => {
           const { year, month } = yearMonthOf(`${key}-01`);
-          return <a key={key} href={`#month-${key}`} className="button-secondary shrink-0">{monthLabel(year, month)}<span className="text-muted">{list.length}</span></a>;
+          return <a key={key} href={`#month-${key}`} className="chip shrink-0 bg-surface">{monthLabel(year, month)}<span className="text-muted">{list.length}</span></a>;
         })}
       </nav> : null}
       <p className="tabular mt-2 text-sm text-muted">
@@ -120,7 +120,7 @@ export default async function CountryPage({ params }: Props) {
       </p>
 
       {byMonth.size === 0 ? (
-        <p className="empty-state mt-10 text-paper-dim">
+        <p className="empty-state mt-10">
           No dates tagged {country.name} yet.
         </p>
       ) : (

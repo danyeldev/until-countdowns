@@ -19,11 +19,11 @@ export function NotificationBell() {
       href="/notifications"
       aria-current={current ? "page" : undefined}
       aria-label={label}
-      className="relative flex size-11 items-center justify-center rounded-xl border border-white/10 bg-white/[.04] text-paper-dim transition hover:border-amber/40 hover:text-paper"
+      className="icon-button relative"
     >
       <Icon name="bell" size={16} />
       {unread > 0 ? (
-        <span className="absolute right-1.5 top-1.5 flex min-w-4 items-center justify-center rounded-full bg-amber px-1 text-[10px] font-medium leading-4 text-[#171222]">
+        <span className="absolute end-1.5 top-1.5 flex min-w-4 items-center justify-center rounded-full bg-amber px-1 text-[10px] font-medium leading-4 text-[#171222]">
           {unread > 9 ? "9+" : unread}
         </span>
       ) : null}

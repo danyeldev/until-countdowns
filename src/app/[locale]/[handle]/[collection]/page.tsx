@@ -87,7 +87,7 @@ export default async function PublicCollectionPage({ params }: PageProps<"/[loca
       {collection.images.length ? (
         <ul className="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-3">
           {collection.images.map((image) => (
-            <li key={image.id} className="relative aspect-4/3 overflow-hidden rounded-2xl border border-line bg-ink-2">
+            <li key={image.id} className="relative aspect-4/3 overflow-hidden rounded-2xl bg-surface">
               <Image
                 src={collectionImageUrl(image.path)}
                 alt=""
