@@ -39,7 +39,7 @@ export function EventCard({
   const regions = regionSummary(event.regions);
   return (
     <article className="event-card group flex min-w-0 flex-col">
-      <Link href={path} className="flex flex-1 flex-col rounded-2xl">
+      <Link href={path} className="flex flex-col rounded-2xl">
         {event.image && !isShareAlike(event.image.license) ? (
           <EventImage
             image={event.image}
@@ -54,7 +54,7 @@ export function EventCard({
             category={event.category}
           />
         )}
-        <div className="flex flex-1 flex-col pt-4">
+        <div className="flex flex-col pt-4">
           <p className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-muted">
             <span>{CATEGORY_LABELS[event.category]}</span>
             <span aria-hidden="true">·</span>
@@ -65,10 +65,10 @@ export function EventCard({
             </time>
             <StatusBadge status={event.status} />
           </p>
-          <h3 className="mt-1.5 line-clamp-2 text-[17px] font-semibold leading-[1.3] tracking-[-.02em] text-paper group-hover:text-amber">
+          <h3 className="mt-1.5 line-clamp-2 min-h-[2.75rem] text-[17px] font-semibold leading-[1.3] tracking-[-.02em] text-paper group-hover:text-amber">
             {event.title}
           </h3>
-          <div className="mt-auto flex items-end justify-between gap-3 pt-4">
+          <div className="mt-3 flex items-end justify-between gap-3">
             {live ? (
               <Countdown
                 date={event.date}

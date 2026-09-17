@@ -211,6 +211,7 @@ a.ticket:hover {
   border-radius: 12px;
   font-size: 0.875rem;
   font-weight: 500;
+  white-space: nowrap;
   border: 0;
   transition:
     background 0.18s,

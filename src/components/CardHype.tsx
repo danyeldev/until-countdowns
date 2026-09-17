@@ -29,7 +29,7 @@ export function CardHype({
     };
   }, [key, value]);
 
-  if (value == null) return null;
+  if (value == null || value <= 0) return null;
   return (
     <span className="hype-card-badge">
       <Icon name="bolt" size={12} />

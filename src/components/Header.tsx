@@ -122,10 +122,12 @@ export function Header() {
         <p className="hidden text-sm text-muted lg:block">{pageLabel}</p>
         <div className="flex items-center gap-1.5 sm:gap-2">
           <QuickSearch />
-          <AuthGateLink href="/create" className="button-ghost hidden !px-3 text-sm sm:inline-flex">
-            <Icon name="plus" size={16} />
-            {t("newCountdown")}
-          </AuthGateLink>
+          <span className="hidden sm:block">
+            <AuthGateLink href="/create" className="button-ghost !px-3">
+              <Icon name="plus" size={16} />
+              {t("newCountdown")}
+            </AuthGateLink>
+          </span>
           <NotificationBell />
           <AuthMenu />
         </div>
