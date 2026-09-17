@@ -7,6 +7,7 @@ import { createAuthBrowserClient } from "@/lib/auth/browser";
 import { isAuthConfigured } from "@/lib/auth/env";
 import { profileHref } from "@/lib/auth/profile";
 import { SignInButton } from "./SignInButton";
+import { capture, resetUser } from "@/lib/analytics";
 
 type Account = { email: string; label: string; handle: string | null };
 
@@ -107,7 +108,14 @@ export function AuthMenu() {
         >
           Notifications
         </Link>
-        <form action={signOutAction} className="mt-1">
+        <form
+          action={signOutAction}
+          className="mt-1"
+          onSubmit={() => {
+            capture("signed_out");
+            resetUser();
+          }}
+        >
           <button type="submit" className="button-secondary w-full justify-center !min-h-11 !text-xs">
             Sign out
           </button>

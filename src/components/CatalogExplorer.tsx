@@ -2,6 +2,7 @@ import { Link } from "@/i18n/navigation";
 import { EventCard } from "./EventCard";
 import { CategoryBar } from "./CategoryBar";
 import { CollectionSearchHits } from "./CollectionSearchHits";
+import { CatalogSearchForm } from "./CatalogSearchForm";
 import { Icon } from "./Icon";
 import { CATEGORY_LABELS } from "@/lib/labels";
 import type { CollectionSearchHit } from "@/lib/search-collections";
@@ -192,31 +193,7 @@ export function CatalogExplorer({
         </div>
       </div>
 
-      {showSearch && (
-        <form
-          action="/"
-          className="mt-6 flex items-center gap-3 rounded-full border border-line bg-ink-2 p-2 pl-4"
-        >
-          <Icon name="search" className="text-muted" />
-          <label htmlFor="catalog-search" className="sr-only">
-            Search countdowns
-          </label>
-          <input
-            id="catalog-search"
-            key={q ?? ""}
-            type="search"
-            name="q"
-            maxLength={80}
-            defaultValue={q}
-            placeholder="Search the whole catalog…"
-            className="min-w-0 flex-1 bg-transparent py-2 text-sm tracking-normal outline-none placeholder:text-muted"
-          />
-          {category && <input type="hidden" name="category" value={category} />}
-          <button className="button-primary !rounded-full" type="submit">
-            Search
-          </button>
-        </form>
-      )}
+      {showSearch && <CatalogSearchForm q={q} category={category} />}
       {(q || category) && (
         <Link
           href="/#explore"

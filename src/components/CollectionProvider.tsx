@@ -15,6 +15,7 @@ import { recordHype } from "@/lib/hype-client";
 import { hypeEventKey } from "@/lib/hype";
 import type { CountdownEvent } from "@/lib/types";
 import { assertUserEvent } from "@/lib/user-events";
+import { capture } from "@/lib/analytics";
 
 type CollectionState = {
   ready: boolean;
@@ -110,6 +111,7 @@ export function CollectionProvider({ children }: { children: ReactNode }) {
       { onConflict: "user_id,slug" },
     );
     if (error) throw new Error(collectionErrorMessage(error));
+    capture("countdown_created", { slug: next.slug, title: next.title, category: next.category });
     setMine((current) => [next, ...current.filter((item) => item.slug !== next.slug)]);
     return next;
   }, [mine, userId]);
@@ -119,6 +121,7 @@ export function CollectionProvider({ children }: { children: ReactNode }) {
     const supabase = createAuthBrowserClient();
     const { error } = await supabase.from("user_countdowns").delete().eq("slug", id);
     if (error) throw new Error(collectionErrorMessage(error));
+    capture("countdown_unsaved", { event_id: id, personal: true });
     setMine((current) => current.filter((item) => item.id !== id && item.slug !== id));
   }, [userId]);
 
@@ -143,6 +146,7 @@ export function CollectionProvider({ children }: { children: ReactNode }) {
     if (removing) {
       const { error } = await supabase.from("user_saved").delete().eq("event_id", id);
       if (error) throw new Error(collectionErrorMessage(error));
+      capture("countdown_unsaved", { event_id: id, title: event?.title, category: event?.category });
       setSavedIds((current) => current.filter((value) => value !== id));
       setSavedEvents((current) => current.filter((item) => item.id !== id));
       return;
@@ -154,6 +158,7 @@ export function CollectionProvider({ children }: { children: ReactNode }) {
       snapshot,
     });
     if (error) throw new Error(collectionErrorMessage(error));
+    capture("countdown_saved", { event_id: id, title: event?.title, category: event?.category });
     setSavedIds((current) => [id, ...current.filter((value) => value !== id)]);
     const parsed = snapshot ? eventFromSnapshot(snapshot, id) : null;
     if (parsed) setSavedEvents((current) => [parsed, ...current.filter((item) => item.id !== id)]);

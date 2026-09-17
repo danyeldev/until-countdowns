@@ -13,6 +13,7 @@ import {
   type CollectionSearchHit,
 } from "@/lib/search-collections";
 import type { CountdownEvent } from "@/lib/types";
+import { capture } from "@/lib/analytics";
 
 export function QuickSearch() {
   const dialog = useRef<HTMLDialogElement>(null);
@@ -129,7 +130,11 @@ export function QuickSearch() {
         </h2>
         <form
           action="/"
-          onSubmit={() => setOpen(false)}
+          onSubmit={() => {
+            const q = query.trim();
+            if (q) capture("search_submitted", { query: q, source: "command" });
+            setOpen(false);
+          }}
           className="flex items-center gap-3 border-b border-line px-5"
         >
           <Icon name="search" size={21} className="shrink-0 text-amber" />
@@ -171,7 +176,10 @@ export function QuickSearch() {
                     <Link
                       key={term}
                       href={`/?q=${encodeURIComponent(term)}`}
-                      onClick={() => setOpen(false)}
+                      onClick={() => {
+                        capture("search_submitted", { query: term, source: "command_suggestion" });
+                        setOpen(false);
+                      }}
                       className="button-secondary !min-h-11 !px-3 !py-1.5 !text-xs"
                     >
                       <Icon name="search" size={13} />
