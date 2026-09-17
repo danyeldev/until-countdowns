@@ -42,7 +42,10 @@ export function siteUrl(): string {
   const raw = process.env.NEXT_PUBLIC_SITE_URL || DEFAULT_SITE_URL;
   try {
     const url = new URL(raw);
-    return ["https:", "http:"].includes(url.protocol) ? url.origin : DEFAULT_SITE_URL;
+    if (!["https:", "http:"].includes(url.protocol)) return DEFAULT_SITE_URL;
+    // Preview deployments expire; they must not become canonicals or calendar links.
+    if (url.hostname.endsWith(".vercel.app")) return DEFAULT_SITE_URL;
+    return url.origin;
   } catch {
     return DEFAULT_SITE_URL;
   }

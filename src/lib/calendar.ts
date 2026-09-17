@@ -1,5 +1,5 @@
 import { regionLabel } from "./regions";
-import { absoluteUrl } from "./seo";
+import { absoluteUrl, siteUrl } from "./seo";
 import {
   googleDates,
   icsDate,
@@ -18,9 +18,20 @@ export function canAddToCalendar(event: CountdownEvent): boolean {
   );
 }
 
-/** The countdown's own page, unless the caller knows a better one (a share payload, a series). */
+/**
+ * The countdown's own page, unless the caller knows a better one (a share payload, a series).
+ * A Vercel preview host is rewritten onto the public origin — those URLs die with the deployment,
+ * and a calendar entry outlives them.
+ */
 function pageUrlFor(event: CountdownEvent, pageUrl?: string): string {
-  return pageUrl || absoluteUrl(`/event/${event.slug}`);
+  const candidate = pageUrl || absoluteUrl(`/event/${event.slug}`);
+  try {
+    const parsed = new URL(candidate);
+    if (!parsed.hostname.endsWith(".vercel.app")) return candidate;
+    return `${siteUrl()}${parsed.pathname}${parsed.search}`;
+  } catch {
+    return absoluteUrl(`/event/${event.slug}`);
+  }
 }
 
 /**
@@ -35,9 +46,9 @@ const DEFAULT_DURATION_MS = 3_600_000;
  * Body of the calendar entry.
  *
  * A bare description is not much use when the reminder fires eight months later: the one thing
- * someone wants then is the way back. So it carries the countdown's page, and the source the date
- * came from when the catalog has one. Google and Outlook both linkify a bare URL in the body, and
- * the ICS repeats the page in `URL:` for clients that show that as a field of its own.
+ * someone wants then is the way back. So it carries the countdown's page. Google and Outlook both
+ * linkify a bare URL in the body, and the ICS repeats the page in `URL:` for clients that show
+ * that as a field of its own.
  */
 export function calendarDescription(
   event: CountdownEvent,
@@ -46,8 +57,6 @@ export function calendarDescription(
   const page = pageUrlFor(event, pageUrl);
   const lines = [event.description?.trim() || event.title];
   lines.push("", `Countdown: ${page}`);
-  if (event.sourceUrl && event.sourceUrl !== page)
-    lines.push(`Source: ${event.sourceUrl}`);
   return lines.join("\n");
 }
 
