@@ -62,10 +62,9 @@ const FIELD = "field mt-2 w-full";
 const BUTTON = "button-secondary";
 /** The two options share their row evenly on a phone, and take their own width once there is space. */
 const TRIGGER = `${BUTTON} flex-1 basis-40 whitespace-nowrap sm:flex-none sm:basis-auto`;
-const CHIP = "min-h-11 rounded-xl border px-3 py-2 text-sm transition-colors";
-const CHIP_ON = "border-amber/60 bg-amber/10 text-amber";
-const CHIP_OFF =
-  "border-line text-paper-dim hover:border-amber/40 hover:text-amber";
+const CHIP = "min-h-11 rounded-xl px-3 py-2 text-sm transition-colors";
+const CHIP_ON = "bg-paper text-ink font-medium";
+const CHIP_OFF = "bg-surface text-paper-dim hover:bg-surface-hover hover:text-paper";
 
 const FONT_LABELS: Record<EmbedFont, string> = {
   serif: "Serif",
@@ -240,7 +239,7 @@ function Toggle({
         type="checkbox"
         checked={checked}
         onChange={(e) => onChange(e.target.checked)}
-        className="h-4 w-4 rounded border-line bg-ink-2 accent-amber"
+        className="h-4 w-4 rounded accent-amber"
       />
       {label}
     </label>
@@ -284,7 +283,7 @@ function ColorField({
             setDraft(null);
             onChange(e.target.value);
           }}
-          className="h-10 w-12 shrink-0 cursor-pointer rounded-lg border border-line bg-ink-2 p-1 disabled:opacity-40"
+          className="h-10 w-12 shrink-0 cursor-pointer rounded-lg bg-surface p-1 disabled:opacity-40"
         />
         <input
           id={id}
@@ -302,7 +301,7 @@ function ColorField({
             if (parsed) onChange(parsed);
           }}
           onBlur={() => setDraft(null)}
-          className="w-full rounded-full border border-line bg-ink-2 px-3 py-2 font-mono text-sm text-paper outline-none placeholder:text-muted focus:border-amber/60 disabled:opacity-40"
+          className="field !min-h-10 w-full !py-2 font-mono text-sm disabled:opacity-40"
         />
       </div>
     </div>
@@ -409,7 +408,7 @@ export function EmbedStudio({
   const transparent = theme.bg === "transparent";
 
   return (
-    <section className="panel mt-8 rounded-2xl border border-line bg-ink-2 p-5 sm:p-6">
+    <section className="hairline mt-12 pt-10">
       {/* The heading only shares a line with the buttons once there is room for all three. Below
           that it sits above its own row, so the two options stay a pair instead of one landing
           hard right and the other alone underneath it. */}
@@ -433,7 +432,7 @@ export function EmbedStudio({
             // Only while this tab's panel exists: a controls relationship pointing at nothing sends
             // a screen reader's jump-to-controlled-element into a dead end.
             aria-controls={open && !stream ? panelId : undefined}
-            className={`${TRIGGER} ${open && !stream ? "border-amber/60 text-amber" : ""}`}
+            className={`${TRIGGER} ${open && !stream ? "!bg-paper !text-ink" : ""}`}
           >
             Website widget
           </button>
@@ -442,7 +441,7 @@ export function EmbedStudio({
             onClick={() => trigger("stream")}
             aria-expanded={open && stream}
             aria-controls={open && stream ? panelId : undefined}
-            className={`${TRIGGER} ${open && stream ? "border-amber/60 text-amber" : ""}`}
+            className={`${TRIGGER} ${open && stream ? "!bg-paper !text-ink" : ""}`}
           >
             Stream overlay
           </button>
@@ -452,11 +451,11 @@ export function EmbedStudio({
       {open && (
         <div
           id={panelId}
-          className="mt-6 grid gap-6 border-t border-line pt-6 lg:grid-cols-2"
+          className="mt-8 grid gap-8 lg:grid-cols-2 lg:gap-10"
         >
           {/* `min-w-0` on both columns: a grid child's minimum is its content, and the URL below is
               one long unbreakable string that would otherwise push the panel past a phone screen. */}
-          <div className="order-last min-w-0 space-y-6 rounded-2xl border border-line bg-ink p-4 lg:order-first sm:p-5">
+          <div className="order-last min-w-0 space-y-6 lg:order-first">
             <Choice
               label="Preset"
               value={theme.preset}
@@ -584,14 +583,14 @@ export function EmbedStudio({
                     aria-label={positionLabel(position)}
                     aria-pressed={position === theme.position}
                     onClick={() => patch({ position })}
-                    className={`flex h-11 w-11 rounded-lg border p-1.5 ${POSITION_ALIGN[position]} ${
+                    className={`flex h-11 w-11 rounded-lg p-1.5 ${POSITION_ALIGN[position]} ${
                       position === theme.position
-                        ? "border-amber/60 bg-amber/10"
-                        : "border-line hover:border-amber/40"
+                        ? "bg-paper"
+                        : "bg-surface hover:bg-surface-hover"
                     }`}
                   >
                     <span
-                      className={`h-1.5 w-1.5 rounded-full ${position === theme.position ? "bg-amber" : "bg-muted"}`}
+                      className={`h-1.5 w-1.5 rounded-full ${position === theme.position ? "bg-ink" : "bg-muted"}`}
                     />
                   </button>
                 ))}
@@ -663,7 +662,7 @@ export function EmbedStudio({
               <>
                 <div
                   ref={canvasRef}
-                  className="relative aspect-video w-full overflow-hidden rounded-2xl border border-line"
+                  className="relative aspect-video w-full overflow-hidden rounded-2xl"
                   style={CHECKERBOARD}
                 >
                   <div
@@ -733,7 +732,7 @@ export function EmbedStudio({
               </>
             ) : (
               <>
-                <div className="overflow-hidden rounded-2xl border border-line">
+                <div className="overflow-hidden rounded-2xl bg-surface">
                   {/* See the stream preview above for why this is keyed. */}
                   <iframe
                     key={preview}

@@ -125,7 +125,7 @@ function Provenance({ event }: { event: CountdownEvent }) {
     ? formatCompactDate(event.lastVerifiedAt.slice(0, 10))
     : null;
   return (
-    <section className="panel rounded-2xl border border-line bg-ink-2 p-5 sm:p-6">
+    <section className="lg:ps-8 lg:border-s lg:border-line">
       <div className="flex items-center gap-2 text-muted">
         <Icon name="globe" size={17} />
         <h2 className="text-sm font-medium text-paper">Date source</h2>
@@ -197,7 +197,7 @@ function Chip({ href, children }: { href: string; children: React.ReactNode }) {
   return (
     <Link
       href={href}
-      className="inline-flex min-h-11 items-center rounded-xl border border-line bg-ink px-3 text-xs text-paper-dim hover:border-amber/40 hover:text-amber"
+      className="chip bg-surface !min-h-10 !px-3.5 text-xs"
     >
       {children}
     </Link>
@@ -298,14 +298,14 @@ export default async function EventPage({
       />
 
       {previousDate ? (
-        <p className="mt-4 rounded-xl border border-ember/30 bg-ember/5 px-4 py-3 text-sm text-ember">
+        <p className="notice notice-warn mt-4">
           Schedule updated. Previously{" "}
           {formatLongDate(previousDate, event.timezone)}.
         </p>
       ) : null}
 
       {event.seriesSlug ? (
-        <section className="mt-8" aria-labelledby="other-dates-heading">
+        <section className="mt-12" aria-labelledby="other-dates-heading">
           <div className="flex flex-wrap items-center justify-between gap-2">
             <div>
               <h2 id="other-dates-heading" className="section-heading">
@@ -333,8 +333,8 @@ export default async function EventPage({
         </section>
       ) : null}
 
-      <div className="mt-8 grid items-start gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(260px,0.48fr)]">
-        <section className="panel min-w-0 rounded-2xl border border-line bg-ink-2 p-5 sm:p-6">
+      <div className="hairline mt-12 grid items-start gap-10 pt-10 lg:grid-cols-[minmax(0,1fr)_minmax(260px,0.42fr)] lg:gap-12">
+        <section className="min-w-0">
           <h2 className="section-heading">About this moment</h2>
           <IntentAnswer
             className="mt-4"
@@ -357,12 +357,12 @@ export default async function EventPage({
             </div>
           ) : null}
           {coarse ? (
-            <p className="mt-4 rounded-xl border border-line bg-ink px-4 py-3 text-sm text-muted">
+            <p className="notice mt-4">
               The source has announced a date range. An exact day has not been
               confirmed.
             </p>
           ) : null}
-          <dl className="mt-6 space-y-5 border-t border-line pt-5 text-sm">
+          <dl className="mt-8 space-y-6 text-sm">
             <div>
               <dt className="font-medium text-paper">Where</dt>
               <dd className="mt-2 flex flex-wrap items-center gap-2 text-paper-dim">
@@ -413,7 +413,7 @@ export default async function EventPage({
         {!isUser ? (
           <Provenance event={event} />
         ) : (
-          <aside className="panel rounded-2xl border border-line bg-ink-2 p-5 sm:p-6">
+          <aside className="lg:ps-8 lg:border-s lg:border-line">
             <Icon name="bookmark" className="text-amber" />
             <h2 className="mt-3 text-base font-medium text-paper">
               Keep this countdown
@@ -439,7 +439,7 @@ export default async function EventPage({
       ) : null}
 
       {related.length > 0 ? (
-        <section className="mt-10">
+        <section className="mt-16">
           <div className="flex items-center justify-between gap-3">
             <h2 className="section-heading">Also on the horizon</h2>
             <Link
@@ -449,7 +449,7 @@ export default async function EventPage({
               Explore more <Icon name="arrow" size={16} />
             </Link>
           </div>
-          <div className="mt-5 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+          <div className="mt-6 grid gap-x-6 gap-y-10 sm:grid-cols-2 xl:grid-cols-3">
             {related.map((item) => (
               <EventCard key={item.id} event={item} />
             ))}

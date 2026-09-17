@@ -18,8 +18,8 @@ export default function EventError({
     console.error(error);
   }, [error]);
   return (
-    <section className="panel mx-auto max-w-2xl rounded-[28px] border border-line bg-ink-2 px-6 py-12 text-center sm:px-10 sm:py-16">
-      <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl border border-line bg-ink text-amber">
+    <section className="mx-auto max-w-2xl px-6 py-16 text-center sm:py-24">
+      <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-amber/15 text-amber">
         <Icon name="clock" size={25} />
       </div>
       <p className="mt-6 text-sm font-medium text-amber">{t("eventErrorEyebrow")}</p>

@@ -48,7 +48,7 @@ export function AuthDialog({
       />
       <button
         type="button"
-        className="absolute right-3 top-3 flex size-10 items-center justify-center rounded-xl text-muted transition hover:bg-white/5 hover:text-paper"
+        className="icon-button absolute end-3 top-3 !size-10 text-muted"
         aria-label="Close"
         onClick={onClose}
       >

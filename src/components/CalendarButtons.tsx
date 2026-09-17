@@ -63,14 +63,14 @@ export function CalendarButtons({
           ⌄
         </span>
       </summary>
-      <div className="absolute top-full left-0 z-40 mt-2 w-64 max-w-[calc(100vw-3rem)] rounded-2xl border border-line bg-ink-2 p-2 shadow-2xl">
+      <div className="menu absolute top-full start-0 z-40 mt-2 w-64 max-w-[calc(100vw-3rem)]">
         <p className="px-3 py-2 text-xs text-muted">Choose your calendar</p>
         <a
           href={googleCalendarUrl(event, url)}
           target="_blank"
           rel="noreferrer"
           onClick={award}
-          className="flex min-h-11 items-center justify-between rounded-xl px-3 text-sm text-paper hover:bg-amber/10 hover:text-amber"
+          className="menu-item justify-between"
         >
           Google Calendar <Icon name="arrow" size={15} />
         </a>
@@ -79,13 +79,13 @@ export function CalendarButtons({
           target="_blank"
           rel="noreferrer"
           onClick={award}
-          className="flex min-h-11 items-center justify-between rounded-xl px-3 text-sm text-paper hover:bg-amber/10 hover:text-amber"
+          className="menu-item justify-between"
         >
           Outlook <Icon name="arrow" size={15} />
         </a>
         <button
           type="button"
-          className="flex min-h-11 w-full items-center rounded-xl px-3 text-left text-sm text-paper hover:bg-amber/10 hover:text-amber"
+          className="menu-item"
           onClick={() => {
             try {
               downloadIcs(event, url);

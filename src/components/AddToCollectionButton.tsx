@@ -155,7 +155,7 @@ export function AddToCollectionButton({ event }: { event: CountdownEvent }) {
         <div
           role="dialog"
           aria-label="Add to a collection"
-          className="absolute left-0 z-30 mt-2 w-[min(100vw-2rem,22rem)] rounded-2xl border border-line bg-ink p-4 shadow-[0_16px_48px_#0008]"
+          className="menu absolute start-0 z-30 mt-2 w-[min(100vw-2rem,22rem)] !p-4"
         >
           <p className="text-xs text-muted">Public collections. Anyone can open them from your profile.</p>
           {collections.length ? (
@@ -164,7 +164,7 @@ export function AddToCollectionButton({ event }: { event: CountdownEvent }) {
                 const checked = selected.includes(collection.id);
                 return (
                   <li key={collection.id}>
-                    <label className="flex min-h-11 cursor-pointer items-center gap-3 rounded-xl px-2 hover:bg-white/[.04]">
+                    <label className="flex min-h-11 cursor-pointer items-center gap-3 rounded-xl px-2 hover:bg-surface">
                       <input
                         type="checkbox"
                         checked={checked}
@@ -185,7 +185,7 @@ export function AddToCollectionButton({ event }: { event: CountdownEvent }) {
           ) : (
             <p className="mt-3 text-sm text-paper-dim">You do not have a collection yet.</p>
           )}
-          <form onSubmit={(formEvent) => void onCreate(formEvent)} className="mt-4 border-t border-line pt-4">
+          <form onSubmit={(formEvent) => void onCreate(formEvent)} className="hairline mt-4 pt-4">
             <label className="block">
               <span className="field-label">New collection</span>
               <input
