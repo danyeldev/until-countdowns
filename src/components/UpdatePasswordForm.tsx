@@ -28,7 +28,7 @@ export function UpdatePasswordForm() {
     <div className="mx-auto w-full max-w-md">
       <h1 className="page-heading">Choose a new password.</h1>
       <p className="page-subtitle mt-3">Use at least 6 characters. You will stay signed in on this device.</p>
-      <form aria-label="Set a new password" className="panel mt-8 space-y-5 p-5 sm:p-7" onSubmit={(event) => void onSubmit(event)}>
+      <form aria-label="Set a new password" className="mt-8 space-y-5" onSubmit={(event) => void onSubmit(event)}>
         <label className="block">
           <span className="field-label">New password</span>
           <input name="password" type="password" autoComplete="new-password" required minLength={6} maxLength={72} className="field mt-2 w-full" />
@@ -41,7 +41,7 @@ export function UpdatePasswordForm() {
           {pending ? "Saving…" : "Update password"}
         </button>
         {error && (
-          <p role="alert" className="rounded-xl border border-line bg-ink p-4 text-sm leading-relaxed text-paper">
+          <p role="alert" className="notice">
             {error}
           </p>
         )}

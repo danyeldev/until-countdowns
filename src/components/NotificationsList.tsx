@@ -31,7 +31,7 @@ export function NotificationsList({ initialItems }: { initialItems: UserNotifica
       </div>
 
       {shown.length ? (
-        <ol className="space-y-3">
+        <ol className="divide-y divide-line">
           {shown.map((item) => {
             const href = notificationHref(item.eventKey, item.commentId);
             return (
@@ -39,16 +39,19 @@ export function NotificationsList({ initialItems }: { initialItems: UserNotifica
                 <Link
                   href={href}
                   onClick={() => void markRead([item.id])}
-                  className={`block rounded-2xl border px-4 py-4 transition-colors sm:px-5 ${
-                    item.readAt ? "border-line bg-ink" : "border-amber/35 bg-amber/[.06]"
-                  }`}
+                  className="group block py-4"
                 >
                   <div className="flex flex-wrap items-baseline justify-between gap-2">
-                    <p className="text-sm text-paper">
+                    <p className={`flex items-baseline gap-2 text-sm ${item.readAt ? "text-paper-dim" : "text-paper"}`}>
+                      {!item.readAt ? (
+                        <span aria-hidden="true" className="size-1.5 shrink-0 self-center rounded-full bg-amber" />
+                      ) : null}
+                      <span>
                       {notificationCopy(item.kind, item.actor.name)}{" "}
                       <span className="text-muted">
                         @
                         <span className="text-amber">{item.actor.handle}</span>
+                      </span>
                       </span>
                     </p>
                     <time className="text-xs text-muted" dateTime={item.createdAt}>
@@ -56,14 +59,14 @@ export function NotificationsList({ initialItems }: { initialItems: UserNotifica
                     </time>
                   </div>
                   {item.preview ? <p className="mt-2 text-sm leading-relaxed text-paper-dim">{item.preview}</p> : null}
-                  <p className="mt-3 text-xs text-muted">Open conversation</p>
+                  <p className="mt-2 text-xs text-muted group-hover:text-amber">Open conversation</p>
                 </Link>
               </li>
             );
           })}
         </ol>
       ) : (
-        <p className="rounded-2xl border border-line bg-ink-2 px-5 py-6 text-sm leading-relaxed text-paper-dim">
+        <p className="empty-state text-sm leading-relaxed">
           When someone replies to you or tags your handle, it will land here.
         </p>
       )}

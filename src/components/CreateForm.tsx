@@ -45,48 +45,48 @@ export function CreateForm({ defaultDate = "" }: { defaultDate?: string }) {
   }
 
   return (
-    <div className="grid items-start gap-7 xl:grid-cols-[1fr_1fr] xl:gap-10">
-      <form id="countdown-editor" aria-label="Create a countdown" className="panel min-w-0 scroll-mt-24 space-y-7 p-5 sm:p-7" onSubmit={(formEvent) => { formEvent.preventDefault(); onSave(); }}>
+    <div className="grid items-start gap-12 xl:grid-cols-[1fr_1fr] xl:gap-16">
+      <form id="countdown-editor" aria-label="Create a countdown" className="min-w-0 scroll-mt-24 space-y-7" onSubmit={(formEvent) => { formEvent.preventDefault(); onSave(); }}>
         <div><div className="flex items-center justify-between gap-3"><h2 className="section-heading">Make it yours</h2><a href="#countdown-preview" className="inline-flex min-h-11 items-center text-sm text-amber xl:hidden">Preview <span aria-hidden="true" className="ml-2">↓</span></a></div><p className="mt-2 text-sm leading-relaxed text-muted">Give your next moment a name and a date.</p></div>
         <label className="block">
           <span className="field-label">What are you looking forward to?</span>
           <input name="title" required maxLength={USER_TITLE_MAX} value={title} onChange={(input) => { setTitle(input.target.value); changed(); }} placeholder="A trip, a birthday, a new beginning…" className="field mt-2 w-full" autoComplete="off" />
         </label>
         <div className="flex flex-wrap gap-2" aria-label="Countdown title ideas">
-          {IDEAS.map((idea) => <button type="button" key={idea} onClick={() => { setTitle(idea); changed(); }} className="min-h-11 rounded-xl border border-line bg-ink px-3 py-2 text-xs text-paper-dim transition-colors hover:border-amber/50 hover:text-paper">{idea}</button>)}
+          {IDEAS.map((idea) => <button type="button" key={idea} onClick={() => { setTitle(idea); changed(); }} className="chip bg-surface !min-h-10 text-xs">{idea}</button>)}
         </div>
         <label className="block">
           <span className="field-label">The date</span>
           <input name="date" required type="date" min="0001-01-01" max="9999-12-31" value={date} onChange={(input) => { setDate(input.target.value); changed(); }} className="field mt-2 min-w-0 w-full" />
           <span className="mt-2 block text-xs leading-relaxed text-muted">An all-day countdown, starting at midnight in your local time.</span>
         </label>
-        <details className="group rounded-2xl border border-line bg-ink/40">
-          <summary className="cursor-pointer px-4 py-4 text-sm font-medium text-paper-dim">Add a note & category <span className="ml-1 font-normal text-muted">(optional)</span></summary>
-          <div className="space-y-5 border-t border-line p-4">
+        <details className="group/more">
+          <summary className="inline-flex min-h-11 cursor-pointer list-none items-center gap-2 text-sm font-medium text-amber hover:text-paper [&::-webkit-details-marker]:hidden">Add a note & category <span className="font-normal text-muted">(optional)</span><span aria-hidden="true" className="text-muted transition-transform group-open/more:rotate-180">⌄</span></summary>
+          <div className="space-y-5 pt-5">
             <label className="block"><span className="field-label">A note to remember</span><textarea name="description" maxLength={USER_NOTE_MAX} value={description} onChange={(input) => { setDescription(input.target.value); changed(); }} rows={3} placeholder="Why this moment matters." className="field mt-2 w-full resize-y" /><span className="mt-1 block text-right text-xs tabular-nums text-muted">{description.length}/{USER_NOTE_MAX}</span></label>
             <label className="block"><span className="field-label">Category</span><select name="category" value={category} onChange={(input) => { setCategory(input.target.value as Category); changed(); }} className="field mt-2 w-full">{CATEGORIES.map((value) => <option key={value} value={value}>{CATEGORY_LABELS[value]}</option>)}</select></label>
           </div>
         </details>
-        <div className="space-y-4 border-t border-line pt-6">
+        <div className="space-y-4 pt-2">
           <button type="submit" disabled={pending || !ready || !userId} className="button-primary w-full justify-center">
             <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d={savedSlug ? "m5 12 4 4L19 6" : "M12 5v14M5 12h14"} /></svg>
             {pending ? "Saving…" : !ready ? "Opening your account…" : savedSlug ? "Saved to your collection" : "Save countdown"}
           </button>
-          {error && <p role="alert" className="rounded-xl border border-line bg-ink p-4 text-sm leading-relaxed text-paper">{error}</p>}
-          {savedSlug && <div role="status" className="rounded-xl border border-amber/25 bg-amber/10 p-4 text-sm text-paper"><p>Ready whenever you are.</p><div className="mt-2 flex flex-wrap gap-x-5 gap-y-2"><Link href={`/event/${savedSlug}`} className="text-amber underline underline-offset-4">Open countdown</Link><Link href="/saved" className="text-amber underline underline-offset-4">View collection</Link></div></div>}
+          {error && <p role="alert" className="notice">{error}</p>}
+          {savedSlug && <div role="status" className="rounded-xl bg-amber/10 p-4 text-sm text-paper"><p>Ready whenever you are.</p><div className="mt-2 flex flex-wrap gap-x-5 gap-y-2"><Link href={`/event/${savedSlug}`} className="text-amber underline underline-offset-4">Open countdown</Link><Link href="/saved" className="text-amber underline underline-offset-4">View collection</Link></div></div>}
           <p className="text-xs leading-relaxed text-muted">Saved to your account so you can open it on any device. Share links include your title, date, category and note, so anyone with the link can read them.</p>
         </div>
       </form>
 
       <aside id="countdown-preview" className="min-w-0 scroll-mt-24 xl:sticky xl:top-24" aria-label="Countdown preview">
         <div className="mb-3 flex items-center justify-between px-1"><p className="text-sm font-medium text-paper-dim">Your countdown</p><span className="flex items-center gap-2 text-xs text-muted"><span className="size-1.5 rounded-full bg-amber" aria-hidden="true" />Live preview</span></div>
-        <div className="panel overflow-hidden">
+        <div>
           <PersonalDateArtwork date={event.date} />
-          <div className="p-6 sm:p-8">
+          <div className="pt-6">
             <p className="text-xs font-medium text-amber">{CATEGORY_LABELS[category]}</p>
             <h2 className="mt-3 break-words text-3xl font-semibold leading-tight tracking-tight text-paper sm:text-4xl">{event.title || "Something worth waiting for."}</h2>
             <p className="mt-3 text-sm text-muted">{isPersonalDate(event.date) ? formatCompactDate(event.date) : "Choose your date"}</p>
-            <div className="my-7 border-y border-line py-7">{isPersonalDate(event.date) ? <Countdown date={event.date} allDay /> : <p className="py-2 text-sm text-muted">Your countdown starts with a date.</p>}</div>
+            <div className="my-7">{isPersonalDate(event.date) ? <Countdown date={event.date} allDay /> : <p className="py-2 text-sm text-muted">Your countdown starts with a date.</p>}</div>
             {description.trim() && <p className="mb-6 whitespace-pre-wrap break-words text-sm leading-relaxed text-paper-dim">{description.trim()}</p>}
             {shareable ? <div className="space-y-5"><div className="flex flex-wrap items-start gap-2"><ShareButton title={event.title} path={sharePath} /><Link href={sharePath} className="button-secondary">Open preview <span aria-hidden="true">↗</span></Link></div><CalendarButtons event={event} url={absoluteUrl(sharePath)} /></div> : <p className="text-sm leading-relaxed text-muted">{valid ? "This countdown can be saved here. Shorten your title or note to create a shareable link." : "Add a title to unlock sharing and calendar links."}</p>}
           </div>
