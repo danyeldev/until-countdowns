@@ -20,6 +20,7 @@ import { ReportEventButton } from "@/components/ReportEventButton";
 import { HypeMeter } from "@/components/HypeMeter";
 import { SaveButton } from "@/components/SaveButton";
 import { ShareButton } from "@/components/ShareButton";
+import { TrackCountdown } from "@/components/TrackCountdown";
 import {
   getEvent,
   getEventStrict,
@@ -261,6 +262,7 @@ export default async function EventPage({
 
   return (
     <article className="pb-4">
+      <TrackCountdown slug={event.slug} title={event.title} category={event.category} source={event.source} />
       <Breadcrumbs items={crumbs} />
       <DetailHero
         title={event.title}

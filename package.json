@@ -28,6 +28,7 @@
     "next": "16.3.4",
     "next-intl": "^4.14.5",
     "panchang-ts": "^5.2.1",
+    "posthog-js": "^1.433.7",
     "react": "19.2.8",
     "react-dom": "19.2.8",
     "server-only": "^0.0.1",

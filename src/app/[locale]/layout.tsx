@@ -7,6 +7,7 @@ import { CollectionProvider } from "@/components/CollectionProvider";
 import { Footer, FooterFallback } from "@/components/Footer";
 import { Header } from "@/components/Header";
 import { NotificationsProvider } from "@/components/NotificationsProvider";
+import { PostHogIdentify } from "@/components/PostHogIdentify";
 import { localeFontClass } from "@/i18n/fonts";
 import { localeBcp47, localeDir } from "@/i18n/locales";
 import { routing } from "@/i18n/routing";
@@ -34,6 +35,7 @@ export default async function LocaleLayout({
             {t("skipToContent")}
           </a>
           <CollectionProvider>
+            <PostHogIdentify />
             <NotificationsProvider>
               <Suspense fallback={<div className="h-[72px] border-b border-line" />}>
                 <Header />
