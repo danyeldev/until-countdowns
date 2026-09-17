@@ -54,6 +54,8 @@ describe("canonical and social metadata", () => {
   it("rejects non-web origins and preserves configured HTTPS origins", () => {
     vi.stubEnv("NEXT_PUBLIC_SITE_URL", "file:///etc/passwd");
     expect(siteUrl()).toBe("https://until.day");
+    vi.stubEnv("NEXT_PUBLIC_SITE_URL", "https://until-countdowns-git-fix.vercel.app");
+    expect(siteUrl()).toBe("https://until.day");
     vi.stubEnv("NEXT_PUBLIC_SITE_URL", "https://until.example/path?preview=1");
     expect(absoluteUrl("/event/example")).toBe("https://until.example/event/example");
   });

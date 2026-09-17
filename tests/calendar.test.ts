@@ -44,10 +44,18 @@ describe("calendarDescription", () => {
     expect(body).toContain(`/event/${EVENT.slug}`);
   });
 
-  it("names the source when the catalog has one", () => {
+  it("does not add the catalog source URL", () => {
     const sourced = { ...EVENT, sourceUrl: "https://en.wikipedia.org/wiki/2026_Asian_Games" };
-    expect(calendarDescription(sourced)).toContain("Source: https://en.wikipedia.org/wiki/2026_Asian_Games");
-    expect(calendarDescription(EVENT)).not.toContain("Source:");
+    expect(calendarDescription(sourced)).not.toContain("Source:");
+    expect(calendarDescription(sourced)).not.toContain(sourced.sourceUrl);
+  });
+
+  it("rewrites a Vercel preview host onto the public origin", () => {
+    const preview = "https://until-countdowns-git-fix-acme.vercel.app/event/share-abc123";
+    const body = calendarDescription(EVENT, preview);
+    expect(body).toContain("Countdown: https://until.day/event/share-abc123");
+    expect(body).not.toContain("vercel.app");
+    expect(line(icsContent(EVENT, preview), "URL")).toBe("https://until.day/event/share-abc123");
   });
 
   it("takes the caller's page URL over the event's own", () => {
