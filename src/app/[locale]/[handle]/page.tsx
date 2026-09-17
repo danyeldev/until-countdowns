@@ -50,7 +50,7 @@ export default async function PublicProfilePage({ params }: PageProps<"/[locale]
       <JsonLd data={profilePage(profile.name, profile.handle)} />
       <p className="eyebrow mt-6">On Until</p>
       <div className="mt-4 flex flex-wrap items-center gap-4">
-        <span className="flex size-16 items-center justify-center rounded-2xl bg-amber/15 text-2xl font-medium text-amber">
+        <span className="flex size-16 items-center justify-center rounded-full bg-amber/15 text-2xl font-medium text-amber">
           {initial}
         </span>
         <div className="min-w-0">

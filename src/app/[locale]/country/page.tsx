@@ -35,10 +35,10 @@ export default async function CountryIndexPage() {
       <p className="page-subtitle mt-3 max-w-2xl">
         {rows.length} countries and territories with upcoming holidays and events in the catalog.
       </p>
-      <Link href="/" className="panel mt-6 flex items-center gap-4 rounded-2xl p-5 hover:border-amber/40">
-        <span className="flex size-12 items-center justify-center rounded-2xl bg-amber/10 text-amber"><Icon name="globe" size={24} /></span>
-        <span className="flex-1"><span className="block font-semibold text-paper">Looking beyond borders?</span><span className="mt-1 block text-sm text-paper-dim">Explore worldwide launches, releases and moments.</span></span>
-        <Icon name="arrow" className="shrink-0 text-muted" />
+      <Link href="/" className="group mt-6 inline-flex items-center gap-3 text-sm text-paper-dim hover:text-paper">
+        <span className="flex size-9 items-center justify-center rounded-full bg-surface text-amber"><Icon name="globe" size={17} /></span>
+        <span>Looking beyond borders? Explore worldwide launches, releases and moments.</span>
+        <Icon name="arrow" size={15} className="shrink-0 text-muted group-hover:text-amber" />
       </Link>
       <CountryDirectory countries={rows} />
       <JsonLd

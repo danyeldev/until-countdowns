@@ -66,9 +66,9 @@ export default async function TagPage({ params }: Props) {
       </p>
       <EventTable events={result.items} />
       <Pager page={result.page} total={result.total} pageSize={result.pageSize} basePath={path} />
-      <div className="panel mt-8 flex flex-wrap items-center justify-between gap-4 p-5">
+      <div className="hairline mt-12 flex flex-wrap items-center justify-between gap-4 pt-8">
         <div><p className="font-medium text-paper">Keep exploring</p><p className="mt-1 text-sm text-muted">Find related moments across the catalog.</p></div>
-        <Link href={`/?q=${encodeURIComponent(label)}`} className="button-secondary"><Icon name="search" /> Search “{label}”</Link>
+        <Link href={`/?q=${encodeURIComponent(label)}`} className="button-secondary"><Icon name="search" size={16} /> Search “{label}”</Link>
       </div>
       <JsonLd
         data={collectionPage(
