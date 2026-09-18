@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { headers } from "next/headers";
 import { after } from "next/server";
 import { getTranslations } from "next-intl/server";
 import { CatalogExplorer } from "@/components/CatalogExplorer";
@@ -11,6 +12,7 @@ import {
   logSearch,
   searchEvents,
 } from "@/lib/catalog";
+import { isBrowserVisit } from "@/lib/request/visitor";
 import { searchCollections } from "@/lib/search-collections-server";
 import { localizedMetadata } from "@/lib/seo";
 import {
@@ -83,7 +85,10 @@ export default async function SearchPage({
     redirect({ href: qs ? `/search?${qs}` : "/search", locale: localeOf(locale) });
   }
 
-  if (q) {
+  // `search_log` feeds the `wanted` ingest adapter (queries asked ≥3 times become candidate
+  // events), so only a person's search counts: a crawler walking tag chips wrote 640k
+  // zero-result rows for "citrix", "typo3" and friends in two days.
+  if (q && isBrowserVisit(await headers())) {
     const total = result.total;
     after(() => logSearch(q, total));
   }

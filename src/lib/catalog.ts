@@ -311,14 +311,58 @@ export async function searchEventsLive(
   });
 }
 
-/** Same signature as before: delegates to the live search when `q` is present, else the cached list. */
+/**
+ * Hot/hype listings without free text. They read live attention, so the 15-minute list cache
+ * would freeze the mix; a one-minute one keyed by every filter still turns the bare `/search`
+ * page (and its sort/category/page variants) into a cache hit instead of a database read per view.
+ */
+const attentionListCached = cached(
+  async (
+    category: string | undefined,
+    tag: string | undefined,
+    region: string | undefined,
+    featured: boolean | undefined,
+    sort: SearchArgs["sort"],
+    minPopularity: number,
+    page: number,
+    pageSize: number,
+  ) =>
+    runSearch({
+      category,
+      tag,
+      region,
+      featured,
+      sort,
+      minPopularity,
+      page,
+      pageSize,
+    }),
+  ["catalog", "attention-list"],
+  { tags: [TAG_CATALOG_LISTS, TAG_HYPE], revalidate: REVALIDATE_HYPE },
+);
+
+/** Same signature as before: live only when `q` is present, otherwise one of the cached lists. */
 export async function searchEvents(
   params: SearchParams = {},
 ): Promise<SearchResult> {
-  const sort = params.sort ?? "soonest";
-  // Hot/hype read live attention; a one-hour list cache would freeze the mix.
-  if ((params.q && params.q.trim()) || sort === "hot" || sort === "hype") {
-    return searchEventsLive(params);
+  if (params.q && params.q.trim()) return searchEventsLive(params);
+  const a = normalizeParams({ ...params, q: undefined });
+  if (a.sort === "hot" || a.sort === "hype") {
+    return safe(
+      "attentionList",
+      () =>
+        attentionListCached(
+          a.category,
+          a.tag,
+          a.region,
+          a.featured,
+          a.sort,
+          a.minPopularity,
+          a.page,
+          a.pageSize,
+        ),
+      { items: [], total: 0, page: a.page, pageSize: a.pageSize },
+    );
   }
   return listEvents(params);
 }

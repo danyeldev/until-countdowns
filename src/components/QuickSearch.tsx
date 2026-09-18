@@ -14,6 +14,7 @@ import {
 } from "@/lib/search-collections";
 import type { CountdownEvent } from "@/lib/types";
 import { capture } from "@/lib/analytics";
+import { SEARCH_LINK } from "@/lib/search-links";
 
 export function QuickSearch() {
   const dialog = useRef<HTMLDialogElement>(null);
@@ -176,6 +177,7 @@ export function QuickSearch() {
                     <Link
                       key={term}
                       href={`/search?q=${encodeURIComponent(term)}`}
+                      {...SEARCH_LINK}
                       onClick={() => {
                         capture("search_submitted", { query: term, source: "command_suggestion" });
                         setOpen(false);
@@ -251,6 +253,7 @@ export function QuickSearch() {
               ))}
               <Link
                 href={`/search?q=${encodeURIComponent(query.trim())}`}
+                {...SEARCH_LINK}
                 onClick={() => setOpen(false)}
                 className="mt-2 flex items-center justify-between rounded-xl bg-amber/10 px-4 py-3 text-sm text-amber"
               >
