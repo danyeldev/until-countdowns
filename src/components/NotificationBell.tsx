@@ -4,6 +4,7 @@ import { Link } from "@/i18n/navigation";
 import { usePathname } from "next/navigation";
 import { useCollection } from "@/components/CollectionProvider";
 import { useNotifications } from "@/components/NotificationsProvider";
+import { NO_PREFETCH } from "@/lib/link-prefetch";
 import { Icon } from "./Icon";
 
 export function NotificationBell() {
@@ -17,6 +18,7 @@ export function NotificationBell() {
   return (
     <Link
       href="/notifications"
+      {...NO_PREFETCH}
       aria-current={current ? "page" : undefined}
       aria-label={label}
       className="relative flex size-11 items-center justify-center rounded-xl border border-white/10 bg-white/[.04] text-paper-dim transition hover:border-amber/40 hover:text-paper"
