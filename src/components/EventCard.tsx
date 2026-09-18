@@ -1,7 +1,6 @@
 import { Link } from "@/i18n/navigation";
 import type { CountdownEvent, SeriesOccurrencePreview } from "@/lib/types";
 import { regionSummary } from "@/lib/regions";
-import { isShareAlike } from "@/lib/images";
 import { CATEGORY_LABELS } from "@/lib/labels";
 import {
   formatApproximate,
@@ -42,7 +41,7 @@ export function EventCard({
         href={path}
         className={`flex ${hasSeriesLink ? "flex-1" : "h-full"} flex-col focus-visible:outline-offset-[-3px]`}
       >
-        {event.image && !isShareAlike(event.image.license) ? (
+        {event.image ? (
           <EventImage
             image={event.image}
             alt=""

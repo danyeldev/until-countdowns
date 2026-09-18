@@ -10,7 +10,7 @@ import {
   type FeaturedCollection,
   type FeaturedCollectionSlug,
 } from "./featured-collections-meta";
-import { imageUrl, isShareAlike } from "./images";
+import { imageUrl } from "./images";
 import type { CountdownEvent } from "./types";
 
 export {
@@ -249,9 +249,7 @@ export async function loadFeaturedCollection(slug: string): Promise<{
 }
 
 function coverUrlFromEvents(events: CountdownEvent[]): string | null {
-  const image =
-    events.find((event) => event.image && !isShareAlike(event.image.license))?.image ??
-    events.find((event) => event.image)?.image;
+  const image = events.find((event) => event.image)?.image;
   return image ? imageUrl(image, "card") : null;
 }
 

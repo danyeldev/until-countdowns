@@ -65,12 +65,14 @@ export function heroAspectRatio(image: Pick<EventImage, "width" | "height">): st
  * ShareAlike detection, applied to the stored `LicenseShortName` ("CC BY-SA 4.0",
  * "CC BY-SA 3.0 IGO", "Attribution-ShareAlike").
  *
- * It matters because of what we are allowed to *make* from a file, not what we may show: a
- * BY-SA photo may be published unmodified with its credit, but cropping it to 1200×630 and
- * laying a scrim, a title and a wordmark over it produces Adapted Material (CC BY-SA 4.0
- * §2(a)(1)(B)), which would have to be released under a BY-SA-compatible licence and said so on
- * the card. The plan's answer is the cheap one: ShareAlike files keep the hero and lose the
- * social card, which falls back to the seeded gradient.
+ * It matters for exactly one thing: the OG social card, a new 1200×630 JPEG we render with a
+ * scrim, the title and the wordmark on top and hand to other sites. That is Adapted Material
+ * (CC BY-SA 4.0 §2(a)(1)(B)) and would have to be released BY-SA, so ShareAlike files fall back
+ * to the seeded gradient there. Everywhere on the site itself the photo is shown like any CC BY
+ * file, with its credit: `card.webp` / `hero.webp` are plain resizes (§2(a)(4) — never Adapted
+ * Material) and the crop and gradient are drawn by the browser over the unmodified file. Half the
+ * catalogue's photos are BY-SA; hiding them behind decorative artwork made half the events look
+ * imageless.
  */
 const SHARE_ALIKE_RE = /(?:^|[\s\-])sa(?:[\s\-.]|$)|share\s*-?\s*alike/i;
 

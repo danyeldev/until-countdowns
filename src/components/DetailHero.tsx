@@ -6,7 +6,6 @@ import { Icon } from "./Icon";
 import { ImageCredit } from "./ImageCredit";
 import { StatusBadge } from "./StatusBadge";
 import { formatApproximate, formatRange, isCoarsePrecision } from "@/lib/time";
-import { isShareAlike } from "@/lib/images";
 import type {
   DatePrecision,
   EventImage as EventArtwork,
@@ -42,7 +41,6 @@ export function DetailHero({
   actions: ReactNode;
 }) {
   const coarse = isCoarsePrecision(precision);
-  const separateArtwork = image ? isShareAlike(image.license) : false;
   const paused =
     status === "cancelled" || status === "postponed" || status === "retired";
   return (
@@ -51,7 +49,7 @@ export function DetailHero({
         className="pointer-events-none absolute inset-0 -z-10 overflow-hidden rounded-[inherit]"
         aria-hidden="true"
       >
-        {image && !separateArtwork ? (
+        {image ? (
           <div className="absolute inset-y-0 right-0 w-full opacity-45 lg:w-3/4 [&>div]:h-full [&>div]:!aspect-auto [&_img]:h-full [&_img]:object-cover">
             <EventImage
               image={image}
@@ -136,30 +134,7 @@ export function DetailHero({
       </div>
       {image ? (
         <figure className="rounded-b-[28px] border-t border-line/60 bg-ink-2 px-5 py-3 sm:px-9 lg:px-11">
-          {separateArtwork ? (
-            <details className="group/photo">
-              <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between gap-3 text-sm text-paper-dim hover:text-paper [&::-webkit-details-marker]:hidden">
-                Event photograph
-                <Icon
-                  name="plus"
-                  size={17}
-                  className="text-muted transition-transform group-open/photo:rotate-45"
-                />
-              </summary>
-              <div className="pt-3 pb-2">
-                <EventImage
-                  image={image}
-                  alt={title}
-                  variant="hero"
-                  sizes="(max-width: 1024px) 100vw, 1000px"
-                />
-              </div>
-            </details>
-          ) : null}
-          <ImageCredit
-            image={image}
-            className={separateArtwork ? "mt-3" : undefined}
-          />
+          <ImageCredit image={image} />
         </figure>
       ) : null}
     </section>
