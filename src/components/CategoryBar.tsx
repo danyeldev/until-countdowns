@@ -1,4 +1,5 @@
 import { Link } from "@/i18n/navigation";
+import { SEARCH_LINK } from "@/lib/search-links";
 import type { Category } from "@/lib/types";
 import { CATEGORIES, DEFAULT_EVENT_SORT } from "@/lib/types";
 import { CATEGORY_LABELS } from "@/lib/labels";
@@ -28,10 +29,15 @@ export function CategoryBar({
     return s ? `/search?${s}` : "/search";
   }
 
+  // Hub links (`/category/x`) are static pages worth crawling and prefetching; anything that
+  // lands on `/search` is not.
+  const linkProps = (target: string) => (target.startsWith("/search") ? SEARCH_LINK : {});
+
   return (
     <div className="flex gap-2 overflow-x-auto pb-2 [scrollbar-width:thin]">
       <Link
         href={href()}
+        {...linkProps(href())}
         aria-current={!active || active === "all" ? "true" : undefined}
         className={`shrink-0 inline-flex min-h-11 items-center rounded-full px-4 py-2 text-xs ${
           !active || active === "all"
@@ -45,6 +51,7 @@ export function CategoryBar({
         <Link
           key={c}
           href={href(c)}
+          {...linkProps(href(c))}
           aria-current={active === c ? "true" : undefined}
           className={`shrink-0 inline-flex min-h-11 items-center rounded-full px-4 py-2 text-xs ${
             active === c

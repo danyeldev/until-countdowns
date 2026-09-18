@@ -1,4 +1,5 @@
 import { Link } from "@/i18n/navigation";
+import { SEARCH_LINK } from "@/lib/search-links";
 import { EventCard } from "./EventCard";
 import { CategoryBar } from "./CategoryBar";
 import { CollectionSearchHits } from "./CollectionSearchHits";
@@ -182,6 +183,7 @@ export function CatalogExplorer({
             <Link
               key={value}
               href={sortHref(value)}
+              {...SEARCH_LINK}
               aria-current={(sort || DEFAULT_EVENT_SORT) === value ? "true" : undefined}
               className={`inline-flex min-h-10 items-center rounded-lg px-3 py-2 ${
                 (sort || DEFAULT_EVENT_SORT) === value
@@ -249,12 +251,12 @@ export function CatalogExplorer({
           </span>
           <div className="flex gap-3">
             {page > 1 && (
-              <Link href={pageHref(page - 1)} className="button-secondary">
+              <Link href={pageHref(page - 1)} {...SEARCH_LINK} className="button-secondary">
                 ← Previous
               </Link>
             )}
             {page < pages && (
-              <Link href={pageHref(page + 1)} className="button-secondary">
+              <Link href={pageHref(page + 1)} {...SEARCH_LINK} className="button-secondary">
                 Next →
               </Link>
             )}

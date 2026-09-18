@@ -35,6 +35,7 @@ import { isPlaceholderDescription } from "@/lib/enrich/wikipedia";
 import { eventJsonLd, type Crumb } from "@/lib/jsonld";
 import { CATEGORY_LABELS, sourceLabel } from "@/lib/labels";
 import { COUNTRY_NAMES, regionLabel } from "@/lib/regions";
+import { SEARCH_LINK } from "@/lib/search-links";
 import {
   absoluteUrl,
   eventDescription,
@@ -201,6 +202,7 @@ function Chip({ href, children }: { href: string; children: React.ReactNode }) {
   return (
     <Link
       href={href}
+      {...(href.startsWith("/search") ? SEARCH_LINK : {})}
       className="inline-flex min-h-11 items-center rounded-xl border border-line bg-ink px-3 text-xs text-paper-dim hover:border-amber/40 hover:text-amber"
     >
       {children}

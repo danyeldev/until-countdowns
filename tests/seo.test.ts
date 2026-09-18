@@ -102,8 +102,20 @@ describe("canonical and social metadata", () => {
     const metadata = buildMetadata({ title: "Personal countdown", description: "A shared date.", canonical: "/event/share-example", ogPath: "/og/default", noindex: true });
     expect(metadata.robots).toEqual({ index: false, follow: true });
     expect(buildMetadata({ title: "Sign in", description: "Sign in to Until.", canonical: "/login", ogPath: "/og/default", noindex: true }).robots).toEqual({ index: false, follow: true });
-    // Blocking HTML in robots.txt would keep a crawler from ever seeing the noindex tag.
-    expect(robots().rules).toMatchObject({ disallow: ["/api/"] });
+    // Blocking HTML in robots.txt would keep a crawler from ever seeing the noindex tag…
+    const { rules } = robots();
+    expect(rules).toMatchObject({ allow: ["/", "/og/"] });
+    expect(rules).toMatchObject({ disallow: expect.arrayContaining(["/api/"]) });
+    expect((rules as { disallow: string[] }).disallow).not.toContain("/event/");
+  });
+
+  it("disallows crawling search results in every locale", () => {
+    // …except search results: noindex already, and an unbounded uncached URL space that a crawler
+    // walked at ~7 req/s in September 2026. Every locale prefix gets its own line.
+    const disallow = (robots().rules as { disallow: string[] }).disallow;
+    expect(disallow).toEqual(expect.arrayContaining(["/search", "/es/search", "/zh-hant/search", "/el/search"]));
+    expect(disallow.filter((p) => p.endsWith("/search"))).toHaveLength(27);
+    expect(disallow).not.toContain("/*/search");
   });
 
   it("exposes usable application icons and shortcuts", () => {
