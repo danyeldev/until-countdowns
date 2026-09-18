@@ -129,7 +129,7 @@ export function QuickSearch() {
           Find your next countdown
         </h2>
         <form
-          action="/"
+          action="/search"
           onSubmit={() => {
             const q = query.trim();
             if (q) capture("search_submitted", { query: q, source: "command" });
@@ -175,7 +175,7 @@ export function QuickSearch() {
                   (term) => (
                     <Link
                       key={term}
-                      href={`/?q=${encodeURIComponent(term)}`}
+                      href={`/search?q=${encodeURIComponent(term)}`}
                       onClick={() => {
                         capture("search_submitted", { query: term, source: "command_suggestion" });
                         setOpen(false);
@@ -250,7 +250,7 @@ export function QuickSearch() {
                 </Link>
               ))}
               <Link
-                href={`/?q=${encodeURIComponent(query.trim())}`}
+                href={`/search?q=${encodeURIComponent(query.trim())}`}
                 onClick={() => setOpen(false)}
                 className="mt-2 flex items-center justify-between rounded-xl bg-amber/10 px-4 py-3 text-sm text-amber"
               >

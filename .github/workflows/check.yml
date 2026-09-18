@@ -26,3 +26,16 @@ jobs:
       - run: npm run check
       - run: npm run test:sql
       - run: npm run build
+  lighthouse:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+      - uses: treosh/lighthouse-ci-action@12.6.1
+        with:
+          urls: |
+            https://until.day/
+          budgetPath: .github/lighthouse/budget.json
+          uploadArtifacts: true
+          temporaryPublicStorage: true

@@ -4,6 +4,7 @@ import { prerenderLimit } from "@/lib/prerender";
 import type { Metadata } from "next";
 import { Link } from "@/i18n/navigation";
 import { notFound, permanentRedirect } from "next/navigation";
+import { Suspense } from "react";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { CalendarButtons } from "@/components/CalendarButtons";
 import { DetailHero } from "@/components/DetailHero";
@@ -48,6 +49,7 @@ import { formatCompactDate, isCoarsePrecision } from "@/lib/time";
 import type { CountdownEvent } from "@/lib/types";
 import { hypeEventKey } from "@/lib/hype";
 import { decodeSharePayload } from "@/lib/user-events";
+import { activateLocale } from "@/i18n/request-locale";
 
 export const revalidate = 3600;
 
@@ -69,6 +71,7 @@ export async function generateMetadata({
   params,
 }: PageProps<"/[locale]/event/[slug]">): Promise<Metadata> {
   const { slug, locale } = await params;
+  activateLocale(locale);
   if (slug.startsWith("mine-"))
     return { title: "Your countdown", robots: { index: false, follow: false } };
   if (slug.startsWith("share-")) {
@@ -205,10 +208,34 @@ function Chip({ href, children }: { href: string; children: React.ReactNode }) {
   );
 }
 
+async function RelatedEventsSection({ event }: { event: CountdownEvent }) {
+  const related = await relatedEvents(event, 6);
+  if (!related.length) return null;
+  return (
+    <section className="mt-10">
+      <div className="flex items-center justify-between gap-3">
+        <h2 className="section-heading">Also on the horizon</h2>
+        <Link
+          href={`/category/${event.category}`}
+          className="inline-flex min-h-11 items-center gap-2 text-sm text-amber hover:text-paper"
+        >
+          Explore more <Icon name="arrow" size={16} />
+        </Link>
+      </div>
+      <div className="mt-5 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+        {related.map((item) => (
+          <EventCard key={item.id} event={item} />
+        ))}
+      </div>
+    </section>
+  );
+}
+
 export default async function EventPage({
   params,
 }: PageProps<"/[locale]/event/[slug]">) {
-  const { slug } = await params;
+  const { slug, locale } = await params;
+  activateLocale(locale);
 
   if (slug.startsWith("mine-")) {
     return <MineEvent slug={slug} />;
@@ -229,8 +256,7 @@ export default async function EventPage({
   if (!event) notFound();
 
   const isUser = event.source === "user";
-  const [related, siblings, citation] = await Promise.all([
-    isUser ? [] : relatedEvents(event, 6),
+  const [siblings, citation] = await Promise.all([
     event.seriesSlug
       ? seriesOccurrences(event.seriesSlug, OTHER_YEARS + 2)
       : [],
@@ -399,7 +425,7 @@ export default async function EventPage({
                       key={tag}
                       href={
                         isUser
-                          ? `/?q=${encodeURIComponent(tag)}`
+                          ? `/search?q=${encodeURIComponent(tag)}`
                           : `/tag/${encodeURIComponent(tag)}`
                       }
                     >
@@ -429,7 +455,9 @@ export default async function EventPage({
         )}
       </div>
 
-      <EventComments eventKey={event.slug} />
+      <Suspense fallback={null}>
+        <EventComments eventKey={event.slug} />
+      </Suspense>
 
       {canAddToCalendar(event) ? (
         <EmbedStudio
@@ -439,23 +467,10 @@ export default async function EventPage({
         />
       ) : null}
 
-      {related.length > 0 ? (
-        <section className="mt-10">
-          <div className="flex items-center justify-between gap-3">
-            <h2 className="section-heading">Also on the horizon</h2>
-            <Link
-              href={`/category/${event.category}`}
-              className="inline-flex min-h-11 items-center gap-2 text-sm text-amber hover:text-paper"
-            >
-              Explore more <Icon name="arrow" size={16} />
-            </Link>
-          </div>
-          <div className="mt-5 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-            {related.map((item) => (
-              <EventCard key={item.id} event={item} />
-            ))}
-          </div>
-        </section>
+      {!isUser ? (
+        <Suspense fallback={<div className="mt-10 h-48 animate-pulse rounded-3xl bg-white/5" />}>
+          <RelatedEventsSection event={event} />
+        </Suspense>
       ) : null}
       <JsonLd data={eventJsonLd(event)} />
     </article>

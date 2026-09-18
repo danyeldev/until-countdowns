@@ -2,11 +2,9 @@
 
 import { useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
-import { useCollection } from "@/components/CollectionProvider";
 import { parseHandle } from "@/lib/auth/profile";
 import { LanguageSwitcher } from "./LanguageSwitcher";
-import { AuthMenu } from "./AuthMenu";
-import { NotificationBell } from "./NotificationBell";
+import { HeaderAuth, useSignedInHint } from "./HeaderAuth";
 import { Icon, type IconName } from "./Icon";
 import { QuickSearch } from "./QuickSearch";
 import { AuthGateLink } from "./SignInButton";
@@ -16,8 +14,7 @@ export function Header() {
   const t = useTranslations("nav");
   const pathname = usePathname();
   const params = useSearchParams();
-  const { userId } = useCollection();
-  const signedIn = Boolean(userId);
+  const signedIn = useSignedInHint();
 
   const MAIN: { href: string; label: string; icon: IconName }[] = [
     { href: "/", label: t("explore"), icon: "compass" },
@@ -32,7 +29,7 @@ export function Header() {
   ];
 
   function workspaceLabel(path: string, query: string | null): string {
-    if (path === "/") return query ? t("workspace.search") : t("workspace.explore");
+    if (path === "/" || path.startsWith("/search")) return query ? t("workspace.search") : t("workspace.explore");
     if (path.startsWith("/login/complete")) return t("workspace.profile");
     if (path.startsWith("/login")) return t("workspace.signIn");
     if (path.startsWith("/saved")) return t("workspace.mySpace");
@@ -146,8 +143,7 @@ export function Header() {
             <Icon name="plus" size={15} />
             {t("newCountdown")}
           </AuthGateLink>
-          <NotificationBell />
-          <AuthMenu />
+          <HeaderAuth />
         </div>
       </header>
       <nav

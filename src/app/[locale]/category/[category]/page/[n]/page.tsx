@@ -10,6 +10,7 @@ import { collectionPage } from "@/lib/jsonld";
 import { CATEGORY_BLURB, CATEGORY_LABELS } from "@/lib/labels";
 import { categoryTitle, localizedMetadata } from "@/lib/seo";
 import { HUB_MAX_PAGE, HUB_PAGE_SIZE } from "@/lib/taxonomy";
+import { activateLocale } from "@/i18n/request-locale";
 
 /**
  * Pages 2+ of a category hub (`/category/[category]/page/[n]`). ISR like page 1, rendered on
@@ -17,7 +18,7 @@ import { HUB_MAX_PAGE, HUB_PAGE_SIZE } from "@/lib/taxonomy";
  */
 export const revalidate = 3600;
 
-type Props = { params: Promise<{ category: string; n: string }> };
+type Props = { params: Promise<{ category: string; n: string; locale: string }> };
 
 /** Only canonical page numbers exist: `2`…`MAX_PAGE`, no leading zeros (`/page/1` is the hub itself). */
 function pageNumber(raw: string): number | null {
@@ -31,7 +32,8 @@ export function generateStaticParams(): { category: string; n: string }[] {
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const { category, n: raw } = await params;
+  const { category, n: raw, locale } = await params;
+  activateLocale(locale);
   const n = pageNumber(raw);
   if (!isCategory(category) || n === null) return { title: "Category", robots: { index: false, follow: true } };
   return localizedMetadata({
@@ -40,11 +42,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     canonical: `/category/${category}/page/${n}`,
     ogPath: `/og/category/${category}`,
     noindex: true,
+    locale,
   });
 }
 
 export default async function CategoryPageN({ params }: Props) {
-  const { category, n: raw } = await params;
+  const { category, n: raw, locale } = await params;
+  activateLocale(locale);
   const n = pageNumber(raw);
   if (!isCategory(category) || n === null) notFound();
   const basePath = `/category/${category}`;

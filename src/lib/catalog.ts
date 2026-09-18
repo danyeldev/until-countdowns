@@ -2,18 +2,22 @@
  * Catalog read path. Every export keeps its pre-Supabase name and call shape but is async.
  *
  * - No `Date.now()` / `new Date()` here: every time comparison happens in SQL
- *   (`events_public.days_until`, the `search_events` window, ...).
- * - Cached reads go through `cached()` with the `events` tag (stats: `stats`);
- *   free-text search and `/api/events` are uncached.
+ *   (`upcoming_until > now()`, `starts_on` ranges, the `search_events` window).
+ * - Cached reads go through `cached()` with `catalog-lists` (hubs) or per-entity
+ *   tags; free-text search and `/api/events` are uncached.
  * - Every read is wrapped in `safe()` so a missing env var or a network error
  *   degrades to an empty catalog instead of failing the build.
  */
 import type { PostgrestSingleResponse } from "@supabase/supabase-js";
 import { isCatalogEventId } from "./event-id";
-import { cached, eventTag, TAG_EVENTS, TAG_STATS } from "./cache";
+import { cached, eventTag, seriesTag, TAG_CATALOG_LISTS, TAG_HYPE, TAG_STATS } from "./cache";
 import { anonClient, supabaseEnv } from "./db/client";
 import type { Database } from "./db/database.types";
-import { jsonToEvent, rowToEvent, toCategory, toStatus } from "./db/mappers";
+import { jsonToEvent, rowToEvent, toCategory, toStatus, type EventRow } from "./db/mappers";
+
+function fromCardRows(rows: unknown[] | null | undefined): CountdownEvent[] {
+  return ((rows ?? []) as EventRow[]).map(rowToEvent);
+}
 import {
   addDays,
   chineseLunarToSolar,
@@ -50,9 +54,15 @@ import { CATEGORIES, isEventSort } from "./types";
 export { COUNTRY_NAMES, regionLabel, regionSummary } from "./regions";
 
 const REVALIDATE_EVENTS = 3600;
-// Same TTL as events until the finalize cron (Phase 3) invalidates the `stats` tag after each run:
+const REVALIDATE_LISTS = 900;
+const REVALIDATE_HYPE = 60;
+// Same TTL as events until the finalize cron invalidates the `stats` tag after each run:
 // a wrong footer/About count must not outlive the event cache.
 const REVALIDATE_STATS = 3600;
+
+/** Hub/card payload: skips `date_history` and `external_ids`. */
+const CARD_COLUMNS =
+  "id, slug, title, description, summary, date, end_date, all_day, timezone, starts_on, starts_at, category, tags, regions, source, source_label, source_url, status, date_precision, featured, popularity, series_slug, series_title, location, jsonld_eligible, indexable, last_seen_at, updated_at, days_until, image, period_end, sort_at";
 
 /**
  * Shape guard for slugs coming straight from the URL. Catalog slugs are `slugify(title)-YYYY-MM-DD`
@@ -60,15 +70,45 @@ const REVALIDATE_STATS = 3600;
  * rejected before it can touch the Data Cache or the database (junk URLs otherwise cost two cache
  * writes plus an ISR 404 entry each).
  */
+const eventsByIdsCached = cached(
+  async (ids: string[]) => {
+    const rows = unwrap(
+      await anonClient()
+        .from("events_public")
+        .select(CARD_COLUMNS)
+        .in("id", ids),
+    );
+    return fromCardRows(rows);
+  },
+  ["catalog", "events-by-ids"],
+  { tags: [TAG_CATALOG_LISTS], revalidate: REVALIDATE_LISTS },
+);
+
 /** Batch read for local bookmarks; goes through the same public view/RLS as every event page. */
 export async function eventsByIds(ids: string[]): Promise<CountdownEvent[]> {
   const valid = [...new Set(ids)].filter(isCatalogEventId).slice(0, 50);
   if (valid.length === 0) return [];
-  const rows = unwrap(
-    await anonClient().from("events_public").select("*").in("id", valid),
-  );
-  return (rows ?? []).map(rowToEvent);
+  return safe("eventsByIds", () => eventsByIdsCached(valid), []);
 }
+
+const futureOccurrenceRowsCached = cached(
+  async (slugs: string[]) => {
+    const rows = unwrap(
+      await anonClient()
+        .from("events_public")
+        .select(CARD_COLUMNS)
+        .in("series_slug", slugs)
+        .not("status", "in", "(done,cancelled,retired)")
+        .gt("upcoming_until", "now")
+        .order("sort_at", { ascending: true })
+        .order("id", { ascending: true })
+        .limit(1000),
+    );
+    return fromCardRows(rows);
+  },
+  ["catalog", "future-occurrences"],
+  { tags: [TAG_CATALOG_LISTS], revalidate: REVALIDATE_LISTS },
+);
 
 /** One bounded catalog read for the expandable dates on the current search page. */
 export async function futureOccurrencesForEvents(
@@ -82,20 +122,8 @@ export async function futureOccurrencesForEvents(
   if (slugs.length === 0) return {};
   return safe(
     "futureOccurrencesForEvents",
-    async () => {
-      const rows = unwrap(
-        await anonClient()
-          .from("events_public")
-          .select("*")
-          .in("series_slug", slugs)
-          .not("status", "in", "(done,cancelled,retired)")
-          .or(UPCOMING_FILTER)
-          .order("sort_at", { ascending: true })
-          .order("id", { ascending: true })
-          .limit(1000),
-      );
-      return groupFutureOccurrences(events, (rows ?? []).map(rowToEvent));
-    },
+    async () =>
+      groupFutureOccurrences(events, await futureOccurrenceRowsCached(slugs)),
     {},
   );
 }
@@ -245,7 +273,7 @@ const listEventsCached = cached(
       pageSize,
     }),
   ["catalog", "list-events"],
-  { tags: [TAG_EVENTS], revalidate: REVALIDATE_EVENTS },
+  { tags: [TAG_CATALOG_LISTS], revalidate: REVALIDATE_LISTS },
 );
 
 /** Filtered listing without free text — cached, keyed by every parameter value. */
@@ -295,16 +323,25 @@ export async function searchEvents(
   return listEvents(params);
 }
 
+const loadHypePointsCached = cached(
+  async (keys: string[]) => {
+    const rows =
+      unwrap(
+        await anonClient()
+          .from("event_hype")
+          .select("event_key, points")
+          .in("event_key", keys),
+      ) ?? [];
+    return rows;
+  },
+  ["catalog", "hype-points"],
+  { tags: [TAG_HYPE], revalidate: REVALIDATE_HYPE },
+);
+
 async function loadHypePoints(keys: string[]): Promise<Map<string, number>> {
   const unique = [...new Set(keys.filter(Boolean))].slice(0, 200);
   if (unique.length === 0) return new Map();
-  const rows =
-    unwrap(
-      await anonClient()
-        .from("event_hype")
-        .select("event_key, points")
-        .in("event_key", unique),
-    ) ?? [];
+  const rows = await loadHypePointsCached(unique);
   return new Map(rows.map((row) => [row.event_key, row.points]));
 }
 
@@ -382,12 +419,12 @@ async function fetchEvent(slug: string): Promise<CountdownEvent | null> {
 
 function cachedEvent(slug: string) {
   return cached(() => fetchEvent(slug), ["catalog", "event", slug], {
-    tags: [TAG_EVENTS, eventTag(slug)],
+    tags: [eventTag(slug), TAG_CATALOG_LISTS],
     revalidate: REVALIDATE_EVENTS,
   });
 }
 
-/** One event by its current slug. Cached per slug with both the `events` and the `event:<slug>` tags. */
+/** One event by its current slug. Cached per slug with `event:<slug>` and list tags. */
 export async function getEvent(
   slug: string,
 ): Promise<CountdownEvent | undefined> {
@@ -444,9 +481,7 @@ const imageLicensesCached = cached(
     );
   },
   ["catalog", "image-licenses"],
-  // Also tagged `events`: every enrichment run that stores an image invalidates that tag, so the
-  // table on /attributions is never a stale count of a library that just grew.
-  { tags: [TAG_STATS, TAG_EVENTS], revalidate: REVALIDATE_STATS },
+  { tags: [TAG_STATS], revalidate: REVALIDATE_STATS },
 );
 
 /**
@@ -457,29 +492,31 @@ export async function imageLicenses(): Promise<ImageLicenseCount[]> {
   return safe("imageLicenses", () => imageLicensesCached(), []);
 }
 
-const summaryCitationCached = cached(
-  async (slug: string) => {
-    const row = unwrap(
-      await anonClient()
-        .from("events_public")
-        .select("external_ids")
-        .eq("slug", slug)
-        .maybeSingle(),
-    );
-    const ids = row?.external_ids;
-    if (!ids || typeof ids !== "object" || Array.isArray(ids)) return null;
-    const bag = ids as Record<string, unknown>;
-    if (
-      bag.summary_source !== "wikipedia" ||
-      typeof bag.enwiki !== "string" ||
-      bag.enwiki.length === 0
-    )
-      return null;
-    return { enwiki: bag.enwiki };
-  },
-  ["catalog", "summary-citation"],
-  { tags: [TAG_EVENTS], revalidate: REVALIDATE_EVENTS },
-);
+function summaryCitationCached(slug: string) {
+  return cached(
+    async () => {
+      const row = unwrap(
+        await anonClient()
+          .from("events_public")
+          .select("external_ids")
+          .eq("slug", slug)
+          .maybeSingle(),
+      );
+      const ids = row?.external_ids;
+      if (!ids || typeof ids !== "object" || Array.isArray(ids)) return null;
+      const bag = ids as Record<string, unknown>;
+      if (
+        bag.summary_source !== "wikipedia" ||
+        typeof bag.enwiki !== "string" ||
+        bag.enwiki.length === 0
+      )
+        return null;
+      return { enwiki: bag.enwiki };
+    },
+    ["catalog", "summary-citation", slug],
+    { tags: [eventTag(slug)], revalidate: REVALIDATE_EVENTS },
+  );
+}
 
 /**
  * The English Wikipedia article an event's `summary` was taken from, when it was.
@@ -492,7 +529,7 @@ export async function summaryCitation(
   slug: string,
 ): Promise<{ enwiki: string } | null> {
   if (!isCatalogSlug(slug)) return null;
-  return safe("summaryCitation", () => summaryCitationCached(slug), null);
+  return safe("summaryCitation", () => summaryCitationCached(slug)(), null);
 }
 
 const resolveSlugAliasCached = cached(
@@ -515,7 +552,7 @@ const resolveSlugAliasCached = cached(
     return row?.slug ?? null;
   },
   ["catalog", "slug-alias"],
-  { tags: [TAG_EVENTS], revalidate: REVALIDATE_EVENTS },
+  { tags: [TAG_CATALOG_LISTS], revalidate: REVALIDATE_EVENTS },
 );
 
 /** Old slug (after a date slip or rename) -> current slug, or null. */
@@ -554,49 +591,51 @@ const featuredUpcomingCached = cached(
       []
     ).map(rowToEvent),
   ["catalog", "featured-upcoming"],
-  { tags: [TAG_EVENTS], revalidate: 60 },
+  { tags: [TAG_CATALOG_LISTS, TAG_HYPE], revalidate: REVALIDATE_HYPE },
+);
+
+const eventsThisWeekCached = cached(
+  async (limit: number) => {
+    const [popular, hypeRows] = await Promise.all([
+      eventsWithinDays({
+        minDays: 0,
+        maxDays: 7,
+        sort: "popular",
+        limit: 40,
+      }),
+      unwrap(
+        await anonClient()
+          .from("event_hype")
+          .select("event_key")
+          .order("points", { ascending: false })
+          .limit(40),
+      ) ?? [],
+    ]);
+    const extra = await eventsByIds(hypeRows.map((row) => row.event_key));
+    const inWindow = extra.filter(
+      (event) =>
+        typeof event.daysUntil === "number" &&
+        event.daysUntil >= 0 &&
+        event.daysUntil <= 7,
+    );
+    const seen = new Set<string>();
+    const pool: CountdownEvent[] = [];
+    for (const event of [...popular, ...inWindow]) {
+      if (seen.has(event.id)) continue;
+      seen.add(event.id);
+      pool.push(event);
+    }
+    return pickHottestFamilies(await attachHype(pool), limit).sort(
+      (a, b) => a.date.localeCompare(b.date) || (b.hype ?? 0) - (a.hype ?? 0),
+    );
+  },
+  ["catalog", "events-this-week"],
+  { tags: [TAG_CATALOG_LISTS, TAG_HYPE], revalidate: REVALIDATE_HYPE },
 );
 
 /** Next seven days, mixing editorial strength with live hype, one row per title. */
 export async function eventsThisWeek(limit = 10): Promise<CountdownEvent[]> {
-  return safe(
-    "eventsThisWeek",
-    async () => {
-      const [popular, hypeRows] = await Promise.all([
-        eventsWithinDays({
-          minDays: 0,
-          maxDays: 7,
-          sort: "popular",
-          limit: 40,
-        }),
-        unwrap(
-          await anonClient()
-            .from("event_hype")
-            .select("event_key")
-            .order("points", { ascending: false })
-            .limit(40),
-        ) ?? [],
-      ]);
-      const extra = await eventsByIds(hypeRows.map((row) => row.event_key));
-      const inWindow = extra.filter(
-        (event) =>
-          typeof event.daysUntil === "number" &&
-          event.daysUntil >= 0 &&
-          event.daysUntil <= 7,
-      );
-      const seen = new Set<string>();
-      const pool: CountdownEvent[] = [];
-      for (const event of [...popular, ...inWindow]) {
-        if (seen.has(event.id)) continue;
-        seen.add(event.id);
-        pool.push(event);
-      }
-      return pickHottestFamilies(await attachHype(pool), limit).sort(
-        (a, b) => a.date.localeCompare(b.date) || (b.hype ?? 0) - (a.hype ?? 0),
-      );
-    },
-    [],
-  );
+  return safe("eventsThisWeek", () => eventsThisWeekCached(limit), []);
 }
 
 export async function featuredUpcoming(limit = 1): Promise<CountdownEvent[]> {
@@ -612,6 +651,36 @@ export async function featuredUpcoming(limit = 1): Promise<CountdownEvent[]> {
   );
 }
 
+const homeHubMixCached = cached(
+  async (limit: number) => {
+    const [soonest, popular] = await Promise.all([
+      listEvents({ sort: "soonest", pageSize: Math.min(48, limit * 4) }),
+      listEvents({ sort: "popular", pageSize: Math.min(48, limit * 4) }),
+    ]);
+    const seen = new Set<string>();
+    const pool: CountdownEvent[] = [];
+    for (const event of [...soonest.items, ...popular.items]) {
+      if (seen.has(event.id)) continue;
+      seen.add(event.id);
+      pool.push(event);
+    }
+    const items = pickHottestFamilies(await attachHype(pool), limit);
+    return { items, total: items.length, page: 1, pageSize: limit };
+  },
+  ["catalog", "home-hub-mix"],
+  { tags: [TAG_CATALOG_LISTS, TAG_HYPE], revalidate: REVALIDATE_HYPE },
+);
+
+/** Cached home explore mix — heat is computed in JS from indexed soonest/popular lists. */
+export async function homeHubMix(limit = 12): Promise<SearchResult> {
+  return safe("homeHubMix", () => homeHubMixCached(limit), {
+    items: [],
+    total: 0,
+    page: 1,
+    pageSize: limit,
+  });
+}
+
 const soonestUpcomingCached = cached(
   async (limit: number) =>
     (
@@ -619,7 +688,7 @@ const soonestUpcomingCached = cached(
       []
     ).map(rowToEvent),
   ["catalog", "soonest-upcoming"],
-  { tags: [TAG_EVENTS], revalidate: REVALIDATE_EVENTS },
+  { tags: [TAG_CATALOG_LISTS], revalidate: REVALIDATE_LISTS },
 );
 
 export async function soonestUpcoming(limit = 8): Promise<CountdownEvent[]> {
@@ -634,7 +703,7 @@ const relatedEventsCached = cached(
       ) ?? []
     ).map(rowToEvent),
   ["catalog", "related-events"],
-  { tags: [TAG_EVENTS], revalidate: REVALIDATE_EVENTS },
+  { tags: [TAG_CATALOG_LISTS], revalidate: REVALIDATE_LISTS },
 );
 
 export async function relatedEvents(
@@ -668,7 +737,7 @@ const categoryCountsCached = cached(
     return counts;
   },
   ["catalog", "category-counts"],
-  { tags: [TAG_EVENTS], revalidate: REVALIDATE_EVENTS },
+  { tags: [TAG_CATALOG_LISTS], revalidate: REVALIDATE_LISTS },
 );
 
 export async function categoryCounts(): Promise<Record<Category, number>> {
@@ -688,7 +757,7 @@ const popularTagsCached = cached(
       count: Number(row.n) || 0,
     })),
   ["catalog", "popular-tags"],
-  { tags: [TAG_EVENTS], revalidate: REVALIDATE_EVENTS },
+  { tags: [TAG_CATALOG_LISTS], revalidate: REVALIDATE_LISTS },
 );
 
 export async function popularTags(
@@ -703,7 +772,7 @@ const topSlugsCached = cached(
       .map((row) => row.slug)
       .filter(Boolean),
   ["catalog", "top-slugs"],
-  { tags: [TAG_EVENTS], revalidate: REVALIDATE_EVENTS },
+  { tags: [TAG_CATALOG_LISTS], revalidate: REVALIDATE_LISTS },
 );
 
 /** Most popular upcoming slugs — used by `generateStaticParams`. */
@@ -786,10 +855,6 @@ const COARSE_PRECISIONS: ReadonlySet<string> = new Set([
 ]);
 /** PostgREST value literals that Postgres resolves at query time (`'now'::timestamptz`, `'today'::date`). */
 const SQL_TODAY = "today";
-// Same predicate as event_is_upcoming in the freshness migration; uses only existing columns
-// so the application also works during a rolling database deployment.
-const UPCOMING_FILTER =
-  "and(date_precision.eq.instant,starts_at.gte.now),and(date_precision.eq.day,starts_on.gte.today),and(date_precision.in.(month,quarter,year,decade),period_end.gte.today)";
 /** Supabase caps a single response at 1000 rows; larger reads page with `.range()`. */
 const PAGE_ROWS = 1000;
 const SITEMAP_MAX_URLS = 50_000;
@@ -1036,18 +1101,18 @@ async function fetchLinkedOccurrences(
   slug: string,
   limit: number,
 ): Promise<CountdownEvent[]> {
-  return (
+  return fromCardRows(
     unwrap(
       await anonClient()
         .from("events_public")
-        .select("*")
+        .select(CARD_COLUMNS)
         .eq("series_slug", slug)
         .not("status", "in", "(done,cancelled,retired)")
-        .or(UPCOMING_FILTER)
+        .gt("upcoming_until", "now")
         .order("starts_on", { ascending: true })
         .limit(limit),
-    ) ?? []
-  ).map(rowToEvent);
+    ),
+  );
 }
 
 /** Variants can outnumber canonical rows 3:1 (Labour Day), so over-fetch before filtering. */
@@ -1075,7 +1140,7 @@ async function fetchSeries(slug: string): Promise<Series | null> {
 
 function cachedSeries(slug: string) {
   return cached(() => fetchSeries(slug), ["catalog", "series", slug], {
-    tags: [TAG_EVENTS, `series:${slug}`],
+    tags: [seriesTag(slug), TAG_CATALOG_LISTS],
     revalidate: REVALIDATE_EVENTS,
   });
 }
@@ -1112,7 +1177,7 @@ const resolveSeriesAliasCached = cached(
     return row?.series_slug ?? null;
   },
   ["catalog", "series-alias"],
-  { tags: [TAG_EVENTS], revalidate: REVALIDATE_EVENTS },
+  { tags: [TAG_CATALOG_LISTS], revalidate: REVALIDATE_EVENTS },
 );
 
 /** Series alias (`series_aliases.alias`) -> canonical series slug, or null. */
@@ -1167,7 +1232,7 @@ const seriesOccurrencesCached = cached(
     };
   },
   ["catalog", "series-occurrences"],
-  { tags: [TAG_EVENTS], revalidate: REVALIDATE_EVENTS },
+  { tags: [TAG_CATALOG_LISTS], revalidate: REVALIDATE_LISTS },
 );
 
 /**
@@ -1202,57 +1267,42 @@ export async function seriesOccurrences(
 const NEXT_INDEX_HORIZON_DAYS = 800;
 const NEXT_INDEX_MAX_ROWS = 20_000;
 
-type NextIndexRow = Pick<
-  Database["public"]["Views"]["events_public"]["Row"],
-  | "slug"
-  | "series_slug"
-  | "date"
-  | "all_day"
-  | "date_precision"
-  | "days_until"
-  | "regions"
-  | "source"
-  | "starts_on"
-  | "timezone"
-  | "status"
->;
-
-const NEXT_INDEX_COLUMNS =
-  "slug, series_slug, date, all_day, date_precision, days_until, regions, source, starts_on, timezone, status";
+type NextIndexRow = {
+  slug: string | null;
+  series_slug: string | null;
+  date: string | null;
+  all_day: boolean | null;
+  date_precision: string | null;
+  days_until: number | null;
+  regions: string[] | null;
+  source: string | null;
+  starts_on: string | null;
+  timezone: string | null;
+  status: string | null;
+};
 
 /**
  * Soonest linked rows of every series inside the horizon, keyed by series slug, soonest first.
- * One paged read shared by every series list so their `next` can pass the canonical guard
- * without a query per series.
+ * One RPC replaces the previous 20-page HTTP walk over `events_public`.
  */
 const seriesNextIndexCached = cached(
   async (): Promise<Record<string, NextIndexRow[]>> => {
+    const rows =
+      unwrap(
+        await anonClient().rpc("series_occurrence_index", {
+          p_horizon_days: NEXT_INDEX_HORIZON_DAYS,
+          p_limit: NEXT_INDEX_MAX_ROWS,
+        }),
+      ) ?? [];
     const index: Record<string, NextIndexRow[]> = {};
-    for (let offset = 0; offset < NEXT_INDEX_MAX_ROWS; offset += PAGE_ROWS) {
-      const rows =
-        unwrap(
-          await anonClient()
-            .from("events_public")
-            .select(NEXT_INDEX_COLUMNS)
-            .not("series_slug", "is", null)
-            .not("status", "in", "(done,cancelled,retired)")
-            .or(UPCOMING_FILTER)
-            .gte("days_until", 0)
-            .lte("days_until", NEXT_INDEX_HORIZON_DAYS)
-            .order("starts_on", { ascending: true })
-            .order("slug", { ascending: true })
-            .range(offset, offset + PAGE_ROWS - 1),
-        ) ?? [];
-      for (const r of rows) {
-        if (!r.series_slug || !r.slug) continue;
-        (index[r.series_slug] ??= []).push(r);
-      }
-      if (rows.length < PAGE_ROWS) break;
+    for (const r of rows) {
+      if (!r.series_slug || !r.slug) continue;
+      (index[r.series_slug] ??= []).push(r);
     }
     return index;
   },
   ["catalog", "series-next-index"],
-  { tags: [TAG_EVENTS], revalidate: REVALIDATE_EVENTS },
+  { tags: [TAG_CATALOG_LISTS], revalidate: REVALIDATE_LISTS },
 );
 
 function indexRowToOccurrence(r: NextIndexRow): OccurrenceLike & NextLike {
@@ -1298,7 +1348,7 @@ const topSeriesCached = cached(
       ).map(seriesRowToSeries),
     ),
   ["catalog", "top-series"],
-  { tags: [TAG_EVENTS], revalidate: REVALIDATE_EVENTS },
+  { tags: [TAG_CATALOG_LISTS], revalidate: REVALIDATE_LISTS },
 );
 
 /** Most popular series that still have a future occurrence. */
@@ -1327,7 +1377,7 @@ const allSeriesCached = cached(
       ).map(seriesRowToSeries),
     ),
   ["catalog", "all-series"],
-  { tags: [TAG_EVENTS], revalidate: REVALIDATE_EVENTS },
+  { tags: [TAG_CATALOG_LISTS], revalidate: REVALIDATE_LISTS },
 );
 
 /** Every published series with a next occurrence (bounded by the 1000-row response cap). */
@@ -1352,7 +1402,7 @@ const seriesInCategoryCached = cached(
       ).map(seriesRowToSeries),
     ),
   ["catalog", "series-in-category"],
-  { tags: [TAG_EVENTS], revalidate: REVALIDATE_EVENTS },
+  { tags: [TAG_CATALOG_LISTS], revalidate: REVALIDATE_LISTS },
 );
 
 export async function seriesInCategory(
@@ -1377,31 +1427,23 @@ const eventsWithinDaysCached = cached(
     maxDays: number,
     sort: "soonest" | "popular",
     limit: number,
-  ) => {
-    let query = anonClient()
-      .from("events_public")
-      .select("*")
-      .not("status", "in", "(done,cancelled,retired)")
-      .or(UPCOMING_FILTER)
-      .gte("days_until", minDays)
-      .lte("days_until", maxDays)
-      .in("date_precision", ["instant", "day"]);
-    if (category) query = query.eq("category", category);
-    query =
-      sort === "popular"
-        ? query
-            .order("popularity", { ascending: false })
-            .order("starts_on", { ascending: true })
-        : query
-            .order("starts_on", { ascending: true })
-            .order("popularity", { ascending: false });
-    return (unwrap(await query.limit(limit)) ?? []).map(rowToEvent);
-  },
+  ) =>
+    (
+      unwrap(
+        await anonClient().rpc("events_within_days", {
+          p_min_days: minDays,
+          p_max_days: maxDays,
+          p_category: category,
+          p_sort: sort,
+          p_limit: limit,
+        }),
+      ) ?? []
+    ).map(rowToEvent),
   ["catalog", "events-within-days"],
-  { tags: [TAG_EVENTS], revalidate: REVALIDATE_EVENTS },
+  { tags: [TAG_CATALOG_LISTS], revalidate: REVALIDATE_LISTS },
 );
 
-/** Dated (day/instant precision) events whose SQL `days_until` lies in `[minDays, maxDays]`. */
+/** Dated (day/instant precision) events whose `starts_on` lies in `[today+min, today+max]`. */
 export async function eventsWithinDays(options: {
   category?: Category;
   minDays?: number;
@@ -1445,24 +1487,24 @@ function monthBounds(
 const eventsInMonthCached = cached(
   async (year: number, month: number, limit: number) => {
     const { from, to } = monthBounds(year, month);
-    return (
+    return fromCardRows(
       unwrap(
         await anonClient()
           .from("events_public")
-          .select("*")
+          .select(CARD_COLUMNS)
           .gte("starts_on", from)
           .lt("starts_on", to)
           .gte("starts_on", SQL_TODAY)
           .not("status", "in", "(done,cancelled,retired)")
-          .or(UPCOMING_FILTER)
+          .gt("upcoming_until", "now")
           .order("starts_on", { ascending: true })
           .order("popularity", { ascending: false })
           .limit(limit),
-      ) ?? []
-    ).map(rowToEvent);
+      ),
+    );
   },
   ["catalog", "events-in-month"],
-  { tags: [TAG_EVENTS], revalidate: REVALIDATE_EVENTS },
+  { tags: [TAG_CATALOG_LISTS], revalidate: REVALIDATE_LISTS },
 );
 
 /** Upcoming events starting in a calendar month (past days of the current month are excluded). */
@@ -1487,21 +1529,21 @@ export async function eventsInMonth(
 
 const countryEventsCached = cached(
   async (code: string, limit: number) =>
-    (
+    fromCardRows(
       unwrap(
         await anonClient()
           .from("events_public")
-          .select("*")
+          .select(CARD_COLUMNS)
           .contains("regions", [code])
           .not("status", "in", "(done,cancelled,retired)")
-          .or(UPCOMING_FILTER)
+          .gt("upcoming_until", "now")
           .order("starts_on", { ascending: true })
           .order("popularity", { ascending: false })
           .limit(limit),
-      ) ?? []
-    ).map(rowToEvent),
+      ),
+    ),
   ["catalog", "country-events"],
-  { tags: [TAG_EVENTS], revalidate: REVALIDATE_EVENTS },
+  { tags: [TAG_CATALOG_LISTS], revalidate: REVALIDATE_LISTS },
 );
 
 /** Upcoming events tagged with one ISO-3166 alpha-2 region (uppercase), soonest first. */
@@ -1520,21 +1562,21 @@ export async function countryEvents(
 
 const worldwideUpcomingCached = cached(
   async (limit: number) =>
-    (
+    fromCardRows(
       unwrap(
         await anonClient()
           .from("events_public")
-          .select("*")
+          .select(CARD_COLUMNS)
           .contains("regions", ["GLOBAL"])
           .not("status", "in", "(done,cancelled,retired)")
-          .or(UPCOMING_FILTER)
+          .gt("upcoming_until", "now")
           .order("sort_at", { ascending: true })
           .order("popularity", { ascending: false })
           .limit(limit),
-      ) ?? []
-    ).map(rowToEvent),
+      ),
+    ),
   ["catalog", "worldwide-upcoming"],
-  { tags: [TAG_EVENTS], revalidate: REVALIDATE_EVENTS },
+  { tags: [TAG_CATALOG_LISTS], revalidate: REVALIDATE_LISTS },
 );
 
 export async function worldwideUpcoming(limit = 12): Promise<CountdownEvent[]> {
@@ -1660,7 +1702,7 @@ const sitemapSeriesCached = cached(
     return out.slice(0, SITEMAP_MAX_URLS);
   },
   ["catalog", "sitemap-series"],
-  { tags: [TAG_EVENTS], revalidate: REVALIDATE_EVENTS },
+  { tags: [TAG_CATALOG_LISTS], revalidate: REVALIDATE_LISTS },
 );
 
 export async function sitemapSeries(): Promise<SitemapEntry[]> {
@@ -1674,7 +1716,7 @@ async function countIndexable(from: string, to: string): Promise<number> {
     .eq("indexable", true)
     .is("series_slug", null)
     .not("status", "in", "(done,cancelled,retired)")
-    .or(UPCOMING_FILTER)
+    .gt("upcoming_until", "now")
     .gte("starts_on", from)
     .lt("starts_on", to);
   if (res.error) throw new Error(res.error.message);
@@ -1690,7 +1732,7 @@ const indexableYearsCached = cached(
         .eq("indexable", true)
         .is("series_slug", null)
         .not("status", "in", "(done,cancelled,retired)")
-        .or(UPCOMING_FILTER);
+        .gt("upcoming_until", "now");
     const [first, last] = await Promise.all([
       base().order("starts_on", { ascending: true }).limit(1).maybeSingle(),
       base().order("starts_on", { ascending: false }).limit(1).maybeSingle(),
@@ -1708,7 +1750,7 @@ const indexableYearsCached = cached(
     return years;
   },
   ["catalog", "indexable-years"],
-  { tags: [TAG_EVENTS], revalidate: REVALIDATE_EVENTS },
+  { tags: [TAG_CATALOG_LISTS], revalidate: REVALIDATE_LISTS },
 );
 
 /**
@@ -1736,7 +1778,7 @@ const indexableEventsCached = cached(
             .eq("indexable", true)
             .is("series_slug", null)
             .not("status", "in", "(done,cancelled,retired)")
-            .or(UPCOMING_FILTER)
+            .gt("upcoming_until", "now")
             .gte("starts_on", from)
             .lt("starts_on", to)
             .order("starts_on", { ascending: true })
@@ -1752,7 +1794,7 @@ const indexableEventsCached = cached(
     return out.slice(0, SITEMAP_MAX_URLS);
   },
   ["catalog", "indexable-events"],
-  { tags: [TAG_EVENTS], revalidate: REVALIDATE_EVENTS },
+  { tags: [TAG_CATALOG_LISTS], revalidate: REVALIDATE_LISTS },
 );
 
 /** Indexable upcoming event slugs starting in `year` (`half` 1 = Jan–Jun, 2 = Jul–Dec, 0 = whole year). */

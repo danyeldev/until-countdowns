@@ -22,12 +22,13 @@ import {
   todayUtc,
   yearMonthOf, localizedMetadata } from "@/lib/seo";
 import type { CountdownEvent } from "@/lib/types";
+import { activateLocale } from "@/i18n/request-locale";
 
 export const revalidate = 3600;
 
 const PRERENDER_MONTHS = 24;
 
-type Props = { params: Promise<{ year: string; month: string }> };
+type Props = { params: Promise<{ year: string; month: string; locale: string }> };
 
 function parseMonth(params: {
   year: string;
@@ -73,7 +74,10 @@ export function generateStaticParams() {
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const ym = parseMonth(await params);
+  const raw = await params;
+  activateLocale(raw.locale);
+  const locale = raw.locale;
+  const ym = parseMonth(raw);
   if (!ym) return { title: "Calendar", robots: { index: false, follow: true } };
   if (isPastMonth(ym.year, ym.month))
     return {
@@ -85,11 +89,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     description: `Everything in the catalog for ${monthLabel(ym.year, ym.month)}: holidays, launches, finals, premieres and anniversaries, day by day, with live countdowns.`,
     canonical: `/calendar/${ym.year}/${pad2(ym.month)}`,
     ogPath: `/og/month/${ym.year}/${pad2(ym.month)}`,
+    locale,
   });
 }
 
 export default async function CalendarMonthPage({ params }: Props) {
   const raw = await params;
+  activateLocale(raw.locale);
   const ym = parseMonth(raw);
   if (!ym) notFound();
   if (raw.month !== pad2(ym.month))

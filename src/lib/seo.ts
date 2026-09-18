@@ -312,11 +312,11 @@ export type BuildMetadataInput = {
   locale?: string;
 };
 
-/** Metadata helper that stamps the active request locale onto canonicals and hreflang. */
-export async function localizedMetadata(input: Omit<BuildMetadataInput, "locale"> & { locale?: string }): Promise<Metadata> {
-  const { getLocale } = await import("next-intl/server");
-  const locale = input.locale ?? (await getLocale());
-  return buildMetadata({ ...input, locale });
+/** Metadata helper that stamps the given locale onto canonicals and hreflang. Never calls next-intl. */
+export async function localizedMetadata(
+  input: Omit<BuildMetadataInput, "locale"> & { locale: string },
+): Promise<Metadata> {
+  return buildMetadata(input);
 }
 
 export function languageAlternates(path: string): Record<string, string> {

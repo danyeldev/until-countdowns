@@ -1,16 +1,4 @@
-import {
-  Geist,
-  Geist_Mono,
-  Noto_Sans,
-  Noto_Sans_Arabic,
-  Noto_Sans_Devanagari,
-  Noto_Sans_Hebrew,
-  Noto_Sans_JP,
-  Noto_Sans_KR,
-  Noto_Sans_SC,
-  Noto_Sans_TC,
-  Noto_Sans_Thai,
-} from "next/font/google";
+import { Geist, Geist_Mono, Noto_Sans } from "next/font/google";
 import { localeFont } from "./locales";
 
 const sans = Geist({
@@ -30,76 +18,22 @@ const notoSans = Noto_Sans({
   preload: false,
 });
 
-const notoArabic = Noto_Sans_Arabic({
-  variable: "--font-noto-ar",
-  subsets: ["arabic"],
-  weight: ["400", "500", "600"],
-  preload: false,
-});
-
-const notoHebrew = Noto_Sans_Hebrew({
-  variable: "--font-noto-he",
-  subsets: ["hebrew"],
-  weight: ["400", "500", "600"],
-  preload: false,
-});
-
-const notoDevanagari = Noto_Sans_Devanagari({
-  variable: "--font-noto-hi",
-  subsets: ["devanagari"],
-  weight: ["400", "500", "600"],
-  preload: false,
-});
-
-const notoThai = Noto_Sans_Thai({
-  variable: "--font-noto-th",
-  subsets: ["thai"],
-  weight: ["400", "500", "600"],
-  preload: false,
-});
-
-const notoJp = Noto_Sans_JP({
-  variable: "--font-noto-jp",
-  subsets: ["latin"],
-  weight: ["400", "500", "600"],
-  preload: false,
-});
-
-const notoKr = Noto_Sans_KR({
-  variable: "--font-noto-kr",
-  subsets: ["latin"],
-  weight: ["400", "500", "600"],
-  preload: false,
-});
-
-const notoSc = Noto_Sans_SC({
-  variable: "--font-noto-sc",
-  subsets: ["latin"],
-  weight: ["400", "500", "600"],
-  preload: false,
-});
-
-const notoTc = Noto_Sans_TC({
-  variable: "--font-noto-tc",
-  subsets: ["latin"],
-  weight: ["400", "500", "600"],
-  preload: false,
-});
+const SYSTEM_FONT_CLASS: Record<string, string> = {
+  arabic: "font-ar",
+  hebrew: "font-he",
+  devanagari: "font-hi",
+  thai: "font-th",
+  jp: "font-jp",
+  kr: "font-kr",
+  sc: "font-sc",
+  tc: "font-tc",
+};
 
 export function localeFontClass(locale: string): string {
-  const extras = {
-    latin: "",
-    cyrillic: notoSans.variable,
-    greek: notoSans.variable,
-    vietnamese: notoSans.variable,
-    arabic: notoArabic.variable,
-    hebrew: notoHebrew.variable,
-    devanagari: notoDevanagari.variable,
-    thai: notoThai.variable,
-    jp: notoJp.variable,
-    kr: notoKr.variable,
-    sc: notoSc.variable,
-    tc: notoTc.variable,
-  } as const;
-  return [sans.variable, mono.variable, extras[localeFont(locale)]].filter(Boolean).join(" ");
+  const family = localeFont(locale);
+  const extras =
+    family === "cyrillic" || family === "greek" || family === "vietnamese"
+      ? notoSans.variable
+      : (SYSTEM_FONT_CLASS[family] ?? "");
+  return [sans.variable, mono.variable, extras].filter(Boolean).join(" ");
 }

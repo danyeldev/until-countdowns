@@ -85,9 +85,10 @@ export function FallbackCard({
       style={{ aspectRatio: variant === "hero" ? "2 / 1" : "1.85" }}
     >
       <Image
-        src={`/art/until-${artwork}.png`}
+        src={`/art/until-${artwork}.webp`}
         alt=""
         fill
+        unoptimized
         sizes={variant === "hero" ? "100vw" : "(max-width: 640px) 100vw, 400px"}
         className="object-cover"
         style={{

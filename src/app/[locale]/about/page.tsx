@@ -4,11 +4,13 @@ import { catalogMeta } from "@/lib/catalog";
 import { CATEGORY_LABELS, sourceLabel } from "@/lib/labels";
 import { localizedMetadata } from "@/lib/seo";
 import type { Category } from "@/lib/types";
+import { activateLocale } from "@/i18n/request-locale";
 
 export const revalidate = 3600;
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
+  activateLocale(locale);
   return localizedMetadata({
     title: "About",
     description: "How Until collects, tags, and classifies thousands of future dates.",
@@ -18,7 +20,9 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
   });
 }
 
-export default async function AboutPage() {
+export default async function AboutPage({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale } = await params;
+  activateLocale(locale);
   const meta = await catalogMeta();
   const cats = Object.entries(meta.stats.byCat).sort((a, b) => b[1] - a[1]);
   const srcs = Object.entries(meta.stats.bySrc).sort((a, b) => b[1] - a[1]);

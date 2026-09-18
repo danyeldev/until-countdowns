@@ -2,18 +2,24 @@ import { Link } from "@/i18n/navigation";
 import { CollectionEditor } from "@/components/CollectionEditor";
 import { requireAuth } from "@/lib/auth/server";
 import { localizedMetadata } from "@/lib/seo";
+import { activateLocale } from "@/i18n/request-locale";
 
-export async function generateMetadata() {
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale } = await params;
+  activateLocale(locale);
   return localizedMetadata({
   title: "New collection",
   description: "Start a public collection of countdowns.",
   canonical: "/collections/new",
   ogPath: "/og/default",
   noindex: true,
-});
+    locale,
+  });
 }
 
-export default async function NewCollectionPage() {
+export default async function NewCollectionPage({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale } = await params;
+  activateLocale(locale);
   await requireAuth("/collections/new");
   return (
     <div>

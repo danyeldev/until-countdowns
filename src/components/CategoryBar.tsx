@@ -25,7 +25,7 @@ export function CategoryBar({
     const p = new URLSearchParams(base);
     if (category) p.set("category", category);
     const s = p.toString();
-    return s ? `/?${s}` : "/";
+    return s ? `/search?${s}` : "/search";
   }
 
   return (

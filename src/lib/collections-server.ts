@@ -1,6 +1,8 @@
 import "server-only";
-import { publicSupabaseEnv } from "@/lib/auth/env";
+import { cached, TAG_CATALOG_LISTS } from "@/lib/cache";
 import { createAuthServerClient, getAuthClaims } from "@/lib/auth/server";
+import { publicSupabaseEnv } from "@/lib/auth/env";
+import { anonClient } from "@/lib/db/client";
 import {
   getOwnCollection,
   getPublicCollection,
@@ -10,10 +12,28 @@ import {
 } from "@/lib/collections-client";
 import type { CollectionDetail, CollectionSummary } from "@/lib/collections";
 
+const listPublicCollectionsCached = cached(
+  async (limit: number) => listPublicCollectionsClient(anonClient(), limit),
+  ["collections", "public"],
+  { tags: [TAG_CATALOG_LISTS], revalidate: 60 },
+);
+
+const listPublicCollectionsForHandleCached = cached(
+  async (handle: string) => listPublicCollectionsForHandle(anonClient(), handle),
+  ["collections", "public-handle"],
+  { tags: [TAG_CATALOG_LISTS], revalidate: 60 },
+);
+
+const getPublicCollectionCached = cached(
+  async (handle: string, slug: string) => getPublicCollection(anonClient(), handle, slug),
+  ["collections", "public-detail"],
+  { tags: [TAG_CATALOG_LISTS], revalidate: 60 },
+);
+
 export async function listPublicCollections(limit = 48): Promise<CollectionSummary[]> {
   if (!publicSupabaseEnv()) return [];
   try {
-    return await listPublicCollectionsClient(await createAuthServerClient(), limit);
+    return await listPublicCollectionsCached(limit);
   } catch {
     return [];
   }
@@ -26,11 +46,13 @@ export async function listOwnCollectionsServer(): Promise<CollectionSummary[]> {
 }
 
 export async function listPublicCollectionsServer(handle: string): Promise<CollectionSummary[]> {
-  return listPublicCollectionsForHandle(await createAuthServerClient(), handle);
+  if (!publicSupabaseEnv()) return [];
+  return listPublicCollectionsForHandleCached(handle);
 }
 
 export async function getPublicCollectionServer(handle: string, slug: string): Promise<CollectionDetail | null> {
-  return getPublicCollection(await createAuthServerClient(), handle, slug);
+  if (!publicSupabaseEnv()) return null;
+  return getPublicCollectionCached(handle, slug);
 }
 
 export async function getOwnCollectionServer(id: string): Promise<CollectionDetail | null> {

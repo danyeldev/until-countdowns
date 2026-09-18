@@ -64,11 +64,12 @@ export function DetailHero({
         ) : (
           <div className="absolute inset-0 opacity-55">
             <Image
-              src="/art/until-sculpture.png"
+              src="/art/until-sculpture.webp"
               alt=""
               fill
               sizes="(max-width: 1024px) 100vw, 1100px"
               preload
+              unoptimized
               className="object-cover object-right"
             />
           </div>

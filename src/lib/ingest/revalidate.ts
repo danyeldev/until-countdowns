@@ -8,8 +8,8 @@ import type { IngestLogger } from "./types";
 export async function revalidateCatalog(log: IngestLogger): Promise<"ok" | "skipped"> {
   try {
     const cache = await import("@/lib/cache");
-    cache.invalidateTags([cache.TAG_EVENTS, cache.TAG_STATS]);
-    log.info("revalidate: events, stats");
+    cache.invalidateTags([cache.TAG_CATALOG_LISTS, cache.TAG_STATS]);
+    log.info("revalidate: catalog-lists, stats");
     return "ok";
   } catch {
     log.info("revalidate: skipped (not in Next runtime)");

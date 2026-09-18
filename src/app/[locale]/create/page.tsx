@@ -3,18 +3,24 @@ import { MineList } from "@/components/MineList";
 import { requireAuth } from "@/lib/auth/server";
 import { todayUtc, localizedMetadata } from "@/lib/seo";
 import { shiftDay } from "@/lib/time";
+import { activateLocale } from "@/i18n/request-locale";
 
-export async function generateMetadata() {
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale } = await params;
+  activateLocale(locale);
   return localizedMetadata({
   title: "Create a free countdown",
   description:
     "Make a personal countdown for a birthday, trip, launch or any date. Sign in to save it, share a link and add it to your calendar.",
   canonical: "/create",
   ogPath: "/og/default",
-});
+    locale,
+  });
 }
 
-export default async function CreatePage() {
+export default async function CreatePage({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale } = await params;
+  activateLocale(locale);
   await requireAuth("/create");
   return (
     <div>

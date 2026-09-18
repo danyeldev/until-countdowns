@@ -71,7 +71,7 @@ try {
   // before any project migration or fixture has run.
   docker(psqlFor("postgres"), "create database until_verify_standalone template until_verify;");
   const scenarios = [
-    { name: "full chain", database: "until_verify", migrations, checks: ["upcoming_catalog.sql", "search_next_occurrences.sql"] },
+    { name: "full chain", database: "until_verify", migrations, checks: ["upcoming_catalog.sql", "search_next_occurrences.sql", "catalog_rpc_plans.sql"] },
     { name: "standalone search", database: "until_verify_standalone",
       migrations: migrations.filter((file) => /^\d{4}_/.test(file) || file.endsWith("_search_next_occurrences.sql")),
       checks: ["search_next_occurrences.sql"] },

@@ -8,11 +8,19 @@ import { revalidateTag, unstable_cache } from "next/cache";
  */
 export const TAG_EVENTS = "events";
 export const TAG_STATS = "stats";
+/** Hub lists (home, category, country, series rails). Time-based revalidate; ingest invalidates this at most every 15 min. */
+export const TAG_CATALOG_LISTS = "catalog-lists";
+/** Live attention totals. Short TTL; not wiped by enrich. */
+export const TAG_HYPE = "hype";
 
 const MAX_TAG_LENGTH = 256;
 
 export function eventTag(slug: string): string {
   return `event:${slug}`.slice(0, MAX_TAG_LENGTH);
+}
+
+export function seriesTag(slug: string): string {
+  return `series:${slug}`.slice(0, MAX_TAG_LENGTH);
 }
 
 export type CacheOptions = {

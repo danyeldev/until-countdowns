@@ -55,8 +55,17 @@ function getServerSnapshot(): null {
   return null;
 }
 
-/** Current epoch milliseconds on the client, `null` during SSR and hydration. */
-export function useNow(): number | null {
-  const value = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
-  return value === 0 ? null : value;
+function subscribeDisabled(): () => void {
+  return () => undefined;
+}
+
+/** Current epoch milliseconds on the client, `null` during SSR, hydration, or when disabled. */
+export function useNow(enabled = true): number | null {
+  const value = useSyncExternalStore(
+    enabled ? subscribe : subscribeDisabled,
+    getSnapshot,
+    getServerSnapshot,
+  );
+  if (!enabled || value === 0) return null;
+  return value;
 }

@@ -2,18 +2,24 @@ import { Link } from "@/i18n/navigation";
 import { SavedList } from "@/components/SavedList";
 import { requireAuth } from "@/lib/auth/server";
 import { localizedMetadata } from "@/lib/seo";
+import { activateLocale } from "@/i18n/request-locale";
 
-export async function generateMetadata() {
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale } = await params;
+  activateLocale(locale);
   return localizedMetadata({
   title: "Your saved countdowns",
   description: "Keep the dates you are looking forward to in one place. Your saved catalog dates and personal countdowns, stored on your account.",
   canonical: "/saved",
   ogPath: "/og/default",
   noindex: true,
-});
+    locale,
+  });
 }
 
-export default async function SavedPage() {
+export default async function SavedPage({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale } = await params;
+  activateLocale(locale);
   await requireAuth("/saved");
   return (
     <div>

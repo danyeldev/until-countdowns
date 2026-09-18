@@ -13,7 +13,6 @@ import { eventInstant, formatApproximate, formatCompactDate, isCoarsePrecision }
 import { collectionEventPath, collectionPhase, type CollectionPhase } from "@/lib/personal-collection";
 import type { CountdownEvent } from "@/lib/types";
 import { useCollection } from "@/components/CollectionProvider";
-import { useNow } from "@/lib/use-now";
 
 type CollectionRow = { id: string; event?: CountdownEvent; personal: boolean };
 const PHASES: { value: CollectionPhase; title: string; description: string }[] = [
@@ -41,7 +40,7 @@ const CollectionCard = memo(function CollectionCard({ row, loading, fetchError, 
         <p className="text-xs font-medium text-amber">{personal ? "Created by you" : CATEGORY_LABELS[event.category]}</p>
         <h3 className="mt-3 break-words text-xl font-semibold leading-snug tracking-tight text-paper"><Link href={href} className="hover:text-amber">{event.title}</Link></h3>
         <p className="mt-2 text-sm text-muted">{isCoarsePrecision(event.datePrecision) ? formatApproximate(event.date, event.datePrecision) : formatCompactDate(event.date, event.timezone)}</p>
-        <div className="my-5 border-y border-line py-5"><Countdown date={event.date} allDay={event.allDay} initialDays={event.daysUntil} precision={event.datePrecision} status={event.status} /></div>
+        <div className="my-5 border-y border-line py-5"><Countdown date={event.date} allDay={event.allDay} initialDays={event.daysUntil} precision={event.datePrecision} status={event.status} live={false} /></div>
         <Link href={href} className="mt-auto flex min-h-11 items-center justify-between text-sm font-medium text-paper-dim hover:text-amber">Open countdown <span aria-hidden="true">↗</span></Link>
       </div>
     </article>
@@ -50,7 +49,7 @@ const CollectionCard = memo(function CollectionCard({ row, loading, fetchError, 
 
 export function SavedList() {
   const { ready, mine, savedIds, savedEvents: snapshots, removeMine, cacheSavedEvents } = useCollection();
-  const now = useNow();
+  const [minute, setMinute] = useState(() => Math.floor(Date.now() / 60_000));
   const [fresh, setFresh] = useState<CountdownEvent[]>([]);
   const [resolvedKey, setResolvedKey] = useState("");
   const [fetchError, setFetchError] = useState("");
@@ -59,6 +58,11 @@ export function SavedList() {
   const [query, setQuery] = useState("");
   const [retry, setRetry] = useState(0);
   const requestKey = savedIds.filter(isCatalogEventId).join(",");
+
+  useEffect(() => {
+    const id = window.setInterval(() => setMinute(Math.floor(Date.now() / 60_000)), 60_000);
+    return () => window.clearInterval(id);
+  }, []);
 
   useEffect(() => {
     if (!requestKey) return;
@@ -96,7 +100,6 @@ export function SavedList() {
   const savedOnly = useMemo(() => savedIds.filter((id) => !personalIds.has(id)), [savedIds, personalIds]);
   const count = mine.length + savedOnly.length;
   const loading = Boolean(requestKey && resolvedKey !== requestKey);
-  const minute = now === null ? 0 : Math.floor(now / 60_000);
   const grouped = useMemo(() => {
     const result: Record<CollectionPhase, CollectionRow[]> = { upcoming: [], changed: [], past: [], unavailable: [] };
     const rows: CollectionRow[] = [
@@ -124,7 +127,7 @@ export function SavedList() {
       .catch((error) => setActionError(error instanceof Error ? error.message : "Could not remove this countdown."));
   }, [removeMine]);
 
-  if (!ready || now === null) return <div role="status" className="panel p-12 text-center text-sm text-muted">Opening your collection…</div>;
+  if (!ready) return <div role="status" className="panel p-12 text-center text-sm text-muted">Opening your collection…</div>;
 
   return (
     <div>

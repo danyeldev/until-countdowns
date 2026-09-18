@@ -31,12 +31,25 @@ export async function updateSession(request: NextRequest, response = NextRespons
     },
   });
 
-  // Must run immediately so a refresh can write cookies onto this response.
-  // getUser() also drops a cookie whose Auth user no longer exists (JWT can
-  // still verify after a delete until it expires).
-  const { error } = await supabase.auth.getUser();
+  const rsc =
+    request.headers.get("rsc") === "1" ||
+    request.headers.get("Next-Router-Prefetch") === "1" ||
+    request.nextUrl.searchParams.has("_rsc");
+  if (rsc) return nextResponse;
+
+  const { data, error } = await supabase.auth.getClaims();
   if (isStaleAuthSession(error)) {
     await supabase.auth.signOut({ scope: "local" });
+    return nextResponse;
+  }
+
+  const exp = typeof data?.claims?.exp === "number" ? data.claims.exp : 0;
+  const nearExpiry = exp > 0 && exp * 1000 - Date.now() < 120_000;
+  if (nearExpiry) {
+    const { error: userError } = await supabase.auth.getUser();
+    if (isStaleAuthSession(userError)) {
+      await supabase.auth.signOut({ scope: "local" });
+    }
   }
 
   return nextResponse;

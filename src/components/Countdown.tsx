@@ -40,6 +40,7 @@ export function Countdown({
   initialDays,
   precision,
   status,
+  live = true,
 }: {
   date: string;
   allDay?: boolean;
@@ -48,8 +49,9 @@ export function Countdown({
   initialDays?: number | null;
   precision?: DatePrecision | null;
   status?: EventStatus;
+  live?: boolean;
 }) {
-  const now = useNow();
+  const now = useNow(live);
   const huge = size === "hero";
   const locale = useLocale();
   const t = useTranslations("countdown");
@@ -86,29 +88,29 @@ export function Countdown({
   }
 
   const dateOnly = allDay && !date.includes("T");
-  const live = now !== null ? remainingUntil(date, allDay, now) : null;
+  const clock = now !== null ? remainingUntil(date, allDay, now) : null;
 
   // An all-day event on its own day: the clock has reached midnight but the day is not over.
   // Server-side that is SQL `days_until === 0`; client-side, the local date equals the event date.
   const today =
     dateOnly &&
-    (live
-      ? live.past && localDateString(now as number) === date.slice(0, 10)
+    (clock
+      ? clock.past && localDateString(now as number) === date.slice(0, 10)
       : initialDays === 0);
 
   if (today) {
     return (
       <p
         className={`font-medium tracking-tight text-amber ${huge ? "text-4xl sm:text-5xl" : "text-xl"}`}
-        data-live={live ? "true" : "false"}
+        data-live={clock ? "true" : "false"}
       >
         {t("today")}
       </p>
     );
   }
 
-  const past = live
-    ? live.past
+  const past = clock
+    ? clock.past
     : typeof initialDays === "number" && initialDays < 0;
 
   if (past) {
@@ -121,17 +123,17 @@ export function Countdown({
     );
   }
 
-  const days = live ? live.days : initialDayFigure(initialDays, allDay);
+  const days = clock ? clock.days : initialDayFigure(initialDays, allDay);
   const daysText = days === null ? PLACEHOLDER : pad(days);
-  const hours = live ? pad(live.hours) : PLACEHOLDER;
-  const minutes = live ? pad(live.minutes) : PLACEHOLDER;
-  const seconds = live ? pad(live.seconds) : PLACEHOLDER;
+  const hours = clock ? pad(clock.hours) : PLACEHOLDER;
+  const minutes = clock ? pad(clock.minutes) : PLACEHOLDER;
+  const seconds = clock ? pad(clock.seconds) : PLACEHOLDER;
 
   return (
     <div
       className={`timer ${huge ? "timer-hero" : "timer-card"}`}
       aria-live="off"
-      data-live={live ? "true" : "false"}
+      data-live={clock ? "true" : "false"}
     >
       <div className="timer-days">
         <span className="timer-major">{daysText}</span>

@@ -93,6 +93,7 @@ export function CatalogExplorer({
   showSearch = true,
   futureOccurrences = {},
   collections = [],
+  basePath = "/search",
 }: {
   events: CountdownEvent[];
   total: number;
@@ -105,6 +106,7 @@ export function CatalogExplorer({
   showSearch?: boolean;
   futureOccurrences?: Record<string, SeriesOccurrencePreview[]>;
   collections?: CollectionSearchHit[];
+  basePath?: string;
 }) {
   const pages = Math.max(1, Math.ceil(total / pageSize));
 
@@ -115,7 +117,7 @@ export function CatalogExplorer({
     if (sort && sort !== DEFAULT_EVENT_SORT) p.set("sort", sort);
     if (next > 1) p.set("page", String(next));
     const s = p.toString();
-    return s ? `/?${s}#explore` : "/#explore";
+    return s ? `${basePath}?${s}#explore` : `${basePath}#explore`;
   }
 
   function sortHref(next: string) {
@@ -123,7 +125,7 @@ export function CatalogExplorer({
     if (q) p.set("q", q);
     if (category && category !== "all") p.set("category", category);
     if (next !== DEFAULT_EVENT_SORT) p.set("sort", next);
-    return `/${p.size ? `?${p}` : ""}#explore`;
+    return `${basePath}${p.size ? `?${p}` : ""}#explore`;
   }
 
   return (

@@ -1,6 +1,7 @@
 import Image from "next/image";
 import { Link } from "@/i18n/navigation";
 import { collectionCover, collectionHref, collectionImageUrl, type CollectionSummary } from "@/lib/collections";
+import { CollectionManageLink } from "./CollectionManageLink";
 import { Icon } from "./Icon";
 
 export function CollectionCard({
@@ -55,7 +56,9 @@ export function CollectionCard({
             Edit collection
           </Link>
         </div>
-      ) : null}
+      ) : (
+        <CollectionManageLink ownerId={collection.owner.id} collectionId={collection.id} />
+      )}
     </article>
   );
 }

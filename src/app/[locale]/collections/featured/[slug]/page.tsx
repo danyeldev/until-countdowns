@@ -13,10 +13,11 @@ import { collectionPage } from "@/lib/jsonld";
 import { englishParams } from "@/i18n/params";
 import { prerenderLimit } from "@/lib/prerender";
 import { collectionListDescription, localizedMetadata } from "@/lib/seo";
+import { activateLocale } from "@/i18n/request-locale";
 
 export const revalidate = 3600;
 
-type Props = { params: Promise<{ slug: string }> };
+type Props = { params: Promise<{ slug: string; locale: string }> };
 
 export function generateStaticParams() {
   return englishParams(
@@ -27,7 +28,8 @@ export function generateStaticParams() {
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const { slug } = await params;
+  const { slug, locale } = await params;
+  activateLocale(locale);
   const collection = await loadFeaturedCollection(slug);
   if (!collection) return { title: "Collection", robots: { index: false, follow: true } };
   return localizedMetadata({
@@ -37,11 +39,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     ogPath: `/og/featured/${collection.meta.slug}`,
     ogAlt: collection.meta.title,
     noindex: collection.events.length === 0,
+    locale,
   });
 }
 
 export default async function FeaturedCollectionPage({ params }: Props) {
-  const { slug: rawSlug } = await params;
+  const { slug: rawSlug, locale } = await params;
+  activateLocale(locale);
   const slug = parseFeaturedCollectionSlug(rawSlug);
   if (!slug) notFound();
   if (rawSlug !== slug) permanentRedirect(featuredCollectionHref(slug));
