@@ -3,12 +3,15 @@
     "path": "/*",
     "resourceSizes": [
       { "resourceType": "stylesheet", "budget": 120 },
-      { "resourceType": "script", "budget": 750 },
-      { "resourceType": "total", "budget": 1600 }
+      { "resourceType": "script", "budget": 400 },
+      { "resourceType": "font", "budget": 200 },
+      { "resourceType": "total", "budget": 1200 }
     ],
     "timings": [
-      { "metric": "interactive", "budget": 4000 },
-      { "metric": "first-contentful-paint", "budget": 2000 }
+      { "metric": "first-contentful-paint", "budget": 2000 },
+      { "metric": "largest-contentful-paint", "budget": 4500 },
+      { "metric": "total-blocking-time", "budget": 1600 },
+      { "metric": "cumulative-layout-shift", "budget": 0.1 }
     ]
   }
 ]
