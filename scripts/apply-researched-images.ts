@@ -2,19 +2,21 @@
  * Store researched Commons files and attach them to the events they were chosen for.
  *
  *   npx tsx --conditions=react-server --env-file=.env.local scripts/apply-researched-images.ts \
- *     <subjects.json> <picks.jsonl> [<picks.jsonl> …] [--dry]
+ *     <subjects.json> <picks.jsonl> [<picks.jsonl> …] [--dry] [--done <keys.txt>]
  *
  * `subjects.json` is the research manifest: `[{ key, slugs: [...], series_slug, split_series }]`.
  * Each `picks.jsonl` line is `{ "key": "<subject key>", "file": "File:….jpg" | null, "note": "…" }`.
+ * `--done` names a file of already-handled keys: they are skipped, and every key handled in this
+ * run is appended, so the script can be re-run over growing pick files while research continues.
  *
  * Every file goes through the same gate as the automatic chain (`CommonsVerifier.verify` →
  * `storeLicensedImage`), so a pick that does not pass is reported and skipped, never stored.
  * Events that already have an image are left alone; a series inherits the file unless the subject
  * was split per country.
  */
-import { readFileSync } from "node:fs";
+import { appendFileSync, existsSync, readFileSync } from "node:fs";
 import { makeContext } from "@/lib/enrich/context";
-import { attachImageToEvent, attachImageToSeries, storeLicensedImage } from "@/lib/enrich/images/process";
+import { attachImageToSeries, storeLicensedImage } from "@/lib/enrich/images/process";
 import { CommonsVerifier } from "@/lib/enrich/images/commons";
 import { getDb } from "@/lib/ingest/db";
 
@@ -23,8 +25,17 @@ type Pick = { key: string; file: string | null; note?: string };
 
 const args = process.argv.slice(2);
 const dry = args.includes("--dry");
-const files = args.filter((a) => !a.startsWith("--"));
-if (files.length < 2) throw new Error("usage: apply-researched-images <subjects.json> <picks.jsonl>… [--dry]");
+const doneFlag = args.indexOf("--done");
+const donePath = doneFlag >= 0 ? args[doneFlag + 1] : null;
+const files = args.filter((a, i) => !a.startsWith("--") && i !== doneFlag + 1);
+if (files.length < 2) throw new Error("usage: apply-researched-images <subjects.json> <picks.jsonl>… [--dry] [--done keys.txt]");
+const done = new Set<string>(
+  donePath && existsSync(donePath) ? readFileSync(donePath, "utf8").split("\n").map((l) => l.trim()).filter(Boolean) : [],
+);
+function markDone(key: string): void {
+  if (!donePath || dry) return;
+  appendFileSync(donePath, `${key}\n`);
+}
 
 const subjects = new Map<string, Subject>();
 for (const s of JSON.parse(readFileSync(files[0], "utf8")) as Subject[]) subjects.set(s.key, s);
@@ -51,9 +62,12 @@ async function main(): Promise<void> {
   const seen = new Set<string>();
 
   for (const pick of picks) {
-    if (seen.has(pick.key)) continue;
+    if (seen.has(pick.key) || done.has(pick.key)) continue;
     seen.add(pick.key);
-    if (!pick.file) continue;
+    if (!pick.file) {
+      markDone(pick.key);
+      continue;
+    }
     stats.withFile++;
     const subject = subjects.get(pick.key);
     if (!subject) {
@@ -66,6 +80,7 @@ async function main(): Promise<void> {
       if (!verdict.ok) {
         stats.rejected++;
         console.log(`REJECT ${subject.subject} :: ${pick.file} :: ${verdict.reason}`);
+        markDone(pick.key);
         continue;
       }
       if (dry) {
@@ -76,17 +91,27 @@ async function main(): Promise<void> {
       if (stored.reused) stats.reused++;
       else stats.stored++;
 
-      const { data: events, error } = await db.from("events").select("id, slug").in("slug", subject.slugs).is("image_id", null);
-      if (error) throw new Error(error.message);
-      for (const event of events ?? []) {
-        await attachImageToEvent(db, event.id, stored.imageId);
-        stats.eventsAttached++;
+      // One statement for the whole subject (a series can have 100+ occurrences); the
+      // `.is("image_id", null)` filter keeps a curated image from being overwritten, exactly as
+      // `attachImageToEvent` does for a single row.
+      let attached = 0;
+      for (let i = 0; i < subject.slugs.length; i += 200) {
+        const { data: events, error } = await db
+          .from("events")
+          .update({ image_id: stored.imageId, image_status: "ok" })
+          .in("slug", subject.slugs.slice(i, i + 200))
+          .is("image_id", null)
+          .select("id");
+        if (error) throw new Error(error.message);
+        attached += events?.length ?? 0;
       }
+      stats.eventsAttached += attached;
       if (subject.series_slug && !subject.split_series) {
         await attachImageToSeries(db, subject.series_slug, stored.imageId);
         stats.seriesAttached++;
       }
-      console.log(`OK ${subject.subject} :: ${pick.file} :: ${verdict.image.license} → ${events?.length ?? 0} events`);
+      console.log(`OK ${subject.subject} :: ${pick.file} :: ${verdict.image.license} → ${attached} events`);
+      markDone(pick.key);
     } catch (err) {
       stats.errors++;
       console.log(`ERROR ${subject.subject} :: ${pick.file} :: ${err instanceof Error ? err.message : String(err)}`);
