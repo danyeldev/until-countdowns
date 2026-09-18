@@ -7,14 +7,7 @@
  * and calendar navigation; date formatting itself is deterministic.
  */
 import type { Metadata } from "next";
-import {
-  DEFAULT_LOCALE,
-  LOCALES,
-  localeBcp47,
-  localeHreflang,
-  localeOg,
-  localizePath,
-} from "@/i18n/locales";
+import { DEFAULT_LOCALE, LOCALES, localeBcp47, localeOg } from "@/i18n/locales";
 import { CATEGORY_LABELS } from "./labels";
 import { catalogDay, formatApproximate, isCoarsePrecision, isValidDate } from "./time";
 import type { Category, CountdownEvent, DatePrecision, Series } from "./types";
@@ -312,34 +305,28 @@ export type BuildMetadataInput = {
   locale?: string;
 };
 
-/** Metadata helper that stamps the given locale onto canonicals and hreflang. Never calls next-intl. */
+/** Metadata helper that stamps the given locale onto the Open Graph locale. Never calls next-intl. */
 export async function localizedMetadata(
   input: Omit<BuildMetadataInput, "locale"> & { locale: string },
 ): Promise<Metadata> {
   return buildMetadata(input);
 }
 
-export function languageAlternates(path: string): Record<string, string> {
-  const languages: Record<string, string> = {};
-  for (const locale of LOCALES) {
-    languages[localeHreflang(locale)] = absoluteUrl(localizePath(path, locale));
-  }
-  languages["x-default"] = absoluteUrl(localizePath(path, DEFAULT_LOCALE));
-  return languages;
-}
-
+/**
+ * The unprefixed English URL is the canonical for every locale. The other 26 locales translate
+ * the chrome around the same English events, so they are the same document to a search engine;
+ * giving each its own canonical plus 27 hreflang alternates invited crawlers to fetch the whole
+ * catalog 27 times over (see `isCrawlTrap`). They stay reachable for people and are disallowed
+ * in robots.txt.
+ */
 export function buildMetadata({ title, description, canonical, ogPath, noindex, type, ogAlt, locale = DEFAULT_LOCALE }: BuildMetadataInput): Metadata {
-  const localized = /^https?:\/\//.test(canonical) ? canonical : localizePath(canonical, locale);
-  const url = absoluteUrl(localized);
+  const url = absoluteUrl(canonical);
   const image = absoluteUrl(ogPath);
   const desc = truncate(description);
-  const alternates = /^https?:\/\//.test(canonical)
-    ? { canonical: url }
-    : { canonical: url, languages: languageAlternates(canonical) };
   return {
     title,
     description: desc,
-    alternates,
+    alternates: { canonical: url },
     openGraph: {
       title,
       description: desc,

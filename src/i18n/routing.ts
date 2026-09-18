@@ -11,4 +11,8 @@ export const routing = defineRouting({
     },
   },
   localeDetection: false,
+  // No `Link: <…>; rel="alternate"; hreflang=…` header listing the 26 locale copies of every
+  // page: they canonicalise to the English URL and are disallowed in robots.txt (see
+  // `isCrawlTrap`). The header was handing crawlers the whole multiplied catalog to fetch.
+  alternateLinks: false,
 });
