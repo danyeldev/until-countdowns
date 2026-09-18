@@ -263,8 +263,8 @@ Accepted files are downloaded once with the shared UA (12 MB cap, `image/*`, 15 
 
 | object | size | used by |
 |---|---|---|
-| `<sha256>/hero.webp` | 1600w, q80 | event and series pages |
-| `<sha256>/card.webp` | 640w, q75 | listing cards |
+| `<sha256>/hero.webp` | 1600w, q90 | event and series pages |
+| `<sha256>/card.webp` | 640w, q88 | listing cards |
 | `<sha256>/og.jpg` | 1200×630 cover, q82, < 600 KB | the social card background in `src/lib/og.tsx` — **not built for ShareAlike sources** |
 
 Objects are uploaded with `cache-control: public, max-age=31536000`; `next/image` serves them `unoptimized` (they are already the exact widths the layouts ask for) inside a box whose aspect ratio is known from the stored dimensions, over the stored dominant colour and a thumbhash blur — so an image never shifts the layout. The sha is the dedupe key: two events on the same Commons file share one `images` row and one set of objects, and `events.image_id` is only ever filled in, never overwritten, so a curated image always wins. `series.image_id` inherits the first image one of its occurrences gets.

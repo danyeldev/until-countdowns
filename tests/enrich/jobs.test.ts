@@ -4,7 +4,8 @@ import { evaluateCommonsFile } from "@/lib/enrich/images/license";
 import { fileTitle, fileTitleFromUrl } from "@/lib/enrich/images/commons";
 import { fileCandidates, parseEntities } from "@/lib/enrich/images/wikidata";
 import { acceptableItems, pickAsset } from "@/lib/enrich/images/nasa";
-import { resolveAdapterCandidate, type ResolvableEvent } from "@/lib/enrich/images/resolve";
+import { NASA_CATEGORIES, SEARCH_CATEGORIES, simplifyImageQuery, resolveAdapterCandidate, type ResolvableEvent } from "@/lib/enrich/images/resolve";
+import { slugsNeedingImages } from "@/lib/enrich/images/hydrate";
 import type { CommonsVerifier } from "@/lib/enrich/images/commons";
 
 const NOW = Date.parse("2026-09-09T00:00:00Z");
@@ -201,5 +202,31 @@ describe("adapter candidates (chain step a)", () => {
     );
     expect(result?.ok).toBe(false);
     expect(result && !result.ok ? result.reason : "").toContain("not re-hostable");
+  });
+});
+
+describe("image search coverage", () => {
+  it("searches Commons for sports, space and history — not only holidays", () => {
+    for (const category of ["sports", "space", "astronomy", "history", "politics", "science", "tech"]) {
+      expect(SEARCH_CATEGORIES.has(category), category).toBe(true);
+    }
+    expect(NASA_CATEGORIES.has("astronomy")).toBe(true);
+  });
+
+  it("drops years so a dated title still matches a Commons file", () => {
+    expect(simplifyImageQuery("Los Angeles 2028 Summer Olympics")).toBe("Los Angeles Summer Olympics");
+    expect(simplifyImageQuery("60th anniversary of the Moon landing")).toBe("Moon landing");
+    expect(simplifyImageQuery("40 years since the fall of the Berlin Wall")).toBe("fall of the Berlin Wall");
+    expect(simplifyImageQuery("Total Solar Eclipse over Africa & Spain")).toBe("Total Solar Eclipse over Africa Spain");
+  });
+
+  it("hydrates only rows that arrived with a candidate url", () => {
+    expect(
+      slugsNeedingImages([
+        { slug: "a", image_candidate_url: "https://commons.wikimedia.org/wiki/Special:FilePath/X.jpg" },
+        { slug: "b", image_candidate_url: null },
+        { slug: "a", image_candidate_url: "https://commons.wikimedia.org/wiki/Special:FilePath/X.jpg" },
+      ]),
+    ).toEqual(["a"]);
   });
 });

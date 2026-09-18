@@ -7,8 +7,8 @@
  * least 800 px wide), hashed, and re-encoded into three fixed derivatives under a
  * content-addressed prefix:
  *
- *   <sha256>/hero.webp   1600w, q80   — event page hero
- *   <sha256>/card.webp    640w, q75   — listing cards
+ *   <sha256>/hero.webp   1600w, q90   — event page hero
+ *   <sha256>/card.webp    640w, q88   — listing cards
  *   <sha256>/og.jpg    1200×630, q82  — social card background, kept under 600 KB (WhatsApp)
  *
  * The `og.jpg` crop is only built for licences that allow adaptations without a ShareAlike
@@ -25,6 +25,7 @@ import { rgbaToThumbHash } from "thumbhash";
 import type { Db } from "@/lib/ingest/db";
 import { userAgent } from "@/lib/ingest/http";
 import { isShareAlike } from "@/lib/images";
+import { encodeWebp, WEBP_QUALITY } from "@/lib/images/encode";
 import { creditLine, evaluateNamedLicense, isRehostableFileUrl, type LicensedImage } from "./license";
 
 function r2WriteConfigured(): boolean {
@@ -186,14 +187,8 @@ export async function buildDerivatives(source: Buffer, options: { includeOg?: bo
   // `.rotate()` with no argument applies the EXIF orientation before every resize.
   const base = () => sharp(source, { animated: false }).rotate();
 
-  const hero = await base()
-    .resize({ width: VARIANTS.hero.width, withoutEnlargement: true })
-    .webp({ quality: 80 })
-    .toBuffer({ resolveWithObject: true });
-  const card = await base()
-    .resize({ width: VARIANTS.card.width, withoutEnlargement: true })
-    .webp({ quality: 75 })
-    .toBuffer({ resolveWithObject: true });
+  const hero = await encodeWebp(source, { width: VARIANTS.hero.width, quality: WEBP_QUALITY.hero });
+  const card = await encodeWebp(source, { width: VARIANTS.card.width, quality: WEBP_QUALITY.card });
 
   let og: Buffer | null = null;
   if (includeOg) {
@@ -216,8 +211,8 @@ export async function buildDerivatives(source: Buffer, options: { includeOg?: bo
   const hash = rgbaToThumbHash(thumb.info.width, thumb.info.height, thumb.data);
 
   return {
-    width: hero.info.width,
-    height: hero.info.height,
+    width: hero.width,
+    height: hero.height,
     thumbhash: Buffer.from(hash).toString("base64"),
     dominantColor: hexColor(stats.dominant),
     variants: {

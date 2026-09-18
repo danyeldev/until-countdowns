@@ -44,9 +44,44 @@ export type Resolution = { ok: true; image: LicensedImage } | { ok: false; reaso
 /** Categories where a country flag is an acceptable last visual resort. */
 const FLAG_CATEGORIES = new Set(["politics", "national", "holidays"]);
 /** Categories the NASA library is searched for. */
-const NASA_CATEGORIES = new Set(["space", "astronomy", "science"]);
-/** Categories whose long tail is worth a Commons keyword search. */
-const SEARCH_CATEGORIES = new Set(["fun", "awareness", "national", "holidays", "religion", "festivals", "culture", "curiosities", "nature"]);
+export const NASA_CATEGORIES = new Set(["space", "astronomy", "science"]);
+/**
+ * Categories whose long tail is worth a Commons keyword search. Sports / space / history
+ * were previously excluded, so featured rows like the Olympics and the Moon landing
+ * never reached `gsrsearch` and died as `no licensed image candidate`.
+ */
+export const SEARCH_CATEGORIES = new Set([
+  "fun",
+  "awareness",
+  "national",
+  "holidays",
+  "religion",
+  "festivals",
+  "culture",
+  "curiosities",
+  "nature",
+  "sports",
+  "space",
+  "astronomy",
+  "history",
+  "politics",
+  "science",
+  "tech",
+  "film",
+  "music",
+]);
+
+/** Strip years and parentheticals so "Los Angeles 2028 Summer Olympics" still hits Commons. */
+export function simplifyImageQuery(title: string): string {
+  const cleaned = title
+    .replace(/\([^)]*\)/g, " ")
+    .replace(/\b(?:19|20)\d{2}\b/g, " ")
+    .replace(/\b\d+(?:st|nd|rd|th)?\s+(?:anniversary|years?)\s+(?:of|since)\s+(?:the\s+)?/i, " ")
+    .replace(/[^a-zA-Z0-9\s'-]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+  return cleaned || title.trim();
+}
 
 /** Reasons a candidate is not even attempted — surfaced verbatim in `enrichment_jobs.last_error`. */
 export const SKIP_NO_CANDIDATE = "no licensed image candidate";
@@ -204,7 +239,7 @@ async function resolveOne(ctx: EnrichContext, event: ResolvableEvent, pre: Prefe
 
   // (d) Commons keyword search — only where the long tail is worth the extra call.
   if (SEARCH_CATEGORIES.has(event.category) && ctx.budget.remainingMs() > 10_000) {
-    const hits = await commonsSearch(ctx, event.title);
+    const hits = await commonsSearch(ctx, simplifyImageQuery(event.title));
     for (const hit of hits.slice(0, 3)) {
       const verdict = note(await pre.verifier.verify(hit.title, "commons-search", gate));
       if (verdict?.ok) return verdict;
@@ -214,7 +249,7 @@ async function resolveOne(ctx: EnrichContext, event: ResolvableEvent, pre: Prefe
   // (e) NASA
   if (NASA_CATEGORIES.has(event.category) && ctx.budget.remainingMs() > 10_000) {
     try {
-      const nasa = await findNasaImage(ctx, event.title);
+      const nasa = await findNasaImage(ctx, simplifyImageQuery(event.title));
       if (nasa) return { ok: true, image: nasa };
     } catch (err) {
       reasons.push(`nasa lookup failed: ${err instanceof Error ? err.message : String(err)}`);

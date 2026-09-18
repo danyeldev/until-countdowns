@@ -17,6 +17,9 @@ export const IMAGE_VARIANTS = {
   og: { file: "og.jpg", width: 1200, height: 630 },
 } as const;
 
+/** Bumped when on-disk derivatives are re-encoded so browsers and the CDN refetch. */
+export const IMAGE_ASSET_VERSION = 2;
+
 export type ImageVariant = keyof typeof IMAGE_VARIANTS;
 
 const VARIANT_FILES: ReadonlySet<string> = new Set(Object.values(IMAGE_VARIANTS).map((v) => v.file));
@@ -31,7 +34,7 @@ export function imageUrl(image: Pick<EventImage, "url">, variant: ImageVariant =
   if (cut < 0) return url;
   const [name] = url.slice(cut + 1).split("?");
   if (!VARIANT_FILES.has(name)) return url;
-  return `${url.slice(0, cut + 1)}${IMAGE_VARIANTS[variant].file}`;
+  return `${url.slice(0, cut + 1)}${IMAGE_VARIANTS[variant].file}?v=${IMAGE_ASSET_VERSION}`;
 }
 
 /** Rendered pixel size of a variant, derived from the stored hero dimensions. */
