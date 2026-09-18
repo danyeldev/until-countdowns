@@ -30,9 +30,8 @@ export async function GET(_req: NextRequest, ctx: { params: Promise<{ slug: stri
   }
 
   const coarse = isCoarsePrecision(event.datePrecision);
-  // The card crops the photo and lays a scrim, the title and the wordmark over it — that is
-  // Adapted Material, so a ShareAlike file gets no background here (brief §21 step 4) and the
-  // seeded gradient is drawn instead. CC0 / PD / CC BY files keep the photo, with the credit.
+  // Every stored photo has an `og.jpg`; the card carries it with its `Photo: author · licence`
+  // credit. Only an event without a photo gets the seeded gradient.
   const background = ogBackgroundUrl(event.image);
   const status = event.status === "cancelled" ? "Cancelled · " : event.status === "postponed" ? "Postponed · " : "";
   return renderOgCard(

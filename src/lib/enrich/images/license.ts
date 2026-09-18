@@ -14,9 +14,9 @@
  *      logos live, and `pilicense=free` is not a reliable filter for them.
  *   2. **What the metadata says** (`evaluateCommonsFile` / `evaluateNamedLicense`): a Commons
  *      `extmetadata` block, or a provider payload that names a licence from the allowlist. A
- *      free licence is not enough on its own: `Restrictions=trademarked|insignia|currency|
- *      personality` is refused too (the brief allows those inline only, and there is no inline
- *      surface), and so is a file whose required attribution names nobody ("Multiple authors").
+ *      free licence is not enough on its own: `Restrictions=trademarked|currency` is refused too
+ *      (a logo or a banknote is never the right event photo), and so is a file whose required
+ *      attribution names nobody ("Multiple authors").
  *
  * Verification always happens against commons.wikimedia.org: `en.wikipedia.org`'s own
  * `imageinfo` happily returns fair-use files with a working URL.
@@ -26,13 +26,19 @@ import { providerLabel } from "@/lib/images";
 
 export type LicenseVerdict = { ok: true } | { ok: false; reason: string };
 
-/** Licences accepted, matched against `extmetadata.LicenseShortName`. */
+/**
+ * Licences accepted, matched against `extmetadata.LicenseShortName`. "No restrictions" is the
+ * short name Commons gives Flickr Commons uploads ("no known copyright restrictions", i.e. an
+ * institution asserting public domain); "Attribution" is the `{{Attribution}}` template — any use
+ * with credit. Both are checked against `LICENSE_REJECT_RE` first, so "Attribution-NonCommercial"
+ * and "Attribution-NoDerivs" never get this far.
+ */
 export const LICENSE_ACCEPT_RE =
-  /^(?:cc0(?:\b|-)|cc-0|public domain|pd(?:\b|-)|cc[ -]by(?:[ -]sa)?(?:[ -][0-9.]+)?(?:[ -]igo)?\b|godl-india|ogl\b|open government licen[cs]e|kogl|nasa image and media guidelines)/i;
+  /^(?:cc0(?:\b|-)|cc-0|public domain|pd(?:\b|-)|cc[ -]by(?:[ -]sa)?(?:[ -][0-9.]+)?(?:[ -]igo)?\b|godl-india|ogl\b|open government licen[cs]e|kogl|nasa image and media guidelines|no (?:known )?(?:copyright )?restrictions|attribution\b)/i;
 
 /** Anything matching this is rejected outright, whatever else the metadata claims. */
 export const LICENSE_REJECT_RE =
-  /(?:fair[ -]?use|non[ -]?free|non[ -]?commercial|noncommercial|no[ -]?derivativ|\bnc\b|-nc\b|\bnd\b|-nd\b|all rights reserved|copyrighted free use with|with permission)/i;
+  /(?:fair[ -]?use|non[ -]?free|non[ -]?commercial|noncommercial|no[ -]?deriv|\bnc\b|-nc\b|\bnd\b|-nd\b|all rights reserved|copyrighted free use with|with permission)/i;
 
 /** Launch Library per-image licences that allow commercial re-hosting (mirrors the ll2 adapter). */
 export const LL2_LICENSE_ALLOWLIST: ReadonlySet<string> = new Set([
@@ -52,11 +58,13 @@ export const LL2_LICENSE_ALLOWLIST: ReadonlySet<string> = new Set([
 export const PREFERRED_THUMB_WIDTH = 1600;
 
 /**
- * `extmetadata.Restrictions` (brief §21 step 4): a file can be perfectly free of copyright and
- * still carry a trademark, insignia, currency or personality restriction. The brief allows those
- * "inline only (never hero/OG)", and Until has no inline surface, so they are refused outright.
+ * `extmetadata.Restrictions`: a file can be perfectly free of copyright and still be a trademarked
+ * logo or a banknote, and neither is ever the right event photo. The `insignia` and `personality`
+ * tags are *not* refused: a coat of arms illustrating an election and a photo of the athlete or
+ * politician the event is about are ordinary editorial use, and refusing them left every election
+ * and most sports rows without a picture.
  */
-export const RESTRICTIONS_REJECT_RE = /trademark|insignia|currency|personality/i;
+export const RESTRICTIONS_REJECT_RE = /trademark|currency/i;
 
 /**
  * Montage / composite credits. When a licence requires attribution, "Multiple authors" names
@@ -205,12 +213,23 @@ export type CommonsImageInfo = {
   extmetadata?: ExtMetadata;
 };
 
-/** Commons only ever hosts freely licensed files, but the *name* still decides what we may do. */
-export const COMMONS_ACCEPTED_MIME: ReadonlySet<string> = new Set(["image/jpeg", "image/png", "image/webp"]);
+/**
+ * Everything sharp can decode into a raster: SVG is rendered at hero width before it is resized
+ * (see `buildDerivatives`), TIFF originals arrive as the 1600px thumb rendition, GIF keeps its
+ * first frame.
+ */
+export const COMMONS_ACCEPTED_MIME: ReadonlySet<string> = new Set([
+  "image/jpeg",
+  "image/png",
+  "image/webp",
+  "image/gif",
+  "image/tiff",
+  "image/svg+xml",
+]);
 
 /**
  * Full gate for a Wikimedia file: URL under `/wikipedia/commons/`, `NonFree` not set, a licence
- * on the allowlist, a raster mime type. Returns the row to persist or the reason it was dropped.
+ * on the allowlist, a decodable mime type. Returns the row to persist or the reason it was dropped.
  */
 export function evaluateCommonsFile(
   info: CommonsImageInfo | null | undefined,

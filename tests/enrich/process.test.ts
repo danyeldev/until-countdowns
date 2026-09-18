@@ -114,11 +114,25 @@ describe("buildDerivatives", () => {
     expect(thumbhashToDataUrl("not base64 at all !!")).toBeUndefined();
   });
 
-  it("rejects an image narrower than the minimum", async () => {
+  it("keeps a 400px photo and rejects a thumbnail narrower than that", async () => {
     const { default: sharp } = await import("sharp");
-    const small = await sharp({ create: { width: 400, height: 300, channels: 3, background: "#333" } }).png().toBuffer();
-    await expect(buildDerivatives(small)).rejects.toThrow(ImageError);
-    expect(MIN_SOURCE_WIDTH).toBe(800);
+    expect(MIN_SOURCE_WIDTH).toBe(400);
+    const usable = await sharp({ create: { width: 400, height: 300, channels: 3, background: "#333" } }).png().toBuffer();
+    const out = await buildDerivatives(usable);
+    expect(out.width).toBe(400); // never enlarged: the layout scales it
+    expect(out.variants.og.body.byteLength).toBeGreaterThan(0);
+    const thumb = await sharp({ create: { width: 291, height: 200, channels: 3, background: "#333" } }).png().toBuffer();
+    await expect(buildDerivatives(thumb)).rejects.toThrow(/too small: 291px/);
+  });
+
+  it("renders an SVG at hero width before deriving", async () => {
+    const svg = Buffer.from(
+      '<svg xmlns="http://www.w3.org/2000/svg" width="200" height="120" viewBox="0 0 200 120"><rect width="200" height="120" fill="#336699"/><circle cx="60" cy="60" r="40" fill="#ffcc00"/></svg>',
+    );
+    const out = await buildDerivatives(svg);
+    expect(out.width).toBe(1600);
+    expect(out.height).toBe(960);
+    expect(out.variants.card.contentType).toBe("image/webp");
   });
 
   it("rejects bytes that are not an image", async () => {
@@ -127,7 +141,7 @@ describe("buildDerivatives", () => {
 
   it("marks size and decode failures permanent so the job is parked, not retried forever", async () => {
     const { default: sharp } = await import("sharp");
-    const small = await sharp({ create: { width: 400, height: 300, channels: 3, background: "#333" } }).png().toBuffer();
+    const small = await sharp({ create: { width: 320, height: 240, channels: 3, background: "#333" } }).png().toBuffer();
     await expect(buildDerivatives(small)).rejects.toSatisfy(isPermanentImageError);
     await expect(buildDerivatives(Buffer.from("nope"))).rejects.toSatisfy(isPermanentImageError);
     // A transient HTTP failure is not permanent: that one is worth retrying.
@@ -254,9 +268,8 @@ describe("sha256 reuse path", () => {
     const stored = await storeLicensedImage(db, CANDIDATE);
     expect(stored.reused).toBe(false);
     expect(stored.sha256).toBe(sha);
-    // CC BY-SA: no `og.jpg`. Cropping and overlaying it for the social card would be Adapted
-    // Material, which brief §21 step 4 refuses — the card falls back to the gradient instead.
-    expect(uploads).toEqual([`${sha}/hero.webp`, `${sha}/card.webp`]);
+    // All three derivatives, CC BY-SA included: the social card carries the photo with its credit.
+    expect(uploads).toEqual([`${sha}/hero.webp`, `${sha}/card.webp`, `${sha}/og.jpg`]);
     expect(inserted).toHaveLength(1);
     expect(inserted[0]).toMatchObject({
       sha256: sha,
@@ -271,12 +284,12 @@ describe("sha256 reuse path", () => {
     fetchSpy.mockRestore();
   });
 
-  it("builds the og crop for a licence that allows adaptations", async () => {
+  it("builds the og crop for a public-domain file too", async () => {
     const fetchSpy = vi.spyOn(globalThis, "fetch").mockResolvedValue(
       new Response(new Uint8Array(SOURCE), { status: 200, headers: { "content-type": "image/png" } }),
     );
     const { db, uploads } = stubDb([]);
-    await storeLicensedImage(db, { ...CANDIDATE, license: "CC BY 4.0" });
+    await storeLicensedImage(db, { ...CANDIDATE, license: "Public domain", attributionRequired: false });
     expect(uploads).toEqual([`${sha}/hero.webp`, `${sha}/card.webp`, `${sha}/og.jpg`]);
     fetchSpy.mockRestore();
   });

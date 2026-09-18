@@ -27,17 +27,15 @@ describe("ShareAlike gate", () => {
     }
   });
 
-  it("drops the OG background for a ShareAlike photo and keeps it for CC BY", () => {
-    // Cropping to 1200x630 and overlaying title, counter and wordmark makes Adapted Material:
-    // a BY-SA card would have to be licensed BY-SA itself, so the gradient is used instead.
-    expect(ogBackgroundUrl({ ...IMAGE, license: "CC BY-SA 4.0" })).toBeNull();
+  it("gives every photo an OG background, ShareAlike included, and only a missing photo the gradient", () => {
+    const og = "https://ref.supabase.co/storage/v1/object/public/event-images/abc/og.jpg?v=2";
+    expect(ogBackgroundUrl({ ...IMAGE, license: "CC BY-SA 4.0" })).toBe(og);
+    expect(ogBackgroundUrl(IMAGE)).toBe(og);
     expect(ogBackgroundUrl(null)).toBeNull();
-    expect(ogBackgroundUrl(IMAGE)).toBe(
-      "https://ref.supabase.co/storage/v1/object/public/event-images/abc/og.jpg?v=2",
-    );
-    expect(firstOgBackground([{ image: { ...IMAGE, license: "CC BY-SA 4.0" } }, { image: IMAGE }])).toEqual({
-      imageUrl: "https://ref.supabase.co/storage/v1/object/public/event-images/abc/og.jpg?v=2",
-      imageCredit: "Photo: Krzysztof Golik · CC BY 4.0",
+    // The first photo wins, and the card names its licence in the credit.
+    expect(firstOgBackground([{ image: null }, { image: { ...IMAGE, license: "CC BY-SA 4.0" } }, { image: IMAGE }])).toEqual({
+      imageUrl: og,
+      imageCredit: "Photo: Krzysztof Golik · CC BY-SA 4.0",
     });
   });
 });

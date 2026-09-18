@@ -109,8 +109,7 @@ export type OgCardInput = {
   expectedLabel?: string;
   /**
    * Public https URL of the stored `og.jpg` derivative (1200×630, already the card's exact size).
-   * Omitted → the deterministic gradient. ShareAlike files never get here: the caller gates them
-   * with `ogBackgroundUrl()`, because cropping and overlaying one makes Adapted Material.
+   * Omitted → the deterministic gradient.
    */
   imageUrl?: string | null;
   /**

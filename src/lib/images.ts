@@ -65,14 +65,10 @@ export function heroAspectRatio(image: Pick<EventImage, "width" | "height">): st
  * ShareAlike detection, applied to the stored `LicenseShortName` ("CC BY-SA 4.0",
  * "CC BY-SA 3.0 IGO", "Attribution-ShareAlike").
  *
- * It matters for exactly one thing: the OG social card, a new 1200×630 JPEG we render with a
- * scrim, the title and the wordmark on top and hand to other sites. That is Adapted Material
- * (CC BY-SA 4.0 §2(a)(1)(B)) and would have to be released BY-SA, so ShareAlike files fall back
- * to the seeded gradient there. Everywhere on the site itself the photo is shown like any CC BY
- * file, with its credit: `card.webp` / `hero.webp` are plain resizes (§2(a)(4) — never Adapted
- * Material) and the crop and gradient are drawn by the browser over the unmodified file. Half the
- * catalogue's photos are BY-SA; hiding them behind decorative artwork made half the events look
- * imageless.
+ * Informational only. A BY-SA photo is shown exactly like a CC BY one — cards, heroes, featured
+ * backdrop and the OG social card — always with its `Photo: author · licence` credit, which is
+ * what the licence asks for. Half the catalogue's photos are BY-SA; the earlier policy of hiding
+ * them behind decorative artwork made half the events look imageless.
  */
 const SHARE_ALIKE_RE = /(?:^|[\s\-])sa(?:[\s\-.]|$)|share\s*-?\s*alike/i;
 
@@ -80,13 +76,9 @@ export function isShareAlike(license: string | null | undefined): boolean {
   return Boolean(license && SHARE_ALIKE_RE.test(license));
 }
 
-/**
- * Background for the OG composite, or null when the card must fall back to the gradient
- * (no image, or a ShareAlike licence).
- */
+/** Background for the OG composite, or null when the event has no photo. */
 export function ogBackgroundUrl(image: Pick<EventImage, "url" | "license"> | null | undefined): string | null {
   if (!image?.url) return null;
-  if (isShareAlike(image.license)) return null;
   return imageUrl(image, "og");
 }
 
@@ -109,7 +101,7 @@ export function shortCredit(
   return image.credit?.trim() || null;
 }
 
-/** First catalog photo that is legal to crop onto an OG card. */
+/** First catalog photo in the list, as an OG background with its credit. */
 export function firstOgBackground(
   events: Array<{ image?: Pick<EventImage, "url" | "license" | "author" | "credit"> | null }>,
 ): { imageUrl: string; imageCredit: string | null } | null {
