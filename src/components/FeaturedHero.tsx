@@ -8,6 +8,7 @@ import {
   isCoarsePrecision,
 } from "@/lib/time";
 import { Countdown } from "./Countdown";
+import { isVectorOrigin } from "./EventImage";
 import { ImageCredit } from "./ImageCredit";
 import { StatusBadge } from "./StatusBadge";
 import { SaveButton } from "./SaveButton";
@@ -29,7 +30,9 @@ export function FeaturedHero({ event }: { event: CountdownEvent }) {
         preload
         unoptimized
         sizes="(max-width: 1280px) 100vw, 850px"
-        className="pointer-events-none -z-20 object-cover object-right"
+        className={`pointer-events-none -z-20 object-right ${
+          backdrop && isVectorOrigin(backdrop) ? "object-contain p-10 pl-[45%]" : "object-cover"
+        }`}
       />
       <div className="absolute inset-0 -z-10 bg-linear-to-r from-[#111019]/95 via-[#111019]/80 to-[#111019]/10" />
       <div className="flex items-center justify-between gap-3">

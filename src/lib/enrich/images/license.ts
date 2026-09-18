@@ -14,9 +14,9 @@
  *      logos live, and `pilicense=free` is not a reliable filter for them.
  *   2. **What the metadata says** (`evaluateCommonsFile` / `evaluateNamedLicense`): a Commons
  *      `extmetadata` block, or a provider payload that names a licence from the allowlist. A
- *      free licence is not enough on its own: `Restrictions=trademarked|currency` is refused too
- *      (a logo or a banknote is never the right event photo), and so is a file whose required
- *      attribution names nobody ("Multiple authors").
+ *      free licence is not enough on its own: `Restrictions=currency` is refused too (banknote
+ *      reproductions are restricted by law), and so is a file whose required attribution names
+ *      nobody ("Multiple authors").
  *
  * Verification always happens against commons.wikimedia.org: `en.wikipedia.org`'s own
  * `imageinfo` happily returns fair-use files with a working URL.
@@ -30,11 +30,13 @@ export type LicenseVerdict = { ok: true } | { ok: false; reason: string };
  * Licences accepted, matched against `extmetadata.LicenseShortName`. "No restrictions" is the
  * short name Commons gives Flickr Commons uploads ("no known copyright restrictions", i.e. an
  * institution asserting public domain); "Attribution" is the `{{Attribution}}` template — any use
- * with credit. Both are checked against `LICENSE_REJECT_RE` first, so "Attribution-NonCommercial"
- * and "Attribution-NoDerivs" never get this far.
+ * with credit. Software logos and screenshots arrive under the software's own free licence
+ * (Apache, MIT, BSD, GPL, MPL, OFL…), all of which allow commercial reuse with attribution. Every
+ * name is checked against `LICENSE_REJECT_RE` first, so "Attribution-NonCommercial" and
+ * "Attribution-NoDerivs" never get this far.
  */
 export const LICENSE_ACCEPT_RE =
-  /^(?:cc0(?:\b|-)|cc-0|public domain|pd(?:\b|-)|cc[ -]by(?:[ -]sa)?(?:[ -][0-9.]+)?(?:[ -]igo)?\b|godl-india|ogl\b|open government licen[cs]e|kogl|nasa image and media guidelines|no (?:known )?(?:copyright )?restrictions|attribution\b)/i;
+  /^(?:cc0(?:\b|-)|cc-0|public domain|pd(?:\b|-)|cc[ -]by(?:[ -]sa)?(?:[ -][0-9.]+)?(?:[ -]igo)?\b|godl-india|ogl\b|open government licen[cs]e|kogl|nasa image and media guidelines|no (?:known )?(?:copyright )?restrictions|attribution\b|apache(?: license)?\b|mit\b|bsd\b|(?:a|l)?gpl(?:v?[0-9.]+)?(?:\b|\+)|mpl\b|(?:sil )?open font licen[cs]e|ofl\b|free art licen[cs]e|wtfpl|unlicense)/i;
 
 /** Anything matching this is rejected outright, whatever else the metadata claims. */
 export const LICENSE_REJECT_RE =
@@ -58,13 +60,14 @@ export const LL2_LICENSE_ALLOWLIST: ReadonlySet<string> = new Set([
 export const PREFERRED_THUMB_WIDTH = 1600;
 
 /**
- * `extmetadata.Restrictions`: a file can be perfectly free of copyright and still be a trademarked
- * logo or a banknote, and neither is ever the right event photo. The `insignia` and `personality`
- * tags are *not* refused: a coat of arms illustrating an election and a photo of the athlete or
- * politician the event is about are ordinary editorial use, and refusing them left every election
- * and most sports rows without a picture.
+ * `extmetadata.Restrictions`: only currency is refused — reproducing banknotes is restricted by
+ * law in many countries and a banknote is never the right event photo anyway. The `trademarked`,
+ * `insignia` and `personality` tags are informational: a product's own logo on its end-of-life
+ * page, a coat of arms on an election page and a photo of the athlete or politician an event is
+ * about are ordinary referential / editorial use, and refusing them left every election, most
+ * sports rows and all 1,600 software end-of-life rows without a picture.
  */
-export const RESTRICTIONS_REJECT_RE = /trademark|currency/i;
+export const RESTRICTIONS_REJECT_RE = /currency/i;
 
 /**
  * Montage / composite credits. When a licence requires attribution, "Multiple authors" names
