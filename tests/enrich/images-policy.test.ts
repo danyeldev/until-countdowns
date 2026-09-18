@@ -33,10 +33,10 @@ describe("ShareAlike gate", () => {
     expect(ogBackgroundUrl({ ...IMAGE, license: "CC BY-SA 4.0" })).toBeNull();
     expect(ogBackgroundUrl(null)).toBeNull();
     expect(ogBackgroundUrl(IMAGE)).toBe(
-      "https://ref.supabase.co/storage/v1/object/public/event-images/abc/og.jpg",
+      "https://ref.supabase.co/storage/v1/object/public/event-images/abc/og.jpg?v=2",
     );
     expect(firstOgBackground([{ image: { ...IMAGE, license: "CC BY-SA 4.0" } }, { image: IMAGE }])).toEqual({
-      imageUrl: "https://ref.supabase.co/storage/v1/object/public/event-images/abc/og.jpg",
+      imageUrl: "https://ref.supabase.co/storage/v1/object/public/event-images/abc/og.jpg?v=2",
       imageCredit: "Photo: Krzysztof Golik · CC BY 4.0",
     });
   });

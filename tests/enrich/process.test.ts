@@ -18,7 +18,8 @@ import {
   VARIANT_NAMES,
   variantPath,
 } from "@/lib/enrich/images/process";
-import { imageSize, imageUrl } from "@/lib/images";
+import { IMAGE_ASSET_VERSION, imageSize, imageUrl } from "@/lib/images";
+import { encodeWebp, optimizeUploadImage, WEBP_QUALITY } from "@/lib/images/encode";
 import { thumbhashToDataUrl } from "@/lib/thumbhash";
 
 const FIXTURE = join(process.cwd(), "tests", "fixtures", "enrich", "gradient-800x450.png");
@@ -64,16 +65,17 @@ describe("variant naming", () => {
 
   it("derives the sibling variants from the stored public url", () => {
     const image = { url: `https://ref.supabase.co/storage/v1/object/public/event-images/${SHA}/hero.webp`, width: 1600, height: 900 };
-    expect(imageUrl(image, "card")).toBe(`https://ref.supabase.co/storage/v1/object/public/event-images/${SHA}/card.webp`);
-    expect(imageUrl(image, "og")).toBe(`https://ref.supabase.co/storage/v1/object/public/event-images/${SHA}/og.jpg`);
-    expect(imageUrl(image, "hero")).toBe(image.url);
+    expect(IMAGE_ASSET_VERSION).toBe(2);
+    expect(imageUrl(image, "card")).toBe(`https://ref.supabase.co/storage/v1/object/public/event-images/${SHA}/card.webp?v=2`);
+    expect(imageUrl(image, "og")).toBe(`https://ref.supabase.co/storage/v1/object/public/event-images/${SHA}/og.jpg?v=2`);
+    expect(imageUrl(image, "hero")).toBe(`${image.url}?v=2`);
   });
 
   it("rewrites stored Supabase object URLs onto the R2 public host", () => {
     vi.stubEnv("NEXT_PUBLIC_R2_PUBLIC_URL", "https://images.until.day");
     const image = { url: `https://ref.supabase.co/storage/v1/object/public/event-images/${SHA}/hero.webp`, width: 1600, height: 900 };
-    expect(imageUrl(image, "card")).toBe(`https://images.until.day/${SHA}/card.webp`);
-    expect(imageUrl(image, "hero")).toBe(`https://images.until.day/${SHA}/hero.webp`);
+    expect(imageUrl(image, "card")).toBe(`https://images.until.day/${SHA}/card.webp?v=2`);
+    expect(imageUrl(image, "hero")).toBe(`https://images.until.day/${SHA}/hero.webp?v=2`);
     vi.unstubAllEnvs();
   });
 
@@ -135,6 +137,16 @@ describe("buildDerivatives", () => {
   it("formats a dominant colour as hex", () => {
     expect(hexColor({ r: 0, g: 128, b: 255 })).toBe("#0080ff");
     expect(hexColor({ r: 300, g: -4, b: 12.6 })).toBe("#ff000d");
+  });
+
+  it("encodes uploads as high-quality WebP before they reach R2", async () => {
+    const out = await optimizeUploadImage(SOURCE);
+    expect(out.contentType).toBe("image/webp");
+    expect(out.width).toBe(800);
+    expect(WEBP_QUALITY.hero).toBeGreaterThanOrEqual(90);
+    const hero = await encodeWebp(SOURCE, { width: 1600, quality: WEBP_QUALITY.hero });
+    expect(hero.contentType).toBe("image/webp");
+    expect(hero.data.byteLength).toBeGreaterThan(0);
   });
 });
 

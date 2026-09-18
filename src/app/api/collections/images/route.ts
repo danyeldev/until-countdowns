@@ -7,6 +7,7 @@ import {
   COLLECTION_IMAGES_MAX,
   collectionErrorMessage,
 } from "@/lib/collections";
+import { optimizeUploadImage } from "@/lib/images/encode";
 import { deleteR2Objects, isR2Configured, putR2Object } from "@/lib/r2";
 
 const headers = {
@@ -16,12 +17,6 @@ const headers = {
 
 function json(body: unknown, status = 200) {
   return NextResponse.json(body, { status, headers });
-}
-
-function imageExtension(type: string): string {
-  if (type === "image/png") return "png";
-  if (type === "image/webp") return "webp";
-  return "jpg";
 }
 
 async function requireOwner(collectionId: string, userId: string) {
@@ -66,10 +61,16 @@ export async function POST(request: Request) {
     return json({ error: `A collection can have ${COLLECTION_IMAGES_MAX} images.` }, 400);
   }
 
-  const path = `${userId}/${collectionId}/${crypto.randomUUID()}.${imageExtension(file.type)}`;
-  const body = Buffer.from(await file.arrayBuffer());
+  const path = `${userId}/${collectionId}/${crypto.randomUUID()}.webp`;
+  let body: Buffer;
   try {
-    await putR2Object(path, body, { contentType: file.type, cacheControl: "3600" });
+    const optimized = await optimizeUploadImage(Buffer.from(await file.arrayBuffer()));
+    body = optimized.data;
+  } catch {
+    return json({ error: "Could not read that photo. Try a JPEG, PNG, or WebP." }, 400);
+  }
+  try {
+    await putR2Object(path, body, { contentType: "image/webp", cacheControl: "3600" });
   } catch (err) {
     return json({ error: err instanceof Error ? err.message : "Could not upload that photo." }, 500);
   }

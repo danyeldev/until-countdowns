@@ -253,6 +253,25 @@ export async function runSource(id: string, opts: RunOptions = {}): Promise<RunS
                 (res.invalid ? `, ${res.invalid} invalid` : "") +
                 (res.failed ? `, ${res.failed} FAILED` : ""),
             );
+            const leftoverMs = remainingMs();
+            if (leftoverMs > 35_000) {
+              const { HYDRATE_MIN_MS, hydrateEventImages, slugsNeedingImages } = await import("@/lib/enrich/images/hydrate");
+              const candidateSlugs = slugsNeedingImages(rows);
+              if (candidateSlugs.length > 0 && leftoverMs > HYDRATE_MIN_MS + 15_000) {
+                try {
+                  const images = await hydrateEventImages(candidateSlugs, {
+                    budgetMs: Math.min(leftoverMs - 15_000, 40_000),
+                  });
+                  if (images.inspected > 0) {
+                    log.info(
+                      `${unit.label}: images +${images.created} new, ${images.reused} reused, ${images.skipped} skip, ${images.failed} fail`,
+                    );
+                  }
+                } catch (err) {
+                  log.warn(`${unit.label}: image hydrate failed: ${errorMessage(err)}`);
+                }
+              }
+            }
           } else {
             log.info(`${unit.label}: 0 rows`);
           }
