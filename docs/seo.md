@@ -5,7 +5,8 @@
 ## Indexing
 
 - Submit `/sitemap-index.xml` in Search Console. It links to the stable `hubs`, `series` and event-year sitemap shards.
-- Search/filter views, personal countdown links, thin hubs, occurrence variants and pagination keep their existing `noindex` policies. HTML is crawlable so bots can actually read `noindex`; `/api/` is blocked in robots.txt.
+- Search/filter views, personal countdown links, thin hubs, occurrence variants and pagination keep their existing `noindex` policies. English HTML is crawlable so bots can actually read `noindex`; `/api/` is blocked in robots.txt.
+- Only the unprefixed English URL is indexable. The 26 locale-prefixed copies (`/es/…`, `/zh-hant/…`) translate the chrome around the same English catalog, so they carry the English canonical, emit no hreflang alternates (neither `<link>` tags nor next-intl's `Link` header) and are disallowed in robots.txt together with `/search`. The proxy answers self-identified crawlers on those paths with a 403 before any render (`src/lib/request/crawlers.ts`) and logs a `crawler_refused` line naming the user agent. Before this, crawlers fetched the catalog 27 times over — ~9 event renders a second, every one a cache miss — for pages nobody read. Reversing the decision means restoring `languageAlternates` in `src/lib/seo.ts`, `alternateLinks` in `src/i18n/routing.ts`, and dropping the locale prefixes from `crawlTrapDisallows()`.
 - Hubs include the countdown creator. Empty categories and countries stay out of the sitemap. Series require an upcoming occurrence; event shards retain the database's explicit eligibility gate and exclude series members.
 - `lastModified` uses actual catalog update times. The build/deploy timestamp is not substituted for content freshness.
 - The existing catalog shards split large years into half-years. If either half grows beyond 50,000 eligible URLs, extend catalog sharding before increasing that ceiling; 50,000 is the sitemap protocol limit.

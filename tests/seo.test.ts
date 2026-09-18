@@ -109,12 +109,17 @@ describe("canonical and social metadata", () => {
     expect((rules as { disallow: string[] }).disallow).not.toContain("/event/");
   });
 
-  it("disallows crawling search results in every locale", () => {
-    // …except search results: noindex already, and an unbounded uncached URL space that a crawler
-    // walked at ~7 req/s in September 2026. Every locale prefix gets its own line.
+  it("disallows crawling search results and the 26 locale-prefixed copies of the catalog", () => {
+    // …except the crawl traps: search results (noindex, uncached, unbounded — walked at ~7 req/s
+    // in September 2026) and every non-English locale prefix, whose pages canonicalise to the
+    // English URL and multiplied the crawlable catalog by 27. Each prefix gets a `/xx/` line for
+    // its pages and a `/xx$` line for its home; the bare `/es` form would also block a `/esteban`
+    // profile.
     const disallow = (robots().rules as { disallow: string[] }).disallow;
-    expect(disallow).toEqual(expect.arrayContaining(["/search", "/es/search", "/zh-hant/search", "/el/search"]));
-    expect(disallow.filter((p) => p.endsWith("/search"))).toHaveLength(27);
+    expect(disallow).toEqual(expect.arrayContaining(["/search", "/es/", "/es$", "/zh-hant/", "/zh-hant$", "/zh/", "/el/"]));
+    expect(disallow.filter((p) => p.endsWith("/"))).toHaveLength(27); // `/api/` + 26 locale prefixes
+    expect(disallow).not.toContain("/es");
+    expect(disallow).not.toContain("/en/");
     expect(disallow).not.toContain("/*/search");
   });
 

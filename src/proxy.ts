@@ -2,6 +2,7 @@ import createMiddleware from "next-intl/middleware";
 import { NextResponse, type NextRequest } from "next/server";
 import { routing } from "@/i18n/routing";
 import { updateSession } from "@/lib/auth/session";
+import { isBlockedCrawl } from "@/lib/request/crawlers";
 
 const handleI18nRouting = createMiddleware(routing);
 
@@ -32,11 +33,40 @@ function catalogSearchRedirect(request: NextRequest): NextResponse | null {
   return NextResponse.redirect(url, 308);
 }
 
+/**
+ * robots.txt already disallows the path; a crawler that asks anyway is answered here, before the
+ * page function and the ISR write it would otherwise cost. 403 rather than 404 because the page
+ * does exist — for people. The log line names the crawler, so one that keeps coming back can be
+ * given a firewall rule.
+ */
+function refuseCrawler(request: NextRequest): NextResponse {
+  console.log(
+    JSON.stringify({
+      kind: "crawler_refused",
+      path: request.nextUrl.pathname,
+      ua: (request.headers.get("user-agent") ?? "").slice(0, 200),
+      ip: request.headers.get("x-real-ip"),
+    }),
+  );
+  return new NextResponse("Not served to crawlers. See /robots.txt.", {
+    status: 403,
+    headers: {
+      "Content-Type": "text/plain; charset=utf-8",
+      "Cache-Control": "private, no-store",
+      "X-Robots-Tag": "noindex",
+    },
+  });
+}
+
 export async function proxy(request: NextRequest) {
-  if (skipIntl(request.nextUrl.pathname)) {
+  const { pathname } = request.nextUrl;
+  if (skipIntl(pathname)) {
     return updateSession(request);
   }
   const searchRedirect = catalogSearchRedirect(request);
+  if (isBlockedCrawl(request.headers, pathname, searchRedirect !== null)) {
+    return refuseCrawler(request);
+  }
   if (searchRedirect) return updateSession(request, searchRedirect);
   return updateSession(request, handleI18nRouting(request));
 }

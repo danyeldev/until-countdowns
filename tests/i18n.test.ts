@@ -10,7 +10,7 @@ import {
   localizePath,
   pathnameWithoutLocale,
 } from "@/i18n/locales";
-import { absoluteUrl, buildMetadata, formatLongDate, languageAlternates } from "@/lib/seo";
+import { absoluteUrl, buildMetadata, formatLongDate } from "@/lib/seo";
 
 describe("locale routing helpers", () => {
   it("keeps English unprefixed and prefixes other locales", () => {
@@ -41,17 +41,10 @@ describe("locale routing helpers", () => {
   });
 });
 
-describe("hreflang metadata", () => {
-  it("lists every locale plus x-default on the English URL", () => {
-    const languages = languageAlternates("/event/example");
-    expect(languages.en).toBe(absoluteUrl("/event/example"));
-    expect(languages.es).toBe(absoluteUrl("/es/event/example"));
-    expect(languages["zh-Hant"]).toBe(absoluteUrl("/zh-hant/event/example"));
-    expect(languages["x-default"]).toBe(absoluteUrl("/event/example"));
-    expect(Object.keys(languages)).toHaveLength(LOCALES.length + 1);
-  });
-
-  it("localizes the canonical and keeps English date formatting by default", () => {
+describe("localized metadata", () => {
+  it("keeps the English URL canonical for every locale and emits no hreflang alternates", () => {
+    // Localized pages translate the chrome around the same English catalog. Giving each its own
+    // canonical and 27 hreflang links made crawlers fetch the catalog 27 times over.
     expect(formatLongDate("2026-09-15T00:00:00Z", "America/New_York")).toBe("Monday, 14 September 2026");
     expect(formatLongDate("2026-09-15T00:00:00Z", "America/New_York", "es")).toMatch(/septiembre/i);
     const metadata = buildMetadata({
@@ -61,9 +54,9 @@ describe("hreflang metadata", () => {
       ogPath: "/og/default",
       locale: "es",
     });
-    expect(metadata.alternates?.canonical).toBe(absoluteUrl("/es/event/example"));
-    expect(metadata.openGraph?.locale).toBe("es_ES");
-    expect(metadata.alternates?.languages?.["x-default"]).toBe(absoluteUrl("/event/example"));
+    expect(metadata.alternates?.canonical).toBe(absoluteUrl("/event/example"));
+    expect(metadata.alternates?.languages).toBeUndefined();
+    expect(metadata.openGraph).toMatchObject({ url: absoluteUrl("/event/example"), locale: "es_ES" });
   });
 
   it("ships a complete message tree for every locale", () => {
