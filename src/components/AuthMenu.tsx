@@ -6,6 +6,7 @@ import { signOutAction } from "@/lib/auth/actions";
 import { createAuthBrowserClient } from "@/lib/auth/browser";
 import { isAuthConfigured } from "@/lib/auth/env";
 import { profileHref } from "@/lib/auth/profile";
+import { NO_PREFETCH } from "@/lib/link-prefetch";
 import { SignInButton } from "./SignInButton";
 import { capture, resetUser } from "@/lib/analytics";
 
@@ -104,6 +105,7 @@ export function AuthMenu() {
         </Link>
         <Link
           href="/notifications"
+          {...NO_PREFETCH}
           className="flex min-h-11 items-center rounded-xl px-2 text-xs text-paper-dim hover:bg-surface-hover hover:text-paper"
         >
           Notifications

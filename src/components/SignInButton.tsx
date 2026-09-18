@@ -8,6 +8,7 @@ import { useState, type ReactNode } from "react";
 import { useCollection } from "@/components/CollectionProvider";
 import type { AuthMode } from "@/lib/auth/paths";
 import { isAuthGatedPath, safeNextPath } from "@/lib/auth/paths";
+import { isPerRequestRoute, NO_PREFETCH } from "@/lib/link-prefetch";
 import { AuthDialog } from "./AuthDialog";
 
 export function SignInButton({
@@ -92,6 +93,7 @@ export function AuthGateLink({
     <>
       <Link
         href={href}
+        {...(isPerRequestRoute(href) ? NO_PREFETCH : {})}
         className={className}
         aria-label={ariaLabel}
         aria-current={ariaCurrent}
