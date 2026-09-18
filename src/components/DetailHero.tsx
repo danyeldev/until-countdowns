@@ -50,7 +50,7 @@ export function DetailHero({
         aria-hidden="true"
       >
         {image ? (
-          <div className="absolute inset-y-0 right-0 w-full opacity-45 lg:w-3/4 [&>div]:h-full [&>div]:!aspect-auto [&_img]:h-full [&_img]:object-cover">
+          <div className="absolute inset-y-0 right-0 w-full opacity-90 lg:w-3/4 [&>div]:h-full [&>div]:!aspect-auto [&_img]:h-full [&_img]:object-cover">
             <EventImage
               image={image}
               alt=""
@@ -72,8 +72,13 @@ export function DetailHero({
             />
           </div>
         )}
-        <div className="absolute inset-0 bg-linear-to-r from-ink-2 via-ink-2/90 to-ink-2/40" />
-        <div className="absolute inset-0 bg-linear-to-t from-ink-2 via-transparent to-transparent" />
+        {/* The photo is the point of the stage: the scrims only keep the title column readable. */}
+        <div
+          className={`absolute inset-0 bg-linear-to-r from-ink-2 from-10% to-transparent ${
+            image ? "via-ink-2/55 via-40%" : "via-ink-2/90"
+          }`}
+        />
+        <div className="absolute inset-0 bg-linear-to-t from-ink-2 via-ink-2/25 via-35% to-transparent" />
       </div>
 
       <div className="px-5 py-7 sm:px-9 sm:py-9 lg:px-11 lg:py-11">

@@ -4,17 +4,12 @@
  *
  * Nothing is hotlinked: every accepted file is fetched once with the shared descriptive
  * User-Agent (12 MB cap, `image/*` only, 15 s), validated with sharp (it must decode and be at
- * least 800 px wide), hashed, and re-encoded into three fixed derivatives under a
- * content-addressed prefix:
+ * least 400 px wide; an SVG is rendered at hero width first), hashed, and re-encoded into three
+ * fixed derivatives under a content-addressed prefix, whatever the licence:
  *
  *   <sha256>/hero.webp   1600w, q90   — event page hero
  *   <sha256>/card.webp    640w, q88   — listing cards
  *   <sha256>/og.jpg    1200×630, q82  — social card background, kept under 600 KB (WhatsApp)
- *
- * The `og.jpg` crop is only built for licences that allow adaptations without a ShareAlike
- * obligation (CC0, public domain, CC BY, the open-government ones). A CC BY-SA file keeps its
- * unmodified hero and simply has no social-card background: cropping and overlaying it would be
- * Adapted Material, which the plan refuses to publish (brief §21 step 4).
  *
  * The sha is the dedupe key: two events pointing at the same Commons file share one `images` row
  * and one set of objects. `events.image_id` is only ever *filled in*, never overwritten — a
@@ -24,7 +19,6 @@ import { createHash } from "node:crypto";
 import { rgbaToThumbHash } from "thumbhash";
 import type { Db } from "@/lib/ingest/db";
 import { userAgent } from "@/lib/ingest/http";
-import { isShareAlike } from "@/lib/images";
 import { encodeWebp, WEBP_QUALITY } from "@/lib/images/encode";
 import { creditLine, evaluateNamedLicense, isRehostableFileUrl, type LicensedImage } from "./license";
 
@@ -47,8 +41,12 @@ export const DEFAULT_BUCKET = "event-images";
 /** Hard download cap; a bigger file is a scan or a panorama, not an event photo. */
 export const MAX_DOWNLOAD_BYTES = 12 * 1024 * 1024;
 export const DOWNLOAD_TIMEOUT_MS = 15_000;
-/** Below this the image cannot fill a hero without visible upscaling. */
-export const MIN_SOURCE_WIDTH = 800;
+/**
+ * Below this a photo is a thumbnail, not a picture. 400 px still fills a 640 px card at the size
+ * cards actually render (≤ 400 px on desktop, one column on phones) and is soft but usable as a
+ * hero backdrop; the 800 px floor it replaces threw away the only free photo of ~400 events.
+ */
+export const MIN_SOURCE_WIDTH = 400;
 /** WhatsApp refuses to preview cards over 600 KB. */
 export const OG_MAX_BYTES = 600 * 1024;
 const OG_QUALITY_STEPS = [82, 72, 62];
@@ -161,20 +159,39 @@ export type Derivatives = {
   height: number;
   thumbhash: string;
   dominantColor: string;
-  /** `og` is absent for ShareAlike sources; `hero` and `card` are always present. */
-  variants: Partial<Record<VariantName, { body: Buffer; contentType: string }>>;
+  variants: Record<VariantName, { body: Buffer; contentType: string }>;
 };
+
+/**
+ * The 1200×630 social-card crop, stepping the JPEG quality down until it fits WhatsApp's 600 KB
+ * preview limit. Also used on its own to backfill `og.jpg` for files stored before every licence
+ * got one.
+ */
+export async function buildOgVariant(source: Buffer): Promise<Buffer> {
+  const { default: sharp } = await import("sharp");
+  let og: Buffer | null = null;
+  for (const quality of OG_QUALITY_STEPS) {
+    og = await sharp(source, { animated: false })
+      .rotate()
+      .resize(VARIANTS.og.width, VARIANTS.og.height, { fit: "cover", position: "attention" })
+      .jpeg({ quality, mozjpeg: true })
+      .toBuffer();
+    if (og.byteLength <= OG_MAX_BYTES) break;
+  }
+  if (!og) throw new ImageError("og variant could not be encoded");
+  return og;
+}
 
 /**
  * Decode once, then emit the three derivatives plus the placeholder metadata. Throws
  * `ImageError` when the bytes do not decode or the source is too small to use.
  */
-export async function buildDerivatives(source: Buffer, options: { includeOg?: boolean } = {}): Promise<Derivatives> {
-  const includeOg = options.includeOg ?? true;
+export async function buildDerivatives(input: Buffer): Promise<Derivatives> {
   // `sharp` is a native module listed in `serverExternalPackages`: imported here so it is only
   // loaded inside the cron invocation that actually processes an image.
   const { default: sharp } = await import("sharp");
 
+  let source = input;
   let meta: { width?: number; height?: number; format?: string };
   try {
     meta = await sharp(source).metadata();
@@ -182,6 +199,18 @@ export async function buildDerivatives(source: Buffer, options: { includeOg?: bo
     throw new ImageError(`undecodable image: ${err instanceof Error ? err.message : String(err)}`, true);
   }
   if (!meta.width || !meta.height) throw new ImageError("image has no dimensions", true);
+
+  // A vector file has no real width: render it at hero size and carry on with the bitmap.
+  if (meta.format === "svg") {
+    const density = Math.min(2400, Math.ceil((72 * VARIANTS.hero.width) / meta.width));
+    try {
+      source = await sharp(input, { density }).png().toBuffer();
+      meta = await sharp(source).metadata();
+    } catch (err) {
+      throw new ImageError(`svg could not be rendered: ${err instanceof Error ? err.message : String(err)}`, true);
+    }
+    if (!meta.width || !meta.height) throw new ImageError("svg rendered to nothing", true);
+  }
   if (meta.width < MIN_SOURCE_WIDTH) throw new ImageError(`too small: ${meta.width}px wide (minimum ${MIN_SOURCE_WIDTH})`, true);
 
   // `.rotate()` with no argument applies the EXIF orientation before every resize.
@@ -189,18 +218,7 @@ export async function buildDerivatives(source: Buffer, options: { includeOg?: bo
 
   const hero = await encodeWebp(source, { width: VARIANTS.hero.width, quality: WEBP_QUALITY.hero });
   const card = await encodeWebp(source, { width: VARIANTS.card.width, quality: WEBP_QUALITY.card });
-
-  let og: Buffer | null = null;
-  if (includeOg) {
-    for (const quality of OG_QUALITY_STEPS) {
-      og = await base()
-        .resize(VARIANTS.og.width, VARIANTS.og.height, { fit: "cover", position: "attention" })
-        .jpeg({ quality, mozjpeg: true })
-        .toBuffer();
-      if (og.byteLength <= OG_MAX_BYTES) break;
-    }
-    if (!og) throw new ImageError("og variant could not be encoded");
-  }
+  const og = await buildOgVariant(source);
 
   const stats = await base().stats();
   const thumb = await base()
@@ -218,7 +236,7 @@ export async function buildDerivatives(source: Buffer, options: { includeOg?: bo
     variants: {
       hero: { body: hero.data, contentType: VARIANTS.hero.contentType },
       card: { body: card.data, contentType: VARIANTS.card.contentType },
-      ...(og ? { og: { body: og, contentType: VARIANTS.og.contentType } } : {}),
+      og: { body: og, contentType: VARIANTS.og.contentType },
     },
   };
 }
@@ -240,20 +258,25 @@ export type StorageLike = {
   };
 };
 
+export async function uploadVariant(
+  storage: StorageLike,
+  sha256: string,
+  name: VariantName,
+  variant: { body: Buffer; contentType: string },
+): Promise<void> {
+  const { error } = await storage.from(bucketName()).upload(variantPath(sha256, name), variant.body, {
+    upsert: true,
+    cacheControl: "31536000",
+    contentType: variant.contentType,
+  });
+  if (error) throw new ImageError(`storage upload of ${variantPath(sha256, name)} failed: ${error.message}`);
+}
+
 export async function uploadVariants(storage: StorageLike, sha256: string, derivatives: Derivatives): Promise<string> {
-  const bucket = storage.from(bucketName());
   for (const name of VARIANT_NAMES) {
-    const variant = derivatives.variants[name];
-    if (!variant) continue; // `og` is skipped for ShareAlike sources.
-    const { body, contentType } = variant;
-    const { error } = await bucket.upload(variantPath(sha256, name), body, {
-      upsert: true,
-      cacheControl: "31536000",
-      contentType,
-    });
-    if (error) throw new ImageError(`storage upload of ${variantPath(sha256, name)} failed: ${error.message}`);
+    await uploadVariant(storage, sha256, name, derivatives.variants[name]);
   }
-  return bucket.getPublicUrl(variantPath(sha256, "hero")).data.publicUrl;
+  return storage.from(bucketName()).getPublicUrl(variantPath(sha256, "hero")).data.publicUrl;
 }
 
 export type StoredImage = { imageId: string; sha256: string; reused: boolean; publicUrl: string };
@@ -292,8 +315,7 @@ export async function storeLicensedImage(db: Db, candidate: LicensedImage): Prom
   const bySha = await findImageBySha(db, sha256);
   if (bySha) return bySha;
 
-  // ShareAlike sources get no `og.jpg`: the OG route falls back to the gradient for them.
-  const derivatives = await buildDerivatives(source, { includeOg: !isShareAlike(candidate.license) });
+  const derivatives = await buildDerivatives(source);
   const publicUrl = await uploadVariants(await resolveImageStorage(db), sha256, derivatives);
 
   const row = {

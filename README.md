@@ -121,10 +121,9 @@ the same weight.
 
 **Copyright, which binds.** Prose and photographs are creative works. Wikipedia summaries are CC
 BY-SA 4.0 and every page carrying one says so and links the article; every image goes through the
-two-part gate in `src/lib/enrich/images/license.ts` before a byte is stored, and a ShareAlike file
-never becomes an OG card (see [Images](#images) and
-[ShareAlike](#sharealike-and-what-may-be-made-from-a-photo)). None of that is negotiable, and none
-of it is relaxed by anything below.
+two-part gate in `src/lib/enrich/images/license.ts` before a byte is stored, and every photo is
+credited wherever it appears (see [Images](#images) and [ShareAlike](#sharealike)). None of that
+is negotiable, and none of it is relaxed by anything below.
 
 **Terms of service, which is a business judgement.** *A schedule is not a creative work.* "UFC Fight
 Night is on 12 September at 18:00" is a fact, and facts are not copyrightable — a feed's terms may
@@ -251,7 +250,7 @@ Every photo on the site is a **re-hosted copy** of a freely licensed file, never
 Two independent checks, both in `src/lib/enrich/images/license.ts`:
 
 - **Where the bytes live** — under `/wikipedia/commons/` on the Wikimedia hosts, on the NASA asset hosts, or on the Launch Library CDN. `/wikipedia/en/` is refused: local uploads are where the fair-use posters live, and `pilicense=free` does not reliably exclude them.
-- **What the metadata says** — verified through Commons `imageinfo&iiprop=url|size|mime|extmetadata` (**never** `en.wikipedia.org`, which returns fair-use files with a working URL). Accepted: CC0, public domain / PD, CC BY, CC BY-SA, GODL-India, OGL, KOGL, NASA media guidelines. Rejected: `NonFree=true`, "Fair use", any NC or ND clause, `Restrictions` naming a trademark / insignia / currency / personality right, a required attribution that names nobody ("Multiple authors" on a montage), and **a missing licence name** — freedom is never assumed.
+- **What the metadata says** — verified through Commons `imageinfo&iiprop=url|size|mime|extmetadata` (**never** `en.wikipedia.org`, which returns fair-use files with a working URL). Accepted: CC0, public domain / PD, CC BY, CC BY-SA, GODL-India, OGL, KOGL, NASA media guidelines, and the Flickr Commons labels "No restrictions" and "Attribution". Rejected: `NonFree=true`, "Fair use", any NC or ND clause, `Restrictions` naming a trademark or currency, a required attribution that names nobody ("Multiple authors" on a montage), and **a missing licence name** — freedom is never assumed. The `insignia` and `personality` restriction tags are accepted: a coat of arms on an election page and a photo of the athlete or politician an event is about are ordinary editorial use, and refusing them left almost every election and most sports rows without a picture. Any mime type sharp can rasterise is accepted — JPEG, PNG, WebP, GIF, TIFF and SVG (rendered at hero width first).
 
 Both halves are re-checked inside `storeLicensedImage()` itself, the one place that writes to Storage, so no future branch of the discovery chain can hand over a candidate that skipped the gate. Rows whose title reads like an incident, a disaster or a trial also refuse files categorised as portraits of identifiable people: `extmetadata` says nothing about personality rights, and a head-of-state portrait illustrating a fatal-accident countdown is the wrong picture whatever its licence allows.
 
@@ -259,23 +258,21 @@ Both halves are re-checked inside `storeLicensedImage()` itself, the one place t
 
 ### Storage
 
-Accepted files are downloaded once with the shared UA (12 MB cap, `image/*`, 15 s), validated with sharp (must decode, ≥ 800 px wide), hashed, and stored under a content-addressed prefix on Cloudflare R2 (`https://images.until.day/<sha256>/…`):
+Accepted files are downloaded once with the shared UA (12 MB cap, `image/*`, 15 s), validated with sharp (must decode, ≥ 400 px wide — a 400 px photo still fills a card at the size cards render, and the 800 px floor it replaced threw away the only free photo of ~400 events), hashed, and stored under a content-addressed prefix on Cloudflare R2 (`https://images.until.day/<sha256>/…`):
 
 | object | size | used by |
 |---|---|---|
 | `<sha256>/hero.webp` | 1600w, q90 | event and series pages |
 | `<sha256>/card.webp` | 640w, q88 | listing cards |
-| `<sha256>/og.jpg` | 1200×630 cover, q82, < 600 KB | the social card background in `src/lib/og.tsx` — **not built for ShareAlike sources** |
+| `<sha256>/og.jpg` | 1200×630 cover, q82, < 600 KB | the social card background in `src/lib/og.tsx` |
 
 Objects are uploaded with `cache-control: public, max-age=31536000`; `next/image` serves them `unoptimized` (they are already the exact widths the layouts ask for) inside a box whose aspect ratio is known from the stored dimensions, over the stored dominant colour and a thumbhash blur — so an image never shifts the layout. The sha is the dedupe key: two events on the same Commons file share one `images` row and one set of objects, and `events.image_id` is only ever filled in, never overwritten, so a curated image always wins. `series.image_id` inherits the first image one of its occurrences gets.
 
 Failures that a retry cannot fix (too large, too small, undecodable) park the job as `skipped`; transient ones back off `2^attempts` hours, capped at 7 days, and become `failed` after 6 attempts *that actually failed* — `claim_enrichment_jobs` bumps `attempts` on everything it hands out, so a job is only retired when it also carries a `last_error` from an earlier run. Each run claims `remaining budget ÷ ~3 s` jobs rather than a flat 60, and alternates which kind goes first, so a long summary batch stops ageing the image queue behind it.
 
-### ShareAlike, and what may be *made* from a photo
+### ShareAlike
 
-A CC BY-SA file may be published as-is with its credit; cropping it to 1200×630 and laying a scrim, the title and the wordmark over it produces Adapted Material (CC BY-SA 4.0 §2(a)(1)(B)), which would have to be released under a share-alike licence and say so on the card. Until does not do that: `isShareAlike()` in `src/lib/images.ts` gates both ends — `process.ts` does not even build the `og.jpg` crop for such a file, and `ogBackgroundUrl()` makes the OG route fall back to the seeded gradient. CC0 / public domain / CC BY photos keep the card, with `Photo: <author> · <licence>` composed from the parts so the licence name is never the half that gets truncated.
-
-That is the only place the licence changes what is shown. On the site itself a ShareAlike photo appears exactly like a CC BY one — hero, card, featured backdrop — with its `ImageCredit`: `hero.webp` and `card.webp` are plain resizes, which §2(a)(4) says never produce Adapted Material, and the `object-cover` crop and the gradient are drawn by the browser over the unmodified file. (Until September 2026 ShareAlike photos were hidden behind decorative artwork instead; with half the catalogue's photos BY-SA, that made half the events look imageless.)
+A CC BY-SA photo is shown exactly like a CC BY one everywhere — cards, hero, featured backdrop and the OG social card — always with `Photo: <author> · <licence>` composed from the parts so the licence name is never the half that gets truncated. `isShareAlike()` in `src/lib/images.ts` is informational only. Until September 2026 ShareAlike photos were hidden behind decorative artwork on the site and got no `og.jpg`; with half the catalogue's photos BY-SA, that made half the events look imageless. `scripts/catalog-images.ts og` backfills the missing social-card crops from the stored heroes.
 
 ### Re-checks
 
@@ -315,7 +312,7 @@ Mixed-case paths (`/country/Ae`, `/event/Foo-…`) are 404s, never redirects: an
 
 Metadata comes from `src/lib/seo.ts` (`buildMetadata()`; titles rotate by category and never carry the day count; descriptions do, from SQL `days_until`). JSON-LD builders live in `src/lib/jsonld.ts`: `BreadcrumbList` everywhere, `WebSite` + `Organization` on `/`, `EventSeries` on series pages (its `subEvent` list carries `Event` items only for `jsonld_eligible` occurrences), schema.org `Event` only for `jsonld_eligible` rows (no FAQPage, no SearchAction). Sitemaps: `generateSitemaps()` in `src/app/sitemap.ts` shards into `hubs`, `series` and `events-<year>` (`-h1/-h2` above 40k URLs), served at `/sitemap/<id>.xml`; `/sitemap-index.xml` is a hand-written index because Next emits none. `lastmod` is `updated_at`, no priority/changefreq.
 
-Open Graph cards are route handlers under `src/app/og/*` (`src/lib/og.tsx`, `ImageResponse`, Geist + Geist Mono woff from `@fontsource/*`, traced with `outputFileTracingIncludes`). Event and series cards embed the metadata date in the URL (`/og/event/<slug>/<yyyy-mm-dd>.png`) so the day count is fixed per URL and social scrapers refetch daily; dated and undated cards use an hourly cache (`s-maxage=3600`) so corrected dates and statuses can refresh. Unknown slugs get the default card (200); a malformed date is a 400. A card only uses a photo when the licence allows adaptations (see [ShareAlike](#sharealike-and-what-may-be-made-from-a-photo)); everything else draws the seeded gradient. Cards stay under 600 KB (WhatsApp limit) — the PNG is quantised in steps and, if it still will not fit, the photo is dropped for the gradient rather than shipped over budget. `GOOGLE_SITE_VERIFICATION` (optional) is emitted from the root layout.
+Open Graph cards are route handlers under `src/app/og/*` (`src/lib/og.tsx`, `ImageResponse`, Geist + Geist Mono woff from `@fontsource/*`, traced with `outputFileTracingIncludes`). Event and series cards embed the metadata date in the URL (`/og/event/<slug>/<yyyy-mm-dd>.png`) so the day count is fixed per URL and social scrapers refetch daily; dated and undated cards use an hourly cache (`s-maxage=3600`) so corrected dates and statuses can refresh. Unknown slugs get the default card (200); a malformed date is a 400. A card uses the event's photo whenever there is one; an event without a photo draws the seeded gradient. Cards stay under 600 KB (WhatsApp limit) — the PNG is quantised in steps and, if it still will not fit, the photo is dropped for the gradient rather than shipped over budget. `GOOGLE_SITE_VERIFICATION` (optional) is emitted from the root layout.
 
 ## Design research
 

@@ -148,8 +148,7 @@ describe("evaluateCommonsFile (recorded API payloads)", () => {
   });
 
   it("rejects a free file that carries a trademark restriction", () => {
-    // brief §21 step 4: `Restrictions=trademarked` is inline-only, and every stored image here
-    // becomes a hero or an OG background.
+    // A trademarked logo is never the right event photo, whatever its copyright status.
     const verdict = evaluateCommonsFile(
       {
         url: "https://upload.wikimedia.org/wikipedia/commons/1/11/Logo_expo_2027.jpg",
@@ -163,6 +162,36 @@ describe("evaluateCommonsFile (recorded API payloads)", () => {
     );
     expect(verdict).toMatchObject({ ok: false });
     expect(verdict.ok ? "" : verdict.reason).toContain("restricted: trademarked");
+  });
+
+  it("accepts insignia and personality-rights restrictions: ordinary editorial use", () => {
+    // A coat of arms illustrating an election and a photo of the politician the vote is about
+    // were the only free files for most political and sports rows.
+    for (const restriction of ["insignia", "personality", "personality; insignia"]) {
+      const verdict = evaluateCommonsFile(
+        {
+          url: "https://upload.wikimedia.org/wikipedia/commons/1/11/Coat_of_arms.jpg",
+          mime: "image/jpeg",
+          extmetadata: {
+            LicenseShortName: { value: "CC BY-SA 4.0" },
+            Artist: { value: "A Photographer" },
+            Restrictions: { value: restriction },
+          },
+        },
+        "wikidata-p18",
+      );
+      expect(verdict.ok, restriction).toBe(true);
+    }
+  });
+
+  it("accepts the Flickr Commons licence labels and still refuses their NC / ND cousins", () => {
+    expect(evaluateNamedLicense("No restrictions").ok).toBe(true);
+    expect(evaluateNamedLicense("No known copyright restrictions").ok).toBe(true);
+    expect(evaluateNamedLicense("Attribution").ok).toBe(true);
+    expect(evaluateNamedLicense("Attribution-ShareAlike 3.0").ok).toBe(true);
+    expect(evaluateNamedLicense("Attribution-NonCommercial 2.0").ok).toBe(false);
+    expect(evaluateNamedLicense("Attribution-NoDerivs 2.0").ok).toBe(false);
+    expect(evaluateNamedLicense("Attribution-NoDerivatives 4.0").ok).toBe(false);
   });
 
   it("rejects a montage whose required attribution names nobody", () => {
@@ -231,15 +260,20 @@ describe("evaluateCommonsFile (recorded API payloads)", () => {
     expect(verdict).toEqual({ ok: false, reason: "no LicenseShortName" });
   });
 
-  it("rejects a non-raster mime type", () => {
-    const verdict = evaluateCommonsFile(
-      {
-        url: "https://upload.wikimedia.org/wikipedia/commons/1/11/X.svg",
-        mime: "image/svg+xml",
-        extmetadata: { LicenseShortName: { value: "CC0" } },
-      },
-      "test",
-    );
+  it("accepts every mime type sharp can rasterise and rejects the rest", () => {
+    const file = (mime: string) =>
+      evaluateCommonsFile(
+        {
+          url: "https://upload.wikimedia.org/wikipedia/commons/1/11/X.bin",
+          mime,
+          extmetadata: { LicenseShortName: { value: "CC0" } },
+        },
+        "test",
+      );
+    for (const mime of ["image/jpeg", "image/png", "image/webp", "image/gif", "image/tiff", "image/svg+xml"]) {
+      expect(file(mime).ok, mime).toBe(true);
+    }
+    const verdict = file("application/pdf");
     expect(verdict.ok).toBe(false);
     expect(verdict.ok ? "" : verdict.reason).toContain("unsupported mime");
   });
