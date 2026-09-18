@@ -4,22 +4,30 @@ import { isStaleAuthSession } from "@/lib/auth/messages";
 import { loginHref, safeNextPath } from "@/lib/auth/paths";
 import { createAuthServerClient, getOwnProfile, profileIsComplete } from "@/lib/auth/server";
 import { localizedMetadata } from "@/lib/seo";
+import { activateLocale } from "@/i18n/request-locale";
 
-export async function generateMetadata() {
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale } = await params;
+  activateLocale(locale);
   return localizedMetadata({
   title: "Your profile",
   description: "Choose your name and handle on Until.",
   canonical: "/login/complete",
   ogPath: "/og/default",
   noindex: true,
-});
+    locale,
+  });
 }
 
 export default async function CompleteProfilePage({
+  params,
   searchParams,
 }: {
+  params: Promise<{ locale: string }>;
   searchParams: Promise<{ next?: string | string[] }>;
 }) {
+  const { locale } = await params;
+  activateLocale(locale);
   const next = safeNextPath((await searchParams).next);
   const supabase = await createAuthServerClient();
   const { data, error } = await supabase.auth.getUser();

@@ -3,6 +3,7 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 import { createAuthBrowserClient } from "@/lib/auth/browser";
 import { isAuthConfigured } from "@/lib/auth/env";
+import { useAuthCookie } from "@/lib/auth-cookie";
 import {
   COLLECTION_MAX,
   collectionErrorMessage,
@@ -43,6 +44,7 @@ function emptyCollection() {
 
 export function CollectionProvider({ children }: { children: ReactNode }) {
   const configured = isAuthConfigured();
+  const hasAuthCookie = useAuthCookie();
   const [userId, setUserId] = useState<string | null>(null);
   const [sessionKnown, setSessionKnown] = useState(!configured);
   const [mine, setMine] = useState<CountdownEvent[]>([]);
@@ -51,7 +53,7 @@ export function CollectionProvider({ children }: { children: ReactNode }) {
   const [loadedFor, setLoadedFor] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!configured) return;
+    if (!configured || !hasAuthCookie) return;
     const supabase = createAuthBrowserClient();
     let cancelled = false;
     const { data } = supabase.auth.onAuthStateChange((_event, session) => {
@@ -88,9 +90,12 @@ export function CollectionProvider({ children }: { children: ReactNode }) {
       cancelled = true;
       data.subscription.unsubscribe();
     };
-  }, [configured]);
+  }, [configured, hasAuthCookie]);
 
-  const ready = sessionKnown && (!userId || loadedFor === userId);
+  const ready =
+    !configured ||
+    (!hasAuthCookie && !userId) ||
+    (sessionKnown && (!userId || loadedFor === userId));
 
   const upsertMine = useCallback(async (event: CountdownEvent) => {
     if (!userId) throw new Error("Sign in to save this countdown.");

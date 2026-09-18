@@ -8,20 +8,26 @@ import { CATEGORY_LABELS } from "@/lib/labels";
 import { formatShortDate, localizedMetadata } from "@/lib/seo";
 import { humanDays } from "@/lib/time";
 import { CATEGORIES, type Category, type Series } from "@/lib/types";
+import { activateLocale } from "@/i18n/request-locale";
 
 export const revalidate = 3600;
 
-export async function generateMetadata() {
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale } = await params;
+  activateLocale(locale);
   return localizedMetadata({
   title: "Days until — every recurring countdown",
   description:
     "Christmas, Ramadan, the Super Bowl, the Perseids: every recurring date in the catalog with the next occurrence on top and a table of the years to come.",
   canonical: "/days-until",
   ogPath: "/og/default",
-});
+    locale,
+  });
 }
 
-export default async function SeriesIndexPage() {
+export default async function SeriesIndexPage({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale } = await params;
+  activateLocale(locale);
   const list = await allSeries();
   const byCategory = new Map<Category, Series[]>();
   for (const s of list) {

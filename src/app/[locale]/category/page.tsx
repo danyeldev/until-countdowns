@@ -7,21 +7,27 @@ import { collectionPage } from "@/lib/jsonld";
 import { CATEGORY_BLURB, CATEGORY_LABELS } from "@/lib/labels";
 import { localizedMetadata } from "@/lib/seo";
 import { CATEGORY_GROUPS } from "@/lib/taxonomy";
+import { activateLocale } from "@/i18n/request-locale";
 
 export const revalidate = 3600;
 const GROUP_ICONS: Record<string, IconName> = { celebrate: "spark", watch: "film", play: "bolt", "look-up": "moon", vote: "globe", wonder: "compass" };
 
-export async function generateMetadata() {
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale } = await params;
+  activateLocale(locale);
   return localizedMetadata({
   title: "Categories — every kind of date that has not happened yet",
   description:
     "Browse upcoming dates by category: holidays, sports, film and TV, games, space, elections, anniversaries and more, each with live countdowns.",
   canonical: "/category",
   ogPath: "/og/default",
-});
+    locale,
+  });
 }
 
-export default async function CategoryIndexPage() {
+export default async function CategoryIndexPage({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale } = await params;
+  activateLocale(locale);
   const counts = await categoryCounts();
   return (
     <div>

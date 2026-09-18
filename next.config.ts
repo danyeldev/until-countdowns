@@ -80,8 +80,8 @@ const nextConfig: NextConfig = {
     const page = "(?<n>[2-9]|[1-9][0-9]{1,3})";
     const locale = `:locale(${PREFIXED_LOCALE_PATTERN})`;
     return [
-      // The old category filter on the home page now has its own hub; free-text searches keep
-      // using the home page, so the rule only fires when there is no `q`.
+      // The old category filter on the home page now has its own hub; free-text searches
+      // live at `/search`, so this rule only fires when there is no `q`.
       {
         source: "/",
         has: [{ type: "query", key: "category", value: "(?<c>[a-z]+)" }],

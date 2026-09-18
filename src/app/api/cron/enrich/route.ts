@@ -1,5 +1,5 @@
 import type { NextRequest } from "next/server";
-import { eventTag, invalidateTags, TAG_EVENTS } from "@/lib/cache";
+import { eventTag, invalidateTags } from "@/lib/cache";
 import { assertCron, cronBudget, CRON_HEADERS, cronTrigger } from "@/lib/cron";
 
 /**
@@ -54,9 +54,8 @@ export async function GET(req: NextRequest) {
   try {
     const summary = await runEnrichment({ kinds, limit, dryRun: params.get("dry") === "1", slug, budgetMs: cronBudget(params.get("budget"), process.env.ENRICH_BUDGET_MS ?? process.env.INGEST_BUDGET_MS, MAX_BUDGET_MS) });
 
-    // One catalog-wide tag plus a bounded list of per-event tags: a big run must not turn into
-    // hundreds of revalidations, and `events` alone would already be correct.
-    const tags = [TAG_EVENTS, ...summary.changed.slice(0, MAX_CHANGED_TAGS).map(eventTag)];
+    // Per-event tags only — hub lists stay on time-based revalidate instead of a site-wide wipe.
+    const tags = summary.changed.slice(0, MAX_CHANGED_TAGS).map(eventTag);
     if (!summary.dry && summary.changed.length > 0) invalidateTags(tags);
 
     console.log(

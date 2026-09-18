@@ -4,9 +4,11 @@ import { AuthForm } from "@/components/AuthForm";
 import { getAuthClaims, getOwnProfile, profileIsComplete } from "@/lib/auth/server";
 import { completeProfileHref, parseAuthMode, safeNextPath } from "@/lib/auth/paths";
 import { localizedMetadata } from "@/lib/seo";
+import { activateLocale } from "@/i18n/request-locale";
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
+  activateLocale(locale);
   return localizedMetadata({
     title: "Sign in",
     description: "Sign in to Until with Google or your email and password.",
@@ -30,6 +32,7 @@ export default async function LoginPage({
   searchParams: Promise<{ next?: string | string[]; mode?: string | string[]; error?: string | string[]; message?: string | string[] }>;
 }) {
   const { locale } = await params;
+  activateLocale(locale);
   const query = await searchParams;
   const next = safeNextPath(query.next);
   if (await getAuthClaims()) {

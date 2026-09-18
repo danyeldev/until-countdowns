@@ -15,6 +15,7 @@ import { categoryTitle, formatShortDate, localizedMetadata } from "@/lib/seo";
 import { HUB_PAGE_SIZE } from "@/lib/taxonomy";
 import { humanDays } from "@/lib/time";
 import { CATEGORIES } from "@/lib/types";
+import { activateLocale } from "@/i18n/request-locale";
 
 /**
  * Page 1 of a category hub. It never reads `searchParams` (that would opt the route out of ISR);
@@ -23,14 +24,15 @@ import { CATEGORIES } from "@/lib/types";
  */
 export const revalidate = 3600;
 
-type Props = { params: Promise<{ category: string }> };
+type Props = { params: Promise<{ category: string; locale: string }> };
 
 export function generateStaticParams() {
   return englishParams(CATEGORIES.slice(0, prerenderLimit(CATEGORIES.length)).map((category) => ({ category })));
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const { category } = await params;
+  const { category, locale } = await params;
+  activateLocale(locale);
   if (!isCategory(category)) return { title: "Category", robots: { index: false, follow: true } };
   const counts = await categoryCounts();
   const n = counts[category] ?? 0;
@@ -41,11 +43,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     ogPath: `/og/category/${category}`,
     // An empty category is a thin page: keep it reachable, out of the index (and out of the sitemap).
     noindex: n === 0,
+    locale,
   });
 }
 
 export default async function CategoryPage({ params }: Props) {
-  const { category } = await params;
+  const { category, locale } = await params;
+  activateLocale(locale);
   if (!isCategory(category)) notFound();
   const path = `/category/${category}`;
 

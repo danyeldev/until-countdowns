@@ -24,11 +24,11 @@ export function FeaturedHero({ event }: { event: CountdownEvent }) {
   return (
     <section className="hero-art flex min-h-[400px] min-w-0 flex-col p-6 sm:p-8">
       <Image
-        src={backdrop ? imageUrl(backdrop, "hero") : "/art/until-sculpture.png"}
+        src={backdrop ? imageUrl(backdrop, "hero") : "/art/until-sculpture.webp"}
         alt=""
         fill
         preload
-        unoptimized={Boolean(backdrop)}
+        unoptimized
         sizes="(max-width: 1280px) 100vw, 850px"
         className="pointer-events-none -z-20 object-cover object-right"
       />

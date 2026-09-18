@@ -2,20 +2,26 @@ import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { imageLicenses, sourcesList } from "@/lib/catalog";
 import { providerLabel } from "@/lib/images";
 import { localizedMetadata } from "@/lib/seo";
+import { activateLocale } from "@/i18n/request-locale";
 
 export const revalidate = 3600;
 
-export async function generateMetadata() {
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale } = await params;
+  activateLocale(locale);
   return localizedMetadata({
   title: "Attributions — where the dates come from",
   description:
     "Every source behind the Until catalog, with its licence and the attribution it asks for: date-holidays, Wikipedia, Wikidata, Hebcal, Launch Library and more.",
   canonical: "/attributions",
   ogPath: "/og/default",
-});
+    locale,
+  });
 }
 
-export default async function AttributionsPage() {
+export default async function AttributionsPage({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale } = await params;
+  activateLocale(locale);
   const [sources, licenses] = await Promise.all([sourcesList(), imageLicenses()]);
   const images = licenses.reduce((total, row) => total + row.count, 0);
   return (

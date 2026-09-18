@@ -1,5 +1,5 @@
 import type { NextRequest } from "next/server";
-import { invalidateTags, TAG_EVENTS, TAG_STATS } from "@/lib/cache";
+import { invalidateTags, TAG_CATALOG_LISTS, TAG_STATS } from "@/lib/cache";
 import { assertCron, CRON_HEADERS } from "@/lib/cron";
 
 export const maxDuration = 180;
@@ -26,12 +26,12 @@ export async function GET(req: NextRequest) {
     const rpcDb = await getLongDb(FINALIZE_TIMEOUT_MS);
     const { error } = await rpcDb.rpc("finalize_catalog");
     if (error) throw new Error(error.message);
-    invalidateTags([TAG_EVENTS, TAG_STATS]);
+    invalidateTags([TAG_CATALOG_LISTS, TAG_STATS]);
     const { error: stateError } = await db.from("ingest_state").update({ last_success_at: new Date().toISOString() }).eq("source", "__finalize");
     if (stateError) throw new Error(`finalize state failed: ${stateError.message}`);
     const duration_ms = Date.now() - started;
     console.log(JSON.stringify({ evt: "finalize", status: "ok", duration_ms }));
-    return Response.json({ ok: true, duration_ms, revalidated: [TAG_EVENTS, TAG_STATS] }, { headers: CRON_HEADERS });
+    return Response.json({ ok: true, duration_ms, revalidated: [TAG_CATALOG_LISTS, TAG_STATS] }, { headers: CRON_HEADERS });
   } catch (err) {
     const error = err instanceof Error ? err.message : String(err);
     console.error(JSON.stringify({ evt: "finalize", status: "error", duration_ms: Date.now() - started, error }));

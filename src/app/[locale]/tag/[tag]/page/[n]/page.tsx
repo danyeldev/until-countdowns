@@ -9,6 +9,7 @@ import { listEventsStrict } from "@/lib/catalog";
 import { collectionPage } from "@/lib/jsonld";
 import { tagTitle, localizedMetadata } from "@/lib/seo";
 import { HUB_MAX_PAGE, HUB_PAGE_SIZE } from "@/lib/taxonomy";
+import { activateLocale } from "@/i18n/request-locale";
 
 /**
  * Pages 2+ of a tag hub (`/tag/[tag]/page/[n]`): ISR, rendered on first visit, `noindex,follow`
@@ -18,7 +19,7 @@ export const revalidate = 3600;
 
 const TAG_RE = /^[a-z0-9-]{1,60}$/;
 
-type Props = { params: Promise<{ tag: string; n: string }> };
+type Props = { params: Promise<{ tag: string; n: string; locale: string }> };
 
 function pageNumber(raw: string): number | null {
   if (!/^[1-9]\d{0,3}$/.test(raw)) return null;
@@ -31,7 +32,8 @@ export function generateStaticParams(): { tag: string; n: string }[] {
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const { tag, n: raw } = await params;
+  const { tag, n: raw, locale } = await params;
+  activateLocale(locale);
   const n = pageNumber(raw);
   if (!TAG_RE.test(tag) || n === null) return { title: "Tag", robots: { index: false, follow: true } };
   const label = tag.replace(/-/g, " ");
@@ -41,11 +43,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     canonical: `/tag/${tag}/page/${n}`,
     ogPath: "/og/default",
     noindex: true,
+    locale,
   });
 }
 
 export default async function TagPageN({ params }: Props) {
-  const { tag, n: raw } = await params;
+  const { tag, n: raw, locale } = await params;
+  activateLocale(locale);
   const n = pageNumber(raw);
   if (!TAG_RE.test(tag) || n === null) notFound();
   const basePath = `/tag/${tag}`;

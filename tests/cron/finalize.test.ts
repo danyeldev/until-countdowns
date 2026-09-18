@@ -2,7 +2,12 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { NextRequest } from "next/server";
 
 const fakes = vi.hoisted(() => ({ rpc: vi.fn(), invalidate: vi.fn(), clientError: false }));
-vi.mock("@/lib/cache", () => ({ invalidateTags: fakes.invalidate, TAG_EVENTS: "events", TAG_STATS: "stats" }));
+vi.mock("@/lib/cache", () => ({
+  invalidateTags: fakes.invalidate,
+  TAG_EVENTS: "events",
+  TAG_STATS: "stats",
+  TAG_CATALOG_LISTS: "catalog-lists",
+}));
 vi.mock("@/lib/ingest/db", () => ({
   FINALIZE_TIMEOUT_MS: 110_000,
   getDb: async () => {
@@ -51,7 +56,7 @@ describe("finalize route", () => {
   });
   it("invalidates catalog caches after a completed finalization", async () => {
     expect((await GET(request())).status).toBe(200);
-    expect(fakes.invalidate).toHaveBeenCalledExactlyOnceWith(["events", "stats"]);
+    expect(fakes.invalidate).toHaveBeenCalledExactlyOnceWith(["catalog-lists", "stats"]);
     expect(fakes.rpc).toHaveBeenLastCalledWith("release_source_lease", { p_source: "__finalize", p_token: "lease-1" });
   });
 });

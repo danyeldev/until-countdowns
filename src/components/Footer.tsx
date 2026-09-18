@@ -1,14 +1,10 @@
-"use client";
-
-import { useTranslations } from "next-intl";
-import { useCollection } from "@/components/CollectionProvider";
+import { getTranslations } from "next-intl/server";
 import { LanguageSwitcher } from "./LanguageSwitcher";
 import { AuthGateLink } from "./SignInButton";
 import { Link } from "@/i18n/navigation";
 
-export function Footer() {
-  const t = useTranslations("footer");
-  const { userId } = useCollection();
+export async function Footer() {
+  const t = await getTranslations("footer");
   return (
     <footer className="app-footer">
       <div className="mx-auto flex max-w-[1440px] flex-wrap items-center justify-between gap-4 border-t border-line/60 pt-5 text-xs text-muted">
@@ -30,19 +26,15 @@ export function Footer() {
           <Link href="/attributions" className="hover:text-paper">
             {t("attributions")}
           </Link>
-          {userId ? (
-            <AuthGateLink href="/saved" className="hover:text-paper">
-              {t("yourSpace")}
-            </AuthGateLink>
-          ) : null}
+          <AuthGateLink href="/saved" className="hover:text-paper">
+            {t("yourSpace")}
+          </AuthGateLink>
           <Link href="/collections" className="hover:text-paper">
             {t("collections")}
           </Link>
-          {userId ? (
-            <AuthGateLink href="/notifications" className="hover:text-paper">
-              {t("notifications")}
-            </AuthGateLink>
-          ) : null}
+          <AuthGateLink href="/notifications" className="hover:text-paper">
+            {t("notifications")}
+          </AuthGateLink>
           <LanguageSwitcher compact />
         </nav>
       </div>
@@ -50,4 +42,6 @@ export function Footer() {
   );
 }
 
-export const FooterFallback = Footer;
+export function FooterFallback() {
+  return <footer className="app-footer h-16" />;
+}

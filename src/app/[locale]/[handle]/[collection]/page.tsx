@@ -5,7 +5,8 @@ import Image from "next/image";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { EventCard } from "@/components/EventCard";
 import { JsonLd } from "@/components/JsonLd";
-import { getOwnProfile } from "@/lib/auth/server";
+import { CollectionEditButton } from "@/components/CollectionManageLink";
+import { activateLocale } from "@/i18n/request-locale";
 import { parseProfileParam, profileHref } from "@/lib/auth/profile";
 import { parseCollectionSlug, collectionHref, collectionImageUrl, collectionItemHref } from "@/lib/collections";
 import { getPublicCollectionServer } from "@/lib/collections-server";
@@ -17,7 +18,8 @@ export const revalidate = 60;
 export async function generateMetadata({
   params,
 }: PageProps<"/[locale]/[handle]/[collection]">): Promise<Metadata> {
-  const { handle: rawHandle, collection: rawSlug } = await params;
+  const { handle: rawHandle, collection: rawSlug, locale } = await params;
+  activateLocale(locale);
   const handle = parseProfileParam(rawHandle);
   const slug = parseCollectionSlug(rawSlug);
   const collection = handle && slug ? await getPublicCollectionServer(handle, slug) : null;
@@ -32,11 +34,13 @@ export async function generateMetadata({
     ogPath: `/og/collection/${collection.owner.handle}/${collection.slug}`,
     ogAlt: collection.title,
     noindex: collection.items.length === 0,
+    locale,
   });
 }
 
 export default async function PublicCollectionPage({ params }: PageProps<"/[locale]/[handle]/[collection]">) {
-  const { handle: rawHandle, collection: rawSlug } = await params;
+  const { handle: rawHandle, collection: rawSlug, locale } = await params;
+  activateLocale(locale);
   const handle = parseProfileParam(rawHandle);
   const slug = parseCollectionSlug(rawSlug);
   if (!handle || !slug) notFound();
@@ -45,8 +49,6 @@ export default async function PublicCollectionPage({ params }: PageProps<"/[loca
   const collection = await getPublicCollectionServer(handle, slug);
   if (!collection) notFound();
 
-  const own = await getOwnProfile();
-  const isOwn = own?.handle === collection.owner.handle;
   const path = collectionHref(collection.owner.handle, collection.slug);
 
   return (
@@ -76,11 +78,7 @@ export default async function PublicCollectionPage({ params }: PageProps<"/[loca
             </Link>
           </p>
         </div>
-        {isOwn ? (
-          <Link href={`/collections/${collection.id}/edit`} className="button-secondary">
-            Edit collection
-          </Link>
-        ) : null}
+        <CollectionEditButton ownerId={collection.owner.id} collectionId={collection.id} />
       </div>
       {collection.description ? <p className="page-subtitle mt-6 max-w-2xl">{collection.description}</p> : null}
 

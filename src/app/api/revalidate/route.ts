@@ -1,5 +1,5 @@
 import type { NextRequest } from "next/server";
-import { eventTag, invalidateTags, TAG_EVENTS, TAG_STATS } from "@/lib/cache";
+import { eventTag, invalidateTags, TAG_CATALOG_LISTS, TAG_EVENTS, TAG_STATS } from "@/lib/cache";
 import { assertCron } from "@/lib/cron";
 
 /**
@@ -15,7 +15,7 @@ import { assertCron } from "@/lib/cron";
 export const dynamic = "force-dynamic";
 
 const SLUG_RE = /^[a-z0-9-]{1,200}$/;
-const ALLOWED = new Set([TAG_EVENTS, TAG_STATS]);
+const ALLOWED = new Set([TAG_EVENTS, TAG_STATS, TAG_CATALOG_LISTS]);
 
 function handle(req: NextRequest): Response {
   const denied = assertCron(req);
@@ -33,7 +33,7 @@ function handle(req: NextRequest): Response {
     tags.add(eventTag(slug));
   }
   if (tags.size === 0) {
-    tags.add(TAG_EVENTS);
+    tags.add(TAG_CATALOG_LISTS);
     tags.add(TAG_STATS);
   }
 

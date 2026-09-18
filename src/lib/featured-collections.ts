@@ -2,7 +2,8 @@
  * Editorial catalog lists on `/collections`. They are not rows in `event_collections` —
  * they keep the public directory from looking empty before people publish their own.
  */
-import { eventsWithinDays, searchEvents } from "./catalog";
+import { cached, TAG_CATALOG_LISTS } from "./cache";
+import { eventsWithinDays, listEvents } from "./catalog";
 import {
   FEATURED_COLLECTIONS,
   parseFeaturedCollectionSlug,
@@ -96,17 +97,15 @@ function excuseScore(event: CountdownEvent): number {
 }
 
 async function loadScreamThisMonth(): Promise<CountdownEvent[]> {
-  const [tagged, halloween, friday, films] = await Promise.all([
-    searchEvents({ tag: "horror", sort: "soonest", pageSize: 24 }),
-    searchEvents({ q: "halloween", sort: "soonest", pageSize: 12 }),
-    searchEvents({ q: "friday the 13th", pageSize: 4 }),
-    eventsWithinDays({ category: "film", maxDays: 45, sort: "soonest", limit: 40 }),
+  const [tagged, films, fun] = await Promise.all([
+    listEvents({ tag: "horror", sort: "soonest", pageSize: 24 }),
+    eventsWithinDays({ category: "film", maxDays: 75, sort: "soonest", limit: 40 }),
+    eventsWithinDays({ category: "fun", maxDays: 75, sort: "soonest", limit: 40 }),
   ]);
   const merged = uniqueBySlug([
     ...tagged.items,
-    ...halloween.items,
-    ...friday.items,
     ...films.filter(looksHorror),
+    ...fun.filter((event) => looksHorror(event) || /halloween|friday the 13/i.test(event.title)),
   ]);
   const pins = merged.filter(
     (event) => /^halloween$/i.test(event.title) || /friday the 13th/i.test(event.title),
@@ -200,16 +199,8 @@ async function loadWeekendGames(): Promise<CountdownEvent[]> {
 }
 
 async function loadHolidaysNobodyAskedFor(): Promise<CountdownEvent[]> {
-  const [fun, pirate, friday] = await Promise.all([
-    eventsWithinDays({ category: "fun", maxDays: 30, sort: "soonest", limit: 24 }),
-    searchEvents({ q: "talk like a pirate", pageSize: 4 }),
-    searchEvents({ q: "friday the 13th", pageSize: 4 }),
-  ]);
-  const merged = uniqueBySlug([
-    ...fun,
-    ...upcomingWithin(pirate.items, 30),
-    ...upcomingWithin(friday.items, 70),
-  ]);
+  const fun = await eventsWithinDays({ category: "fun", maxDays: 70, sort: "soonest", limit: 40 });
+  const merged = uniqueBySlug(fun);
   const punchlines = merged.filter((event) => excuseScore(event) > 0);
   const pool = punchlines.length >= 6 ? punchlines : merged;
   return [...pool]
@@ -238,15 +229,23 @@ async function loadEvents(slug: FeaturedCollectionSlug): Promise<CountdownEvent[
   }
 }
 
+const loadFeaturedCollectionCached = cached(
+  async (slug: FeaturedCollectionSlug) => {
+    const meta = FEATURED_COLLECTIONS.find((item) => item.slug === slug);
+    if (!meta) return null;
+    return { meta, events: await loadEvents(slug) };
+  },
+  ["catalog", "featured-collection"],
+  { tags: [TAG_CATALOG_LISTS], revalidate: 900 },
+);
+
 export async function loadFeaturedCollection(slug: string): Promise<{
   meta: FeaturedCollection;
   events: CountdownEvent[];
 } | null> {
   const parsed = parseFeaturedCollectionSlug(slug);
   if (!parsed) return null;
-  const meta = FEATURED_COLLECTIONS.find((item) => item.slug === parsed);
-  if (!meta) return null;
-  return { meta, events: await loadEvents(parsed) };
+  return loadFeaturedCollectionCached(parsed);
 }
 
 function coverUrlFromEvents(events: CountdownEvent[]): string | null {
@@ -256,13 +255,21 @@ function coverUrlFromEvents(events: CountdownEvent[]): string | null {
   return image ? imageUrl(image, "card") : null;
 }
 
+const listFeaturedCollectionsCached = cached(
+  async () =>
+    Promise.all(
+      FEATURED_COLLECTIONS.map(async (meta) => {
+        const loaded = await loadFeaturedCollectionCached(meta.slug);
+        const events = loaded?.events ?? [];
+        return { meta, itemCount: events.length, coverUrl: coverUrlFromEvents(events) };
+      }),
+    ),
+  ["catalog", "featured-collections"],
+  { tags: [TAG_CATALOG_LISTS], revalidate: 900 },
+);
+
 export async function listFeaturedCollections(): Promise<
   { meta: FeaturedCollection; itemCount: number; coverUrl: string | null }[]
 > {
-  return Promise.all(
-    FEATURED_COLLECTIONS.map(async (meta) => {
-      const events = await loadEvents(meta.slug);
-      return { meta, itemCount: events.length, coverUrl: coverUrlFromEvents(events) };
-    }),
-  );
+  return listFeaturedCollectionsCached();
 }

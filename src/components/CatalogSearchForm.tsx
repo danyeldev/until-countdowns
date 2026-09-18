@@ -12,7 +12,7 @@ export function CatalogSearchForm({
 }) {
   return (
     <form
-      action="/"
+      action="/search"
       className="mt-6 flex items-center gap-3 rounded-full border border-line bg-ink-2 p-2 pl-4"
       onSubmit={(event) => {
         const query = String(new FormData(event.currentTarget).get("q") ?? "").trim();

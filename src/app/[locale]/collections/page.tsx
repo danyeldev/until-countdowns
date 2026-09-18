@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import { CollectionCard } from "@/components/CollectionCard";
 import { JsonLd } from "@/components/JsonLd";
 import { AuthGateLink } from "@/components/SignInButton";
-import { getAuthClaims } from "@/lib/auth/server";
 import type { CollectionSummary } from "@/lib/collections";
+import { activateLocale } from "@/i18n/request-locale";
 import { listPublicCollections } from "@/lib/collections-server";
 import {
   featuredCollectionHref,
@@ -15,7 +15,11 @@ import { collectionHubDescription, localizedMetadata } from "@/lib/seo";
 
 export const revalidate = 60;
 
-export async function generateMetadata(): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: PageProps<"/[locale]/collections">): Promise<Metadata> {
+  const { locale } = await params;
+  activateLocale(locale);
   const [featured, collections] = await Promise.all([listFeaturedCollections(), listPublicCollections()]);
   const featuredCount = featured.filter((item) => item.itemCount > 0).length;
   const publicCount = collections.filter((item) => item.itemCount > 0).length;
@@ -25,6 +29,7 @@ export async function generateMetadata(): Promise<Metadata> {
     canonical: "/collections",
     ogPath: "/og/collections",
     ogAlt: "Countdown collections on Until",
+    locale,
   });
 }
 
@@ -42,13 +47,15 @@ function featuredSummary(meta: FeaturedCollection, itemCount: number): Collectio
   };
 }
 
-export default async function CollectionsPage() {
-  const [featured, collections, claims] = await Promise.all([
+export default async function CollectionsPage({
+  params,
+}: PageProps<"/[locale]/collections">) {
+  const { locale } = await params;
+  activateLocale(locale);
+  const [featured, collections] = await Promise.all([
     listFeaturedCollections(),
     listPublicCollections(),
-    getAuthClaims(),
   ]);
-  const ownerId = typeof claims?.sub === "string" ? claims.sub : "";
   const picks = featured.filter((item) => item.itemCount > 0);
   const items = [
     ...picks.map(({ meta }) => ({ name: meta.title, path: featuredCollectionHref(meta.slug) })),
@@ -111,9 +118,6 @@ export default async function CollectionsPage() {
                 key={collection.id}
                 collection={collection}
                 byline={`@${collection.owner.handle}`}
-                manageHref={
-                  collection.owner.id === ownerId ? `/collections/${collection.id}/edit` : undefined
-                }
               />
             ))}
           </div>

@@ -258,11 +258,13 @@ export type Database = {
           period_end: string
           popularity: number
           published: boolean
+          region_key: string
           regions: string[]
           search: unknown
           series_slug: string | null
           slug: string
           sort_at: string
+          upcoming_until: string
           source: string
           source_key: string
           source_url: string | null
@@ -300,11 +302,13 @@ export type Database = {
           period_end: string
           popularity?: number
           published?: boolean
+          region_key?: never
           regions?: string[]
           search?: unknown
           series_slug?: string | null
           slug: string
-          sort_at: string
+          sort_at?: string
+          upcoming_until?: string
           source: string
           source_key: string
           source_url?: string | null
@@ -342,11 +346,13 @@ export type Database = {
           period_end?: string
           popularity?: number
           published?: boolean
+          region_key?: never
           regions?: string[]
           search?: unknown
           series_slug?: string | null
           slug?: string
           sort_at?: string
+          upcoming_until?: string
           source?: string
           source_key?: string
           source_url?: string | null
@@ -1181,11 +1187,13 @@ export type Database = {
           location: Json | null
           period_end: string | null
           popularity: number | null
+          region_key: string | null
           regions: string[] | null
           series_slug: string | null
           series_title: string | null
           slug: string | null
           sort_at: string | null
+          upcoming_until: string | null
           source: string | null
           source_label: string | null
           source_url: string | null
@@ -1312,7 +1320,53 @@ export type Database = {
         }
         Returns: boolean
       }
+      event_days_until: {
+        Args: { p_all_day: boolean; p_starts_on: string; p_starts_at: string }
+        Returns: number
+      }
+      events_within_days: {
+        Args: {
+          p_min_days?: number
+          p_max_days?: number
+          p_category?: string
+          p_sort?: string
+          p_limit?: number
+        }
+        Returns: Database["public"]["Views"]["events_public"]["Row"][]
+        SetofOptions: {
+          from: "*"
+          to: "events_public"
+          isOneToOne: false
+          isSetofReturn: true
+        }
+      }
       handle_available: { Args: { p_handle: string }; Returns: boolean }
+      region_key_for: { Args: { p: string[] }; Returns: string }
+      series_occurrence_index: {
+        Args: { p_horizon_days?: number; p_limit?: number }
+        Returns: {
+          slug: string
+          series_slug: string
+          date: string
+          all_day: boolean
+          date_precision: string
+          days_until: number
+          regions: string[]
+          source: string
+          starts_on: string
+          timezone: string | null
+          status: string
+        }[]
+      }
+      upcoming_until_for: {
+        Args: {
+          p_precision: string
+          p_starts_at: string
+          p_starts_on: string
+          p_period_end: string
+        }
+        Returns: string
+      }
       record_event_hype: {
         Args: { p_event_key: string; p_kind: string; p_visitor_id: string }
         Returns: Json
@@ -1338,11 +1392,13 @@ export type Database = {
           location: Json | null
           period_end: string | null
           popularity: number | null
+          region_key: string | null
           regions: string[] | null
           series_slug: string | null
           series_title: string | null
           slug: string | null
           sort_at: string | null
+          upcoming_until: string | null
           source: string | null
           source_label: string | null
           source_url: string | null
@@ -1403,11 +1459,13 @@ export type Database = {
           location: Json | null
           period_end: string | null
           popularity: number | null
+          region_key: string | null
           regions: string[] | null
           series_slug: string | null
           series_title: string | null
           slug: string | null
           sort_at: string | null
+          upcoming_until: string | null
           source: string | null
           source_label: string | null
           source_url: string | null
@@ -1471,11 +1529,13 @@ export type Database = {
           location: Json | null
           period_end: string | null
           popularity: number | null
+          region_key: string | null
           regions: string[] | null
           series_slug: string | null
           series_title: string | null
           slug: string | null
           sort_at: string | null
+          upcoming_until: string | null
           source: string | null
           source_label: string | null
           source_url: string | null

@@ -33,6 +33,7 @@ import {
   seriesTitle,
   siteUrl,
   todayUtc, localizedMetadata } from "@/lib/seo";
+import { activateLocale } from "@/i18n/request-locale";
 import {
   formatApproximate,
   formatCompactDate,
@@ -56,9 +57,10 @@ export async function generateStaticParams() {
 export async function generateMetadata({
   params,
 }: {
-  params: Promise<{ series: string }>;
+  params: Promise<{ series: string; locale: string }>;
 }): Promise<Metadata> {
-  const { series: slug } = await params;
+  const { series: slug, locale } = await params;
+  activateLocale(locale);
   const series = await getSeries(slug);
   if (!series)
     return { title: "Days until", robots: { index: false, follow: true } };
@@ -69,6 +71,7 @@ export async function generateMetadata({
     ogPath: ogDatedPath("series", series.slug, todayUtc()),
     // A series with no future occurrence is a thin page: reachable, out of the index and the sitemap.
     noindex: !series.nextDate,
+    locale,
   });
   // Same gate as the embed itself: a dormant series, or one whose next occurrence is only pinned to
   // a month, has nothing to hand an oEmbed consumer, so it does not claim it can.
@@ -92,9 +95,10 @@ export async function generateMetadata({
 export default async function SeriesPage({
   params,
 }: {
-  params: Promise<{ series: string }>;
+  params: Promise<{ series: string; locale: string }>;
 }) {
-  const { series: slug } = await params;
+  const { series: slug, locale } = await params;
+  activateLocale(locale);
   const series = await getSeriesStrict(slug);
   if (!series) {
     const canonical = await resolveSeriesAliasStrict(slug);

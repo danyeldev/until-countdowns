@@ -4,20 +4,25 @@ import { CollectionEditor } from "@/components/CollectionEditor";
 import { requireAuth } from "@/lib/auth/server";
 import { getOwnCollectionServer } from "@/lib/collections-server";
 import { localizedMetadata } from "@/lib/seo";
+import { activateLocale } from "@/i18n/request-locale";
 
-export async function generateMetadata() {
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale } = await params;
+  activateLocale(locale);
   return localizedMetadata({
   title: "Edit collection",
   description: "Update a public countdown collection.",
   canonical: "/collections",
   ogPath: "/og/default",
   noindex: true,
-});
+    locale,
+  });
 }
 
 export default async function EditCollectionPage({ params }: PageProps<"/[locale]/collections/[id]/edit">) {
   await requireAuth("/collections");
-  const { id } = await params;
+  const { id, locale } = await params;
+  activateLocale(locale);
   if (!/^[0-9a-f-]{36}$/i.test(id)) notFound();
   const collection = await getOwnCollectionServer(id);
   if (!collection) notFound();

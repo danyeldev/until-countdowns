@@ -19,7 +19,7 @@ import { CardHype } from "./CardHype";
 
 export function EventCard({
   event,
-  live = true,
+  live = false,
   showSeriesLink = false,
   futureOccurrences,
   href,

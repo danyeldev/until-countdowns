@@ -17,13 +17,14 @@ import {
   yearMonthOf, localizedMetadata } from "@/lib/seo";
 import { catalogDay } from "@/lib/time";
 import type { CountdownEvent } from "@/lib/types";
+import { activateLocale } from "@/i18n/request-locale";
 
 export const revalidate = 3600;
 
 const PRERENDER_COUNTRIES = 40;
 const EVENT_LIMIT = 250;
 
-type Props = { params: Promise<{ code: string }> };
+type Props = { params: Promise<{ code: string; locale: string }> };
 
 function countryOf(code: string): { cc: string; name: string } | null {
   const cc = code.toUpperCase();
@@ -47,7 +48,8 @@ export async function generateStaticParams() {
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const { code } = await params;
+  const { code, locale } = await params;
+  activateLocale(locale);
   const country = code === code.toLowerCase() ? countryOf(code) : null;
   if (!country)
     return { title: "Country", robots: { index: false, follow: true } };
@@ -59,11 +61,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     canonical: `/country/${country.cc.toLowerCase()}`,
     ogPath: `/og/country/${country.cc.toLowerCase()}`,
     noindex: n === 0,
+    locale,
   });
 }
 
 export default async function CountryPage({ params }: Props) {
-  const { code } = await params;
+  const { code, locale } = await params;
+  activateLocale(locale);
   // Only the lowercase form exists (same rule as event/series slugs). A redirect from inside an
   // ISR render is stored under the request's key, and on a case-insensitive file system (macOS
   // `next start`) that entry shadows the canonical path for the whole revalidate window.

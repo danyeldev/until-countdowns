@@ -12,6 +12,7 @@ import { listEvents, listEventsStrict, tagsWithAtLeast } from "@/lib/catalog";
 import { collectionPage } from "@/lib/jsonld";
 import { tagTitle, localizedMetadata } from "@/lib/seo";
 import { HUB_PAGE_SIZE } from "@/lib/taxonomy";
+import { activateLocale } from "@/i18n/request-locale";
 
 /**
  * Page 1 of a tag hub. Never reads `searchParams` (that would opt the route out of ISR);
@@ -24,7 +25,7 @@ const INDEX_MIN_EVENTS = 8;
 const PRERENDER_TAGS = 50;
 const TAG_RE = /^[a-z0-9-]{1,60}$/;
 
-type Props = { params: Promise<{ tag: string }> };
+type Props = { params: Promise<{ tag: string; locale: string }> };
 
 export async function generateStaticParams() {
   const limit = prerenderLimit(PRERENDER_TAGS);
@@ -34,7 +35,8 @@ export async function generateStaticParams() {
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const { tag } = await params;
+  const { tag, locale } = await params;
+  activateLocale(locale);
   if (!TAG_RE.test(tag)) return { title: "Tag", robots: { index: false, follow: true } };
   const result = await listEvents({ tag, sort: "soonest", page: 1, pageSize: 1 });
   return localizedMetadata({
@@ -43,11 +45,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     canonical: `/tag/${tag}`,
     ogPath: "/og/default",
     noindex: result.total < INDEX_MIN_EVENTS,
+    locale,
   });
 }
 
 export default async function TagPage({ params }: Props) {
-  const { tag } = await params;
+  const { tag, locale } = await params;
+  activateLocale(locale);
   if (!TAG_RE.test(tag)) notFound();
   const path = `/tag/${tag}`;
 
@@ -68,7 +72,7 @@ export default async function TagPage({ params }: Props) {
       <Pager page={result.page} total={result.total} pageSize={result.pageSize} basePath={path} />
       <div className="panel mt-8 flex flex-wrap items-center justify-between gap-4 p-5">
         <div><p className="font-medium text-paper">Keep exploring</p><p className="mt-1 text-sm text-muted">Find related moments across the catalog.</p></div>
-        <Link href={`/?q=${encodeURIComponent(label)}`} className="button-secondary"><Icon name="search" /> Search “{label}”</Link>
+        <Link href={`/search?q=${encodeURIComponent(label)}`} className="button-secondary"><Icon name="search" /> Search “{label}”</Link>
       </div>
       <JsonLd
         data={collectionPage(

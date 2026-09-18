@@ -4,6 +4,8 @@
  */
 export function prerenderLimit(maximum: number): number {
   const raw = process.env.CATALOG_PRERENDER_LIMIT?.trim();
-  if (!raw || !/^\d+$/.test(raw)) return 0;
+  if (!raw || !/^\d+$/.test(raw)) {
+    return process.env.VERCEL_ENV === "production" ? Math.min(maximum, 200) : 0;
+  }
   return Math.min(maximum, Math.max(0, Number(raw)));
 }
