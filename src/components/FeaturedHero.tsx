@@ -13,11 +13,10 @@ import { StatusBadge } from "./StatusBadge";
 import { SaveButton } from "./SaveButton";
 import { Icon } from "./Icon";
 import { HypeLabel } from "./HypeLabel";
-import { imageUrl, isShareAlike } from "@/lib/images";
+import { imageUrl } from "@/lib/images";
 
 export function FeaturedHero({ event }: { event: CountdownEvent }) {
-  const backdrop =
-    event.image && !isShareAlike(event.image.license) ? event.image : undefined;
+  const backdrop = event.image ?? undefined;
   const when = isCoarsePrecision(event.datePrecision)
     ? formatApproximate(event.date, event.datePrecision)
     : formatCompactDate(event.date, event.timezone);
