@@ -5,9 +5,14 @@
  * out of the paths robots.txt already disallows.
  */
 
-/** Self-identifying crawlers, HTTP libraries and headless/audit tooling. */
+/**
+ * Self-identifying crawlers, HTTP libraries and headless/audit tooling. The last group names
+ * crawlers whose user agent carries none of the generic tokens: GoogleOther (Google's non-Search
+ * crawler, which walked the locale copies at ~1.5 requests a second in September 2026 wearing a
+ * Chrome-on-Nexus-5X string), Meta's and Anthropic's AI crawlers, and Babbar's Barkrowler.
+ */
 const AUTOMATION_UA =
-  /bot|crawl|spider|slurp|scrapy|python|curl|wget|go-http-client|java\/|httpclient|okhttp|headless|libwww|node-fetch|axios|undici|lighthouse|pagespeed|ia_archiver|dataforseo|sogou/i;
+  /bot|crawl|spider|slurp|scrapy|python|curl|wget|go-http-client|java\/|httpclient|okhttp|headless|libwww|node-fetch|axios|undici|lighthouse|pagespeed|ia_archiver|dataforseo|sogou|googleother|meta-externalagent|anthropic-ai|barkrowler/i;
 
 /**
  * Matches of `AUTOMATION_UA` that are not automation: link unfurlers a person triggers by pasting
