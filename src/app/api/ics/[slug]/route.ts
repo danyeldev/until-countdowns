@@ -35,6 +35,10 @@ export async function GET(
       .replace(/\r\n?/g, "\n")
       .replace(/\n{3,}/g, "\n\n")
       .trim(),
+    summary: event.summary
+      ?.replace(/\r\n?/g, "\n")
+      .replace(/\n{3,}/g, "\n\n")
+      .trim(),
   };
 
   return new NextResponse(icsContent(sanitized), {

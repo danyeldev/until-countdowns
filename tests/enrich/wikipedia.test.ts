@@ -99,6 +99,7 @@ describe("summary gate", () => {
     expect(needsSummary({ description: "", summary: null })).toBe(true);
     expect(needsSummary({ description: "TBD", summary: null })).toBe(true);
     expect(isPlaceholderDescription("Scheduled event.")).toBe(true);
+    expect(isPlaceholderDescription("Scheduled event from Wikidata.")).toBe(true);
   });
 
   it("fills in a description under 80 characters", () => {

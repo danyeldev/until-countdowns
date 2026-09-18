@@ -43,21 +43,48 @@ function pageUrlFor(event: CountdownEvent, pageUrl?: string): string {
 const DEFAULT_DURATION_MS = 3_600_000;
 
 /**
+ * Adapters write a source credit when they have no blurb. Those lines are not the event, and they
+ * must not be what someone reads when the reminder fires. Strip the credit; if nothing real is
+ * left, the Wikipedia summary (or the title) is the description.
+ */
+function calendarCopy(event: CountdownEvent): string {
+  let description = stripSourceAttribution(event.description?.trim() ?? "");
+  if (/wikidata/i.test(description) || /^scheduled event\b/i.test(description)) {
+    description = "";
+  }
+  const summary = event.summary?.trim() ?? "";
+  if (description) return description;
+  if (summary) return summary;
+  return event.title;
+}
+
+function stripSourceAttribution(text: string): string {
+  if (/^scheduled event(?: from wikidata)?\.?$/i.test(text)) return "";
+  return text
+    .replace(/\s*Listed among scheduled[^.]*\./gi, "")
+    .replace(
+      /,?\s*(?:with(?: the)?(?: target| earliest publication)? dates?|with the date|as scheduled on) Wikidata\.?/gi,
+      "",
+    )
+    .replace(/^Source:\s+\S+\s*$/gim, "")
+    .replace(/\s{2,}/g, " ")
+    .trim();
+}
+
+/**
  * Body of the calendar entry.
  *
  * A bare description is not much use when the reminder fires eight months later: the one thing
- * someone wants then is the way back. So it carries the countdown's page. Google and Outlook both
- * linkify a bare URL in the body, and the ICS repeats the page in `URL:` for clients that show
- * that as a field of its own.
+ * someone wants then is the way back. So it carries the event, then the countdown's page. Google
+ * and Outlook both linkify a bare URL in the body, and the ICS repeats the page in `URL:` for
+ * clients that show that as a field of its own.
  */
 export function calendarDescription(
   event: CountdownEvent,
   pageUrl?: string,
 ): string {
   const page = pageUrlFor(event, pageUrl);
-  const lines = [event.description?.trim() || event.title];
-  lines.push("", `Countdown: ${page}`);
-  return lines.join("\n");
+  return [calendarCopy(event), "", `Countdown: ${page}`].join("\n");
 }
 
 /**

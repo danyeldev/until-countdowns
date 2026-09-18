@@ -30,6 +30,7 @@ import {
   summaryCitation,
   topSlugs,
 } from "@/lib/catalog";
+import { isPlaceholderDescription } from "@/lib/enrich/wikipedia";
 import { eventJsonLd, type Crumb } from "@/lib/jsonld";
 import { CATEGORY_LABELS, sourceLabel } from "@/lib/labels";
 import { COUNTRY_NAMES, regionLabel } from "@/lib/regions";
@@ -345,7 +346,7 @@ export default async function EventPage({
             status={event.status}
             timezone={event.timezone}
           />
-          {event.description ? (
+          {event.description && !isPlaceholderDescription(event.description) ? (
             <p className="mt-4 text-sm leading-relaxed text-paper-dim">
               {event.description}
             </p>

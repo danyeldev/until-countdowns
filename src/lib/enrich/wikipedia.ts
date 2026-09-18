@@ -55,7 +55,7 @@ export type EnrichableEvent = {
  * anyway; the pattern exists so a longer template ("Scheduled event. Details to follow.") is
  * still treated as empty.
  */
-const PLACEHOLDER_RE = /^(?:tbd|tba|n\/a|scheduled event\.?|details? (?:to follow|tbc)\.?|no description(?: available)?\.?)$/i;
+const PLACEHOLDER_RE = /^(?:tbd|tba|n\/a|scheduled event(?: from wikidata)?\.?|details? (?:to follow|tbc)\.?|no description(?: available)?\.?)$/i;
 
 export function isPlaceholderDescription(description: string | null | undefined): boolean {
   const d = (description ?? "").trim();
