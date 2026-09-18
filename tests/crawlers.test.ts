@@ -36,7 +36,17 @@ describe("crawl traps", () => {
 
 describe("isAutomationUserAgent", () => {
   it("flags crawlers, HTTP libraries and missing user agents", () => {
-    for (const ua of [GOOGLEBOT, "Mozilla/5.0 (compatible; Bytespider; spider-feedback@bytedance.com)", "python-requests/2.32", "curl/8.7.1", "GPTBot/1.2", ""]) {
+    for (const ua of [
+      GOOGLEBOT,
+      "Mozilla/5.0 (compatible; Bytespider; spider-feedback@bytedance.com)",
+      "python-requests/2.32",
+      "curl/8.7.1",
+      "GPTBot/1.2",
+      // No "bot" anywhere: Google's non-Search crawler as seen on the locale copies in September 2026.
+      "Mozilla/5.0 (Linux; Android 6.0.1; Nexus 5X Build/MMB29P) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.8010.47 Mobile Safari/537.36 (compatible; GoogleOther)",
+      "meta-externalagent/1.1 (+https://developers.facebook.com/docs/sharing/webmasters/crawler)",
+      "",
+    ]) {
       expect(isAutomationUserAgent(ua), ua || "(empty)").toBe(true);
     }
     expect(isAutomationUserAgent(null)).toBe(true);
