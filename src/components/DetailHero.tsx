@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 import Image from "next/image";
 import { Countdown } from "./Countdown";
-import { EventImage } from "./EventImage";
+import { EventImage, isVectorOrigin } from "./EventImage";
 import { Icon } from "./Icon";
 import { ImageCredit } from "./ImageCredit";
 import { StatusBadge } from "./StatusBadge";
@@ -50,7 +50,13 @@ export function DetailHero({
         aria-hidden="true"
       >
         {image ? (
-          <div className="absolute inset-y-0 right-0 w-full opacity-90 lg:w-3/4 [&>div]:h-full [&>div]:!aspect-auto [&_img]:h-full [&_img]:object-cover">
+          <div
+            className={`absolute inset-y-0 right-0 w-full opacity-90 [&>div]:h-full [&>div]:!aspect-auto [&_img]:h-full ${
+              isVectorOrigin(image)
+                ? "lg:w-1/2 [&_img]:object-contain [&_img]:object-right [&_img]:p-[6%]"
+                : "lg:w-3/4 [&_img]:object-cover"
+            }`}
+          >
             <EventImage
               image={image}
               alt=""

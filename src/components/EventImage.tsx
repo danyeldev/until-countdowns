@@ -18,7 +18,14 @@ import type { EventImage as EventImageType } from "@/lib/types";
  * The box always has a known aspect ratio before the bytes arrive (16:9 for cards, the image's
  * own ratio for heroes, clamped so a portrait source never grows past 5:4) and is painted with the
  * stored dominant colour under a thumbhash blur, so the page never shifts while it loads.
+ *
+ * A file rendered from a vector original — a logo, a flag, an emblem — is contained with a margin
+ * instead of cropped: `object-cover` on a coat of arms cuts its crest off, and a logo bleeding to
+ * the card edge reads as a banner rather than a picture.
  */
+export function isVectorOrigin(image: Pick<EventImageType, "originPage">): boolean {
+  return /\.svg$/i.test(image.originPage ?? "");
+}
 export type EventImageProps = {
   image: EventImageType;
   alt: string;
@@ -46,13 +53,14 @@ export function EventImage({
   const src = imageUrl(image, variant);
   const { width, height } = imageSize(image, variant);
   const blurDataURL = thumbhashToDataUrl(image.thumbhash);
+  const contain = isVectorOrigin(image);
 
   return (
     <div
       className={`relative overflow-hidden bg-ink-2 ${className ?? ""}`}
       style={{
         aspectRatio: variant === "card" ? "16 / 9" : heroAspectRatio(image),
-        backgroundColor: image.color ?? undefined,
+        backgroundColor: contain ? undefined : (image.color ?? undefined),
       }}
     >
       <Image
@@ -64,8 +72,8 @@ export function EventImage({
         preload={priority}
         loading={priority ? undefined : "lazy"}
         unoptimized
-        {...(blurDataURL ? { placeholder: "blur" as const, blurDataURL } : {})}
-        className="h-full w-full object-cover"
+        {...(blurDataURL && !contain ? { placeholder: "blur" as const, blurDataURL } : {})}
+        className={contain ? "h-full w-full object-contain p-[8%]" : "h-full w-full object-cover"}
       />
     </div>
   );
