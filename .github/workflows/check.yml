@@ -3,13 +3,18 @@ on:
   pull_request:
   push:
     branches: [main]
+  # Vercel's GitHub integration reports each deployment; the Lighthouse job
+  # keys off the production one so it audits the build that just went live
+  # instead of racing the deploy on push.
+  deployment_status:
 permissions:
   contents: read
 concurrency:
-  group: check-${{ github.ref }}
+  group: check-${{ github.event_name }}-${{ github.ref }}
   cancel-in-progress: true
 jobs:
   verify:
+    if: github.event_name != 'deployment_status'
     runs-on: ubuntu-latest
     timeout-minutes: 15
     env:
@@ -27,15 +32,20 @@ jobs:
       - run: npm run test:sql
       - run: npm run build
   lighthouse:
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    if: >-
+      github.event_name == 'deployment_status'
+      && github.event.deployment_status.state == 'success'
+      && github.event.deployment.environment == 'Production'
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v7
       - uses: treosh/lighthouse-ci-action@12.6.1
         with:
           urls: |
             https://until.day/
+          # Three runs so a single noisy simulated-mobile pass cannot fail the budget.
+          runs: 3
           budgetPath: .github/lighthouse/budget.json
           uploadArtifacts: true
           temporaryPublicStorage: true
