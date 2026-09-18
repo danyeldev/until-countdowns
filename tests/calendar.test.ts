@@ -50,6 +50,33 @@ describe("calendarDescription", () => {
     expect(calendarDescription(sourced)).not.toContain(sourced.sourceUrl);
   });
 
+  it("uses the event description, not a Wikidata source stub", () => {
+    const summary =
+      "Grand Theft Auto VI is an upcoming action-adventure game developed and published by Rockstar Games.";
+    const body = calendarDescription({
+      ...EVENT,
+      title: "Grand Theft Auto VI",
+      description: "Scheduled event from Wikidata.",
+      summary,
+      sourceUrl: "https://www.wikidata.org/wiki/Q109344778",
+    });
+    expect(body.startsWith(summary)).toBe(true);
+    expect(body).toContain(`Countdown: https://`);
+    expect(body).not.toContain("Wikidata");
+    expect(body).not.toContain("Source:");
+  });
+
+  it("keeps a real description and drops the Wikipedia/Wikidata credit sentence", () => {
+    const body = calendarDescription({
+      ...EVENT,
+      description:
+        "UFC 331 is scheduled to start on 19 September 2026 in the United States. Listed among scheduled sports events on Wikipedia; dates come from Wikidata and may change.",
+    });
+    expect(body).toContain("UFC 331 is scheduled to start on 19 September 2026 in the United States.");
+    expect(body).not.toContain("Wikipedia");
+    expect(body).not.toContain("Wikidata");
+  });
+
   it("rewrites a Vercel preview host onto the public origin", () => {
     const preview = "https://until-countdowns-git-fix-acme.vercel.app/event/share-abc123";
     const body = calendarDescription(EVENT, preview);
