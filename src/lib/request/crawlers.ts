@@ -1,4 +1,4 @@
-import { DEFAULT_LOCALE, LOCALES, localePrefix } from "@/i18n/locales";
+import { DEFAULT_LOCALE, LOCALES, localePrefix, pathnameWithoutLocale } from "@/i18n/locales";
 import { isAutomationUserAgent } from "./visitor";
 
 /** URL prefixes of the non-English locales, without slashes: `es`, `pt`, …, `zh-hant`, `zh`. */
@@ -35,4 +35,19 @@ export function crawlTrapDisallows(): string[] {
 export function isBlockedCrawl(headers: Headers, pathname: string, redirectsToTrap = false): boolean {
   if (!redirectsToTrap && !isCrawlTrap(pathname)) return false;
   return isAutomationUserAgent(headers.get("user-agent"));
+}
+
+/**
+ * Where an unverified client asking for a locale-prefixed page is sent instead: the English page.
+ * Browsers send Fetch Metadata on every navigation (Chrome 76, Firefox 90, Safari 16.4); a client
+ * without it is a script wearing a browser's user agent — the crawler that survives the user-agent
+ * check — or a browser old enough that English will do. Twenty-six locale copies collapse into the
+ * one English render, which is also the only one search engines are asked to index.
+ *
+ * Null when the request carries Fetch Metadata or the path has no locale prefix.
+ */
+export function englishDetour(headers: Headers, pathname: string): string | null {
+  if (headers.has("sec-fetch-site")) return null;
+  const english = pathnameWithoutLocale(pathname);
+  return english === pathname ? null : english;
 }

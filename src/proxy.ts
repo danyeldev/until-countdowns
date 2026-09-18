@@ -2,7 +2,7 @@ import createMiddleware from "next-intl/middleware";
 import { NextResponse, type NextRequest } from "next/server";
 import { routing } from "@/i18n/routing";
 import { updateSession } from "@/lib/auth/session";
-import { isBlockedCrawl } from "@/lib/request/crawlers";
+import { englishDetour, isBlockedCrawl } from "@/lib/request/crawlers";
 
 const handleI18nRouting = createMiddleware(routing);
 
@@ -33,21 +33,26 @@ function catalogSearchRedirect(request: NextRequest): NextResponse | null {
   return NextResponse.redirect(url, 308);
 }
 
-/**
- * robots.txt already disallows the path; a crawler that asks anyway is answered here, before the
- * page function and the ISR write it would otherwise cost. 403 rather than 404 because the page
- * does exist — for people. The log line names the crawler, so one that keeps coming back can be
- * given a firewall rule.
- */
-function refuseCrawler(request: NextRequest): NextResponse {
+/** One line per crawler turned away, naming it, so one that keeps coming back can get a firewall rule. */
+function logCrawler(kind: "crawler_refused" | "crawler_detoured", request: NextRequest, to?: string) {
   console.log(
     JSON.stringify({
-      kind: "crawler_refused",
+      kind,
       path: request.nextUrl.pathname,
+      ...(to ? { to } : {}),
       ua: (request.headers.get("user-agent") ?? "").slice(0, 200),
       ip: request.headers.get("x-real-ip"),
     }),
   );
+}
+
+/**
+ * robots.txt already disallows the path; a crawler that asks anyway is answered here, before the
+ * page function and the ISR write it would otherwise cost. 403 rather than 404 because the page
+ * does exist — for people.
+ */
+function refuseCrawler(request: NextRequest): NextResponse {
+  logCrawler("crawler_refused", request);
   return new NextResponse("Not served to crawlers. See /robots.txt.", {
     status: 403,
     headers: {
@@ -56,6 +61,16 @@ function refuseCrawler(request: NextRequest): NextResponse {
       "X-Robots-Tag": "noindex",
     },
   });
+}
+
+/** A client without Fetch Metadata asking for a locale copy gets the English page instead (see `englishDetour`). */
+function detourToEnglish(request: NextRequest, pathname: string): NextResponse {
+  logCrawler("crawler_detoured", request, pathname);
+  const url = request.nextUrl.clone();
+  url.pathname = pathname;
+  const response = NextResponse.redirect(url, 307);
+  response.headers.set("Cache-Control", "private, no-store");
+  return response;
 }
 
 export async function proxy(request: NextRequest) {
@@ -67,6 +82,8 @@ export async function proxy(request: NextRequest) {
   if (isBlockedCrawl(request.headers, pathname, searchRedirect !== null)) {
     return refuseCrawler(request);
   }
+  const detour = englishDetour(request.headers, pathname);
+  if (detour) return detourToEnglish(request, detour);
   if (searchRedirect) return updateSession(request, searchRedirect);
   return updateSession(request, handleI18nRouting(request));
 }

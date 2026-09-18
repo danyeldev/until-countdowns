@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { crawlTrapDisallows, isBlockedCrawl, isCrawlTrap, LOCALE_URL_PREFIXES } from "@/lib/request/crawlers";
+import { crawlTrapDisallows, englishDetour, isBlockedCrawl, isCrawlTrap, LOCALE_URL_PREFIXES } from "@/lib/request/crawlers";
 import { isAutomationUserAgent } from "@/lib/request/visitor";
 
 const CHROME =
@@ -75,5 +75,24 @@ describe("isBlockedCrawl", () => {
     expect(isBlockedCrawl(h({ "user-agent": GOOGLEBOT }), "/event/new-year")).toBe(false);
     expect(isBlockedCrawl(h({ "user-agent": GOOGLEBOT }), "/")).toBe(false);
     expect(isBlockedCrawl(h({ "user-agent": "Slackbot-LinkExpanding 1.0" }), "/es/event/new-year")).toBe(false);
+  });
+});
+
+describe("englishDetour", () => {
+  it("sends a client without Fetch Metadata from a locale copy to the English page", () => {
+    // A browser's user agent on a scripted request: the crawler the user-agent check misses.
+    expect(englishDetour(h({ "user-agent": CHROME }), "/es/event/new-year")).toBe("/event/new-year");
+    expect(englishDetour(h({ "user-agent": CHROME }), "/zh-hant/days-until/christmas")).toBe("/days-until/christmas");
+    expect(englishDetour(h({ "user-agent": CHROME }), "/ES/about")).toBe("/about");
+    expect(englishDetour(h({ "user-agent": CHROME }), "/ja")).toBe("/");
+  });
+
+  it("leaves browsers, English pages and profiles alone", () => {
+    expect(englishDetour(h({ "user-agent": CHROME, "sec-fetch-site": "none" }), "/es/event/new-year")).toBeNull();
+    expect(englishDetour(h({ "user-agent": CHROME, "sec-fetch-site": "same-origin", rsc: "1" }), "/es/event/new-year")).toBeNull();
+    expect(englishDetour(h({ "user-agent": CHROME }), "/event/new-year")).toBeNull();
+    expect(englishDetour(h({ "user-agent": CHROME }), "/esteban")).toBeNull();
+    expect(englishDetour(h({ "user-agent": CHROME }), "/search")).toBeNull();
+    expect(englishDetour(h({ "user-agent": CHROME }), "/")).toBeNull();
   });
 });
