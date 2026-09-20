@@ -6,6 +6,7 @@ import { useEffect, useMemo, useRef, useState, type FormEvent, type KeyboardEven
 import { useCollection } from "@/components/CollectionProvider";
 import { Icon } from "@/components/Icon";
 import { SignInButton } from "@/components/SignInButton";
+import { ANALYTICS_EVENTS, capture, captureException } from "@/lib/analytics";
 import { createAuthBrowserClient } from "@/lib/auth/browser";
 import { isAuthConfigured } from "@/lib/auth/env";
 import { completeProfileHref, safeNextPath } from "@/lib/auth/paths";
@@ -225,12 +226,18 @@ function Composer({
         body,
         parentId,
       });
+      capture(ANALYTICS_EVENTS.commentPosted, {
+        event_key: eventKey,
+        comment_id: comment.id,
+        is_reply: Boolean(parentId),
+      });
       setBody("");
       setSuggestions([]);
       setMention(null);
       onPosted(comment);
       if (areaRef.current) fitComposer(areaRef.current);
     } catch (cause) {
+      captureException(cause, { action: "comment_posted" });
       setError(cause instanceof Error ? cause.message : "Could not post that comment. Try again.");
     } finally {
       setPending(false);

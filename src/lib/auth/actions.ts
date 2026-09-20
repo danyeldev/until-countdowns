@@ -5,6 +5,8 @@ import { authCallbackUrl } from "./origin";
 import { authErrorMessage } from "./messages";
 import { DEFAULT_AFTER_AUTH_PATH, UPDATE_PASSWORD_PATH, safeNextPath } from "./paths";
 import { handleError, nameError, parseHandle, parseName } from "./profile";
+import { ANALYTICS_EVENTS } from "@/lib/analytics-shared";
+import { captureServer } from "@/lib/analytics-server";
 import { createAuthServerClient } from "./server";
 import { isAuthConfigured } from "./env";
 
@@ -84,6 +86,13 @@ export async function signUpWithPasswordAction(
     },
   });
   if (error) return { error: profileWriteError(error) };
+  if (data.user?.id) {
+    await captureServer(data.user.id, ANALYTICS_EVENTS.userSignedUp, {
+      method: "email",
+      handle,
+      $set: { email, name, handle },
+    });
+  }
   if (!data.session) {
     return { message: "Check your email to confirm your account. Then you can sign in." };
   }
@@ -138,6 +147,13 @@ export async function completeProfileAction(formData: FormData): Promise<{ error
   );
   if (error) return { error: profileWriteError(error) };
   await supabase.auth.updateUser({ data: { full_name: name, handle } });
+  if (data.user.app_metadata?.provider === "google") {
+    await captureServer(data.user.id, ANALYTICS_EVENTS.userSignedUp, {
+      method: "google",
+      handle,
+      $set: { name, handle, email: data.user.email },
+    });
+  }
   redirect(next);
 }
 

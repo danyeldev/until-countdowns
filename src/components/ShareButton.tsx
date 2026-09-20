@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { ANALYTICS_EVENTS, capture, captureException } from "@/lib/analytics";
 import { recordHype } from "@/lib/hype-client";
 
 export function ShareButton({
@@ -25,6 +26,7 @@ export function ShareButton({
       if (navigator.share) {
         try {
           await navigator.share({ title, url });
+          capture(ANALYTICS_EVENTS.countdownShared, { method: "native", title, path });
           if (hypeKey) void recordHype(hypeKey, "share");
           setResult({ path, feedback: "Shared.", fallbackUrl: "" });
           return;
@@ -35,9 +37,11 @@ export function ShareButton({
       }
       if (!navigator.clipboard?.writeText) throw new Error("Clipboard unavailable");
       await navigator.clipboard.writeText(url);
+      capture(ANALYTICS_EVENTS.countdownShared, { method: "clipboard", title, path });
       if (hypeKey) void recordHype(hypeKey, "share");
       setResult({ path, feedback: "Link copied.", fallbackUrl: "" });
-    } catch {
+    } catch (cause) {
+      captureException(cause, { action: "share" });
       setResult({ path, feedback: "Select and copy this link to share it.", fallbackUrl: url });
     } finally {
       setBusy(false);

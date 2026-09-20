@@ -13,7 +13,7 @@ import {
   type CollectionSearchHit,
 } from "@/lib/search-collections";
 import type { CountdownEvent } from "@/lib/types";
-import { capture } from "@/lib/analytics";
+import { ANALYTICS_EVENTS, capture } from "@/lib/analytics";
 import { SEARCH_LINK } from "@/lib/search-links";
 
 export function QuickSearch() {
@@ -133,7 +133,7 @@ export function QuickSearch() {
           action="/search"
           onSubmit={() => {
             const q = query.trim();
-            if (q) capture("search_submitted", { query: q, source: "command" });
+            if (q) capture(ANALYTICS_EVENTS.searchSubmitted, { query: q, source: "command" });
             setOpen(false);
           }}
           className="flex items-center gap-3 border-b border-line px-5"
@@ -179,7 +179,7 @@ export function QuickSearch() {
                       href={`/search?q=${encodeURIComponent(term)}`}
                       {...SEARCH_LINK}
                       onClick={() => {
-                        capture("search_submitted", { query: term, source: "command_suggestion" });
+                        capture(ANALYTICS_EVENTS.searchSubmitted, { query: term, source: "command_suggestion" });
                         setOpen(false);
                       }}
                       className="button-secondary !min-h-11 !px-3 !py-1.5 !text-xs"
@@ -210,7 +210,14 @@ export function QuickSearch() {
                   key={collection.id}
                   href={collection.href}
                   data-search-result
-                  onClick={() => setOpen(false)}
+                  onClick={() => {
+                    capture(ANALYTICS_EVENTS.searchSubmitted, {
+                      query: query.trim(),
+                      source: "command_result",
+                      result_type: "collection",
+                    });
+                    setOpen(false);
+                  }}
                   className="command-result"
                 >
                   <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-amber/10 text-amber">
@@ -232,7 +239,15 @@ export function QuickSearch() {
                   key={event.id}
                   href={`/event/${event.slug}`}
                   data-search-result
-                  onClick={() => setOpen(false)}
+                  onClick={() => {
+                    capture(ANALYTICS_EVENTS.searchSubmitted, {
+                      query: query.trim(),
+                      source: "command_result",
+                      result_type: "event",
+                      result_slug: event.slug,
+                    });
+                    setOpen(false);
+                  }}
                   className="command-result"
                 >
                   <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-amber/10 text-amber">
@@ -254,7 +269,11 @@ export function QuickSearch() {
               <Link
                 href={`/search?q=${encodeURIComponent(query.trim())}`}
                 {...SEARCH_LINK}
-                onClick={() => setOpen(false)}
+                onClick={() => {
+                  const q = query.trim();
+                  if (q) capture(ANALYTICS_EVENTS.searchSubmitted, { query: q, source: "command_all" });
+                  setOpen(false);
+                }}
                 className="mt-2 flex items-center justify-between rounded-xl bg-amber/10 px-4 py-3 text-sm text-amber"
               >
                 See all results <Icon name="arrow" size={16} />

@@ -13,6 +13,7 @@ import { isAuthConfigured } from "@/lib/auth/env";
 import { AUTH_COPY, authErrorMessage } from "@/lib/auth/messages";
 import { loginHref, type AuthMode } from "@/lib/auth/paths";
 import { NAME_MAX, SIGNUP_PROFILE_KEY, handleError, nameError, parseHandle, parseName } from "@/lib/auth/profile";
+import { captureException, identifyUser } from "@/lib/analytics";
 import { HandleField } from "./HandleField";
 
 function GoogleMark() {
@@ -132,6 +133,7 @@ export function AuthForm({
       });
       if (oauthError) setError(authErrorMessage(oauthError));
     } catch (cause) {
+      captureException(cause, { action: "signup_google" });
       setError(cause instanceof Error ? authErrorMessage(cause.message) : AUTH_COPY.googleUnavailable);
     } finally {
       setPending(null);
@@ -154,6 +156,8 @@ export function AuthForm({
       }
       formData.set("name", remembered.name);
       formData.set("handle", remembered.handle);
+      const email = String(formData.get("email") ?? "").trim().toLowerCase();
+      if (email) identifyUser(email, { email, name: remembered.name, handle: remembered.handle });
     }
     try {
       const result =
@@ -166,6 +170,7 @@ export function AuthForm({
       if ("message" in result) setMessage(result.message);
     } catch (cause) {
       unstable_rethrow(cause);
+      captureException(cause, { action: mode === "signup" ? "signup_email" : mode });
       setError(cause instanceof Error ? authErrorMessage(cause.message) : "Something went wrong. Try again.");
     } finally {
       setPending(null);

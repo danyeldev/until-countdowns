@@ -8,6 +8,7 @@ import {
   googleCalendarUrl,
   outlookCalendarUrl,
 } from "@/lib/calendar";
+import { ANALYTICS_EVENTS, capture, captureException } from "@/lib/analytics";
 import { recordHype } from "@/lib/hype-client";
 import { Icon } from "./Icon";
 
@@ -21,7 +22,14 @@ export function CalendarButtons({
   url?: string;
   hypeKey?: string | null;
 }) {
-  function award() {
+  function award(provider: "google" | "outlook" | "ics") {
+    capture(ANALYTICS_EVENTS.calendarAdded, {
+      provider,
+      event_id: event.id,
+      slug: event.slug,
+      title: event.title,
+      category: event.category,
+    });
     if (hypeKey) void recordHype(hypeKey, "calendar");
   }
   const details = useRef<HTMLDetailsElement>(null);
@@ -69,7 +77,7 @@ export function CalendarButtons({
           href={googleCalendarUrl(event, url)}
           target="_blank"
           rel="noreferrer"
-          onClick={award}
+          onClick={() => award("google")}
           className="flex min-h-11 items-center justify-between rounded-xl px-3 text-sm text-paper hover:bg-amber/10 hover:text-amber"
         >
           Google Calendar <Icon name="arrow" size={15} />
@@ -78,7 +86,7 @@ export function CalendarButtons({
           href={outlookCalendarUrl(event, url)}
           target="_blank"
           rel="noreferrer"
-          onClick={award}
+          onClick={() => award("outlook")}
           className="flex min-h-11 items-center justify-between rounded-xl px-3 text-sm text-paper hover:bg-amber/10 hover:text-amber"
         >
           Outlook <Icon name="arrow" size={15} />
@@ -89,9 +97,10 @@ export function CalendarButtons({
           onClick={() => {
             try {
               downloadIcs(event, url);
-              award();
+              award("ics");
               setError("");
-            } catch {
+            } catch (cause) {
+              captureException(cause, { action: "calendar_ics" });
               setError(
                 "The download couldn’t start. Try a calendar link above.",
               );

@@ -1,6 +1,6 @@
 "use client";
 
-import { capture } from "@/lib/analytics";
+import { ANALYTICS_EVENTS, capture } from "@/lib/analytics";
 import { Icon } from "./Icon";
 
 export function CatalogSearchForm({
@@ -16,7 +16,7 @@ export function CatalogSearchForm({
       className="mt-6 flex items-center gap-3 rounded-full border border-line bg-ink-2 p-2 pl-4"
       onSubmit={(event) => {
         const query = String(new FormData(event.currentTarget).get("q") ?? "").trim();
-        if (query) capture("search_submitted", { query, source: "catalog" });
+        if (query) capture(ANALYTICS_EVENTS.searchSubmitted, { query, source: "catalog" });
       }}
     >
       <Icon name="search" className="text-muted" />
