@@ -31,6 +31,14 @@ function isCoarsePointer(): boolean {
   );
 }
 
+function openHostedCalendar(
+  href: string,
+  sameWindow: boolean,
+): void {
+  if (sameWindow) window.location.assign(href);
+  else window.open(href, "_blank", "noreferrer");
+}
+
 /** Subscribe Google/Outlook to the hosted feed, or download a snapshot .ics. */
 export function CollectionCalendarButtons({
   title,
@@ -56,11 +64,6 @@ export function CollectionCalendarButtons({
   const details = useRef<HTMLDetailsElement>(null);
   const menu = useRef<HTMLDivElement>(null);
   const [open, setOpen] = useState(false);
-  const [icsUrl, setIcsUrl] = useState(icsPath);
-
-  useEffect(() => {
-    setIcsUrl(hostedCalendarUrl(icsPath));
-  }, [icsPath]);
 
   useEffect(() => {
     if (!open) return;
@@ -95,10 +98,6 @@ export function CollectionCalendarButtons({
   }, [open]);
 
   if (eventCount < 1) return null;
-
-  const feedUrl = icsUrl.startsWith("http") ? icsUrl : "";
-  const googleHref = googleCalendarFeedUrl(feedUrl);
-  const outlookHref = outlookCalendarFeedUrl(feedUrl, title);
 
   return (
     <details
@@ -135,32 +134,29 @@ export function CollectionCalendarButtons({
             : `Adds all ${eventCount} dated countdowns`}
         </p>
         <a
-          href={googleHref}
-          target="_blank"
-          rel="noreferrer"
+          href={icsPath}
           onClick={(event) => {
             award("google");
             const href = googleCalendarFeedUrl(hostedCalendarUrl(icsPath));
-            if (!href || href === "#") {
-              event.preventDefault();
-              return;
-            }
+            if (!href || href === "#") return;
+            event.preventDefault();
             // A new tab on a phone skips the Google Calendar app's universal link
             // and opens the desktop add-calendar page, which then rejects the URL.
-            if (isCoarsePointer()) {
-              event.preventDefault();
-              window.location.assign(href);
-            }
+            openHostedCalendar(href, isCoarsePointer());
           }}
           className="flex min-h-11 items-center justify-between rounded-xl px-3 text-sm text-paper hover:bg-amber/10 hover:text-amber"
         >
           Google Calendar <Icon name="arrow" size={15} />
         </a>
         <a
-          href={outlookHref}
-          target="_blank"
-          rel="noreferrer"
-          onClick={() => award("outlook")}
+          href={icsPath}
+          onClick={(event) => {
+            award("outlook");
+            const href = outlookCalendarFeedUrl(hostedCalendarUrl(icsPath), title);
+            if (!href || href === "#") return;
+            event.preventDefault();
+            openHostedCalendar(href, false);
+          }}
           className="flex min-h-11 items-center justify-between rounded-xl px-3 text-sm text-paper hover:bg-amber/10 hover:text-amber"
         >
           Outlook <Icon name="arrow" size={15} />
