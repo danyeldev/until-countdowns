@@ -104,7 +104,7 @@ describe("canonical and social metadata", () => {
     expect(buildMetadata({ title: "Sign in", description: "Sign in to Until.", canonical: "/login", ogPath: "/og/default", noindex: true }).robots).toEqual({ index: false, follow: true });
     // Blocking HTML in robots.txt would keep a crawler from ever seeing the noindex tag…
     const { rules } = robots();
-    expect(rules).toMatchObject({ allow: ["/", "/og/"] });
+    expect(rules).toMatchObject({ allow: ["/", "/og/", "/ics/", "/api/ics/"] });
     expect(rules).toMatchObject({ disallow: expect.arrayContaining(["/api/"]) });
     expect((rules as { disallow: string[] }).disallow).not.toContain("/event/");
   });

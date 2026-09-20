@@ -72,6 +72,26 @@ const nextConfig: NextConfig = {
     "/og/**": OG_FONT_FILES,
     "/og/*": OG_FONT_FILES,
   },
+  async rewrites() {
+    return [
+      {
+        source: "/ics/featured/:slug.ics",
+        destination: "/ics/featured/:slug",
+      },
+      {
+        source: "/ics/collection/:handle/:slug.ics",
+        destination: "/ics/collection/:handle/:slug",
+      },
+      {
+        source: "/api/ics/featured/:slug.ics",
+        destination: "/api/ics/featured/:slug",
+      },
+      {
+        source: "/api/ics/collection/:handle/:slug.ics",
+        destination: "/api/ics/collection/:handle/:slug",
+      },
+    ];
+  },
   async redirects() {
     // Next passes the incoming query through to every redirect destination, so these land on
     // e.g. `/category/sports?category=sports`. The hubs are static (they never read

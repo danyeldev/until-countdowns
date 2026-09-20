@@ -15,8 +15,9 @@ vi.mock("@/lib/featured-collections", async () => {
   return { ...actual, loadFeaturedCollection };
 });
 
-import { GET as getCollection } from "../src/app/api/ics/collection/[handle]/[slug]/route";
-import { GET as getFeatured } from "../src/app/api/ics/featured/[slug]/route";
+import { GET as getCollection } from "../src/app/ics/collection/[handle]/[slug]/route";
+import { GET as getFeatured } from "../src/app/ics/featured/[slug]/route";
+import { GET as getLegacyFeatured } from "../src/app/api/ics/featured/[slug]/route";
 
 const asianGames = {
   ...userEventFromDraft({ title: "Asian Games", date: "2026-09-19" }),
@@ -30,13 +31,13 @@ const halloween = {
 };
 
 const collectionRequest = new NextRequest(
-  "http://localhost/api/ics/collection/ada/autumn-nights",
+  "http://localhost/ics/collection/ada/autumn-nights.ics",
 );
 const collectionContext = {
   params: Promise.resolve({ handle: "ada", slug: "autumn-nights" }),
 };
 const featuredRequest = new NextRequest(
-  "http://localhost/api/ics/featured/scream-this-month",
+  "http://localhost/ics/featured/scream-this-month.ics",
 );
 const featuredContext = {
   params: Promise.resolve({ slug: "scream-this-month" }),
@@ -51,7 +52,7 @@ describe("collection calendar endpoint", () => {
     expect(missing.status).toBe(404);
 
     const badHandle = await getCollection(
-      new NextRequest("http://localhost/api/ics/collection/ab/autumn-nights"),
+      new NextRequest("http://localhost/ics/collection/ab/autumn-nights.ics"),
       { params: Promise.resolve({ handle: "ab", slug: "autumn-nights" }) },
     );
     expect(badHandle.status).toBe(404);
@@ -85,15 +86,16 @@ describe("collection calendar endpoint", () => {
     const body = await result.text();
     expect(body.match(/BEGIN:VEVENT/g)).toHaveLength(2);
     expect(body).toContain("X-WR-CALNAME:Autumn nights");
-    expect(result.headers.get("content-disposition")).toContain("inline");
-    expect(result.headers.get("content-disposition")).toContain("ada-autumn-nights.ics");
+    expect(result.headers.get("content-type")).toContain("text/calendar");
+    expect(result.headers.get("content-disposition")).toBeNull();
+    expect(result.headers.get("x-robots-tag")).toBe("noindex");
   });
 });
 
 describe("featured collection calendar endpoint", () => {
   it("returns 404 for an unknown editorial slug", async () => {
     const result = await getFeatured(
-      new NextRequest("http://localhost/api/ics/featured/not-a-list"),
+      new NextRequest("http://localhost/ics/featured/not-a-list.ics"),
       { params: Promise.resolve({ slug: "not-a-list" }) },
     );
     expect(result.status).toBe(404);
@@ -126,6 +128,24 @@ describe("featured collection calendar endpoint", () => {
     const body = await result.text();
     expect(body).toContain("BEGIN:VEVENT");
     expect(body).toContain("The best horror this month");
-    expect(result.headers.get("content-disposition")).toContain("scream-this-month.ics");
+    expect(result.headers.get("content-disposition")).toBeNull();
+  });
+
+  it("accepts the editorial slug with or without a .ics suffix", async () => {
+    loadFeaturedCollection.mockResolvedValue({
+      meta: { slug: "scream-this-month", title: "The best horror this month" },
+      events: [halloween],
+    });
+    const bare = await getFeatured(
+      new NextRequest("http://localhost/ics/featured/scream-this-month"),
+      { params: Promise.resolve({ slug: "scream-this-month" }) },
+    );
+    expect(bare.status).toBe(200);
+    const legacy = await getLegacyFeatured(
+      new NextRequest("http://localhost/api/ics/featured/scream-this-month"),
+      { params: Promise.resolve({ slug: "scream-this-month" }) },
+    );
+    expect(legacy.status).toBe(200);
+    expect(await legacy.text()).toContain("BEGIN:VEVENT");
   });
 });

@@ -11,6 +11,7 @@ const SEARCH_KEYS = ["q", "sort", "category", "page"] as const;
 function skipIntl(pathname: string): boolean {
   return (
     pathname.startsWith("/api/") ||
+    pathname.startsWith("/ics/") ||
     pathname.startsWith("/og/") ||
     pathname.startsWith("/auth/") ||
     pathname.startsWith("/embed/") ||

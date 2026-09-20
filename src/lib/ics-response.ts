@@ -22,13 +22,15 @@ export function icsFileResponse(
   content: string,
   filename: string,
   cacheControl: string,
-  disposition: "attachment" | "inline" = "attachment",
+  disposition: "attachment" | "inline" | false = "attachment",
 ): NextResponse {
-  return new NextResponse(content, {
-    headers: {
-      "Content-Type": "text/calendar; charset=utf-8",
-      "Content-Disposition": `${disposition}; filename="${filename}"`,
-      "Cache-Control": cacheControl,
-    },
+  const headers = new Headers({
+    "Content-Type": "text/calendar; charset=utf-8",
+    "Cache-Control": cacheControl,
+    "X-Robots-Tag": "noindex",
   });
+  if (disposition) {
+    headers.set("Content-Disposition", `${disposition}; filename="${filename}"`);
+  }
+  return new NextResponse(content, { headers });
 }
