@@ -429,14 +429,10 @@ export function calendarFileSlug(value: string): string {
  * only the scheme in the `cid` parameter changes.
  */
 export function googleCalendarSubscribeCid(icsUrl: string): string {
-  try {
-    const url = new URL(icsUrl);
-    if (url.protocol !== "http:" && url.protocol !== "https:") return "";
-    url.protocol = "webcal:";
-    return url.href;
-  } catch {
-    return "";
-  }
+  // The URL API will not switch a special scheme (https) to webcal, so this
+  // is a prefix replace, not `url.protocol = "webcal:"`.
+  if (!/^https?:\/\//i.test(icsUrl)) return "";
+  return icsUrl.replace(/^https?:\/\//i, "webcal://");
 }
 
 /**
