@@ -43,7 +43,9 @@ describe("public collections", () => {
 
   it("builds a public collection path from handle and slug", () => {
     expect(collectionHref("ada", "autumn-nights")).toBe("/ada/autumn-nights");
-    expect(collectionIcsPath("ada", "autumn-nights")).toBe("/api/ics/collection/ada/autumn-nights");
+    expect(collectionIcsPath("ada", "autumn-nights")).toBe(
+      "/ics/collection/ada/autumn-nights.ics",
+    );
   });
 
   it("serves collection photos from the R2 public host when configured", () => {
@@ -114,7 +116,7 @@ describe("featured collections", () => {
       "/collections/featured/get-drunk-this-week",
     );
     expect(featuredCollectionIcsPath("get-drunk-this-week")).toBe(
-      "/api/ics/featured/get-drunk-this-week",
+      "/ics/featured/get-drunk-this-week.ics",
     );
   });
 

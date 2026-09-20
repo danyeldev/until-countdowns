@@ -15,12 +15,15 @@ import { absoluteUrl } from "@/lib/seo";
  * self-identified crawlers.
  *
  * API endpoints are not discoverable pages. Public catalog and social images remain open.
+ * Collection calendar feeds live under `/ics/` (and `/api/ics/` for older links). Google
+ * Calendar honours robots.txt when it fetches a subscribe URL, so those prefixes must be
+ * allowed or the add-calendar screen shows "Unable to add calendar. Check the URL."
  */
 export default function robots(): MetadataRoute.Robots {
   return {
     rules: {
       userAgent: "*",
-      allow: ["/", "/og/"],
+      allow: ["/", "/og/", "/ics/", "/api/ics/"],
       disallow: ["/api/", ...crawlTrapDisallows()],
     },
     sitemap: [absoluteUrl("/sitemap-index.xml")],

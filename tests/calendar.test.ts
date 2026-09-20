@@ -2,6 +2,7 @@ import { describe, expect, it, vi } from "vitest";
 import {
   calendarDescription,
   calendarEvents,
+  calendarFileSlug,
   calendarLocation,
   googleCalendarFeedUrl,
   googleCalendarUrl,
@@ -452,12 +453,15 @@ describe("sanitizeCalendarEvent", () => {
 });
 
 describe("collection calendar subscribe links", () => {
-  const feed = "https://until.day/api/ics/collection/ada/autumn-nights";
+  const feed = "https://until.day/ics/collection/ada/autumn-nights.ics";
 
-  it("hands Google the hosted feed as cid on the mobile calendar screen", () => {
+  it("hands Google the feed as webcal cid on the mobile calendar screen", () => {
     const url = new URL(googleCalendarFeedUrl(feed));
     expect(url.pathname).toBe("/calendar/r");
-    expect(url.searchParams.get("cid")).toBe(feed);
+    // https in cid is rejected ("Unable to add calendar. Check the URL"); webcal is not.
+    expect(url.searchParams.get("cid")).toBe(
+      "webcal://until.day/ics/collection/ada/autumn-nights.ics",
+    );
   });
 
   it("hands Outlook the feed and the collection title", () => {
@@ -468,22 +472,27 @@ describe("collection calendar subscribe links", () => {
 
   it("refuses an empty or relative feed URL", () => {
     expect(googleCalendarFeedUrl("")).toBe("#");
-    expect(googleCalendarFeedUrl("/api/ics/collection/ada/autumn-nights")).toBe("#");
+    expect(googleCalendarFeedUrl("/ics/collection/ada/autumn-nights.ics")).toBe("#");
     expect(outlookCalendarFeedUrl("", "Autumn nights")).toBe("#");
   });
 
   it("keeps a subscribe URL on the host the reader is on", () => {
-    expect(hostedCalendarUrl("/api/ics/featured/scream-this-month")).toBe(
-      "https://until.day/api/ics/featured/scream-this-month",
+    expect(hostedCalendarUrl("/ics/featured/scream-this-month.ics")).toBe(
+      "https://until.day/ics/featured/scream-this-month.ics",
     );
+  });
+
+  it("strips a trailing .ics so the file URL and the slug share a parser", () => {
+    expect(calendarFileSlug("scream-this-month.ics")).toBe("scream-this-month");
+    expect(calendarFileSlug("scream-this-month")).toBe("scream-this-month");
   });
 
   it("does not rewrite a preview origin onto until.day", () => {
     vi.stubGlobal("window", {
       location: { origin: "https://until-git-preview.vercel.app" },
     });
-    expect(hostedCalendarUrl("/api/ics/featured/scream-this-month")).toBe(
-      "https://until-git-preview.vercel.app/api/ics/featured/scream-this-month",
+    expect(hostedCalendarUrl("/ics/featured/scream-this-month.ics")).toBe(
+      "https://until-git-preview.vercel.app/ics/featured/scream-this-month.ics",
     );
     vi.unstubAllGlobals();
   });

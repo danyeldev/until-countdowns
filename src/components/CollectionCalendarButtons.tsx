@@ -53,7 +53,7 @@ export function CollectionCalendarButtons({
   filename: string;
   align?: "start" | "end";
 }) {
-  function award(provider: "google" | "outlook" | "ics") {
+  function award(provider: "google" | "outlook" | "ics" | "copy") {
     capture(ANALYTICS_EVENTS.calendarAdded, {
       provider,
       scope: "collection",
@@ -64,6 +64,7 @@ export function CollectionCalendarButtons({
   const details = useRef<HTMLDetailsElement>(null);
   const menu = useRef<HTMLDivElement>(null);
   const [open, setOpen] = useState(false);
+  const [copied, setCopied] = useState(false);
 
   useEffect(() => {
     if (!open) return;
@@ -169,10 +170,29 @@ export function CollectionCalendarButtons({
         >
           Download .ics file
         </a>
+        <button
+          type="button"
+          onClick={async () => {
+            award("copy");
+            const url = hostedCalendarUrl(icsPath);
+            try {
+              if (!navigator.clipboard?.writeText) throw new Error("Clipboard unavailable");
+              await navigator.clipboard.writeText(url);
+              setCopied(true);
+              window.setTimeout(() => setCopied(false), 2000);
+            } catch {
+              setCopied(false);
+            }
+          }}
+          className="flex min-h-11 w-full items-center justify-between rounded-xl px-3 text-left text-sm text-paper hover:bg-amber/10 hover:text-amber"
+        >
+          {copied ? "Calendar URL copied" : "Copy calendar URL"}
+          <Icon name={copied ? "check" : "arrow"} size={15} />
+        </button>
         <p className="px-3 py-2 text-xs leading-relaxed text-muted">
-          Google and Outlook subscribe to this list. On a phone, download the
-          file to open it in the Google Calendar app if the link stays in the
-          browser.
+          Google and Outlook subscribe to this list. If Google asks you to
+          check the URL, copy the calendar URL and add it under Settings → Add
+          calendar → From URL.
         </p>
       </div>
     </details>

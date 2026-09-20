@@ -105,7 +105,8 @@ export function collectionHref(handle: string, slug: string): string {
 }
 
 export function collectionIcsPath(handle: string, slug: string): string {
-  return `/api/ics/collection/${handle}/${slug}`;
+  const name = slug.replace(/\.ics$/i, "");
+  return `/ics/collection/${handle}/${name}.ics`;
 }
 
 export function collectionCover(images: CollectionImage[]): CollectionImage | null {

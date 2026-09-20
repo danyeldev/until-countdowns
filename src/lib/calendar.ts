@@ -417,14 +417,33 @@ export function hostedCalendarUrl(path: string): string {
   return absoluteUrl(suffix);
 }
 
+/** Drop a trailing `.ics` so `/ics/featured/scream-this-month.ics` and the bare slug share a parser. */
+export function calendarFileSlug(value: string): string {
+  return value.replace(/\.ics$/i, "");
+}
+
+/**
+ * Google's one-click `cid` add rejects an `https://` ICS URL with "Unable to add
+ * calendar. Check the URL." The same feed works as `webcal://` or `http://`
+ * (https://stackoverflow.com/questions/79772521). The host still serves HTTPS;
+ * only the scheme in the `cid` parameter changes.
+ */
+export function googleCalendarSubscribeCid(icsUrl: string): string {
+  // The URL API will not switch a special scheme (https) to webcal, so this
+  // is a prefix replace, not `url.protocol = "webcal:"`.
+  if (!/^https?:\/\//i.test(icsUrl)) return "";
+  return icsUrl.replace(/^https?:\/\//i, "webcal://");
+}
+
 /**
  * Subscribe Google Calendar to a hosted ICS feed (every dated countdown in a collection).
  * The TEMPLATE composer only takes one event; `cid` on `/calendar/r` is the feed hook
  * the mobile web/app add-calendar screen reads.
  */
 export function googleCalendarFeedUrl(icsUrl: string): string {
-  if (!icsUrl || !/^https?:\/\//.test(icsUrl)) return "#";
-  return `https://calendar.google.com/calendar/r?${new URLSearchParams({ cid: icsUrl }).toString()}`;
+  const cid = googleCalendarSubscribeCid(icsUrl);
+  if (!cid) return "#";
+  return `https://calendar.google.com/calendar/r?${new URLSearchParams({ cid }).toString()}`;
 }
 
 /**

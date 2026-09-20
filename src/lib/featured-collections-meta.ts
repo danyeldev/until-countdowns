@@ -71,5 +71,6 @@ export function featuredCollectionHref(slug: FeaturedCollectionSlug | string): s
 }
 
 export function featuredCollectionIcsPath(slug: FeaturedCollectionSlug | string): string {
-  return `/api/ics/featured/${slug}`;
+  const name = String(slug).replace(/\.ics$/i, "");
+  return `/ics/featured/${name}.ics`;
 }

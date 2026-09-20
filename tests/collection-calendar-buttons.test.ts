@@ -6,7 +6,7 @@ import {
   keepMenuInViewport,
 } from "@/components/CollectionCalendarButtons";
 
-const ICS_PATH = "/api/ics/collection/ada/autumn-nights";
+const ICS_PATH = "/ics/collection/ada/autumn-nights.ics";
 
 describe("CollectionCalendarButtons", () => {
   it("hides the menu when nothing can go on a calendar", () => {
@@ -35,6 +35,7 @@ describe("CollectionCalendarButtons", () => {
     expect(html).toContain("Adds all 3 dated countdowns");
     expect(html).toContain(`href="${ICS_PATH}"`);
     expect(html).toContain("ada-autumn-nights.ics");
+    expect(html).toContain("Copy calendar URL");
     expect(html).toContain("left-0");
     expect(html).not.toContain("right-0");
   });
