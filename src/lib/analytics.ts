@@ -1,5 +1,7 @@
 import posthog from "posthog-js";
 
+export { ANALYTICS_EVENTS, distinctIdFromCookieHeader } from "./analytics-shared";
+
 function token(): string | undefined {
   return process.env.NEXT_PUBLIC_POSTHOG_PROJECT_TOKEN;
 }
@@ -27,6 +29,13 @@ export function initPosthog(): void {
 
 export function capture(event: string, properties?: Record<string, unknown>): void {
   ensureClient()?.capture(event, properties);
+}
+
+export function captureException(error: unknown, properties?: Record<string, unknown>): void {
+  const client = ensureClient();
+  if (!client) return;
+  const err = error instanceof Error ? error : new Error(String(error));
+  client.captureException(err, properties);
 }
 
 export function identifyUser(distinctId: string, properties?: Record<string, unknown>): void {
