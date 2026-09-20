@@ -296,8 +296,33 @@ function geoValue(event: CountdownEvent): string | null {
   return `${lat.toFixed(6)};${lng.toFixed(6)}`;
 }
 
-export function icsContent(event: CountdownEvent, pageUrl?: string): string {
-  if (!canAddToCalendar(event)) return "BEGIN:VCALENDAR\r\nEND:VCALENDAR";
+/** Dated, confirmed events only — the ones a calendar file is allowed to name. */
+export function calendarEvents(
+  events: readonly CountdownEvent[],
+): CountdownEvent[] {
+  return events.filter(canAddToCalendar);
+}
+
+/**
+ * Calendar clients choke on raw CR/LF inside a property. Normalise before ICS escaping.
+ * Titles collapse to one line; descriptions keep paragraph breaks, just not runs of them.
+ */
+export function sanitizeCalendarEvent(event: CountdownEvent): CountdownEvent {
+  return {
+    ...event,
+    title: event.title.replace(/[\r\n]+/g, " ").trim(),
+    description: event.description
+      .replace(/\r\n?/g, "\n")
+      .replace(/\n{3,}/g, "\n\n")
+      .trim(),
+    summary: event.summary
+      ?.replace(/\r\n?/g, "\n")
+      .replace(/\n{3,}/g, "\n\n")
+      .trim(),
+  };
+}
+
+function veventLines(event: CountdownEvent, pageUrl?: string): string[] {
   const uid = `${event.id}@until`;
   const stamp = new Date()
     .toISOString()
@@ -312,12 +337,7 @@ export function icsContent(event: CountdownEvent, pageUrl?: string): string {
     : icsDate(shiftDay(lastDayOf(event), 1), true);
   const where = calendarLocation(event);
   const geo = geoValue(event);
-  const lines = [
-    "BEGIN:VCALENDAR",
-    "VERSION:2.0",
-    "PRODID:-//Until//Countdowns//EN",
-    "CALSCALE:GREGORIAN",
-    "METHOD:PUBLISH",
+  return [
     "BEGIN:VEVENT",
     `UID:${uid}`,
     `DTSTAMP:${stamp}`,
@@ -334,12 +354,89 @@ export function icsContent(event: CountdownEvent, pageUrl?: string): string {
     // not be escaped the way the description's are.
     `URL:${pageUrlFor(event, pageUrl)}`,
     "END:VEVENT",
+  ].filter((l): l is string => l !== null);
+}
+
+function calendarEnvelope(vevents: string[][], name?: string): string {
+  const lines = [
+    "BEGIN:VCALENDAR",
+    "VERSION:2.0",
+    "PRODID:-//Until//Countdowns//EN",
+    "CALSCALE:GREGORIAN",
+    "METHOD:PUBLISH",
+    name ? `X-WR-CALNAME:${escapeIcs(name)}` : null,
+    name ? `NAME:${escapeIcs(name)}` : null,
+    ...vevents.flat(),
     "END:VCALENDAR",
   ];
   return lines
     .filter((l): l is string => l !== null)
     .map(foldIcsLine)
     .join("\r\n");
+}
+
+export function icsContent(event: CountdownEvent, pageUrl?: string): string {
+  if (!canAddToCalendar(event)) return "BEGIN:VCALENDAR\r\nEND:VCALENDAR";
+  return calendarEnvelope([veventLines(event, pageUrl)]);
+}
+
+/**
+ * One calendar file for every dated countdown. Approximate, cancelled, postponed and retired
+ * rows are dropped rather than turned into a fake day. A name becomes X-WR-CALNAME / NAME so a
+ * subscribed collection shows up as itself, not "Until Countdowns".
+ */
+export function icsFeedContent(
+  events: readonly CountdownEvent[],
+  options?: {
+    name?: string;
+    eventUrl?: (event: CountdownEvent) => string | undefined;
+  },
+): string {
+  const dated = calendarEvents(events);
+  if (!dated.length) return "BEGIN:VCALENDAR\r\nEND:VCALENDAR";
+  return calendarEnvelope(
+    dated.map((event) => veventLines(event, options?.eventUrl?.(event))),
+    options?.name,
+  );
+}
+
+/**
+ * The ICS feed on the host the reader is actually on.
+ *
+ * `absoluteUrl()` rewrites Vercel previews onto until.day so a calendar *entry* does not
+ * point at a URL that dies with the deployment. A *subscribe* link is fetched now by
+ * Google/Outlook — if we hand them until.day while the reader is on a preview, they 404
+ * and the phone shows "Unable to add calendar. Check the URL."
+ */
+export function hostedCalendarUrl(path: string): string {
+  if (!path) return "";
+  const suffix = path.startsWith("/") ? path : `/${path}`;
+  if (typeof window !== "undefined" && window.location?.origin) {
+    return `${window.location.origin}${suffix}`;
+  }
+  return absoluteUrl(suffix);
+}
+
+/**
+ * Subscribe Google Calendar to a hosted ICS feed (every dated countdown in a collection).
+ * The TEMPLATE composer only takes one event; `cid` on `/calendar/r` is the feed hook
+ * the mobile web/app add-calendar screen reads.
+ */
+export function googleCalendarFeedUrl(icsUrl: string): string {
+  if (!icsUrl || !/^https?:\/\//.test(icsUrl)) return "#";
+  return `https://calendar.google.com/calendar/r?${new URLSearchParams({ cid: icsUrl }).toString()}`;
+}
+
+/**
+ * Outlook's add-from-web composer. Same hosted feed Google reads; `name` is the calendar title
+ * Outlook shows in the sidebar.
+ */
+export function outlookCalendarFeedUrl(icsUrl: string, name: string): string {
+  if (!icsUrl) return "#";
+  return `https://outlook.live.com/calendar/0/addfromweb?${new URLSearchParams({
+    url: icsUrl,
+    name,
+  }).toString()}`;
 }
 
 /**

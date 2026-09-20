@@ -17,6 +17,7 @@ export {
   FEATURED_COLLECTION_SLUGS,
   FEATURED_COLLECTIONS,
   featuredCollectionHref,
+  featuredCollectionIcsPath,
   parseFeaturedCollectionSlug,
   type FeaturedCollection,
   type FeaturedCollectionSlug,

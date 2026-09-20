@@ -69,3 +69,7 @@ export function parseFeaturedCollectionSlug(value: unknown): FeaturedCollectionS
 export function featuredCollectionHref(slug: FeaturedCollectionSlug | string): string {
   return `/collections/featured/${slug}`;
 }
+
+export function featuredCollectionIcsPath(slug: FeaturedCollectionSlug | string): string {
+  return `/api/ics/featured/${slug}`;
+}

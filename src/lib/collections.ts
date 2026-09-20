@@ -104,6 +104,10 @@ export function collectionHref(handle: string, slug: string): string {
   return `${profileHref(handle)}/${slug}`;
 }
 
+export function collectionIcsPath(handle: string, slug: string): string {
+  return `/api/ics/collection/${handle}/${slug}`;
+}
+
 export function collectionCover(images: CollectionImage[]): CollectionImage | null {
   return images[0] ?? null;
 }
