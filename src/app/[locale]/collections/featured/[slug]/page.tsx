@@ -85,7 +85,7 @@ export default async function FeaturedCollectionPage({ params }: Props) {
         )}
       />
       <p className="eyebrow mt-6">Until&apos;s lists</p>
-      <div className="mt-4 flex flex-wrap items-end justify-between gap-4">
+      <div className="mt-4 flex flex-col items-start gap-4 sm:flex-row sm:items-end sm:justify-between">
         <h1 className="page-heading min-w-0">{collection.meta.title}</h1>
         <CollectionCalendarButtons
           title={collection.meta.title}

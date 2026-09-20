@@ -89,7 +89,7 @@ export default async function PublicCollectionPage({ params }: PageProps<"/[loca
         )}
       />
       <p className="eyebrow mt-6">Public collection</p>
-      <div className="mt-4 flex flex-wrap items-end justify-between gap-4">
+      <div className="mt-4 flex flex-col items-start gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div className="min-w-0">
           <h1 className="page-heading">{collection.title}</h1>
           <p className="mt-2 text-sm text-amber">
