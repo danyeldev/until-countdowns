@@ -3,15 +3,23 @@ import { Link } from "@/i18n/navigation";
 import { notFound, permanentRedirect } from "next/navigation";
 import Image from "next/image";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
+import { CollectionCalendarButtons } from "@/components/CollectionCalendarButtons";
 import { EventCard } from "@/components/EventCard";
 import { JsonLd } from "@/components/JsonLd";
 import { CollectionEditButton } from "@/components/CollectionManageLink";
 import { activateLocale } from "@/i18n/request-locale";
 import { parseProfileParam, profileHref } from "@/lib/auth/profile";
-import { parseCollectionSlug, collectionHref, collectionImageUrl, collectionItemHref } from "@/lib/collections";
+import { calendarEvents } from "@/lib/calendar";
+import {
+  parseCollectionSlug,
+  collectionHref,
+  collectionIcsPath,
+  collectionImageUrl,
+  collectionItemHref,
+} from "@/lib/collections";
 import { getPublicCollectionServer } from "@/lib/collections-server";
 import { collectionPage } from "@/lib/jsonld";
-import { collectionListDescription, localizedMetadata } from "@/lib/seo";
+import { absoluteUrl, collectionListDescription, localizedMetadata } from "@/lib/seo";
 
 export const revalidate = 60;
 
@@ -24,7 +32,7 @@ export async function generateMetadata({
   const slug = parseCollectionSlug(rawSlug);
   const collection = handle && slug ? await getPublicCollectionServer(handle, slug) : null;
   if (!collection) return { title: "Collection", robots: { index: false, follow: true } };
-  return localizedMetadata({
+  const metadata = await localizedMetadata({
     title: `${collection.title} · @${collection.owner.handle}`,
     description: collectionListDescription(
       collection.description || `${collection.title} — a public countdown collection by ${collection.owner.name}.`,
@@ -36,6 +44,18 @@ export async function generateMetadata({
     noindex: collection.items.length === 0,
     locale,
   });
+  const dated = calendarEvents(collection.items);
+  if (dated.length) {
+    metadata.alternates = {
+      ...metadata.alternates,
+      types: {
+        "text/calendar": absoluteUrl(
+          collectionIcsPath(collection.owner.handle, collection.slug),
+        ),
+      },
+    };
+  }
+  return metadata;
 }
 
 export default async function PublicCollectionPage({ params }: PageProps<"/[locale]/[handle]/[collection]">) {
@@ -78,7 +98,16 @@ export default async function PublicCollectionPage({ params }: PageProps<"/[loca
             </Link>
           </p>
         </div>
-        <CollectionEditButton ownerId={collection.owner.id} collectionId={collection.id} />
+        <div className="flex flex-wrap items-center gap-2">
+          <CollectionCalendarButtons
+            title={collection.title}
+            icsUrl={absoluteUrl(collectionIcsPath(collection.owner.handle, collection.slug))}
+            eventCount={calendarEvents(collection.items).length}
+            filename={`${collection.owner.handle}-${collection.slug}.ics`}
+            align="end"
+          />
+          <CollectionEditButton ownerId={collection.owner.id} collectionId={collection.id} />
+        </div>
       </div>
       {collection.description ? <p className="page-subtitle mt-6 max-w-2xl">{collection.description}</p> : null}
 

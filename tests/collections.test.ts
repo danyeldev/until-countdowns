@@ -3,6 +3,7 @@ import {
   collectionErrorMessage,
   collectionEventFromSnapshot,
   collectionHref,
+  collectionIcsPath,
   collectionImageUrl,
   nextCollectionSlug,
   parseCollectionDescription,
@@ -16,6 +17,7 @@ import {
 import {
   FEATURED_COLLECTION_SLUGS,
   featuredCollectionHref,
+  featuredCollectionIcsPath,
   parseFeaturedCollectionSlug,
 } from "@/lib/featured-collections";
 import { matchFeaturedCollections } from "@/lib/search-collections";
@@ -41,6 +43,7 @@ describe("public collections", () => {
 
   it("builds a public collection path from handle and slug", () => {
     expect(collectionHref("ada", "autumn-nights")).toBe("/ada/autumn-nights");
+    expect(collectionIcsPath("ada", "autumn-nights")).toBe("/api/ics/collection/ada/autumn-nights");
   });
 
   it("serves collection photos from the R2 public host when configured", () => {
@@ -109,6 +112,9 @@ describe("featured collections", () => {
     expect(parseFeaturedCollectionSlug("new")).toBeNull();
     expect(featuredCollectionHref("get-drunk-this-week")).toBe(
       "/collections/featured/get-drunk-this-week",
+    );
+    expect(featuredCollectionIcsPath("get-drunk-this-week")).toBe(
+      "/api/ics/featured/get-drunk-this-week",
     );
   });
 

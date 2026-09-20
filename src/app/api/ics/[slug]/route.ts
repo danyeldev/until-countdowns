@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
-import { canAddToCalendar, icsContent } from "@/lib/calendar";
+import { canAddToCalendar, icsContent, sanitizeCalendarEvent } from "@/lib/calendar";
 import { getEventStrict, resolveSlugAliasStrict } from "@/lib/catalog";
+import { icsFileResponse, icsNeedsDate, icsUnavailable } from "@/lib/ics-response";
 
 export async function GET(
   _req: NextRequest,
@@ -15,37 +16,14 @@ export async function GET(
       if (current) event = await getEventStrict(current);
     }
   } catch {
-    return new NextResponse(
-      "Calendar temporarily unavailable. Please try again.",
-      { status: 503, headers: { "Cache-Control": "no-store" } },
-    );
+    return icsUnavailable();
   }
   if (!event) return new NextResponse("Not found", { status: 404 });
-  if (!canAddToCalendar(event))
-    return new NextResponse(
-      "A confirmed date is required for calendar export.",
-      { status: 422, headers: { "Cache-Control": "no-store" } },
-    );
+  if (!canAddToCalendar(event)) return icsNeedsDate();
 
-  // Calendar clients choke on raw CR/LF inside a property; normalise before the ICS escaping.
-  const sanitized = {
-    ...event,
-    title: event.title.replace(/[\r\n]+/g, " ").trim(),
-    description: event.description
-      .replace(/\r\n?/g, "\n")
-      .replace(/\n{3,}/g, "\n\n")
-      .trim(),
-    summary: event.summary
-      ?.replace(/\r\n?/g, "\n")
-      .replace(/\n{3,}/g, "\n\n")
-      .trim(),
-  };
-
-  return new NextResponse(icsContent(sanitized), {
-    headers: {
-      "Content-Type": "text/calendar; charset=utf-8",
-      "Content-Disposition": `attachment; filename="${event.slug}.ics"`,
-      "Cache-Control": "public, s-maxage=3600, stale-while-revalidate=86400",
-    },
-  });
+  return icsFileResponse(
+    icsContent(sanitizeCalendarEvent(event)),
+    `${event.slug}.ics`,
+    "public, s-maxage=3600, stale-while-revalidate=86400",
+  );
 }

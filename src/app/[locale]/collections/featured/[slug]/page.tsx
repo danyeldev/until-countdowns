@@ -1,18 +1,21 @@
 import type { Metadata } from "next";
 import { notFound, permanentRedirect } from "next/navigation";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
+import { CollectionCalendarButtons } from "@/components/CollectionCalendarButtons";
 import { EventCard } from "@/components/EventCard";
 import { JsonLd } from "@/components/JsonLd";
+import { calendarEvents } from "@/lib/calendar";
 import {
   FEATURED_COLLECTION_SLUGS,
   featuredCollectionHref,
+  featuredCollectionIcsPath,
   loadFeaturedCollection,
   parseFeaturedCollectionSlug,
 } from "@/lib/featured-collections";
 import { collectionPage } from "@/lib/jsonld";
 import { englishParams } from "@/i18n/params";
 import { prerenderLimit } from "@/lib/prerender";
-import { collectionListDescription, localizedMetadata } from "@/lib/seo";
+import { absoluteUrl, collectionListDescription, localizedMetadata } from "@/lib/seo";
 import { activateLocale } from "@/i18n/request-locale";
 
 export const revalidate = 3600;
@@ -32,7 +35,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   activateLocale(locale);
   const collection = await loadFeaturedCollection(slug);
   if (!collection) return { title: "Collection", robots: { index: false, follow: true } };
-  return localizedMetadata({
+  const metadata = await localizedMetadata({
     title: `${collection.meta.title} · Collections`,
     description: collectionListDescription(collection.meta.description, collection.events.length),
     canonical: featuredCollectionHref(collection.meta.slug),
@@ -41,6 +44,16 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     noindex: collection.events.length === 0,
     locale,
   });
+  const dated = calendarEvents(collection.events);
+  if (dated.length) {
+    metadata.alternates = {
+      ...metadata.alternates,
+      types: {
+        "text/calendar": absoluteUrl(featuredCollectionIcsPath(collection.meta.slug)),
+      },
+    };
+  }
+  return metadata;
 }
 
 export default async function FeaturedCollectionPage({ params }: Props) {
@@ -72,7 +85,16 @@ export default async function FeaturedCollectionPage({ params }: Props) {
         )}
       />
       <p className="eyebrow mt-6">Until&apos;s lists</p>
-      <h1 className="page-heading mt-4">{collection.meta.title}</h1>
+      <div className="mt-4 flex flex-wrap items-end justify-between gap-4">
+        <h1 className="page-heading min-w-0">{collection.meta.title}</h1>
+        <CollectionCalendarButtons
+          title={collection.meta.title}
+          icsUrl={absoluteUrl(featuredCollectionIcsPath(collection.meta.slug))}
+          eventCount={calendarEvents(collection.events).length}
+          filename={`${collection.meta.slug}.ics`}
+          align="end"
+        />
+      </div>
       <p className="page-subtitle mt-6 max-w-2xl">{collection.meta.description}</p>
 
       <section className="mt-10">
