@@ -38,5 +38,6 @@ export async function GET(
     icsFeedContent(events, { name: collection.meta.title }),
     `${collection.meta.slug}.ics`,
     "public, s-maxage=900, stale-while-revalidate=86400",
+    "inline",
   );
 }

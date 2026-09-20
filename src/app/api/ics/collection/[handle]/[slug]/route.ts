@@ -45,5 +45,6 @@ export async function GET(
     }),
     `${handle}-${slug}.ics`,
     "public, s-maxage=60, stale-while-revalidate=86400",
+    "inline",
   );
 }

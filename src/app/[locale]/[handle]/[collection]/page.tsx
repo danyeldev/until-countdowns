@@ -101,7 +101,7 @@ export default async function PublicCollectionPage({ params }: PageProps<"/[loca
         <div className="flex flex-wrap items-center gap-2">
           <CollectionCalendarButtons
             title={collection.title}
-            icsUrl={absoluteUrl(collectionIcsPath(collection.owner.handle, collection.slug))}
+            icsPath={collectionIcsPath(collection.owner.handle, collection.slug)}
             eventCount={calendarEvents(collection.items).length}
             filename={`${collection.owner.handle}-${collection.slug}.ics`}
             align="end"

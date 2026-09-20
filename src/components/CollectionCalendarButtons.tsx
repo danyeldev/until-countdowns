@@ -3,6 +3,7 @@
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import {
   googleCalendarFeedUrl,
+  hostedCalendarUrl,
   outlookCalendarFeedUrl,
 } from "@/lib/calendar";
 import { ANALYTICS_EVENTS, capture } from "@/lib/analytics";
@@ -23,16 +24,23 @@ export function keepMenuInViewport(
   return dx;
 }
 
+function isCoarsePointer(): boolean {
+  return (
+    typeof window !== "undefined" &&
+    window.matchMedia("(pointer: coarse)").matches
+  );
+}
+
 /** Subscribe Google/Outlook to the hosted feed, or download a snapshot .ics. */
 export function CollectionCalendarButtons({
   title,
-  icsUrl,
+  icsPath,
   eventCount,
   filename,
   align = "start",
 }: {
   title: string;
-  icsUrl: string;
+  icsPath: string;
   eventCount: number;
   filename: string;
   align?: "start" | "end";
@@ -48,6 +56,11 @@ export function CollectionCalendarButtons({
   const details = useRef<HTMLDetailsElement>(null);
   const menu = useRef<HTMLDivElement>(null);
   const [open, setOpen] = useState(false);
+  const [icsUrl, setIcsUrl] = useState(icsPath);
+
+  useEffect(() => {
+    setIcsUrl(hostedCalendarUrl(icsPath));
+  }, [icsPath]);
 
   useEffect(() => {
     if (!open) return;
@@ -82,6 +95,11 @@ export function CollectionCalendarButtons({
   }, [open]);
 
   if (eventCount < 1) return null;
+
+  const feedUrl = icsUrl.startsWith("http") ? icsUrl : "";
+  const googleHref = googleCalendarFeedUrl(feedUrl);
+  const outlookHref = outlookCalendarFeedUrl(feedUrl, title);
+
   return (
     <details
       ref={details}
@@ -117,16 +135,29 @@ export function CollectionCalendarButtons({
             : `Adds all ${eventCount} dated countdowns`}
         </p>
         <a
-          href={googleCalendarFeedUrl(icsUrl)}
+          href={googleHref}
           target="_blank"
           rel="noreferrer"
-          onClick={() => award("google")}
+          onClick={(event) => {
+            award("google");
+            const href = googleCalendarFeedUrl(hostedCalendarUrl(icsPath));
+            if (!href || href === "#") {
+              event.preventDefault();
+              return;
+            }
+            // A new tab on a phone skips the Google Calendar app's universal link
+            // and opens the desktop add-calendar page, which then rejects the URL.
+            if (isCoarsePointer()) {
+              event.preventDefault();
+              window.location.assign(href);
+            }
+          }}
           className="flex min-h-11 items-center justify-between rounded-xl px-3 text-sm text-paper hover:bg-amber/10 hover:text-amber"
         >
           Google Calendar <Icon name="arrow" size={15} />
         </a>
         <a
-          href={outlookCalendarFeedUrl(icsUrl, title)}
+          href={outlookHref}
           target="_blank"
           rel="noreferrer"
           onClick={() => award("outlook")}
@@ -135,7 +166,7 @@ export function CollectionCalendarButtons({
           Outlook <Icon name="arrow" size={15} />
         </a>
         <a
-          href={icsUrl}
+          href={icsPath}
           download={filename}
           onClick={() => award("ics")}
           className="flex min-h-11 items-center rounded-xl px-3 text-sm text-paper hover:bg-amber/10 hover:text-amber"
@@ -143,8 +174,9 @@ export function CollectionCalendarButtons({
           Download .ics file
         </a>
         <p className="px-3 py-2 text-xs leading-relaxed text-muted">
-          Google and Outlook keep the list updated. Use the file with Apple
-          Calendar or another calendar app.
+          Google and Outlook subscribe to this list. On a phone, download the
+          file to open it in the Google Calendar app if the link stays in the
+          browser.
         </p>
       </div>
     </details>

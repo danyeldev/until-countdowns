@@ -22,11 +22,12 @@ export function icsFileResponse(
   content: string,
   filename: string,
   cacheControl: string,
+  disposition: "attachment" | "inline" = "attachment",
 ): NextResponse {
   return new NextResponse(content, {
     headers: {
       "Content-Type": "text/calendar; charset=utf-8",
-      "Content-Disposition": `attachment; filename="${filename}"`,
+      "Content-Disposition": `${disposition}; filename="${filename}"`,
       "Cache-Control": cacheControl,
     },
   });

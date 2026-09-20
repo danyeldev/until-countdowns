@@ -1,10 +1,11 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import {
   calendarDescription,
   calendarEvents,
   calendarLocation,
   googleCalendarFeedUrl,
   googleCalendarUrl,
+  hostedCalendarUrl,
   icsContent,
   icsFeedContent,
   outlookCalendarFeedUrl,
@@ -453,8 +454,10 @@ describe("sanitizeCalendarEvent", () => {
 describe("collection calendar subscribe links", () => {
   const feed = "https://until.day/api/ics/collection/ada/autumn-nights";
 
-  it("hands Google the hosted feed as cid", () => {
-    expect(new URL(googleCalendarFeedUrl(feed)).searchParams.get("cid")).toBe(feed);
+  it("hands Google the hosted feed as cid on the mobile calendar screen", () => {
+    const url = new URL(googleCalendarFeedUrl(feed));
+    expect(url.pathname).toBe("/calendar/r");
+    expect(url.searchParams.get("cid")).toBe(feed);
   });
 
   it("hands Outlook the feed and the collection title", () => {
@@ -463,8 +466,25 @@ describe("collection calendar subscribe links", () => {
     expect(url.searchParams.get("name")).toBe("Autumn nights");
   });
 
-  it("refuses an empty feed URL", () => {
+  it("refuses an empty or relative feed URL", () => {
     expect(googleCalendarFeedUrl("")).toBe("#");
+    expect(googleCalendarFeedUrl("/api/ics/collection/ada/autumn-nights")).toBe("#");
     expect(outlookCalendarFeedUrl("", "Autumn nights")).toBe("#");
+  });
+
+  it("keeps a subscribe URL on the host the reader is on", () => {
+    expect(hostedCalendarUrl("/api/ics/featured/scream-this-month")).toBe(
+      "https://until.day/api/ics/featured/scream-this-month",
+    );
+  });
+
+  it("does not rewrite a preview origin onto until.day", () => {
+    vi.stubGlobal("window", {
+      location: { origin: "https://until-git-preview.vercel.app" },
+    });
+    expect(hostedCalendarUrl("/api/ics/featured/scream-this-month")).toBe(
+      "https://until-git-preview.vercel.app/api/ics/featured/scream-this-month",
+    );
+    vi.unstubAllGlobals();
   });
 });

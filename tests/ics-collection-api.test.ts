@@ -85,6 +85,7 @@ describe("collection calendar endpoint", () => {
     const body = await result.text();
     expect(body.match(/BEGIN:VEVENT/g)).toHaveLength(2);
     expect(body).toContain("X-WR-CALNAME:Autumn nights");
+    expect(result.headers.get("content-disposition")).toContain("inline");
     expect(result.headers.get("content-disposition")).toContain("ada-autumn-nights.ics");
   });
 });

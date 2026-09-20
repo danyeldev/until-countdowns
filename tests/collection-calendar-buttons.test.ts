@@ -6,7 +6,7 @@ import {
   keepMenuInViewport,
 } from "@/components/CollectionCalendarButtons";
 
-const ICS = "https://until.day/api/ics/collection/ada/autumn-nights";
+const ICS_PATH = "/api/ics/collection/ada/autumn-nights";
 
 describe("CollectionCalendarButtons", () => {
   it("hides the menu when nothing can go on a calendar", () => {
@@ -14,7 +14,7 @@ describe("CollectionCalendarButtons", () => {
       renderToStaticMarkup(
         createElement(CollectionCalendarButtons, {
           title: "Autumn nights",
-          icsUrl: ICS,
+          icsPath: ICS_PATH,
           eventCount: 0,
           filename: "ada-autumn-nights.ics",
         }),
@@ -26,17 +26,14 @@ describe("CollectionCalendarButtons", () => {
     const html = renderToStaticMarkup(
       createElement(CollectionCalendarButtons, {
         title: "Autumn nights",
-        icsUrl: ICS,
+        icsPath: ICS_PATH,
         eventCount: 3,
         filename: "ada-autumn-nights.ics",
       }),
     );
     expect(html).toContain("Add all to calendar");
     expect(html).toContain("Adds all 3 dated countdowns");
-    expect(html).toContain(encodeURIComponent(ICS));
-    expect(html).toContain("calendar.google.com/calendar/render");
-    expect(html).toContain("outlook.live.com/calendar/0/addfromweb");
-    expect(html).toContain(`href="${ICS}"`);
+    expect(html).toContain(`href="${ICS_PATH}"`);
     expect(html).toContain("ada-autumn-nights.ics");
     expect(html).toContain("left-0");
     expect(html).not.toContain("right-0");
@@ -46,7 +43,7 @@ describe("CollectionCalendarButtons", () => {
     const html = renderToStaticMarkup(
       createElement(CollectionCalendarButtons, {
         title: "Autumn nights",
-        icsUrl: ICS,
+        icsPath: ICS_PATH,
         eventCount: 3,
         filename: "ada-autumn-nights.ics",
         align: "end",

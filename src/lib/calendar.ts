@@ -401,12 +401,30 @@ export function icsFeedContent(
 }
 
 /**
+ * The ICS feed on the host the reader is actually on.
+ *
+ * `absoluteUrl()` rewrites Vercel previews onto until.day so a calendar *entry* does not
+ * point at a URL that dies with the deployment. A *subscribe* link is fetched now by
+ * Google/Outlook — if we hand them until.day while the reader is on a preview, they 404
+ * and the phone shows "Unable to add calendar. Check the URL."
+ */
+export function hostedCalendarUrl(path: string): string {
+  if (!path) return "";
+  const suffix = path.startsWith("/") ? path : `/${path}`;
+  if (typeof window !== "undefined" && window.location?.origin) {
+    return `${window.location.origin}${suffix}`;
+  }
+  return absoluteUrl(suffix);
+}
+
+/**
  * Subscribe Google Calendar to a hosted ICS feed (every dated countdown in a collection).
- * The TEMPLATE composer only takes one event; `cid` is the feed hook.
+ * The TEMPLATE composer only takes one event; `cid` on `/calendar/r` is the feed hook
+ * the mobile web/app add-calendar screen reads.
  */
 export function googleCalendarFeedUrl(icsUrl: string): string {
-  if (!icsUrl) return "#";
-  return `https://calendar.google.com/calendar/render?${new URLSearchParams({ cid: icsUrl }).toString()}`;
+  if (!icsUrl || !/^https?:\/\//.test(icsUrl)) return "#";
+  return `https://calendar.google.com/calendar/r?${new URLSearchParams({ cid: icsUrl }).toString()}`;
 }
 
 /**

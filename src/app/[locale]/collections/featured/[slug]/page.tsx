@@ -89,7 +89,7 @@ export default async function FeaturedCollectionPage({ params }: Props) {
         <h1 className="page-heading min-w-0">{collection.meta.title}</h1>
         <CollectionCalendarButtons
           title={collection.meta.title}
-          icsUrl={absoluteUrl(featuredCollectionIcsPath(collection.meta.slug))}
+          icsPath={featuredCollectionIcsPath(collection.meta.slug)}
           eventCount={calendarEvents(collection.events).length}
           filename={`${collection.meta.slug}.ics`}
           align="end"
