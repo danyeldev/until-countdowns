@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
+import { revalidateTag } from "next/cache";
 import { createAuthServerClient, getAuthClaims } from "@/lib/auth/server";
 import { isAuthConfigured } from "@/lib/auth/env";
+import { cached } from "@/lib/cache";
+import { anonClient } from "@/lib/db/client";
 import {
   HYPE_VISITOR_COOKIE,
   isHypeKind,
@@ -13,6 +16,32 @@ const headers = {
   "Cache-Control": "private, no-store",
   "X-Robots-Tag": "noindex",
 };
+
+const publicHeaders = {
+  "Cache-Control": "public, max-age=0, s-maxage=60",
+  "X-Robots-Tag": "noindex",
+};
+
+function hypeTag(eventKey: string): string {
+  return `hype:${eventKey}`;
+}
+
+function readPoints(eventKey: string): Promise<number> {
+  // Only the public aggregate is cached. Never read auth cookies or action history here.
+  return cached(
+    async () => {
+      const { data, error } = await anonClient()
+        .from("event_hype")
+        .select("points")
+        .eq("event_key", eventKey)
+        .maybeSingle();
+      if (error) throw error;
+      return data?.points ?? 0;
+    },
+    ["hype", "points", eventKey],
+    { tags: [hypeTag(eventKey)], revalidate: 60 },
+  )();
+}
 
 const BOT_UA =
   /bot|crawl|spider|slurp|preview|facebookexternalhit|facebot|slackbot|twitterbot|linkedinbot|discordbot|whatsapp|telegram|embedly|quora|pinterest|reddit|ia_archiver/i;
@@ -46,9 +75,14 @@ export async function GET(request: NextRequest) {
   const eventKey = parseHypeEventKey(request.nextUrl.searchParams.get("eventKey"));
   if (!eventKey) return json({ error: "Unknown countdown." }, 400);
   if (!isAuthConfigured()) return json({ points: 0, added: 0, kind: null });
-  const supabase = await createAuthServerClient();
-  const { data } = await supabase.from("event_hype").select("points").eq("event_key", eventKey).maybeSingle();
-  return json({ points: data?.points ?? 0, added: 0, kind: null });
+  try {
+    return NextResponse.json(
+      { points: await readPoints(eventKey), added: 0, kind: null },
+      { headers: publicHeaders },
+    );
+  } catch {
+    return json({ error: "Could not load that." }, 503);
+  }
 }
 
 export async function POST(request: NextRequest) {
@@ -66,9 +100,11 @@ export async function POST(request: NextRequest) {
 
   const ua = request.headers.get("user-agent") || "";
   if (kind === "visit" && BOT_UA.test(ua)) {
-    const supabase = await createAuthServerClient();
-    const { data } = await supabase.from("event_hype").select("points").eq("event_key", eventKey).maybeSingle();
-    return json({ points: data?.points ?? 0, added: 0, kind });
+    try {
+      return json({ points: await readPoints(eventKey), added: 0, kind });
+    } catch {
+      return json({ error: "Could not load that." }, 503);
+    }
   }
 
   const claims = await getAuthClaims();
@@ -83,5 +119,8 @@ export async function POST(request: NextRequest) {
   });
   if (error) return json({ error: "Could not record that." }, 503);
   const snapshot = parseHypeSnapshot(data) ?? { points: 0, added: 0, kind };
+  // Do not invalidate catalog-wide caches on every visit. The writer gets the fresh
+  // RPC total immediately; other readers can use the short-lived public response.
+  if (snapshot.added > 0) revalidateTag(hypeTag(eventKey), { expire: 0 });
   return attachVisitor(json(snapshot), minted.setCookie);
 }

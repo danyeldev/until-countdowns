@@ -40,7 +40,6 @@ async function hubs(): Promise<MetadataRoute.Sitemap> {
     entry("/days-until"),
     entry("/category"),
     entry("/country"),
-    entry("/create"),
     entry("/about"),
     entry("/attributions"),
     entry("/collections"),

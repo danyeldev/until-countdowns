@@ -54,9 +54,11 @@ describe("finalize route", () => {
     expect(await (await GET(request())).json()).toMatchObject({ skipped: true, reason: "leased" });
     expect(fakes.rpc).toHaveBeenCalledOnce();
   });
-  it("invalidates catalog caches after a completed finalization", async () => {
-    expect((await GET(request())).status).toBe(200);
-    expect(fakes.invalidate).toHaveBeenCalledExactlyOnceWith(["catalog-lists", "stats"]);
+  it("refreshes aggregates without invalidating every detail and hub page", async () => {
+    const response = await GET(request());
+    expect(response.status).toBe(200);
+    expect(await response.json()).toMatchObject({ revalidated: ["stats"] });
+    expect(fakes.invalidate).toHaveBeenCalledExactlyOnceWith(["stats"]);
     expect(fakes.rpc).toHaveBeenLastCalledWith("release_source_lease", { p_source: "__finalize", p_token: "lease-1" });
   });
 });

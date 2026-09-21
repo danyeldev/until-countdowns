@@ -71,11 +71,12 @@ with `\m`, which is the entire difference between finding Grand Theft Auto and f
 
 `push` is idempotent: rows are keyed by a stable `source_key` and a content hash, so a second run reports `inserted=0, updated=0, unchanged=N`. Curated records win when sources disagree.
 
-The app caches its reads (Next.js Data Cache, tags `events` and `stats`, 1 h each), and the push script does not invalidate them. After a push — or whenever the site shows a stale or empty catalog — call the ops route with the cron bearer:
+The app caches detail reads for 1 h (`events`), hub lists for 15 min (`catalog-lists`), and aggregates for 1 h (`stats`). The push script requests a refresh when `REVALIDATE_URL` and `CRON_SECRET` are set. To explicitly refresh after a push or an urgent correction, call the ops route with the cron bearer:
 
 ```bash
 curl -X POST -H "Authorization: Bearer $CRON_SECRET" "$NEXT_PUBLIC_SITE_URL/api/revalidate"
-# optional: ?tags=events,stats (default both) or ?slug=<event-slug> for one page
+# optional: ?tags=events,stats or ?slug=<event-slug> for one event
+# default: events,catalog-lists,stats
 ```
 
 Locally, `unstable_cache` results also persist on disk between runs (`.next/cache/fetch-cache` for `next build`/`next start`, `.next/dev/cache/fetch-cache` for `next dev`); delete those directories when the dev server keeps showing an old catalog.
@@ -416,7 +417,7 @@ produces the widget. Event and series pages advertise it as
 
 ## Deploy
 
-Vercel (`framework: nextjs`, no custom build command). Set `NEXT_PUBLIC_SITE_URL`, `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` and `SUPABASE_SECRET_KEY` in the project environment (see `.env.example`). Apply the new migrations listed in [the rebuild guide](docs/rebuild.md) before deployment. Event pages are on-demand ISR (`revalidate = 3600`). Cached reads refresh after 1 h (`events` and `stats` tags) or sooner when `/api/revalidate` is called with the `CRON_SECRET` bearer (do this after every `npm run push`); the cron jobs (see Ingestion) invalidate the same tags after each run that changes rows. Set `CRON_SECRET` before relying on the route.
+Vercel (`framework: nextjs`, no custom build command). Set `NEXT_PUBLIC_SITE_URL`, `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` and `SUPABASE_SECRET_KEY` in the project environment (see `.env.example`). Apply the new migrations listed in [the rebuild guide](docs/rebuild.md) before deployment. Event pages use hourly ISR. Scheduled ingestion leaves caches on their refresh cadence (15 min for hub lists, 1 h for event details); finalization refreshes aggregate statistics and enrichment invalidates changed events only. Regeneration occurs on a subsequent request and can serve stale content while it completes. For urgent corrections, request an authenticated `/api/revalidate` refresh and verify the resulting page after regeneration. Set `CRON_SECRET` before relying on the route.
 
 ## Stack
 

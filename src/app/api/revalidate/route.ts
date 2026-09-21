@@ -9,7 +9,8 @@ import { assertCron } from "@/lib/cron";
  *
  *   curl -X POST -H "Authorization: Bearer $CRON_SECRET" "$NEXT_PUBLIC_SITE_URL/api/revalidate"
  *
- * Optional `?tags=events,stats` (default: both) or `?slug=<slug>` to refresh one event page.
+ * Optional `?tags=events,stats` or `?slug=<slug>` to refresh one event page.
+ * The default refreshes detail, list, and aggregate caches together.
  * Uses the `max` profile: stale pages keep being served while the next request refills them.
  */
 export const dynamic = "force-dynamic";
@@ -33,6 +34,7 @@ function handle(req: NextRequest): Response {
     tags.add(eventTag(slug));
   }
   if (tags.size === 0) {
+    tags.add(TAG_EVENTS);
     tags.add(TAG_CATALOG_LISTS);
     tags.add(TAG_STATS);
   }

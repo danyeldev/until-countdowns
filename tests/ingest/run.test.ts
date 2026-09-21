@@ -58,7 +58,8 @@ vi.mock("@/lib/ingest/db", async (importOriginal) => {
   const mod = await importOriginal<typeof import("@/lib/ingest/db")>();
   return { ...mod, RPC_TIMEOUT_MS: 100, getDb: async () => fakeDb(), getLongDb: async () => fakeDb() };
 });
-vi.mock("@/lib/ingest/revalidate", () => ({ revalidateCatalog: async () => undefined }));
+const invalidation = vi.hoisted(() => vi.fn());
+vi.mock("next/cache", () => ({ revalidateTag: invalidation }));
 
 let scripted: Adapter;
 vi.mock("@/lib/ingest/sources/index", () => ({
@@ -115,6 +116,7 @@ function rpcNames() {
 let logLines: string[] = [];
 
 beforeEach(() => {
+  invalidation.mockClear();
   calls.length = 0;
   statePatches = [];
   logLines = [];
@@ -203,6 +205,8 @@ describe("runSource", () => {
     const lines = ingestRunLines();
     expect(lines).toHaveLength(1);
     expect(lines[0]).toMatchObject({ source: "fake", status: "ok", units: 2, inserted: 2 });
+    // Publishing one source must not turn every cached event into an ISR miss.
+    expect(invalidation).not.toHaveBeenCalled();
   });
 
   it("partial (budget): a unit running past the deadline keeps the cursor at the previous unit and releases the lease", async () => {

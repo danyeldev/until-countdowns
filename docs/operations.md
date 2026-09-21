@@ -52,6 +52,8 @@ Use these authenticated routes for focused operations:
 
 `?budget=` and environment budgets are clamped below the function timeout. For scheduled ingestion, reserve at least 60 seconds for database work and cleanup; very small diagnostic budgets may correctly return `partial` before a write can start. The CLI uses the same runner: `npm run ingest -- --source=<source> --dry-run`. Supply `REVALIDATE_URL` and `CRON_SECRET` when a normal CLI run should invalidate the deployed site cache.
 
+Scheduled ingestion does not invalidate the entire catalog after each slice: hub lists refresh on a 15-minute cadence and event details, related events, and occurrence tables on an hourly cadence. Finalization invalidates only aggregate statistics; enrichment retains per-event invalidation. Refresh is request-driven and may serve stale content during regeneration. For an urgent correction, POST to `/api/revalidate?slug=<event-slug>` with the cron bearer, or omit `slug` for a deliberate full refresh, then verify the rendered page. Crawlers keep receiving the same server-rendered content and links throughout regeneration.
+
 ## Local verification
 
 Run `npm run test`, `npm run typecheck`, `npm run lint`, and `npm run build`. Regression tests cover lease checkpoint races, preserved failed units, database deferrals, planner stalls, dry-run queue safety, refunded claims, source fairness, authentication, and finalization cleanup. Tests replace database and provider calls with fakes; they do not trigger production ingestion. The rebuild uses the existing database schema and does not require an operations migration.
