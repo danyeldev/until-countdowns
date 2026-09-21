@@ -1,5 +1,5 @@
 import type { NextRequest } from "next/server";
-import { invalidateTags, TAG_CATALOG_LISTS, TAG_STATS } from "@/lib/cache";
+import { invalidateTags, TAG_STATS } from "@/lib/cache";
 import { assertCron, CRON_HEADERS } from "@/lib/cron";
 
 export const maxDuration = 180;
@@ -26,12 +26,14 @@ export async function GET(req: NextRequest) {
     const rpcDb = await getLongDb(FINALIZE_TIMEOUT_MS);
     const { error } = await rpcDb.rpc("finalize_catalog");
     if (error) throw new Error(error.message);
-    invalidateTags([TAG_CATALOG_LISTS, TAG_STATS]);
+    // Finalization recomputes aggregates. Detail and hub reads retain their own
+    // refresh cadence instead of expiring every catalog page simultaneously.
+    invalidateTags([TAG_STATS]);
     const { error: stateError } = await db.from("ingest_state").update({ last_success_at: new Date().toISOString() }).eq("source", "__finalize");
     if (stateError) throw new Error(`finalize state failed: ${stateError.message}`);
     const duration_ms = Date.now() - started;
     console.log(JSON.stringify({ evt: "finalize", status: "ok", duration_ms }));
-    return Response.json({ ok: true, duration_ms, revalidated: [TAG_CATALOG_LISTS, TAG_STATS] }, { headers: CRON_HEADERS });
+    return Response.json({ ok: true, duration_ms, revalidated: [TAG_STATS] }, { headers: CRON_HEADERS });
   } catch (err) {
     const error = err instanceof Error ? err.message : String(err);
     console.error(JSON.stringify({ evt: "finalize", status: "error", duration_ms: Date.now() - started, error }));

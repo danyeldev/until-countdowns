@@ -9,7 +9,7 @@ import { isAuthGatedPath } from "./auth/paths";
  * renderers do it too: when Google drew an event page in September 2026, its browser prefetched
  * `/calendar`, `/create` and `/login` — about one request a second, none of them a visitor.
  *
- * `prefetch={false}` still prefetches on hover, so a click stays fast.
+ * In the App Router, `prefetch={false}` disables both viewport and hover prefetching.
  */
 export function isPerRequestRoute(href: string): boolean {
   const path = pathnameWithoutLocale(href).split("?")[0] ?? href;

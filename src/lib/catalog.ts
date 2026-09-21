@@ -10,7 +10,7 @@
  */
 import type { PostgrestSingleResponse } from "@supabase/supabase-js";
 import { isCatalogEventId } from "./event-id";
-import { cached, eventTag, seriesTag, TAG_CATALOG_LISTS, TAG_HYPE, TAG_STATS } from "./cache";
+import { cached, eventTag, seriesTag, TAG_CATALOG_LISTS, TAG_EVENTS, TAG_HYPE, TAG_STATS } from "./cache";
 import { anonClient, supabaseEnv } from "./db/client";
 import type { Database } from "./db/database.types";
 import { jsonToEvent, rowToEvent, toCategory, toStatus, type EventRow } from "./db/mappers";
@@ -463,12 +463,12 @@ async function fetchEvent(slug: string): Promise<CountdownEvent | null> {
 
 function cachedEvent(slug: string) {
   return cached(() => fetchEvent(slug), ["catalog", "event", slug], {
-    tags: [eventTag(slug), TAG_CATALOG_LISTS],
+    tags: [eventTag(slug), TAG_EVENTS],
     revalidate: REVALIDATE_EVENTS,
   });
 }
 
-/** One event by its current slug. Cached per slug with `event:<slug>` and list tags. */
+/** One event by its current slug. Hub refreshes must not invalidate every detail page. */
 export async function getEvent(
   slug: string,
 ): Promise<CountdownEvent | undefined> {
@@ -558,7 +558,7 @@ function summaryCitationCached(slug: string) {
       return { enwiki: bag.enwiki };
     },
     ["catalog", "summary-citation", slug],
-    { tags: [eventTag(slug)], revalidate: REVALIDATE_EVENTS },
+    { tags: [eventTag(slug), TAG_EVENTS], revalidate: REVALIDATE_EVENTS },
   );
 }
 
@@ -596,7 +596,7 @@ const resolveSlugAliasCached = cached(
     return row?.slug ?? null;
   },
   ["catalog", "slug-alias"],
-  { tags: [TAG_CATALOG_LISTS], revalidate: REVALIDATE_EVENTS },
+  { tags: [TAG_EVENTS], revalidate: REVALIDATE_EVENTS },
 );
 
 /** Old slug (after a date slip or rename) -> current slug, or null. */
@@ -747,7 +747,8 @@ const relatedEventsCached = cached(
       ) ?? []
     ).map(rowToEvent),
   ["catalog", "related-events"],
-  { tags: [TAG_CATALOG_LISTS], revalidate: REVALIDATE_LISTS },
+  // A shorter TTL or hub tag here also shortens/invalidates the whole event page.
+  { tags: [TAG_EVENTS], revalidate: REVALIDATE_EVENTS },
 );
 
 export async function relatedEvents(
@@ -1184,7 +1185,7 @@ async function fetchSeries(slug: string): Promise<Series | null> {
 
 function cachedSeries(slug: string) {
   return cached(() => fetchSeries(slug), ["catalog", "series", slug], {
-    tags: [seriesTag(slug), TAG_CATALOG_LISTS],
+    tags: [seriesTag(slug), TAG_EVENTS],
     revalidate: REVALIDATE_EVENTS,
   });
 }
@@ -1221,7 +1222,7 @@ const resolveSeriesAliasCached = cached(
     return row?.series_slug ?? null;
   },
   ["catalog", "series-alias"],
-  { tags: [TAG_CATALOG_LISTS], revalidate: REVALIDATE_EVENTS },
+  { tags: [TAG_EVENTS], revalidate: REVALIDATE_EVENTS },
 );
 
 /** Series alias (`series_aliases.alias`) -> canonical series slug, or null. */
@@ -1255,29 +1256,31 @@ export type SeriesOccurrences = {
   variants: CountdownEvent[];
 };
 
-const seriesOccurrencesCached = cached(
-  async (slug: string, limit: number): Promise<SeriesOccurrences> => {
-    const [seriesRow, rows] = await Promise.all([
-      anonClient()
-        .from("series")
-        .select("recurrence")
-        .eq("slug", slug)
-        .maybeSingle(),
-      fetchLinkedOccurrences(
-        slug,
-        Math.min(PAGE_ROWS, limit * OCCURRENCE_OVERFETCH),
-      ),
-    ]);
-    const rule = parseRecurrence(unwrap(seriesRow)?.recurrence);
-    const { canonical, variants } = splitOccurrences(rule, rows);
-    return {
-      canonical: canonical.slice(0, limit),
-      variants: variants.slice(0, limit),
-    };
-  },
-  ["catalog", "series-occurrences"],
-  { tags: [TAG_CATALOG_LISTS], revalidate: REVALIDATE_LISTS },
-);
+function seriesOccurrencesCached(slug: string, limit: number) {
+  return cached(
+    async (): Promise<SeriesOccurrences> => {
+      const [seriesRow, rows] = await Promise.all([
+        anonClient()
+          .from("series")
+          .select("recurrence")
+          .eq("slug", slug)
+          .maybeSingle(),
+        fetchLinkedOccurrences(
+          slug,
+          Math.min(PAGE_ROWS, limit * OCCURRENCE_OVERFETCH),
+        ),
+      ]);
+      const rule = parseRecurrence(unwrap(seriesRow)?.recurrence);
+      const { canonical, variants } = splitOccurrences(rule, rows);
+      return {
+        canonical: canonical.slice(0, limit),
+        variants: variants.slice(0, limit),
+      };
+    },
+    ["catalog", "series-occurrences", slug, String(limit)],
+    { tags: [seriesTag(slug), TAG_EVENTS], revalidate: REVALIDATE_EVENTS },
+  )();
+}
 
 /**
  * Future occurrences of a series, soonest first, split into the canonical dates and the regional

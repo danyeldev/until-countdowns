@@ -91,6 +91,9 @@ export async function proxy(request: NextRequest) {
 
 export const config = {
   matcher: [
-    "/((?!_next/static|_next/image|favicon.ico|robots.txt|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico)$).*)",
+    // Route handlers perform their own authorization and can refresh their own cookies.
+    // Public feeds, metadata and images need neither locale routing nor session refresh.
+    // Exclude them here: returning early inside proxy still costs a middleware invocation.
+    "/((?!api(?:/|$)|og(?:/|$)|ics(?:/|$)|embed(?:/|$)|sitemap(?:/|\\.xml$|-index\\.xml$)|manifest\\.webmanifest$|_next/static|_next/image|favicon\\.ico$|robots\\.txt$|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|woff|woff2)$).*)",
   ],
 };

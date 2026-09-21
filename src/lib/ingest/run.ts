@@ -1,6 +1,5 @@
 import { createHttp, isBudgetExceeded, sleep } from "./http";
 import { errorMessage, getDb, getLongDb, RPC_TIMEOUT_MS, type Db } from "./db";
-import { revalidateCatalog } from "./revalidate";
 import { loadAdapter } from "./sources/index";
 import { prepareRows, upsertEvents } from "./upsert";
 import type { Adapter, IngestContext, IngestEvent, IngestLogger, Json, RunSummary, Unit } from "./types";
@@ -171,7 +170,6 @@ export async function runSource(id: string, opts: RunOptions = {}): Promise<RunS
   let passComplete = false;
   let budgetOut = false;
   let lostUnits = false;
-  let staleChanged = 0;
 
   try {
     if (!dryRun) {
@@ -340,7 +338,6 @@ export async function runSource(id: string, opts: RunOptions = {}): Promise<RunS
           if (error) throw new Error(`mark_stale_records failed: ${error.message}`);
           else stale = Number(data ?? 0);
         }
-        staleChanged = stale;
         if (stale) log.info(`${stale} row(s) not seen this pass (tentative)`);
         await writeState(db, id, { cursor: null, pass_started_at: null, last_success_at: nowIso, consecutive_failures: 0, backoff_until: null });
       } else if (summary.status === "partial") {
@@ -386,7 +383,9 @@ export async function runSource(id: string, opts: RunOptions = {}): Promise<RunS
         .eq("id", summary.runId);
       if (error) log.error(`ingest_runs update failed: ${error.message}`);
     }
-    if (summary.inserted + summary.updated + summary.drifted + staleChanged > 0) await revalidateCatalog(log);
+    // Public reads refresh on their existing TTLs. A global invalidation here made
+    // every changed 15-minute ingest slice regenerate the entire crawled catalog.
+    // Urgent corrections can use /api/revalidate; enrichment uses per-event tags.
   }
   summary.duration_ms = Date.now() - started;
   return emit(summary);

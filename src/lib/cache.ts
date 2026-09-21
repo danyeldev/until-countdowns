@@ -2,13 +2,13 @@ import { revalidateTag, unstable_cache } from "next/cache";
 
 /**
  * Single seam over Next's data cache so a later `'use cache'` migration is mechanical.
- * Cached reads carry `TAG_EVENTS` (or `TAG_STATS`); the cron jobs and the ops-only
- * `/api/revalidate` route call `invalidateTags()` after a catalog write — nothing in the
- * read path revalidates.
+ * Detail reads carry `TAG_EVENTS`, hub reads `TAG_CATALOG_LISTS`, and aggregates
+ * `TAG_STATS`. Scheduled ingestion relies on their TTLs; enrichment invalidates
+ * individual events and the ops-only `/api/revalidate` route can refresh the catalog.
  */
 export const TAG_EVENTS = "events";
 export const TAG_STATS = "stats";
-/** Hub lists (home, category, country, series rails). Time-based revalidate; ingest invalidates this at most every 15 min. */
+/** Hub lists (home, category, country, series rails). Refreshed by TTL or an explicit ops request. */
 export const TAG_CATALOG_LISTS = "catalog-lists";
 /** Live attention totals. Short TTL; not wiped by enrich. */
 export const TAG_HYPE = "hype";
